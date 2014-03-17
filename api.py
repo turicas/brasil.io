@@ -43,7 +43,7 @@ def response_json(data, **kwargs):
 def index():
     return response_json({'unidades_federativas': unidades_federativas, })
 
-@app.route('/<sigla>')
+@app.route('/<sigla>/')
 def uf_index(sigla):
     sigla = sigla.lower()
     if sigla not in ufs:

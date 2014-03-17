@@ -15,7 +15,7 @@ class TestBrasilIOAPI(unittest.TestCase):
         self.app = api.app.test_client()
 
     def json_get(self, url):
-        response = self.app.get(url)
+        response = self.app.get(url, follow_redirects=True)
         return AttrDict(json_loads(response.data))
 
     @unittest.skip('TODO: implementar')
@@ -39,10 +39,15 @@ class TestBrasilIOAPI(unittest.TestCase):
         for uf in unidades_federativas:
             self.assertEquals(set(uf.keys()), chaves_necessarias)
 
+        nao_existe = self.app.get('/na', follow_redirects=True)
+        self.assertEqual(nao_existe.status_code, 404)
+
         rj = [uf for uf in unidades_federativas if uf['sigla'] == 'rj'][0]
         rj = self.json_get(rj['url'])
         chaves_necessarias.add('municipios')
         self.assertEqual(set(rj.keys()), chaves_necessarias)
+
+        self.assertEqual(self.json_get('/rj/'), self.json_get('/rj'))
 
     def test_municipios(self):
         rj = self.json_get('/rj')
