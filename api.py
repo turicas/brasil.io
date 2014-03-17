@@ -4,21 +4,22 @@
 import argparse
 import urllib2
 
+from copy import deepcopy
 from json import dumps as json_dumps
 
 from flask import Flask, Response
 
-from dados_brasil import unidades_federativas, municipios
+from dados_brasil import unidades_federativas as lista_ufs, municipios
 
 
+BASE_URL = 'http://127.0.0.1:8000/'
 url_join = urllib2.urlparse.urljoin
 app = Flask(__name__)
-BASE_URL = 'http://127.0.0.1:8000/'
 
-# Coloca em memória objetos relativos a UFs
-for uf in unidades_federativas:
+# Coloca em memória objetos relativos à listagem de UFs
+for uf in lista_ufs:
     uf['url'] = url_join(BASE_URL, uf['sigla'])
-ufs = [uf['sigla'] for uf in unidades_federativas]
+ufs = [uf['sigla'] for uf in lista_ufs]
 
 # Coloca em memória objetos relativos a municípios
 for sigla in municipios:
@@ -27,10 +28,21 @@ for sigla in municipios:
     municipios[sigla]['sigla'] = sigla
 
     municipios_uf = municipios[sigla]['municipios']
+    novo = {}
     for municipio in municipios_uf:
+        slug = municipio['slug']
         municipio['url'] = url_join(BASE_URL, '{}/{}'
-                .format(sigla, municipio['slug']))
+                .format(sigla, slug))
+        novo[slug] = municipio
         del municipio['slug']
+    municipios[sigla]['municipios'] = novo
+
+# Coloca em memória objetos relativos à listagem de municípios (por UF)
+sort_por_nome = lambda a, b: cmp(a['nome'], b['nome'])
+municipios_uf = deepcopy(municipios)
+for uf in municipios_uf.values():
+    uf['municipios'] = sorted(uf['municipios'].values(), cmp=sort_por_nome)
+
 
 def response_json(data, **kwargs):
     response = {'response': json_dumps(data),
@@ -39,17 +51,32 @@ def response_json(data, **kwargs):
     response.update(kwargs)
     return Response(**response)
 
+def http404(mensagem):
+    return Response(response=json_dumps({'erro': mensagem}),
+                    status=404,
+                    content_type='application/json')
+
 @app.route('/')
 def index():
-    return response_json({'unidades_federativas': unidades_federativas, })
+    return response_json({'unidades_federativas': lista_ufs, })
 
 @app.route('/<sigla>/')
 def uf_index(sigla):
     sigla = sigla.lower()
     if sigla not in ufs:
-        return Response(status=404) # TODO: retornar algum conteúdo
+        return http404(u'Unidade Federativa não encontrada.')
+    else:
+        return response_json(municipios_uf[sigla])
 
-    return response_json(municipios[sigla])
+@app.route('/<sigla>/<municipio>/')
+def municipio_index(sigla, municipio):
+    sigla, municipio = sigla.lower(), municipio.lower()
+    if sigla not in ufs:
+        return http404(u'Unidade Federativa não encontrada.')
+    elif municipio not in municipios[sigla]['municipios']:
+        return http404(u'Município não encontrado.')
+    else:
+        return response_json(municipios[sigla]['municipios'][municipio])
 
 
 if __name__ == '__main__':
