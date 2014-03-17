@@ -24,6 +24,12 @@ class TestBrasilIOAPI(unittest.TestCase):
         self.assertIn('meta', response)
         meta = response.data['meta']
 
+    @unittest.skip('TODO: implementar')
+    def test_regioes(self):
+        response = self.json_get('/')
+        self.assertIn('regioes', response)
+        regioes = response.regioes
+
     def test_unidades_federativas(self):
         response = self.json_get('/')
         self.assertIn('unidades_federativas', response)
@@ -33,8 +39,15 @@ class TestBrasilIOAPI(unittest.TestCase):
         for uf in unidades_federativas:
             self.assertEquals(set(uf.keys()), chaves_necessarias)
 
-    @unittest.skip('TODO: implementar')
-    def test_regioes(self):
-        response = self.json_get('/')
-        self.assertIn('regioes', response)
-        regioes = response.regioes
+        rj = [uf for uf in unidades_federativas if uf['sigla'] == 'rj'][0]
+        rj = self.json_get(rj['url'])
+        chaves_necessarias.add('municipios')
+        self.assertEqual(set(rj.keys()), chaves_necessarias)
+
+    def test_municipios(self):
+        rj = self.json_get('/rj')
+        self.assertEqual(len(rj.municipios), 92)
+
+        chaves_necessarias = {'codigo-ibge', 'url', 'nome'}
+        for municipio in rj.municipios:
+            self.assertEqual(set(municipio.keys()), chaves_necessarias)
