@@ -13,26 +13,27 @@ from dados_brasil import unidades_federativas as lista_ufs, municipios
 
 
 BASE_URL = 'http://127.0.0.1:8000/'
+UF_URL = BASE_URL + '{}/'
+MUNICIPIO_URL = BASE_URL + '{}/{}/'
 url_join = urllib2.urlparse.urljoin
 app = Flask(__name__)
 
 # Coloca em memória objetos relativos à listagem de UFs
 for uf in lista_ufs:
-    uf['url'] = url_join(BASE_URL, uf['sigla'])
+    uf['url'] = UF_URL.format(uf['sigla'])
 ufs = [uf['sigla'] for uf in lista_ufs]
 
 # Coloca em memória objetos relativos a municípios
 for sigla in municipios:
     # TODO: usar flask.url_for
-    municipios[sigla]['url'] = url_join(BASE_URL, sigla)
+    municipios[sigla]['url'] = UF_URL.format(sigla)
     municipios[sigla]['sigla'] = sigla
 
     municipios_uf = municipios[sigla]['municipios']
     novo = {}
     for municipio in municipios_uf:
         slug = municipio['slug']
-        municipio['url'] = url_join(BASE_URL, '{}/{}'
-                .format(sigla, slug))
+        municipio['url'] = MUNICIPIO_URL.format(sigla, slug)
         novo[slug] = municipio
         del municipio['slug']
     municipios[sigla]['municipios'] = novo
