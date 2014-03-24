@@ -48,12 +48,16 @@ for uf in municipios_uf.values():
 def response_json(data, **kwargs):
     response = {'response': json_dumps(data),
                 'status': 200,
-                'content_type': 'application/json'}
+                'content_type': 'application/json',
+                'headers': {}}
     response.update(kwargs)
+
     jsonp_callback = request.args.get('callback', None)
     if jsonp_callback is not None:
         response['response'] = u'{}({});'.format(jsonp_callback,
                 response['response'])
+        response['content_type'] = 'application/javascript'
+
     return Response(**response)
 
 def http404(mensagem):

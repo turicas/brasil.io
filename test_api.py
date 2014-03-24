@@ -14,10 +14,6 @@ class TestBrasilIOAPI(unittest.TestCase):
         api.app.config['TESTING'] = True
         self.app = api.app.test_client()
 
-    def get(self, url, status_code=False, follow_redirects=True):
-        response = self.app.get(url, follow_redirects=follow_redirects)
-        return response.data
-
     def json_get(self, url, status_code=False, follow_redirects=True):
         response = self.app.get(url, follow_redirects=follow_redirects)
         content_type = response.headers['Content-Type'].split(';')[0].strip()
@@ -111,14 +107,24 @@ class TestBrasilIOAPI(unittest.TestCase):
         self.assertEqual(set(tres_rios.keys()), chaves_necessarias)
 
     def test_all_resources_should_support_jsonp_callbacks(self):
-        result = self.get('/')
-        result_jsonp = self.get('/?callback=myCallback')
-        self.assertEqual('myCallback({});'.format(result), result_jsonp)
+        content_type = 'Content-Type'
+        json_type = 'application/json'
+        jsonp_type = 'application/javascript'
 
-        result = self.get('/rj/')
-        result_jsonp = self.get('/rj/?callback=myCallback')
-        self.assertEqual('myCallback({});'.format(result), result_jsonp)
+        normal = self.app.get('/')
+        jsonp = self.app.get('/?callback=myCallback')
+        self.assertEqual('myCallback({});'.format(normal.data), jsonp.data)
+        self.assertEqual(normal.headers[content_type], json_type)
+        self.assertEqual(jsonp.headers[content_type], jsonp_type)
 
-        result = self.get('/rj/tres-rios/')
-        result_jsonp = self.get('/rj/tres-rios/?callback=myCallback')
-        self.assertEqual('myCallback({});'.format(result), result_jsonp)
+        normal = self.app.get('/rj/')
+        jsonp = self.app.get('/rj/?callback=myCallback')
+        self.assertEqual('myCallback({});'.format(normal.data), jsonp.data)
+        self.assertEqual(normal.headers[content_type], json_type)
+        self.assertEqual(jsonp.headers[content_type], jsonp_type)
+
+        normal = self.app.get('/rj/tres-rios/')
+        jsonp = self.app.get('/rj/tres-rios/?callback=myCallback')
+        self.assertEqual('myCallback({});'.format(normal.data), jsonp.data)
+        self.assertEqual(normal.headers[content_type], json_type)
+        self.assertEqual(jsonp.headers[content_type], jsonp_type)
