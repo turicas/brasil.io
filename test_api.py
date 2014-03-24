@@ -14,6 +14,10 @@ class TestBrasilIOAPI(unittest.TestCase):
         api.app.config['TESTING'] = True
         self.app = api.app.test_client()
 
+    def get(self, url, status_code=False, follow_redirects=True):
+        response = self.app.get(url, follow_redirects=follow_redirects)
+        return response.data
+
     def json_get(self, url, status_code=False, follow_redirects=True):
         response = self.app.get(url, follow_redirects=follow_redirects)
         content_type = response.headers['Content-Type'].split(';')[0].strip()
@@ -105,3 +109,16 @@ class TestBrasilIOAPI(unittest.TestCase):
         tres_rios = self.json_get('/rj/tres-rios/')
         chaves_necessarias = {'codigo-ibge', 'url', 'nome'} # TODO: ?
         self.assertEqual(set(tres_rios.keys()), chaves_necessarias)
+
+    def test_all_resources_should_support_jsonp_callbacks(self):
+        result = self.get('/')
+        result_jsonp = self.get('/?callback=myCallback')
+        self.assertEqual('myCallback({});'.format(result), result_jsonp)
+
+        result = self.get('/rj/')
+        result_jsonp = self.get('/rj/?callback=myCallback')
+        self.assertEqual('myCallback({});'.format(result), result_jsonp)
+
+        result = self.get('/rj/tres-rios/')
+        result_jsonp = self.get('/rj/tres-rios/?callback=myCallback')
+        self.assertEqual('myCallback({});'.format(result), result_jsonp)

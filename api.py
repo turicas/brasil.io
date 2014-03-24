@@ -7,7 +7,7 @@ import urllib2
 from copy import deepcopy
 from json import dumps as json_dumps
 
-from flask import Flask, Response
+from flask import Flask, Response, request
 
 from config import BASE_URL
 from dados_brasil import unidades_federativas as lista_ufs, municipios
@@ -50,6 +50,10 @@ def response_json(data, **kwargs):
                 'status': 200,
                 'content_type': 'application/json'}
     response.update(kwargs)
+    jsonp_callback = request.args.get('callback', None)
+    if jsonp_callback is not None:
+        response['response'] = u'{}({});'.format(jsonp_callback,
+                response['response'])
     return Response(**response)
 
 def http404(mensagem):
