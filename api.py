@@ -9,10 +9,10 @@ from json import dumps as json_dumps
 
 from flask import Flask, Response
 
+from config import BASE_URL
 from dados_brasil import unidades_federativas as lista_ufs, municipios
 
 
-BASE_URL = 'http://127.0.0.1:8000/'
 UF_URL = BASE_URL + '{}/'
 MUNICIPIO_URL = BASE_URL + '{}/{}/'
 url_join = urllib2.urlparse.urljoin
