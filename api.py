@@ -58,6 +58,9 @@ def response_json(data, **kwargs):
                 response['response'])
         response['content_type'] = 'application/javascript'
 
+    if 'origin' in request.headers:
+        response['headers']['Access-Control-Allow-Origin'] = '*'
+
     return Response(**response)
 
 def http404(mensagem):

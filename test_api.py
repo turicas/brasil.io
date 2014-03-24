@@ -106,25 +106,30 @@ class TestBrasilIOAPI(unittest.TestCase):
         chaves_necessarias = {'codigo-ibge', 'url', 'nome'} # TODO: ?
         self.assertEqual(set(tres_rios.keys()), chaves_necessarias)
 
-    def test_all_resources_should_support_jsonp_callbacks(self):
+    def test_deve_aceitar_requisicoes_jsonp(self):
         content_type = 'Content-Type'
         json_type = 'application/json'
         jsonp_type = 'application/javascript'
+        urls = ['/', '/rj/', '/rj/tres-rios/']
 
-        normal = self.app.get('/')
-        jsonp = self.app.get('/?callback=myCallback')
-        self.assertEqual('myCallback({});'.format(normal.data), jsonp.data)
-        self.assertEqual(normal.headers[content_type], json_type)
-        self.assertEqual(jsonp.headers[content_type], jsonp_type)
+        for url in urls:
+            normal = self.app.get(url)
+            jsonp = self.app.get(url + '?callback=myCallback')
+            self.assertEqual('myCallback({});'.format(normal.data), jsonp.data)
+            self.assertEqual(normal.headers[content_type], json_type)
+            self.assertEqual(jsonp.headers[content_type], jsonp_type)
 
-        normal = self.app.get('/rj/')
-        jsonp = self.app.get('/rj/?callback=myCallback')
-        self.assertEqual('myCallback({});'.format(normal.data), jsonp.data)
-        self.assertEqual(normal.headers[content_type], json_type)
-        self.assertEqual(jsonp.headers[content_type], jsonp_type)
+    def test_deve_aceitar_requisicoes_cors_simples(self):
+        content_type = 'Content-Type'
+        expected_type = 'application/json'
+        urls = ['/', '/rj/', '/rj/tres-rios/']
 
-        normal = self.app.get('/rj/tres-rios/')
-        jsonp = self.app.get('/rj/tres-rios/?callback=myCallback')
-        self.assertEqual('myCallback({});'.format(normal.data), jsonp.data)
-        self.assertEqual(normal.headers[content_type], json_type)
-        self.assertEqual(jsonp.headers[content_type], jsonp_type)
+        for url in urls:
+            normal = self.app.get(url)
+            self.assertNotIn('Access-Control-Allow-Origin', normal.headers)
+            self.assertEqual(normal.headers[content_type], expected_type)
+
+            cors = self.app.get(url, headers={'Origin': 'http://example.com'})
+            self.assertIn('Access-Control-Allow-Origin', cors.headers)
+            self.assertEqual(cors.headers['Access-Control-Allow-Origin'], '*')
+            self.assertEqual(cors.headers[content_type], expected_type)
