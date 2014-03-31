@@ -1,4 +1,8 @@
+# Brasil.IO - Dados Abertos Sem Burocracia
+
 # `api.brasil.io`
+
+![Logotipo Brasil.IO](http://www.brasil.io/static/images/logo_brasil.io.png)
 
 ## Introdução
 
@@ -25,20 +29,49 @@ para quem procura ou quer publicar **dados abertos** sobre o Brasil de forma
 organizada, [legível por máquina, usando padrões abertos, com dados
 referenciáveis e referenciados][5starsopendata].
 
-Foi desenvolvida uma [API HTTP REST][rest],
+Está sendo desenvolvida uma [API HTTP REST][rest],
 [https://api.brasil.io/](https://api.brasil.io/), com o objetivo de ser o ponto
-de encontro entre quem quer disponibilizar e acessar os dados.
+de encontro entre quem quer disponibilizar e acessar os dados. Caso queira
+colaborar com o desenvolvimento, acesse:
+<https://github.com/turicas/api.brasil.io/>.
+
+A API **ainda não está funcional**! O projeto será lançado durante o [15° Fórum
+Internacional de Software Livre](http://softwarelivre.org/fisl15), que
+acontecerá de 7 a 10 de maio em Porto Alegre/RS.
+
+
+#### Nota
+
+O objetivo do projeto não é concorrer com iniciativas correlatas do Governo
+(como o [dados.gov.br](http://dados.gov.br/)) e de outras organizações -- pelo
+contrário, gostaríamos de disponibilizar os dados que essas organizações já
+disponibilizam, porém de forma integrada e estruturada, permitindo a qualquer
+um (independente de vínculo) possa disponibilizar dados, independente da fonte.
 
 
 ### Colabore
 
-O software por trás da [API HTTP REST][rest] é [livre][sl], desenvolvido de
-forma colaborativa, assim como os dados lá disponibilizados.
+O software por trás da [API HTTP REST][rest] é [livre][sl], está sendo
+desenvolvido de forma colaborativa, assim como os dados lá disponibilizados
+serão.
 
-Caso queira participar do desenvolvimendo do projeto, seja desenvolvendo
-código, discutindo deciões, enviando dados etc., fique à vontade para entrar em
-nossa lista de e-mails e interagir:
-[Brasil-IO no Google Groups][lista-brasilio]. Seja bem-vindo! :-)
+Caso queira colaborar com o desenvolvimendo do projeto, seja desenvolvendo
+código, discutindo decisões, enviando dados etc., fique à vontade para
+interagir conosco através dos seguintes meios:
+
+- [Repositório de código no GitHub](https://github.com/turicas/api.brasil.io/);
+- [Lista de e-mails Brasil-IO no Google Groups][lista-brasilio];
+- [Twitter @brasil_io][tw-brio];
+- [Canal #Brasil.IO em irc.FreeNode.net](http://webchat.freenode.net/?channels=#Brasil.IO).
+
+Seja bem-vindo! :-)
+
+
+### Quem
+
+O projeto foi idealizado e está sendo desenvolvido por
+[Álvaro Justen][turicas], com a colaboração de diversos outros
+desenvolvedores.
 
 
 ## Descrição Técnica
@@ -49,18 +82,26 @@ nossa lista de e-mails e interagir:
 - [uWSGI][uwsgi] como servidor Web;
 - [Python][python] como principal linguagem de programação;
 - [Flask][flask] como *framework* para desenvolvimento Web;
+- [JSON-Schema][json-schema] para validação do tipo de dados;
 - [JSON-LD][jsonld] para representação dos dados.
+
 
 ### Recursos HTTP Disponíveis
 
 Os recursos visam descrever dados sobre o país e, para facilitar o acesso, a
 divisão política (unidades federativas e municípios) é utilizada.
 
-Todos os recursos disponíveis possuem suporte a [JSONP][jsonp]
+Todos os recursos possuem suporte a [JSONP][jsonp]
 (`?callback=suaFunçãoCallback`) e [CORS][cors] (quando o *header* HTTP `Origin`
 está presente), com o objetivo de facilitar a integração com outros
 serviços/websites.
 
+Por questões de segurança, a API aceita apenas requisições via
+[HTTPS][https-wp].
+
+Os recursos a seguir **ainda não estão totalmente disponíveis**, visto que a
+API está em fase inicial de desenvolvimento -- são apenas uma especificação
+para facilitar o desenvolvimento de novas funcionalidades.
 
 #### Regiões
 
@@ -75,7 +116,7 @@ serviços/websites.
 - [/unidades-federativas/][ufs]: lista as unidades federativas do país (27,
   atualmente);
 - [/unidades-federativas/rj/][rj]: exemplo de recurso de unidade federativa.
-  Possui lista de: mesorregiões, microrregiões e muinicípios, bem como outros
+  Possui lista de: mesorregiões, microrregiões e municípios, bem como outros
   possíveis dados que usuários queiram disponibilizar;
 - [/unidades-federativas/rj/mesorregioes/][rj-meso]: exemplo de coleção de
   mesorregiões de uma unidade federativa;
@@ -91,22 +132,24 @@ serviços/websites.
 
 #### Recursos Relativos à API
 
-- `/meta/contextos/`: contextos JSON-LD;
-- `/usuarios/`: informações sobre usuários cadastrados na API (se feito
-  `POST`, cria usuário);
-- `/usuarios/turicas/`: informações sobre um usuário.
+- `/meta/schemas/`: *schemas* de dados disponíveis;
+- `/meta/contexts/`: contextos JSON-LD;
+- `/users/`: usuários cadastrados na API;
+- `/users/turicas/`: informações sobre um determinado usuário.
 
 
 ## A Implementar
 
-- Propriedades devem ser camelCase;
-- JSON-LD em vez de JSON;
+- Propriedades devem ser camelCase, que é o padrão do JavaScript (e,
+  consequentemente, do JSON);
+- Usar JSON-LD em vez de JSON;
 - Alterar Content-Type (exemplo: `application/vnd+brasil.io.nome-do-schema+json`),
   inclusive para incluir a versão do formato
   (exemplo: `application/vnd+brasil.io.schema.v2+json`);
-- Verificar *header* HTTP `Accept` para todas requisições;
+- Verificar *header* HTTP `Accept` para todas requisições e responder de acordo
+  (caso o cliente não suporte o tipo de conteúdo que seria retornado);
 - Implementar cadastro de usuários;
-- Implementar criação de API Tokens;
+- Implementar criação de API *tokens*;
 - Melhorar suporte a cache (`ETag`, `If-Unmodified-Since` etc.);
 - Quando factível, retornar corpo do documento em resposta a POST/PUT/DELETE;
 
@@ -144,6 +187,28 @@ serviços/websites.
   - Data do envio
   - Data da última modificação
 
+## Possíveis Fontes de Dados
+
+As fontes de dados abaixo poderão ser utilizadas por desenvolvedores de
+software com a finalidade de capturar, limpar e padronizar os dados, ficando
+estes prontos para serem submetidos à API do Brasil.IO:
+
+- [Instituto Brasileiro de Geografia e Estatística](http://www.ibge.gov.br/)
+- [Programa das Nações Unidas para o Desenvolvimento](http://www.pnud.org.br/)
+- [ONG Transparência](http://www.transparencia.org.br/)
+- [Dados.GOV.BR](http://dados.gov.br/)
+- [Instituto de Pesquisa Econômica Aplicada](http://www.ipea.gov.br/)
+
+
+## Projetos Afins
+
+- [Olho Neles](http://olhoneles.org/)
+- [Politicando](http://politicando.org/)
+- [TeleMob](http://telemob.com.br/)
+- [WorldBank Data](http://data.worldbank.org/)
+- [Quandl](http://www.quandl.com/)
+
+
 [lai]: http://www.planalto.gov.br/ccivil_03/_ato2011-2014/2011/lei/l12527.htm
 
 [brasil.io]: http://www.brasil.io/
@@ -157,6 +222,7 @@ serviços/websites.
 [python]: http://www.python.org/
 [flask]: http://flask.pocoo.org/
 [jsonld]: http://json-ld.org/
+[json-schema]: http://json-schema.org/
 
 [jsonp]: https://en.wikipedia.org/wiki/JSONP
 [cors]: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
@@ -169,3 +235,7 @@ serviços/websites.
 [rj-meso-centro]: https://api.brasil.io/unidades-federativas/rj/mesorregioes/centro-fluminense/
 [rj-meso-centro-micro]: https://api.brasil.io/unidades-federativas/rj/mesorregioes/centro-fluminense/microrregioes/][rjmesocentromicro
 [rj-meso-centro-micro-tr]: https://api.brasil.io/unidades-federativas/rj/mesorregioes/centro-fluminense/microrregioes/tres-rios
+
+[https-wp]: https://en.wikipedia.org/wiki/HTTP_Secure
+[turicas]: https://twitter.com/turicas
+[tw-brio]: https://twitter.com/brasil_io
