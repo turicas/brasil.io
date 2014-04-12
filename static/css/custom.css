@@ -1,0 +1,20 @@
+a { color: rgb(51, 51, 51) !important; }
+a:link { color: rgb(36, 132, 193) !important; }
+a:visited { color: rgb(52, 190, 255) !important; }
+
+:hover > a.heading-anchor { opacity: 0.50 }
+
+a.heading-anchor:hover,
+a.heading-anchor:focus  { opacity: 0.75  !important }
+a.heading-anchor:active { opacity: 1.00 !important }
+a.heading-anchor {
+  color: inherit;
+  text-decoration: inherit;
+  opacity: 0.25;
+  margin-left: .3em;
+  visibility: hidden;
+}
+a.heading-anchor:before {
+  content: '⚓';
+  visibility: visible;
+}
