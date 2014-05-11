@@ -1,3 +1,46 @@
-name: Your New Jekyll Site
-markdown: redcarpet
-pygments: true
+safe:        false
+baseurl:     /
+url: http://www.brasil.io/
+
+name: Brasil.io
+description: Raphael Amorim is a developer who love what you do. Enthusiast in REST applications and NodeJS. Searches for a world more Full-Stack.
+url: http://raphamorim.com/
+domain: brasil.io
+commentlinks: true
+
+source:      .
+destination: ./_site
+plugins:     ./_plugins
+
+future:      true
+lsi:         false
+pygments:    false
+markdown:    kramdown
+permalink:   /:title/
+
+maruku:
+  use_tex:    false
+  use_divs:   false
+  png_engine: blahtex
+  png_dir:    images/latex
+  png_url:    /images/latex
+
+rdiscount:
+  extensions: []
+
+kramdown:
+  auto_ids: true,
+  footnote_nr: 1
+  entity_output: as_char
+  toc_levels: 1..6
+  use_coderay: false
+
+  coderay:
+    coderay_wrap: div
+    coderay_line_numbers: inline
+    coderay_line_numbers_start: 1
+    coderay_tab_width: 4
+    coderay_bold_every: 10
+    coderay_css: style
+
+excerpt_separator: "<!-- more -->"
