@@ -139,24 +139,37 @@ h3 {
 .content a {
   color: #323299;
 }
-.content a:hover {
+.content a:hover, .footer a:hover {
   text-decoration: underline;
 }
+.content ul {
+  padding: 12px 40px;
+}
+.content ul li {
+  list-style: disc;
+  padding: 5px 0px;
+}
+
 
 .footer {
   position: relative;
   width: 100%;
-  background: #849e82;
-  border-top: 1px solid rgba(0,0,0,.5);
+  background: #bbcbdc;
+  border-top: 1px solid rgba(0,0,0,.1);
   margin-top: 40px;
+  padding: 10px 0px;
 }
 .footer p {
-  color: rgba(0,0,0,.6);
-  font-size: 16px;
+  color: rgba(0,0,0,.5);
+  font-size: 17px;
+  font-weight: 600;
   /*text-shadow: 0 0 5px #000;*/
   margin: 0 auto;
   width: 820px;
   padding: 15px;
+}
+.footer a {
+  color: #236B8E;
 }
 
 .twitter-follow-button {
