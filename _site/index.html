@@ -1,12 +1,12 @@
 <!doctype html>
 <html lang="pt-br">
 <head>
-  <title>Brasil.io</title>
+  <title>Brasil.IO</title>
 
   <!-- Meta -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Raphael Amorim is a developer who love what you do. Enthusiast in REST applications and NodeJS. Searches for a world more Full-Stack." />
+  <meta name="description" content="Dados abertos por um Brasil mais ligado" />
 
   <!-- Favicon -->
   <link rel="shortcut icon" href="/assets/images/favicon.ico" type="image/x-icon" />
@@ -17,230 +17,62 @@
 <body>
 
 
-    <h1><code>api.brasil.io</code></h1>
-
-<p align="center">
-<img src="/assets/images/logo_brasil.io.png" alt="Logotipo Brasil.IO" title="" />
-</p>
-
-<h2><a class="heading-anchor" href="#introducao"></a> <a name="introducao">Introdução</a></h2>
-
-<h3><a class="heading-anchor" href="#o-problema"></a> <a name="o-problema">O Problema</a></h3>
-
-<p>Muitos dados públicos brasileiros estão disponíveis (principalmente depois da
-criação da <a href="http://www.planalto.gov.br/ccivil_03/_ato2011-2014/2011/lei/l12527.htm">Lei de Acesso à Informação</a>), mas não necessariamente
-acessíveis. Mesmo que a informação esteja disponível, nem sempre ela está
-disponível em um formato legível por máquina, ou utilizando um formato aberto,
-ou possui descrição (metadados) que facilitam a interpretação (manual ou
-automática) desses dados. Quanto menos acessível é uma informação, mais perto
-de ser fechada ela está.</p>
-
-<p>Além do problema relativo à acessibilidade, não existe um lugar comum em que
-todos os dados disponíveis estejam organizados e catalogados, dificultando
-ainda mais o acesso (ou a descoberta que esse tipo de informação está
-disponível).</p>
-
-<h3><a class="heading-anchor" href="#a-solucao"></a> <a name="a-solucao">A Solução</a></h3>
-
-<p>O projeto <a href="http://www.brasil.io/">Brasil.IO</a> foi criado com o objetivo de ser referência
-para quem procura ou quer publicar <strong>dados abertos</strong> sobre o Brasil de forma
-organizada, <a href="http://5stardata.info/">legível por máquina, usando padrões abertos, com dados
-referenciáveis e referenciados</a>.</p>
-
-<p>Está sendo desenvolvida uma <a href="https://en.wikipedia.org/wiki/Representational_state_transfer">API HTTP REST</a>,
-<a href="https://api.brasil.io/">https://api.brasil.io/</a>, com o objetivo de ser o ponto
-de encontro entre quem quer disponibilizar e acessar os dados. Caso queira
-colaborar com o desenvolvimento, acesse:
-<a href="https://github.com/turicas/api.brasil.io/">https://github.com/turicas/api.brasil.io/</a>.</p>
-
-<p>A API <strong>ainda não está funcional</strong>! O projeto será lançado durante o <a href="http://softwarelivre.org/fisl15">15° Fórum
-Internacional de Software Livre</a>, que
-acontecerá de 7 a 10 de maio em Porto Alegre/RS.</p>
-
-<h4><a class="heading-anchor" href="#nota"></a> <a name="nota">Nota</a></h4>
-
-<p>O objetivo do projeto não é concorrer com iniciativas correlatas do Governo
-(como o <a href="http://dados.gov.br/">dados.gov.br</a>) e de outras organizações -- pelo
-contrário, gostaríamos de disponibilizar os dados que essas organizações já
-disponibilizam, porém de forma integrada e estruturada, permitindo a qualquer
-um (independente de vínculo) possa disponibilizar dados, independente da fonte.</p>
-
-<h3><a class="heading-anchor" href="#colabore"></a> <a name="colabore">Colabore</a></h3>
-
-<p>O software por trás da <a href="https://en.wikipedia.org/wiki/Representational_state_transfer">API HTTP REST</a> é <a href="https://pt.wikipedia.org/wiki/Software_livre">livre</a>, está sendo
-desenvolvido de forma colaborativa, assim como os dados lá disponibilizados
-serão.</p>
-
-<p>Caso queira colaborar com o desenvolvimendo do projeto, seja desenvolvendo
-código, discutindo decisões, enviando dados etc., fique à vontade para
-interagir conosco através dos seguintes meios:</p>
-
-<ul>
-<li><a href="https://github.com/turicas/api.brasil.io/">Repositório de código no GitHub</a>;</li>
-<li><a href="https://groups.google.com/forum/#!forum/brasil-io">Lista de e-mails Brasil-IO no Google Groups</a>;</li>
-<li><a href="https://twitter.com/brasil_io">Twitter @brasil_io</a>;</li>
-<li><a href="http://webchat.freenode.net/?channels=#Brasil.IO">Canal #Brasil.IO em irc.FreeNode.net</a>.</li>
-</ul>
-
-<p>Seja bem-vindo! :-)</p>
-
-<h3><a class="heading-anchor" href="#quem"></a> <a name="quem">Quem</a></h3>
-
-<p>O projeto foi idealizado e está sendo desenvolvido por
-<a href="https://twitter.com/turicas">Álvaro Justen</a>, com a colaboração de diversos outros
-desenvolvedores.</p>
-
-<h2><a class="heading-anchor" href="#descricao-tecnica"></a> <a name="descricao-tecnica">Descrição Técnica</a></h2>
-
-<h3><a class="heading-anchor" href="#tecnologias-utilizadas"></a> <a name="tecnologias-utilizadas">Tecnologias Utilizadas</a></h3>
-
-<ul>
-<li><a href="http://nginx.org/">nginx</a> como servidor Web proxy e balanceador de carga;</li>
-<li><a href="http://projects.unbit.it/uwsgi/">uWSGI</a> como servidor Web;</li>
-<li><a href="http://www.python.org/">Python</a> como principal linguagem de programação;</li>
-<li><a href="http://flask.pocoo.org/">Flask</a> como <em>framework</em> para desenvolvimento Web;</li>
-<li><a href="http://json-schema.org/">JSON-Schema</a> para validação do tipo de dados;</li>
-<li><a href="http://json-ld.org/">JSON-LD</a> para representação dos dados.</li>
-</ul>
-
-<h3><a class="heading-anchor" href="#recursos-http-disponiveis"></a> <a name="recursos-http-disponiveis">Recursos HTTP Disponíveis</a></h3>
-
-<p>Os recursos visam descrever dados sobre o país e, para facilitar o acesso, a
-divisão política (unidades federativas e municípios) é utilizada.</p>
-
-<p>Todos os recursos possuem suporte a <a href="https://en.wikipedia.org/wiki/JSONP">JSONP</a>
-(<code>?callback=suaFunçãoCallback</code>) e <a href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing">CORS</a> (quando o <em>header</em> HTTP <code>Origin</code>
-está presente), com o objetivo de facilitar a integração com outros
-serviços/websites.</p>
-
-<p>Por questões de segurança, a API aceita apenas requisições via
-<a href="https://en.wikipedia.org/wiki/HTTP_Secure">HTTPS</a>.</p>
-
-<p>Os recursos a seguir <strong>ainda não estão totalmente disponíveis</strong>, visto que a
-API está em fase inicial de desenvolvimento -- são apenas uma especificação
-para facilitar o desenvolvimento de novas funcionalidades.</p>
-
-<h4><a class="heading-anchor" href="#regioes"></a> <a name="regioes">Regiões</a></h4>
-
-<ul>
-<li><a href="https://api.brasil.io/regioes/">/regioes/</a>: lista as 5 macrorregiões geográficas do país (5,
-atualmente);</li>
-<li><a href="https://api.brasil.io/regioes/sudeste/">/regioes/sudeste/</a>: exemplo de recurso de macrorregião. Possui
-lista de unidades federativas da região, bem como outros possíveis dados que
-usuários queiram disponibilizar.</li>
-</ul>
-
-<h4><a class="heading-anchor" href="#unidades-federativas"></a> <a name="unidades-federativas">Unidades Federativas</a></h4>
-
-<ul>
-<li><a href="https://api.brasil.io/unidades-federativas/">/unidades-federativas/</a>: lista as unidades federativas do país (27,
-atualmente);</li>
-<li><a href="https://api.brasil.io/unidades-federativas/rj/">/unidades-federativas/rj/</a>: exemplo de recurso de unidade federativa.
-Possui lista de: mesorregiões, microrregiões e municípios, bem como outros
-possíveis dados que usuários queiram disponibilizar;</li>
-<li><a href="https://api.brasil.io/unidades-federativas/rj/mesorregioes/">/unidades-federativas/rj/mesorregioes/</a>: exemplo de coleção de
-mesorregiões de uma unidade federativa;</li>
-<li><a href="https://api.brasil.io/unidades-federativas/rj/mesorregioes/centro-fluminense/">/unidades-federativas/rj/mesorregioes/centro-fluminense/</a>:
-exemplo de recurso relativo a mesorregião, que deve listar as microrregiões
-contidas nela;</li>
-<li><a href="https://api.brasil.io/unidades-federativas/rj/mesorregioes/centro-fluminense/microrregioes/][rjmesocentromicro">/unidades-federativas/rj/mesorregioes/centro-fluminense/microrregioes/</a>:
-exemplo de coleção de microrregiões, que deve listar os municípios contidos
-nela;</li>
-<li><a href="https://api.brasil.io/unidades-federativas/rj/mesorregioes/centro-fluminense/microrregioes/tres-rios">/unidades-federativas/rj/mesorregioes/centro-fluminense/microrregioes/tres-rios/</a>:
-exemplo de recurso de microrregião, que deve listar os municípios contidos
-nela.</li>
-</ul>
-
-<h4><a class="heading-anchor" href="#recursos-relativos-a-api"></a> <a name="recursos-relativos-a-api">Recursos Relativos à API</a></h4>
-
-<ul>
-<li><code>/meta/schemas/</code>: <em>schemas</em> de dados disponíveis;</li>
-<li><code>/meta/contexts/</code>: contextos JSON-LD;</li>
-<li><code>/users/</code>: usuários cadastrados na API;</li>
-<li><code>/users/turicas/</code>: informações sobre um determinado usuário.</li>
-</ul>
-
-<h2><a class="heading-anchor" href="#a-implementar"></a> <a name="a-implementar">A Implementar</a></h2>
-
-<ul>
-<li>Propriedades devem ser camelCase, que é o padrão do JavaScript (e,
-consequentemente, do JSON);</li>
-<li>Usar JSON-LD em vez de JSON;</li>
-<li>Alterar Content-Type (exemplo: <code>application/vnd+brasil.io.nome-do-schema+json</code>),
-inclusive para incluir a versão do formato
-(exemplo: <code>application/vnd+brasil.io.schema.v2+json</code>);</li>
-<li>Verificar <em>header</em> HTTP <code>Accept</code> para todas requisições e responder de acordo
-(caso o cliente não suporte o tipo de conteúdo que seria retornado);</li>
-<li>Implementar cadastro de usuários;</li>
-<li>Implementar criação de API <em>tokens</em>;</li>
-<li>Melhorar suporte a cache (<code>ETag</code>, <code>If-Unmodified-Since</code> etc.);</li>
-<li>Quando factível, retornar corpo do documento em resposta a POST/PUT/DELETE;</li>
-</ul>
-
-<h2><a class="heading-anchor" href="#questoes-em-aberto"></a> <a name="questoes-em-aberto">Questões Em Aberto</a></h2>
-
-<ul>
-<li>Usar <a href="http://www.markus-lanthaler.com/hydra/spec/latest/core/">Hydra</a>?</li>
-<li>Como criar novos recursos/coleção de recursos? Qual deve ser a URL dele?</li>
-<li>Como escolher o dado "oficial"?</li>
-<li>Usar ou não usar <code>/</code> no final das URLs?</li>
-<li>Utilizar somente <code>Last-Modified</code> ou campo dentro do corpo do resultado?</li>
-<li>O que abranger na funcionalidade de busca?</li>
-<li>Devemos suportar marcadores (tags) para os recursos/dados?</li>
-<li>Suportar <code>?format=jsonld|rdf|csv</code>?</li>
-<li>Suportar <code>?expand</code>, para automaticamente expandir coleções de recursos?</li>
-<li>Quais dados mais importantes para a primeira versão? Rascunho:
-<ul>
-<li>População</li>
-<li>Renda do domicílio</li>
-<li>Área</li>
-<li>Shapefile</li>
-<li>IDH</li>
-<li>PIB</li>
-<li>Frota</li>
-<li>Registro Civil</li>
-<li>Sites oficiais</li>
-</ul></li>
-<li>Definir propriedades que constarão em cada dado informado. Rascunho:
-<ul>
-<li>Nome (exemplo: população)</li>
-<li>Valor (exemplo: 77439)</li>
-<li>Tipo (exemplo: inteiro)</li>
-<li>Unidade (exemplo: habitantes)</li>
-<li>Autor (exemplo: turicas)</li>
-<li>Fonte (exemplo: IBGE)</li>
-<li>Versão (exemplo: CENSO2010)</li>
-<li>Licença (exemplo: "CC-BY-like")</li>
-<li>Data do envio</li>
-<li>Data da última modificação</li>
-</ul></li>
-</ul>
-
-<h2><a class="heading-anchor" href="#possiveis-fontes-de-dados"></a> <a name="possiveis-fontes-de-dados">Possíveis Fontes de Dados</a></h2>
-
-<p>As fontes de dados abaixo poderão ser utilizadas por desenvolvedores de
-software com a finalidade de capturar, limpar e padronizar os dados, ficando
-estes prontos para serem submetidos à API do Brasil.IO:</p>
-
-<ul>
-<li><a href="http://www.ibge.gov.br/">Instituto Brasileiro de Geografia e Estatística</a></li>
-<li><a href="http://www.pnud.org.br/">Programa das Nações Unidas para o Desenvolvimento</a></li>
-<li><a href="http://www.transparencia.org.br/">ONG Transparência</a></li>
-<li><a href="http://dados.gov.br/">Dados.GOV.BR</a></li>
-<li><a href="http://www.ipea.gov.br/">Instituto de Pesquisa Econômica Aplicada</a></li>
-</ul>
-
-<h2><a class="heading-anchor" href="#projetos-afins"></a> <a name="projetos-afins">Projetos Afins</a></h2>
-
-<ul>
-<li><a href="http://olhoneles.org/">Olho Neles</a></li>
-<li><a href="http://politicando.org/">Politicando</a></li>
-<li><a href="http://telemob.com.br/">TeleMob</a></li>
-<li><a href="http://data.worldbank.org/">WorldBank Data</a></li>
-<li><a href="http://www.quandl.com/">Quandl</a></li>
-</ul>
+    <div class="nav">
+    <div class="nav-main">
+        <a href="#">
+            <img src="/assets/images/logo_brasil.io-2.png" class="logo">
+        </a>
+        <ul>
+            <li class="active"><a href="index.html">Sobre</a></li>
+            <li><a href="https://api.brasil.io/">API</a></li>
+            <li>Guia</li>
+            <li>Colabore</li>
+            <li>Blog</li>
+        </ul>
+    </div>
+</div>
 
 
-  </body>
+        <div class="header">
+    <div class="main">
+        <p><img src="/assets/images/logo-brasil.io.svg" class="logo"></p>
+        <p><h1>Brasil.IO</h1></p>
+        <p>Dados abertos por um Brasil mais ligado</p>
+        <p><a href="https://twitter.com/brasil_io" class="twitter-follow-button" data-show-count="false" data-lang="pt" data-size="large">Seguir @brasil_io</a></p>
+    </div>
+</div>
+<div class="back">
+    <img src="/assets/images/case.jpg" alt="">
+    <!-- http://fallenpixel.net/wp-content/uploads/2011/10/case.jpg -->
+</div>
+<!-- script btn twitter -->
+<script async>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+
+
+            <div class="content">
+                <h2 id="sobre-o-brasilio">Sobre o Brasil.IO</h2>
+
+<h3 id="o-problema">O problema</h3>
+
+<p>Muitos dados públicos brasileiros estão disponíveis (principalmente depois da criação da <a href="http://www.planalto.gov.br/ccivil_03/_ato2011-2014/2011/lei/l12527.htm">Lei de Acesso à Informação</a>), mas não necessariamente acessíveis. Mesmo que a informação esteja disponível, nem sempre ela está disponível em um formato legível por máquina, ou utilizando um formato aberto, ou possui descrição (metadados) que facilitam a interpretação (manual ou automática) desses dados. Quanto menos acessível é uma informação, mais perto de ser fechada ela está.</p>
+
+<p>Além do problema relativo à acessibilidade, não existe um lugar comum em que todos os dados disponíveis estejam organizados e catalogados, dificultando ainda mais o    acesso (ou a descoberta que esse tipo de informação está disponível).</p>
+
+<h3 id="a-soluo">A Solução</h3>
+
+<p>O projeto <strong>Brasil.IO</strong> foi criado com o objetivo de ser referência para quem procura ou quer publicar dados abertos sobre o Brasil de forma organizada, <a href="http://5stardata.info/">legível por máquina, usando padrões abertos, com dados referenciáveis e referenciados</a>.</p>
+
+<p>Está sendo desenvolvida uma <a href="https://en.wikipedia.org/wiki/Representational_state_transfer">API HTTP REST</a>, <a href="https://api.brasil.io/">api.brasil.io/</a>, com o objetivo de ser o ponto de encontro entre quem quer disponibilizar e acessar os dados. Caso queira colaborar com o desenvolvimento, <a href="https://github.com/turicas/api.brasil.io/">acesse o nosso repositório</a>.</p>
+
+<p>A API ainda não está funcional! O projeto será lançado durante o <a href="http://softwarelivre.org/fisl15">15° Fórum Internacional de Software Livre</a>, que acontecerá de 7 a 10 de maio em Porto Alegre/RS.</p>
+
+
+            </div>
+
+    <div class="footer">
+        <p>A <strong>api.brasil.io</strong> é mantida com muito carinho por turicas e seus contribuidores</p>
+    </div>
+</body>
 </html>
 
