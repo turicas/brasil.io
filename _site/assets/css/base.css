@@ -86,9 +86,9 @@ h3 {
   margin: 0px 8px;
   text-shadow: rgba(0,0,0,0.3) 0px 1px 0px;
 }
-.nav-main a:hover { color: #5A6C5C; }
-.nav-main .active>a:hover, .nav-main .active>a { color: #ddefd5; }
+.nav-main a:hover li { color: #5A6C5C; }
 .nav-main ul .active {
+  color: #ddefd5;
   text-shadow: rgba(255,255,255,0.2) 0 1px 0px;
   background-color: rgba(0,0,0,0.2);
   border-radius: 3px;
@@ -127,6 +127,7 @@ h3 {
   margin: 0 auto;
   width: 820px;
   margin-top: 130px;
+  min-height: 480px;
 }
 .content h2 {
   border-bottom: 1px dotted #666;
@@ -162,4 +163,3 @@ h3 {
   margin-top: 10px;
   box-shadow: 0 0 10px #000;
 }
-
