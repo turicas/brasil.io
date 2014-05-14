@@ -20,14 +20,15 @@
     <div class="nav">
     <div class="nav-main">
         <a href="/">
-            <img src="/assets/images/logo_brasil.io-2.png" class="logo">
+            <img src="/assets/images/logo_brasil.io-2.png"
+            class="logo">
         </a>
         <ul id="pagenav">
             <a href="/"><li>Sobre</li></a>
             <a href="https://api.brasil.io/"><li>API</li></a>
             <a href="/guia"><li>Guia</li></a>
             <a href="/colabore"><li>Colabore</li></a>
-            <a href="/blog"><li>Blog</li></a>
+            <!-- <a href="/blog"><li>Blog</li></a> -->
         </ul>
     </div>
 </div>
@@ -35,6 +36,46 @@
 
             <div class="content">
                 <h2 id="guia">Guia</h2>
+
+<h3 id="recursos-http-disponveis">Recursos HTTP Disponíveis</h3>
+
+<p>Os recursos visam descrever dados sobre o país e, para facilitar o acesso, a divisão política (unidades federativas e municípios) é utilizada.</p>
+
+<p>Todos os recursos possuem suporte a <a href="https://en.wikipedia.org/wiki/JSONP">JSONP</a> (?callback=suaFunçãoCallback) e <a href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing">CORS</a> (quando o header HTTP Origin está presente), com o objetivo de facilitar a integração com outros serviços/websites.</p>
+
+<p>Por questões de segurança, a API aceita apenas requisições via <a href="https://en.wikipedia.org/wiki/HTTP_Secure">HTTPS</a>.</p>
+
+<p>Os recursos a seguir ainda não estão totalmente disponíveis, visto que a API está em fase inicial de desenvolvimento – são apenas uma especificação para facilitar o desenvolvimento de novas funcionalidades.</p>
+
+<h3 id="regies">Regiões</h3>
+
+<p><strong><a href="https://api.brasil.io/regioes/">/regioes/</a></strong> - lista as 5 macrorregiões geográficas do país (5, atualmente)</p>
+
+<p><strong><a href="https://api.brasil.io/regioes/sudeste/">/regioes/sudeste/</a></strong> - exemplo de recurso de macrorregião. Possui lista de unidades federativas da região, bem como outros possíveis dados que usuários queiram disponibilizar.</p>
+
+<h3 id="unidades-federativas">Unidades Federativas</h3>
+<p><strong><a href="https://api.brasil.io/unidades-federativas/">/unidades-federativas/</a></strong> - lista as unidades federativas do país (27, atualmente).</p>
+
+<p><strong><a href="https://api.brasil.io/unidades-federativas/rj/">/unidades-federativas/rj/</a></strong> - exemplo de recurso de unidade federativa. Possui lista de: mesorregiões, microrregiões e municípios, bem como outros possíveis dados que usuários queiram disponibilizar.</p>
+
+<p><strong><a href="https://api.brasil.io/unidades-federativas/rj/mesorregioes/">/unidades-federativas/rj/mesorregioes/</a></strong> - exemplo de coleção de mesorregiões de uma unidade federativa.</p>
+
+<p><strong><a href="https://api.brasil.io/unidades-federativas/rj/mesorregioes/centro-fluminense/">/unidades-federativas/rj/mesorregioes/centro-fluminense/</a></strong> - exemplo de recurso relativo a mesorregião, que deve listar as microrregiões contidas nela.</p>
+
+<p><strong><a href="https://api.brasil.io/unidades-federativas/rj/mesorregioes/centro-fluminense/microrregioes/][rjmesocentromicro">/unidades-federativas/rj/mesorregioes/centro-fluminense/microrregioes/</a></strong> -  exemplo de coleção de microrregiões, que deve listar os municípios contidos nela.</p>
+
+<p><strong><a href="https://api.brasil.io/unidades-federativas/rj/mesorregioes/centro-fluminense/microrregioes/tres-rios">/unidades-federativas/rj/mesorregioes/centro-fluminense/microrregioes/tres-rios/</a></strong> - exemplo de recurso de microrregião, que deve listar os municípios contidos nela.</p>
+
+<h3 id="recursos-relativos--api">Recursos Relativos à API</h3>
+
+<p><strong>/meta/schemas/</strong> - schemas de dados disponíveis.</p>
+
+<p><strong>/meta/contexts/</strong> - contextos JSON-LD.</p>
+
+<p><strong>/users/</strong> - usuários cadastrados na API.</p>
+
+<p><strong>/users/turicas/</strong> - informações sobre um determinado usuário.</p>
+
 
             </div>
 

@@ -54,7 +54,7 @@ h2 {
 }
 h3 {
   font-size: 20px;
-  padding: 30px 15px 5px 15px;
+  padding: 35px 15px 3px 15px;
   color: #003330;
 }
 
@@ -133,7 +133,7 @@ h3 {
   border-bottom: 1px dotted #666;
 }
 .content p {
-  padding: 15px;
+  padding: 15px 15px 5px 15px;
   text-align: justify;
 }
 .content a {
@@ -148,8 +148,8 @@ h3 {
 .content ul li {
   list-style: disc;
   padding: 5px 0px;
+  line-height: 1.5em;
 }
-
 
 .footer {
   position: relative;

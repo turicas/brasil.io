@@ -20,14 +20,15 @@
     <div class="nav">
     <div class="nav-main">
         <a href="/">
-            <img src="/assets/images/logo_brasil.io-2.png" class="logo">
+            <img src="/assets/images/logo_brasil.io-2.png"
+            class="logo">
         </a>
         <ul id="pagenav">
             <a href="/"><li>Sobre</li></a>
             <a href="https://api.brasil.io/"><li>API</li></a>
             <a href="/guia"><li>Guia</li></a>
             <a href="/colabore"><li>Colabore</li></a>
-            <a href="/blog"><li>Blog</li></a>
+            <!-- <a href="/blog"><li>Blog</li></a> -->
         </ul>
     </div>
 </div>
@@ -47,7 +48,30 @@
   <li><a href="http://webchat.freenode.net/?channels=#Brasil.IO">Canal #Brasil.IO em irc.FreeNode.net.</a></li>
 </ul>
 
-<p>Seja bem-vindo! :-)</p>
+<h3 id="a-implementar">A Implementar</h3>
+
+<ul>
+  <li>Propriedades devem ser camelCase, que é o padrão do JavaScript (e, consequentemente, do JSON)</li>
+  <li>Usar JSON-LD em vez de JSON</li>
+  <li>Alterar Content-Type (exemplo: application/vnd+brasil.io.nome-do-schema+json), inclusive para incluir a versão do formato (exemplo: application/vnd+brasil.io.schema.v2+json)</li>
+  <li>Verificar header HTTP Accept para todas requisições e responder de acordo (caso o cliente não suporte o tipo de conteúdo que seria retornado)</li>
+  <li>Implementar cadastro de usuários</li>
+  <li>Implementar criação de API tokens</li>
+  <li>Melhorar suporte a cache (ETag, If-Unmodified-Since etc.)
+Quando factível, retornar corpo do documento em resposta a POST/PUT/DELETE</li>
+</ul>
+
+<h3 id="possveis-fontes-de-dados">Possíveis Fontes de Dados</h3>
+<p>As fontes de dados abaixo poderão ser utilizadas por desenvolvedores de software com a finalidade de capturar, limpar e padronizar os dados, ficando estes prontos para serem submetidos à API do Brasil.IO:</p>
+
+<ul>
+  <li><a href="http://www.ibge.gov.br/">Instituto Brasileiro de Geografia e Estatística</a></li>
+  <li><a href="http://www.pnud.org.br/">Programa das Nações Unidas para o Desenvolvimento</a></li>
+  <li><a href="http://www.transparencia.org.br/">ONG Transparência</a></li>
+  <li><a href="http://dados.gov.br/">Dados.GOV.BR</a></li>
+  <li><a href="http://www.ipea.gov.br/">Instituto de Pesquisa Econômica Aplicada</a></li>
+</ul>
+
 
             </div>
 
