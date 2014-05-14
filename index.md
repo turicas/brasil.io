@@ -14,7 +14,7 @@ Além do problema relativo à acessibilidade, não existe um lugar comum em que 
 
 O projeto **Brasil.IO** foi criado com o objetivo de ser referência para quem procura ou quer publicar dados abertos sobre o Brasil de forma organizada, [legível por máquina, usando padrões abertos, com dados referenciáveis e referenciados](http://5stardata.info/).
 
-Está sendo desenvolvida uma [API HTTP REST](https://en.wikipedia.org/wiki/Representational_state_transfer), [api.brasil.io/](https://api.brasil.io/), com o objetivo de ser o ponto de encontro entre quem quer disponibilizar e acessar os dados. Caso queira colaborar com o desenvolvimento, [acesse o nosso repositório](https://github.com/turicas/api.brasil.io/).
+Está sendo desenvolvida uma [API HTTP REST](https://en.wikipedia.org/wiki/Representational_state_transfer): [api.brasil.io](https://api.brasil.io/), com o objetivo de ser o ponto de encontro entre quem quer disponibilizar e acessar os dados. Caso queira colaborar com o desenvolvimento, [acesse o nosso repositório](https://github.com/turicas/api.brasil.io/).
 
 A API ainda não está funcional! O projeto será lançado durante o [15° Fórum Internacional de Software Livre](http://softwarelivre.org/fisl15), que acontecerá de 7 a 10 de maio em Porto Alegre/RS.
 
