@@ -2,9 +2,9 @@ safe:        false
 baseurl:     /
 url: http://www.brasil.io/
 
-name: Brasil.io
-description: Raphael Amorim is a developer who love what you do. Enthusiast in REST applications and NodeJS. Searches for a world more Full-Stack.
-url: http://raphamorim.com/
+name: Brasil.IO
+description: Dados abertos por um Brasil mais ligado
+url: http://brasil.io/
 domain: brasil.io
 commentlinks: true
 
