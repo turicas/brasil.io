@@ -1,6 +1,6 @@
 safe:        false
 baseurl:     /
-url: http://www.brasil.io/
+url: http://brasil.io/
 
 name: Brasil.IO
 description: Dados abertos por um Brasil mais ligado
