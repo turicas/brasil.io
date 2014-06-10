@@ -126,7 +126,7 @@ h3 {
   position: relative;
   margin: 0 auto;
   width: 820px;
-  margin-top: 130px;
+  margin-top: 90px;
   min-height: 480px;
 }
 .content h2 {
@@ -154,7 +154,7 @@ h3 {
 .footer {
   position: relative;
   width: 100%;
-  background: #bbcbdc;
+  background: #A0A0A0;
   border-top: 1px solid rgba(0,0,0,.1);
   margin-top: 40px;
   padding: 10px 0px;
@@ -169,10 +169,14 @@ h3 {
   padding: 15px;
 }
 .footer a {
-  color: #236B8E;
+  color: #000;
 }
 
 .twitter-follow-button {
   margin-top: 10px;
   box-shadow: 0 0 10px #000;
+}
+
+#pagenav {
+  min-width: 410px;
 }
