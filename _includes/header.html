@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <title>{% if page.title %}{{ page.title }} &mdash;{% endif %} {{ site.name }}</title>
+
+    <!-- Meta -->
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}" />
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ site.baseurl }}assets/images/favicon.ico" type="image/x-icon" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ site.baseurl }}assets/css/base.css" type="text/css" />
+  </head>
+  <body>
