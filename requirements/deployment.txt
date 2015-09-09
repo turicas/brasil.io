@@ -1,2 +1,4 @@
-fabric
-uwsgitop
+Flask==0.10.1
+Flask-RESTful==0.3.4
+underscore.py==0.1.6
+uwsgitop==0.8

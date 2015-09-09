@@ -1,0 +1,110 @@
+[
+  {
+    "nome": "Acre",
+    "sigla": "ac"
+  },
+  {
+    "nome": "Alagoas",
+    "sigla": "al"
+  },
+  {
+    "nome": "Amapá",
+    "sigla": "ap"
+  },
+  {
+    "nome": "Amazonas",
+    "sigla": "am"
+  },
+  {
+    "nome": "Bahia",
+    "sigla": "ba"
+  },
+  {
+    "nome": "Ceará",
+    "sigla": "ce"
+  },
+  {
+    "nome": "Distrito Federal",
+    "sigla": "df"
+  },
+  {
+    "nome": "Espírito Santo",
+    "sigla": "es"
+  },
+  {
+    "nome": "Goiá",
+    "sigla": "go"
+  },
+  {
+    "nome": "Maranhão",
+    "sigla": "ma"
+  },
+  {
+    "nome": "Mato Grosso",
+    "sigla": "mt"
+  },
+  {
+    "nome": "Mato Grosso do Sul",
+    "sigla": "ms"
+  },
+  {
+    "nome": "Minas Gerais",
+    "sigla": "mg"
+  },
+  {
+    "nome": "Paraná",
+    "sigla": "pr"
+  },
+  {
+    "nome": "Paraíba",
+    "sigla": "pb"
+  },
+  {
+    "nome": "Pará",
+    "sigla": "pa"
+  },
+  {
+    "nome": "Pernambuco",
+    "sigla": "pe"
+  },
+  {
+    "nome": "Piauí",
+    "sigla": "pi"
+  },
+  {
+    "nome": "Rio Grande do Norte",
+    "sigla": "rn"
+  },
+  {
+    "nome": "Rio Grande do Sul",
+    "sigla": "rs"
+  },
+  {
+    "nome": "Rio de Janeiro",
+    "sigla": "rj"
+  },
+  {
+    "nome": "Rondônia",
+    "sigla": "ro"
+  },
+  {
+    "nome": "Roraima",
+    "sigla": "rr"
+  },
+  {
+    "nome": "Santa Catarina",
+    "sigla": "sc"
+  },
+  {
+    "nome": "Sergipe",
+    "sigla": "se"
+  },
+  {
+    "nome": "São Paulo",
+    "sigla": "sp"
+  },
+  {
+    "nome": "Tocantins",
+    "sigla": "to"
+  }
+]
