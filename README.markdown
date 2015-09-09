@@ -2,7 +2,7 @@
 
 # `api.brasil.io`
 
-![Logotipo Brasil.IO](http://www.brasil.io/static/images/logo_brasil.io.png)
+![Logotipo Brasil.IO](http://brasil.io/assets/images/logo-brasil.io.svg)
 
 ## Introdução
 
@@ -66,6 +66,16 @@ interagir conosco através dos seguintes meios:
 
 Seja bem-vindo! :-)
 
+#### Notas para desenvolvedor Linux
+
+Ao utilizar ao pip para instalar novo modulos, por favor utilize dessa forma
+
+    pip install PACKAGE_NAME && pip freeze | grep -i PACKAGE_NAME >> requirements/ENVIRONMENT.pip
+
+ex:
+
+    pip install underscore.py && pip freeze | grep -i underscore.py >> requirements/development.pip
+
 
 ### Quem
 
@@ -81,7 +91,7 @@ desenvolvedores.
 - [nginx][nginx] como servidor Web proxy e balanceador de carga;
 - [uWSGI][uwsgi] como servidor Web;
 - [Python][python] como principal linguagem de programação;
-- [Flask][flask] como *framework* para desenvolvimento Web;
+- [Flask][flask] e [Flask-RESTful]flask-restful como *frameworks* para desenvolvimento Web;
 - [JSON-Schema][json-schema] para validação do tipo de dados;
 - [JSON-LD][jsonld] para representação dos dados.
 

@@ -17,10 +17,14 @@ def output_json(data, code, headers=None):
     return resp
 
 api.add_resource(Estados, 
-    '/estados',
+    # Lista todos os estados
+    '/estados', 
+    # Exibir informações de 1 estado
     '/estados/<string:sigla>')
 api.add_resource(Cidades, 
+    # Lista todas as cidades de um estado
     '/estados/<string:sigla>/cidades',
+    # Exibir informações da cidade de 1 estado
     '/estados/<string:sigla>/cidades/<string:slug>')
 
 if __name__ == '__main__':
