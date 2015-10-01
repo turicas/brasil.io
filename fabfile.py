@@ -44,6 +44,8 @@ def send_files():
 
     put('api.py', APP_PATH)
     put('dados_brasil.py', APP_PATH)
+    put('geojsons.json', APP_PATH)
+    put('topojsons.json', APP_PATH)
 
     temporary_file = NamedTemporaryFile(delete=False)
     with open('config.py') as fobj:
