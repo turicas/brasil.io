@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import argparse
+import json
 import urllib2
 
 from copy import deepcopy
@@ -18,10 +19,12 @@ MUNICIPIO_URL = BASE_URL + '{}/{}/'
 url_join = urllib2.urlparse.urljoin
 app = Flask(__name__)
 
+
 # Coloca em memória objetos relativos à listagem de UFs
 for uf in lista_ufs:
     uf['url'] = UF_URL.format(uf['sigla'])
 ufs = [uf['sigla'] for uf in lista_ufs]
+
 
 # Coloca em memória objetos relativos a municípios
 for sigla in municipios:
@@ -38,11 +41,23 @@ for sigla in municipios:
         del municipio['slug']
     municipios[sigla]['municipios'] = novo
 
+
 # Coloca em memória objetos relativos à listagem de municípios (por UF)
 sort_por_nome = lambda a, b: cmp(a['nome'], b['nome'])
 municipios_uf = deepcopy(municipios)
 for uf in municipios_uf.values():
     uf['municipios'] = sorted(uf['municipios'].values(), cmp=sort_por_nome)
+
+
+# Carrega geo e topo JSONs
+with open('geojsons.json') as fobj:
+    geojsons = json.load(fobj)
+with open('topojsons.json') as fobj:
+    topojsons = json.load(fobj)
+for uf in lista_ufs:
+    sigla = uf['sigla']
+    municipios_uf[sigla]['geojsons'] = geojsons[sigla]
+    municipios_uf[sigla]['topojsons'] = topojsons[sigla]
 
 
 def response_json(data, **kwargs):
@@ -94,15 +109,15 @@ def municipio_index(sigla, municipio):
 if __name__ == '__main__':
     args = argparse.ArgumentParser()
     args.add_argument('--http-host', help='IP address to bind to',
-            default='127.0.0.1')
+                      default='127.0.0.1')
     args.add_argument('--http-port', help='Port to bind to', type=int,
-            default=8000)
+                      default=8000)
     args.add_argument('--debug', help='Enable debug mode', action='store_true')
     args.add_argument('--secret-key', default='my-precious')
     args.add_argument('--processes', help='Number of processes to spawn',
-            type=int, default=4)
+                      type=int, default=4)
     args.add_argument('--threaded', action='store_true',
-            help='Enable/disable HTTP server threaded mode')
+                      help='Enable/disable HTTP server threaded mode')
     argv = args.parse_args()
 
     app.config.update({
