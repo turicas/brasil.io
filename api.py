@@ -59,6 +59,10 @@ for uf in lista_ufs:
     municipios_uf[sigla]['geojsons'] = geojsons[sigla]
     municipios_uf[sigla]['topojsons'] = topojsons[sigla]
 
+def read_json(file_name):
+    with open(file_name, 'r') as content_file:
+        content = content_file.read()
+    return content
 
 def response_json(data, **kwargs):
     response = {'response': json_dumps(data),
@@ -105,6 +109,9 @@ def municipio_index(sigla, municipio):
     else:
         return response_json(municipios[sigla]['municipios'][municipio])
 
+@app.route('/politics/')
+def politics():
+    return read_json("politics.json")
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser()
@@ -126,4 +133,4 @@ if __name__ == '__main__':
     })
 
     app.run(host=argv.http_host, port=argv.http_port, processes=argv.processes,
-            threaded=argv.threaded)
+            threaded=argv.threaded, debug=True)

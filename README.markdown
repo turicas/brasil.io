@@ -2,7 +2,7 @@
 
 # `api.brasil.io`
 
-![Logotipo Brasil.IO](http://www.brasil.io/static/images/logo_brasil.io.png)
+![Logotipo Brasil.IO](http://brasil.io/assets/images/logo-brasil.io.svg)
 
 ## Introdução
 
