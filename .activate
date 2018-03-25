@@ -1,0 +1,21 @@
+#!/bin/sh
+
+PROJECT_NAME=$(basename $(pwd))
+ENV_FILE=.env
+DOCKER_COMPOSE_FILE=docker-compose.yml
+
+
+# Export environment variables
+if [ -f "$ENV_FILE" ]; then
+	set -o allexport
+	source "$ENV_FILE"
+	set +o allexport
+fi
+
+# Activate virtualenv
+pyenv activate $PROJECT_NAME
+
+# Run needed containers
+if [ -f "$DOCKER_COMPOSE_FILE" ]; then
+	docker-compose -p $PROJECT_NAME -f $DOCKER_COMPOSE_FILE up -d
+fi

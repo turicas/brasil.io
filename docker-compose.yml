@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+    db:
+        image: postgres:10
+        container_name: brasilio_postgres
+        env_file: .env
+        ports:
+            - "39001:5432"
