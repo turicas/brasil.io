@@ -4,4 +4,4 @@ django>=2.0
 ipython
 openpyxl
 psycopg2-binary
-git+https://github.com/turicas/rows.git@develop
+git+https://github.com/turicas/rows.git@develop#egg=rows
