@@ -99,3 +99,6 @@ MEDIA_ROOT = public_root('media')
 MEDIA_URL = '/media/'
 STATIC_ROOT = public_root('static')
 STATIC_URL = '/static/'
+
+# Data-related settings
+DATA_URL = env('DATA_URL')
