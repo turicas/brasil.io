@@ -1,4 +1,5 @@
 import csv
+import gc
 import gzip
 import io
 import lzma
@@ -33,8 +34,8 @@ def import_file(filename, Model, encoding='utf-8', batch_size=5000):
     for batch in ipartition(reader, batch_size):
         Model.objects.bulk_create([create_object(Model, data)
                                    for data in batch])
-        # TODO: maybe delete ORM objects from memory
         counter += len(batch)
+        gc.collect()
         print(counter)
     connection.commit()
 
