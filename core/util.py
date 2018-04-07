@@ -61,11 +61,13 @@ def create_tables():
     with connection.schema_editor() as schema_editor:
         schema_editor.create_model(SociosBrasil)
     with connection.cursor() as cursor:
+        # TODO: get index info from ordering
         cursor.execute(dedent('''
             CREATE INDEX idx_core_sociosbrasil
             ON core_sociosbrasil
-            (nome_empresa ASC, nome_socio ASC);
+            (cnpj_empresa ASC, nome_socio ASC);
         '''))
+        # TODO: get fts fields info from filtering
         cursor.execute(dedent('''
             CREATE INDEX idx_core_sociosbrasil_text
             ON core_sociosbrasil

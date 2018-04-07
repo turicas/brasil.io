@@ -55,6 +55,16 @@ register = {
     'gastos-diretos': GastosDiretos,
 }
 options = {
-    'socios-brasil': {'ordering': ('nome_empresa', 'nome_socio')},
-    'gastos-diretos': {'ordering': ('-data_pagamento', 'nome_favorecido')},
+    'socios-brasil': {
+        'filtering': ('cnpj_empresa', 'nome_empresa', 'nome_socio'),
+        'ordering': ('cnpj_empresa', 'nome_socio'),
+    },
+    'gastos-diretos': {
+        'filtering': (
+            'nome_orgao_superior', 'nome_unidade_gestora',
+            'nome_grupo_despesa', 'nome_elemento_despesa', 'nome_funcao',
+            'nome_subfuncao', 'codigo_favorecido', 'nome_favorecido',
+        ),
+        'ordering': ('-data_pagamento', 'nome_favorecido'),
+    },
 }
