@@ -1,8 +1,8 @@
 django-environ
 django-extensions
 django>=2.0
-git+https://github.com/turicas/rows.git@develop#egg=rows
 gunicorn
 ipython
 openpyxl
 psycopg2-binary
+git+https://github.com/turicas/rows.git@develop#egg=rows
