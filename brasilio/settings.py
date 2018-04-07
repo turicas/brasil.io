@@ -26,6 +26,7 @@ INSTALLED_APPS = [
 
     # Third-party apps
     'django_extensions',
+    'rest_framework',
 
     # Project apps
     'core',
@@ -102,3 +103,8 @@ STATIC_URL = '/static/'
 
 # Data-related settings
 DATA_URL = env('DATA_URL')
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100,
+}
