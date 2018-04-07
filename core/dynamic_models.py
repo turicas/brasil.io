@@ -29,7 +29,7 @@ attrs_gastosdiretos = {
     'codigo_programa': models.IntegerField(),
     'codigo_subfuncao': models.IntegerField(),
     'codigo_unidade_gestora': models.IntegerField(),
-    'data_pagamento': models.DateField(),
+    'data_pagamento': models.DateField(null=True),
     'data_pagamento_original': models.CharField(max_length=112),
     'gestao_pagamento': models.CharField(max_length=112),
     'linguagem_cidada': models.CharField(max_length=199),
@@ -45,7 +45,7 @@ attrs_gastosdiretos = {
     'nome_subfuncao': models.CharField(max_length=50),
     'nome_unidade_gestora': models.CharField(max_length=45),
     'numero_documento': models.CharField(max_length=112),
-    'valor': models.DecimalField(),
+    'valor': models.DecimalField(max_digits=12, decimal_places=2),
 }
 GastosDiretos = type('GastosDiretos', (models.Model,), attrs_gastosdiretos)
 
