@@ -6,6 +6,7 @@ from rest_framework import serializers, viewsets
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.generics import ListAPIView
+from rest_framework.exceptions import NotFound
 
 from core import dynamic_models
 from core.models import Dataset, Link
@@ -62,7 +63,7 @@ class DatasetViewSet(viewsets.ModelViewSet):
     serializer_class = DatasetSerializer  # TODO: add pagination
 
     def get_queryset(self):
-        return Dataset.objects.filter(slug__in=dynamic_models.register)
+        return Dataset.objects.filter(slug__in=dynamic_models.model_attributes)
 
     def retrieve(self, request, slug):
         obj = get_object_or_404(self.get_queryset(), slug=slug)
@@ -77,17 +78,20 @@ class DatasetDataListView(ListAPIView):
 
     def get_model_class(self):
         slug = self.kwargs['slug']
-        return dynamic_models.register.get(slug, None)
+        if slug not in dynamic_models.model_attributes:
+            return None
+        return dynamic_models.get_model(slug)
 
     def get_queryset(self):
+        # TODO: check if slug is in Dataset (if not, return 404)
         Model = self.get_model_class()
         slug = self.kwargs['slug']
         if Model is None:
-            return JsonResponse({'error': 'Data not found.'}, status=404)
+            raise NotFound({'error': 'Data not found.'})
 
         qs = Model.objects.all()
         # TODO: inject `Meta.ordering` in Model creation class
-        ordering = dynamic_models.options.get(slug, {}).get('ordering', None)
+        ordering = dynamic_models.model_attributes[slug].get('ordering', None)
         if ordering:
             qs = qs.order_by(*ordering)
         return qs
