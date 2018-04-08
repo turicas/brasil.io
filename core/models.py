@@ -1,7 +1,8 @@
 from urllib.parse import urlparse
 
-from django.db import connection, models
 from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.search import SearchVector
+from django.db import connection, models
 
 
 DYNAMIC_MODEL_REGISTRY = {}
@@ -40,15 +41,16 @@ class DynamicModelQuerySet(models.QuerySet):
     def apply_ordering(self, query):
         qs = self
         model_ordering = self.model.extra['ordering']
-        if model_ordering is not None:
-            clean_ordering = [field.replace('-', '').strip().lower()
-                              for field in model_ordering]
-            ordering_query = [field for field in query
-                              if field in clean_ordering]
-            if ordering_query:
-                qs = qs.order_by(*ordering_query)
-            else:
-                qs = qs.order_by(*model_ordering)
+        model_filtering = self.model.extra['filtering']
+        allowed_fields = set(model_ordering + model_filtering)
+        clean_allowed = [field.replace('-', '').strip().lower()
+                         for field in allowed_fields]
+        ordering_query = [field for field in query
+                          if field.replace('-', '') in clean_allowed]
+        if ordering_query:
+            qs = qs.order_by(*ordering_query)
+        elif model_ordering:
+            qs = qs.order_by(*model_ordering)
 
         return qs
 
@@ -73,7 +75,6 @@ class Dataset(models.Model):
                               for word in self.slug.split('-')])
         if self.slug not in DYNAMIC_MODEL_REGISTRY:
             version = self.version_set.order_by('order').last()
-            print(version)
             table = self.table_set.get(version=version, default=True)
             fields = {field.name: field.field_class
                       for field in self.field_set.filter(table=table)}

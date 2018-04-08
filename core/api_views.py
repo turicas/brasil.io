@@ -1,7 +1,4 @@
-from django.contrib.postgres.search import SearchVector
 from django.core.paginator import Paginator
-from django.forms.models import model_to_dict
-from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, viewsets
 from rest_framework.response import Response
@@ -80,17 +77,20 @@ class DatasetDataListView(ListAPIView):
         return dataset.get_last_data_model()
 
     def get_queryset(self):
-        querystring = self.request.query_params
-        order_by = querystring.pop('order-by', '')
+        querystring = self.request.query_params.copy()
+        for pagination_key in ('limit', 'offset'):
+            if pagination_key in querystring:
+                del querystring[pagination_key]
+        order_by = querystring.pop('order-by', [''])
         Model = self.get_model_class()
         queryset = Model.objects.all()
 
         if querystring:
-            queryset = queryset.apply_filtering(querystring)
+            queryset = queryset.apply_filters(querystring)
 
-        order_by = [field.replace('-', '').strip().lower()
-                    for field in order_by.split(',')
-                    if field.replace('-', '').strip().lower()]
+        order_by = [field.strip().lower()
+                    for field in order_by[0].split(',')
+                    if field.strip()]
         queryset = queryset.apply_ordering(order_by)
 
         return queryset

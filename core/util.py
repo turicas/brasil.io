@@ -5,7 +5,8 @@ import io
 import lzma
 
 import django.db.models.fields
-from django.db import connection
+from django.db import connection, reset_queries
+from django.db.utils import ProgrammingError
 from rows.plugins.utils import ipartition
 
 
@@ -28,16 +29,30 @@ def create_object(Model, data):
     return Model(**data)
 
 
-def import_file(filename, Model, encoding='utf-8', batch_size=5000):
+def import_file(filename, Model, encoding='utf-8', batch_size=5000,
+                callback=None):
+    try:
+        Model.delete_table()
+    except ProgrammingError:  # Does not exist
+        pass
+    finally:
+        Model.create_table()
+
     reader = csv.DictReader(get_fobj(filename, encoding))
     counter = 0
     for batch in ipartition(reader, batch_size):
         Model.objects.bulk_create([create_object(Model, data)
                                    for data in batch])
         counter += len(batch)
+        reset_queries()  # Tip from https://stackoverflow.com/a/29924044
         gc.collect()
-        print(counter)
+        if callback:
+            callback(counter)
+    if callback:
+        callback(counter)
+
     connection.commit()
+    return counter
 
 
 def detect_column_sizes(filename, encoding='utf-8'):
