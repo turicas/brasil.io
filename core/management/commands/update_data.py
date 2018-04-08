@@ -61,6 +61,10 @@ def version_update_data(row):
     }
 
 def table_update_data(row):
+    if row['ordering']:
+        row['ordering'] = [field.strip() for field in row['ordering'].split(',')]
+    if row['filtering']:
+        row['filtering'] = [field.strip() for field in row['filtering'].split(',')]
     return {
         'dataset': row['dataset'],
         'version': row['version'],

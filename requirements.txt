@@ -1,6 +1,5 @@
 django-environ
 django-extensions
-django-filter
 django>=2.0
 djangorestframework
 gunicorn

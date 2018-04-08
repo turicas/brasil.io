@@ -1,3 +1,4 @@
+from django.contrib.postgres.search import SearchVector
 from django.core.paginator import Paginator
 from django.forms.models import model_to_dict
 from django.http import JsonResponse
@@ -6,9 +7,7 @@ from rest_framework import serializers, viewsets
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.generics import ListAPIView
-from rest_framework.exceptions import NotFound
 
-from core import dynamic_models
 from core.models import Dataset, Link
 
 
@@ -63,7 +62,7 @@ class DatasetViewSet(viewsets.ModelViewSet):
     serializer_class = DatasetSerializer  # TODO: add pagination
 
     def get_queryset(self):
-        return Dataset.objects.filter(slug__in=dynamic_models.model_attributes)
+        return Dataset.objects.all()
 
     def retrieve(self, request, slug):
         obj = get_object_or_404(self.get_queryset(), slug=slug)
@@ -77,28 +76,26 @@ class DatasetViewSet(viewsets.ModelViewSet):
 class DatasetDataListView(ListAPIView):
 
     def get_model_class(self):
-        slug = self.kwargs['slug']
-        if slug not in dynamic_models.model_attributes:
-            return None
-        return dynamic_models.get_model(slug)
+        dataset = get_object_or_404(Dataset, slug=self.kwargs['slug'])
+        return dataset.get_last_data_model()
 
     def get_queryset(self):
-        # TODO: check if slug is in Dataset (if not, return 404)
+        querystring = self.request.query_params
+        order_by = querystring.pop('order-by', '')
         Model = self.get_model_class()
-        slug = self.kwargs['slug']
-        if Model is None:
-            raise NotFound({'error': 'Data not found.'})
+        queryset = Model.objects.all()
 
-        qs = Model.objects.all()
-        # TODO: inject `Meta.ordering` in Model creation class
-        ordering = dynamic_models.model_attributes[slug].get('ordering', None)
-        if ordering:
-            qs = qs.order_by(*ordering)
-        return qs
+        if querystring:
+            queryset = queryset.apply_filtering(querystring)
+
+        order_by = [field.replace('-', '').strip().lower()
+                    for field in order_by.split(',')
+                    if field.replace('-', '').strip().lower()]
+        queryset = queryset.apply_ordering(order_by)
+
+        return queryset
 
     def get_serializer_class(self):
-        # TODO: create this serializer class inside `core.dynamic_models` (or
-        # even inside a method on `cores.models.Dataset`)
         Model = self.get_model_class()
         fields = sorted([field.name for field in Model._meta.fields])
 
