@@ -3,33 +3,47 @@ import gc
 import gzip
 import io
 import lzma
+from textwrap import dedent
 
 import django.db.models.fields
-from django.db import connection, reset_queries
+from django.db import connection, reset_queries, transaction
 from django.db.utils import ProgrammingError
 from rows.plugins.utils import ipartition
 
 
-def get_fobj(filename, encoding):
+def get_fobj(filename, encoding=None):
     if filename.endswith('.gz'):
         fobj = gzip.GzipFile(filename)
     elif filename.endswith('.xz'):
         fobj = lzma.open(filename)
     else:
-        raise RuntimeError('File type not known')
+        if encoding is None:
+            return open(filename, mode='rb')
+        else:
+            return open(filename, encoding=encoding)
 
-    return io.TextIOWrapper(fobj, encoding=encoding)
+    if encoding is None:
+        return fobj
+    else:
+        return io.TextIOWrapper(fobj, encoding=encoding)
 
 
 def create_object(Model, data):
+    special_fields = (
+        django.db.models.fields.DateField,
+        django.db.models.fields.DateTimeField,
+        django.db.models.fields.DecimalField,
+    )
+
     for field in Model._meta.fields:
-        if isinstance(field, django.db.models.fields.DateField):
-            if not (data.get(field.name) or '').strip():
-                data[field.name] = None
+        if (isinstance(field, special_fields) and
+            not (data.get(field.name) or '').strip()):
+            data[field.name] = None
+
     return Model(**data)
 
 
-def import_file(filename, Model, encoding='utf-8', batch_size=5000,
+def import_file(filename, Model, encoding='utf-8', batch_size=1000,
                 callback=None):
     try:
         Model.delete_table()
