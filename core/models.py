@@ -104,7 +104,8 @@ class Dataset(models.Model):
     source_url = models.URLField(max_length=2000, null=False, blank=False)
 
     def __str__(self):
-        return f'{self.name} (by {self.author_name}, source: {self.source_name})'
+        return ('{} (by {}, source: {})'
+                .format(self.name, self.author_name, self.source_name))
 
     def get_model_definition(self):
         model_name = ''.join([word.capitalize()
@@ -189,7 +190,7 @@ class Link(models.Model):
 
     def __str__(self):
         domain = urlparse(self.url).netloc
-        return f'{self.title} ({domain})'
+        return '{} ({})'.format(self.title, domain)
 
 
 class Version(models.Model):
@@ -201,7 +202,8 @@ class Version(models.Model):
     order = models.PositiveIntegerField(null=False, blank=False)
 
     def __str__(self):
-        return f'{self.dataset.slug}.{self.name} (order: {self.order})'
+        return ('{}.{} (order: {})'
+                .format(self.dataset.slug, self.name, self.order))
 
 
 class Table(models.Model):
@@ -219,7 +221,8 @@ class Table(models.Model):
 
 
     def __str__(self):
-        return f'{self.dataset.slug}.{self.version.name}.{self.name}'
+        return ('{}.{}.{}'.
+                format(self.dataset.slug, self.version.name, self.name))
 
 FIELD_TYPES = {
     'date': models.DateField,

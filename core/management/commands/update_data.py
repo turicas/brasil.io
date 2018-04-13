@@ -86,7 +86,7 @@ class Command(BaseCommand):
     help = 'Update models (metadata only)'
 
     def _update_data(self, cls, table, get_update_data):
-        print(f'Updating {cls.__name__}...', end='', flush=True)
+        print('Updating {}...'.format(cls.__name__), end='', flush=True)
         total_created, total_updated, total_skipped = 0, 0, 0
         for row in table:
             if is_empty(row):
@@ -117,7 +117,8 @@ class Command(BaseCommand):
                 total_created += 1
             else:
                 total_updated += 1
-        print(f' created: {total_created}, updated: {total_updated}, skipped: {total_skipped}.')
+        print(' created: {}, updated: {}, skipped: {}.'
+              .format(total_created, total_updated, total_skipped))
 
     def handle(self, *args, **kwargs):
         self.datasets, self.tables, self.versions = {}, {}, {}
