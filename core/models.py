@@ -1,3 +1,4 @@
+from textwrap import dedent
 from urllib.parse import urlparse
 
 from django.contrib.postgres.fields import ArrayField, JSONField
@@ -104,6 +105,38 @@ class Dataset(models.Model):
 
     def __str__(self):
         return f'{self.name} (by {self.author_name}, source: {self.source_name})'
+
+    def get_model_definition(self):
+        model_name = ''.join([word.capitalize()
+                              for word in self.slug.split('-')])
+        version = self.version_set.order_by('order').last()
+        table = self.table_set.get(version=version, default=True)
+        ordering = table.ordering or []
+        filtering = table.filtering or []
+        indexes = []
+        if ordering:
+            indexes.append(ordering)
+        if filtering:
+            indexes.extend(filtering)
+        fields_text = []
+        for field in self.field_set.filter(table=table):
+            kwargs = field.options or {}
+            kwargs['null'] = field.null
+            field_args = ', '.join(['{}={}'.format(key, repr(value))
+                                    for key, value in kwargs.items()])
+            field_class = FIELD_TYPES[field.type].__name__
+            fields_text.append('{} = models.{}({})'.format(field.name, field_class, field_args))
+        return dedent('''
+            class {model_name}(models.Model):
+            {fields}
+
+                class Meta:
+                    indexes = {indexes}
+                    ordering = {ordering}
+        ''').format(model_name=model_name, indexes=repr(indexes), ordering=repr(ordering),
+                    fields='    ' + '\n    '.join(fields_text))
+        # TODO: missing objects?
+
 
     def get_last_data_model(self):
         model_name = ''.join([word.capitalize()
