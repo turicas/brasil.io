@@ -13,9 +13,9 @@ from rows.plugins.utils import ipartition
 
 def get_fobj(filename, encoding=None):
     if filename.endswith('.gz'):
-        fobj = gzip.GzipFile(filename)
+        fobj = gzip.GzipFile(filename, mode='rb')
     elif filename.endswith('.xz'):
-        fobj = lzma.open(filename)
+        fobj = lzma.open(filename, mode='rb')
     else:
         if encoding is None:
             return open(filename, mode='rb')
@@ -41,32 +41,6 @@ def create_object(Model, data):
             data[field.name] = None
 
     return Model(**data)
-
-
-def import_file(filename, Model, encoding='utf-8', batch_size=1000,
-                callback=None):
-    try:
-        Model.delete_table()
-    except ProgrammingError:  # Does not exist
-        pass
-    finally:
-        Model.create_table()
-
-    reader = csv.DictReader(get_fobj(filename, encoding))
-    counter = 0
-    for batch in ipartition(reader, batch_size):
-        Model.objects.bulk_create([create_object(Model, data)
-                                   for data in batch])
-        counter += len(batch)
-        reset_queries()  # Tip from https://stackoverflow.com/a/29924044
-        gc.collect()
-        if callback:
-            callback(counter)
-    if callback:
-        callback(counter)
-
-    connection.commit()
-    return counter
 
 
 def detect_column_sizes(filename, encoding='utf-8'):

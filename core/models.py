@@ -10,9 +10,23 @@ DYNAMIC_MODEL_REGISTRY = {}
 class DynamicModelMixin:
 
     @classmethod
-    def create_table(cls):
+    def create_table(cls, create_indexes=True):
+        indexes = cls._meta.indexes
+        if not create_indexes:
+            cls._meta.indexes = []
+        try:
+            with connection.schema_editor() as schema_editor:
+                schema_editor.create_model(cls)
+        except:
+            raise
+        finally:
+            cls._meta.indexes = indexes
+
+    @classmethod
+    def create_indexes(cls):
         with connection.schema_editor() as schema_editor:
-            schema_editor.create_model(cls)
+            for index in cls._meta.indexes:
+                schema_editor.add_index(cls, index)
 
     @classmethod
     def delete_table(cls):
@@ -82,9 +96,13 @@ class Dataset(models.Model):
             filtering = table.filtering or []
             indexes = []
             if ordering:
-                indexes.append(models.Index(fields=ordering))
-            for field_name in filtering:
-                indexes.append(models.Index(fields=[field_name]))
+                indexes.append(ordering)
+            if filtering:
+                for field_name in filtering:
+                    indexes.append([field_name])
+            indexes = [models.Index(fields=field_names)
+                       for field_names in indexes]
+
             Options = type(
                 'Meta',
                 (object,),
@@ -149,6 +167,13 @@ class Table(models.Model):
     def __str__(self):
         return f'{self.dataset.slug}.{self.version.name}.{self.name}'
 
+FIELD_TYPES = {
+    'date': models.DateField,
+    'datetime': models.DateTimeField,
+    'decimal': models.DecimalField,
+    'integer': models.IntegerField,
+    'string': models.CharField,
+}
 
 class Field(models.Model):
     TYPES = ['binary', 'bool', 'date', 'datetime', 'decimal', 'email',
@@ -168,19 +193,8 @@ class Field(models.Model):
     version = models.ForeignKey(Version, on_delete=models.CASCADE,
                                 null=True, blank=True)
 
-    def __str__(self):
-        return (f'{self.dataset.slug}.{self.version.name}.{self.table.name}'
-                f'.{self.name}')
-
     @property
     def field_class(self):
-        field_types = {
-            'date': models.DateField,
-            'datetime': models.DateTimeField,
-            'decimal': models.DecimalField,
-            'integer': models.IntegerField,
-            'string': models.CharField,
-        }
         kwargs = self.options or {}
         kwargs['null'] = self.null
-        return field_types[self.type](**kwargs)
+        return FIELD_TYPES[self.type](**kwargs)
