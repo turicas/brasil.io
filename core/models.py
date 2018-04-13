@@ -216,6 +216,8 @@ class Table(models.Model):
                           null=False, blank=False)
     filtering = ArrayField(models.CharField(max_length=63),
                            null=True, blank=True)
+    search = ArrayField(models.CharField(max_length=63),
+                        null=True, blank=True)
     version = models.ForeignKey(Version, on_delete=models.CASCADE,
                                 null=False, blank=False)
 

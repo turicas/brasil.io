@@ -60,11 +60,16 @@ def version_update_data(row):
         'defaults': row,
     }
 
+
+def str_to_list(data):
+    if data:
+        return [field.strip() for field in data.split(',')]
+
+
 def table_update_data(row):
-    if row['ordering']:
-        row['ordering'] = [field.strip() for field in row['ordering'].split(',')]
-    if row['filtering']:
-        row['filtering'] = [field.strip() for field in row['filtering'].split(',')]
+    row['ordering'] = str_to_list(row['ordering'])
+    row['filtering'] = str_to_list(row['filtering'])
+    row['search'] = str_to_list(row['search'])
     return {
         'dataset': row['dataset'],
         'version': row['version'],
