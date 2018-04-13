@@ -69,6 +69,27 @@ class DynamicModelQuerySet(models.QuerySet):
         return qs
 
 
+    def count(self):
+        if getattr(self, '_count', None) is not None:
+            return self._count
+
+        query = self.query
+        if not query.where:
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT reltuples FROM pg_class WHERE relname = %s",
+                        [query.model._meta.db_table],
+                    )
+                    self._count = int(cursor.fetchone()[0])
+            except:
+                self._count = super().count()
+        else:
+            self._count = super().count()
+
+        return self._count
+
+
 class Dataset(models.Model):
     author_name = models.CharField(max_length=255, null=False, blank=False)
     author_url = models.URLField(max_length=2000, null=True, blank=True)

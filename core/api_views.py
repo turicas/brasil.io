@@ -1,10 +1,10 @@
-from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, viewsets
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from rest_framework.generics import ListAPIView
 
+from core import paginators
 from core.models import Dataset, Link
 
 
@@ -56,7 +56,7 @@ class DatasetDetailSerializer(serializers.ModelSerializer):
 
 class DatasetViewSet(viewsets.ModelViewSet):
 
-    serializer_class = DatasetSerializer  # TODO: add pagination
+    serializer_class = DatasetSerializer
 
     def get_queryset(self):
         return Dataset.objects.all()
@@ -71,6 +71,8 @@ class DatasetViewSet(viewsets.ModelViewSet):
 
 
 class DatasetDataListView(ListAPIView):
+
+    pagination_class = paginators.LargeTablePageNumberPagination
 
     def get_model_class(self):
         dataset = get_object_or_404(Dataset, slug=self.kwargs['slug'])
