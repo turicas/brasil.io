@@ -74,7 +74,7 @@ class Command(BaseCommand):
                     stderr=subprocess.PIPE,
                 )
                 finished = False
-                chunk_size = 1048576  # 1MiB
+                chunk_size = 8388608  # 8MiB
                 while not finished:
                     data = fobj.read(chunk_size)
                     if data == b'':
@@ -99,6 +99,12 @@ class Command(BaseCommand):
         print('Creating indexes...', end='', flush=True)
         start = time.time()
         Model.create_indexes()
+        end = time.time()
+        print('  done in {:.3f}s.'.format(end - start))
+
+        print('Updating search index...', end='', flush=True)
+        start = time.time()
+        Model.objects.update_search_index()
         end = time.time()
         print('  done in {:.3f}s.'.format(end - start))
 

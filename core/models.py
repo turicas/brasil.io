@@ -2,11 +2,21 @@ from textwrap import dedent
 from urllib.parse import urlparse
 
 from django.contrib.postgres.fields import ArrayField, JSONField
-from django.contrib.postgres.search import SearchVector
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import (SearchQuery, SearchVector,
+                                            SearchVectorField)
 from django.db import connection, models
 
 
 DYNAMIC_MODEL_REGISTRY = {}
+FIELD_TYPES = {
+    'date': models.DateField,
+    'datetime': models.DateTimeField,
+    'decimal': models.DecimalField,
+    'integer': models.IntegerField,
+    'string': models.CharField,
+}
+
 
 class DynamicModelMixin:
 
@@ -47,10 +57,9 @@ class DynamicModelQuerySet(models.QuerySet):
                     qs = qs.filter(**{field_name: value})
 
             search_query = filtering.get('search', None)
-            if search_query is not None:
-                search_vector = SearchVector(*model_filtering)
-                qs = qs.annotate(search=search_vector)\
-                       .filter(search=search_query)
+            search_fields = self.model.extra['search']
+            if search_query and search_fields:
+                qs = qs.filter(search_data=SearchQuery(search_query))
         return qs
 
     def apply_ordering(self, query):
@@ -90,6 +99,9 @@ class DynamicModelQuerySet(models.QuerySet):
 
         return self._count
 
+    def update_search_index(self):
+        self.update(search_data=SearchVector(*self.model.extra['search']))
+
 
 class Dataset(models.Model):
     author_name = models.CharField(max_length=255, null=False, blank=False)
@@ -107,77 +119,16 @@ class Dataset(models.Model):
         return ('{} (by {}, source: {})'
                 .format(self.name, self.author_name, self.source_name))
 
-    def get_model_definition(self):
-        model_name = ''.join([word.capitalize()
-                              for word in self.slug.split('-')])
+    def get_model_declaration(self):
         version = self.version_set.order_by('order').last()
         table = self.table_set.get(version=version, default=True)
-        ordering = table.ordering or []
-        filtering = table.filtering or []
-        indexes = []
-        if ordering:
-            indexes.append(ordering)
-        if filtering:
-            indexes.extend(filtering)
-        fields_text = []
-        for field in self.field_set.filter(table=table):
-            kwargs = field.options or {}
-            kwargs['null'] = field.null
-            field_args = ', '.join(['{}={}'.format(key, repr(value))
-                                    for key, value in kwargs.items()])
-            field_class = FIELD_TYPES[field.type].__name__
-            fields_text.append('{} = models.{}({})'.format(field.name, field_class, field_args))
-        return dedent('''
-            class {model_name}(models.Model):
-            {fields}
-
-                class Meta:
-                    indexes = {indexes}
-                    ordering = {ordering}
-        ''').format(model_name=model_name, indexes=repr(indexes), ordering=repr(ordering),
-                    fields='    ' + '\n    '.join(fields_text))
-        # TODO: missing objects?
-
+        return table.get_model_declaration()
 
     def get_last_data_model(self):
-        model_name = ''.join([word.capitalize()
-                              for word in self.slug.split('-')])
         if self.slug not in DYNAMIC_MODEL_REGISTRY:
             version = self.version_set.order_by('order').last()
             table = self.table_set.get(version=version, default=True)
-            fields = {field.name: field.field_class
-                      for field in self.field_set.filter(table=table)}
-            ordering = table.ordering or []
-            filtering = table.filtering or []
-            indexes = []
-            if ordering:
-                indexes.append(ordering)
-            if filtering:
-                for field_name in filtering:
-                    indexes.append([field_name])
-            indexes = [models.Index(fields=field_names)
-                       for field_names in indexes]
-
-            Options = type(
-                'Meta',
-                (object,),
-                {
-                    'ordering': ordering,
-                    'indexes': indexes,
-                },
-            )
-            Model = type(
-                model_name,
-                (DynamicModelMixin, models.Model,),
-                {
-                    '__module__': 'core.models',
-                    'Meta': Options,
-                    'objects': DynamicModelQuerySet.as_manager(),
-                    **fields,
-                },
-            )
-            Model.extra = {'filtering': filtering, 'ordering': ordering}
-            DYNAMIC_MODEL_REGISTRY[self.slug] = Model
+            DYNAMIC_MODEL_REGISTRY[self.slug] = table.get_model()
 
         return DYNAMIC_MODEL_REGISTRY[self.slug]
 
@@ -226,13 +177,80 @@ class Table(models.Model):
         return ('{}.{}.{}'.
                 format(self.dataset.slug, self.version.name, self.name))
 
-FIELD_TYPES = {
-    'date': models.DateField,
-    'datetime': models.DateTimeField,
-    'decimal': models.DecimalField,
-    'integer': models.IntegerField,
-    'string': models.CharField,
-}
+    def get_model(self):
+        model_name = ''.join([word.capitalize()
+                              for word in self.dataset.slug.split('-')])
+        fields = {field.name: field.field_class
+                  for field in self.field_set.all()}
+        fields['search_data'] = SearchVectorField(null=True)
+        ordering = self.ordering or []
+        filtering = self.filtering or []
+        search = self.search or []
+        indexes = []
+        if ordering:
+            indexes.append(models.Index(fields=ordering))
+        if filtering:
+            for field_name in filtering:
+                indexes.append(models.Index(fields=[field_name]))
+        if search:
+            indexes.append(GinIndex(fields=['search_data']))
+
+        Options = type(
+            'Meta',
+            (object,),
+            {
+                'ordering': ordering,
+                'indexes': indexes,
+            },
+        )
+        Model = type(
+            model_name,
+            (DynamicModelMixin, models.Model,),
+            {
+                '__module__': 'core.models',
+                'Meta': Options,
+                'objects': DynamicModelQuerySet.as_manager(),
+                **fields,
+            },
+        )
+        Model.extra = {
+            'filtering': filtering,
+            'ordering': ordering,
+            'search': search,
+        }
+        return Model
+
+    def get_model_declaration(self):
+        model_name = ''.join([word.capitalize()
+                              for word in self.dataset.slug.split('-')])
+        ordering = self.ordering or []
+        filtering = self.filtering or []
+        search = self.search or []
+        indexes = []
+        if ordering:
+            indexes.append(ordering)
+        if filtering:
+            indexes.extend(filtering)
+        # TODO: add search indexes
+        fields_text = []
+        for field in self.field_set.all():
+            kwargs = field.options or {}
+            kwargs['null'] = field.null
+            field_args = ', '.join(['{}={}'.format(key, repr(value))
+                                    for key, value in kwargs.items()])
+            field_class = FIELD_TYPES[field.type].__name__
+            fields_text.append('{} = models.{}({})'.format(field.name, field_class, field_args))
+        return dedent('''
+            class {model_name}(models.Model):
+            {fields}
+
+                class Meta:
+                    indexes = {indexes}
+                    ordering = {ordering}
+        ''').format(model_name=model_name, indexes=repr(indexes), ordering=repr(ordering),
+                    fields='    ' + '\n    '.join(fields_text))
+        # TODO: missing objects?
+
 
 class Field(models.Model):
     TYPES = ['binary', 'bool', 'date', 'datetime', 'decimal', 'email',
