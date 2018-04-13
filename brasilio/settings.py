@@ -42,6 +42,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+if DEBUG:
+    MIDDLEWARE.append('utils.sqlprint.SqlPrintingMiddleware')
+
 ROOT_URLCONF = 'brasilio.urls'
 TEMPLATES = [
     {
