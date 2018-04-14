@@ -6,6 +6,7 @@
         -webkit-transition: color .3s ease;
         transition: color .3s ease;
         text-transform: uppercase;
+        font-weight: bold;
     }
 
     .wrap-container {
@@ -28,10 +29,10 @@
 <body>
     <nav>
         <div class="nav-wrapper indigo">
-            <a href="#!" class="brand-logo"><img src="img/logo_br-io_fundo-escuro.png" style="max-height:40px;margin-left: 20px; margin-top: 10px;"></a>
-            <a href="#" data-target="mobile-menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+            <a href="index.html" class="brand-logo"><img src="img/logo_br-io_fundo-escuro.png" style="max-height:40px;margin-left: 20px; margin-top: 10px;"></a>
+            <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             <ul class="right hide-on-med-and-down">
-            <li><a href="#">Manifesto</a></li>
+            <li><a href="manifesto.html">Sobre</a></li>
             <li><a href="#">Datasets</a></li>
             <li><a href="#">Contato</a></li>
             <li><a href="#">Apoie</a></li>
@@ -39,8 +40,9 @@
         </div>
     </nav>
     
-    <ul class="sidenav" id="mobile-menu">
-        <li><a href="#">Manifesto</a></li>
+    <ul class="sidenav" id="mobile-demo">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="manifesto.html">Sobre</a></li>
         <li><a href="#">Datasets</a></li>
         <li><a href="#">Contato</a></li>
         <li><a href="#">Apoie</a></li>
@@ -170,12 +172,9 @@
         </div>
     </div>
     <div class="footer indigo darken-4">
-        <div class="row">
-            <div class="section indigo-text text-lighten-5 col s4 offset-s2">
-                <p>GNU General Public License version 3</p>
-            </div>
-            <div class="section indigo-text text-lighten-5 col s4 offset-s2">
-                <p><a href="https://github.com/turicas/brasil.io">Github</a></p>
+        <div class="container">
+            <div class="section indigo-text text-lighten-5">
+                <p>A api.brasil.io é mantida com muito carinho por <a href="https://twitter.com/turicas">Álvaro Justen</a> e <a href="https://github.com/turicas/api.brasil.io/graphs/contributors">contribuidores</a>.</p>
             </div>
         </div>
     </div>
@@ -183,12 +182,6 @@
     <!--JavaScript at end of body for optimized loading-->
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
-    <!-- Sidebar trigger -->
-    <script>
-        $(document).ready(function(){
-            $('.sidenav').sidenav();
-          });
-    </script>
 </body>
 
 </html>
