@@ -113,6 +113,7 @@ class Dataset(models.Model):
     author_url = models.URLField(max_length=2000, null=True, blank=True)
     code_url = models.URLField(max_length=2000, null=False, blank=False)
     description = models.TextField(null=False, blank=False)
+    icon = models.CharField(max_length=31, null=False, blank=False)
     license_name = models.CharField(max_length=255, null=False, blank=False)
     license_url = models.URLField(max_length=2000, null=False, blank=False)
     name = models.CharField(max_length=255, null=False, blank=False)
