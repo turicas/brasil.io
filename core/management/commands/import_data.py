@@ -96,6 +96,12 @@ class Command(BaseCommand):
             print('  done in {:.3f}s ({} rows imported, {:.3f} rows/s).'
                   .format(duration, rows_imported, rows_imported / duration))
 
+        print('Running VACUUM ANALYSE...', end='', flush=True)
+        start = time.time()
+        Model.analyse_table()
+        end = time.time()
+        print('  done in {:.3f}s.'.format(end - start))
+
         print('Creating indexes...', end='', flush=True)
         start = time.time()
         Model.create_indexes()
@@ -105,12 +111,5 @@ class Command(BaseCommand):
         print('Updating search index...', end='', flush=True)
         start = time.time()
         Model.objects.update_search_index()
-        end = time.time()
-        print('  done in {:.3f}s.'.format(end - start))
-
-        print('Running VACUUM ANALYSE...', end='', flush=True)
-        start = time.time()
-        with connection.cursor() as cursor:
-            cursor.execute('VACUUM ANALYSE {}'.format(table_name))
         end = time.time()
         print('  done in {:.3f}s.'.format(end - start))

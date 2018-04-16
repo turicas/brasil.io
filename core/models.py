@@ -34,6 +34,11 @@ class DynamicModelMixin:
             cls._meta.indexes = indexes
 
     @classmethod
+    def analyse_table(cls):
+        with connection.cursor() as cursor:
+            cursor.execute('VACUUM ANALYSE {}'.format(cls._meta.db_table))
+
+    @classmethod
     def create_indexes(cls):
         with connection.schema_editor() as schema_editor:
             for index in cls._meta.indexes:
