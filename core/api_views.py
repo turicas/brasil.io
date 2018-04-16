@@ -99,7 +99,8 @@ class DatasetDataListView(ListAPIView):
 
     def get_serializer_class(self):
         Model = self.get_model_class()
-        fields = sorted([field.name for field in Model._meta.fields])
+        fields = sorted([field.name for field in Model._meta.fields
+                         if field.name != 'search_data'])
 
         # TODO: move this monkey patch to a metaclass
         GenericSerializer.Meta.model = Model
