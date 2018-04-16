@@ -7,5 +7,6 @@ ipython
 markdown
 openpyxl
 psycopg2-binary
-git+https://github.com/turicas/rows.git@develop#egg=rows
+rows
+tqdm
 whitenoise
