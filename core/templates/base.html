@@ -1,22 +1,7 @@
+{% load static %}
 <!DOCTYPE html>
-<style>
-    .card .card-action a:not(.btn):not(.btn-large):not(.btn-small):not(.btn-large):not(.btn-floating) {
-        color: #1A237E !important;
-        margin-right: 24px;
-        -webkit-transition: color .3s ease;
-        transition: color .3s ease;
-        text-transform: uppercase;
-        font-weight: bold;
-    }
-
-    .wrap-container {
-        padding: 25px;
-    }
-</style>
-
 <html>
-
-<head>
+  <head>
     <meta charset="utf-8">
     <!--Import Google Icon Font-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -24,161 +9,63 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-</head>
+    <title>{% block title %}Brasil.IO{% endblock %}</title>
+    <style>
+        .card .card-action a:not(.btn):not(.btn-large):not(.btn-small):not(.btn-large):not(.btn-floating) {
+            color: #1A237E !important;
+            margin-right: 24px;
+            -webkit-transition: color .3s ease;
+            transition: color .3s ease;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .wrap-container {
+            padding: 25px;
+        }
+    </style>
+  </head>
 
-<body>
+  <body>
     <nav>
         <div class="nav-wrapper indigo">
-          <a href="index.html" class="brand-logo"><img src="/static/img/logo_br-io_fundo-escuro.png" style="max-height:40px;margin-left: 20px; margin-top: 10px;"></a>
+          <a href="/" class="brand-logo"><img src="{% static 'img/logo_br-io_fundo-escuro.png' %}" style="max-height:40px;margin-left: 20px; margin-top: 10px;"></a>
             <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             <ul class="right hide-on-med-and-down">
-            <li><a href="manifesto.html">Sobre</a></li>
-            <li><a href="http://brasil.io/api/datasets">Datasets</a></li>
-            <li><a href="sugira.html">Sugira um dataset</a></li>
-            <li><a href="contato.html">Contato</a></li>
-            <li><a href="https://apoia.se/brasilio">Apoie</a></li>
+              <li><a href="{% url 'core:manifesto' %}">Manifesto</a></li>
+              <li><a href="{% url 'core:dataset-list' %}">Datasets</a></li>
+              <li><a href="{% url 'core:dataset-suggestion' %}">Sugira um dataset</a></li>
+              <li><a href="{% url 'api:dataset-list' %}">API</a></li>
+              <li><a href="{% url 'core:contact' %}">Contato</a></li>
+              <li><a href="https://apoia.se/brasilio">Apoie</a></li>
             </ul>
         </div>
     </nav>
 
     <ul class="sidenav" id="mobile-demo">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="manifesto.html">Sobre</a></li>
-        <li><a href="http://brasil.io/api/datasets">Datasets</a></li>
-        <li><a href="sugira.html">Sugira um dataset</a></li>
-        <li><a href="contato.html">Contato</a></li>
-        <li><a href="https://apoia.se/brasilio">Apoie</a></li>
+      <li><a href="{% url 'core:manifesto' %}">Manifesto</a></li>
+      <li><a href="{% url 'core:dataset-list' %}">Datasets</a></li>
+      <li><a href="{% url 'core:dataset-suggestion' %}">Sugira um dataset</a></li>
+      <li><a href="{% url 'api:dataset-list' %}">API</a></li>
+      <li><a href="{% url 'core:contact' %}">Contato</a></li>
+      <li><a href="https://apoia.se/brasilio">Apoie</a></li>
     </ul>
 
-    <div class="top-container indigo darken-1">
-        <div class="container">
-            <div class="section indigo-text text-lighten-5">
-                <h3>O Brasil em dados libertos</h3>
-                <p class="flow-text">Repositório de dados públicos disponibilizados em formato acessível</p>
-            </div>
-        </div>
-    </div>
+    {% block top %}{% endblock %}
+
     <div class="container">
-        <div class="row">
-            <div class="col s12 m6">
-                <div class="card horizontal small">
-                    <div class="card-stacked">
-                        <div class="card-content">
-                            <span class="card-title activator grey-text text-darken-4">Sócios das Empresas Brasileiras
-                                <i class="material-icons left">people</i>
-                            </span>
-                            <p>Quadros societários e de administradores das pessoas jurídicas brasileiras.</p>
-                        </div>
-                        <div class="card-action">
-                            <a href="#">Visualizar</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col s12 m6">
-                <div class="card horizontal small">
-                    <div class="card-stacked">
-                        <div class="card-content">
-                            <span class="card-title activator grey-text text-darken-4">Salários dos Magistrados
-                                <i class="material-icons left">account_balance</i>
-                            </span>
-                            <p>Pagamentos efetuados aos magistrados para cumprimento da Lei n. 12.527, de 18 de novembro de
-                                2011 (Lei de Acesso à Informação) e da Resolução n. 215, de 16 de dezembro de 2015.</p>
-                        </div>
-                        <div class="card-action">
-                            <a href="#">Visualizar</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col s12 m6">
-                <div class="card horizontal small">
-                    <div class="card-stacked">
-                        <div class="card-content">
-                            <span class="card-title activator grey-text text-darken-4">Cursos e notas de corte do PROUNI 2018
-                                <i class="material-icons left">school</i>
-                            </span>
-                            <p>Pagamentos efetuados aos magistrados para cumprimento da Lei n. 12.527, de 18 de novembro de
-                                2011 (Lei de Acesso à Informação) e da Resolução n. 215, de 16 de dezembro de 2015.</p>
-                        </div>
-                        <div class="card-action">
-                            <a href="#">Visualizar</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col s12 m6">
-                <div class="card horizontal small">
-                    <div class="card-stacked">
-                        <div class="card-content">
-                            <span class="card-title activator grey-text text-darken-4">Estado da balneabilidade da costa baiana
-                                <i class="material-icons left">pool</i>
-                            </span>
-                            <p>Condição de balneabilidade das praias da costa baiana, retirados dos boletins semanais do INEMA.</p>
-                        </div>
-                        <div class="card-action">
-                            <a href="#">Visualizar</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col s12 m6">
-                <div class="card horizontal small">
-                    <div class="card-stacked">
-                        <div class="card-content">
-                            <span class="card-title activator grey-text text-darken-4">Gastos dos Deputados
-                                <i class="material-icons left">work</i>
-                            </span>
-                            <p>Gastos parlamentares registrados na Câmara dos Deputados.</p>
-                        </div>
-                        <div class="card-action">
-                            <a href="#">Visualizar</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col s12 m6">
-                <div class="card horizontal small">
-                    <div class="card-stacked">
-                        <div class="card-content">
-                            <span class="card-title activator grey-text text-darken-4">Gastos Diretos do Governo Federal
-                                <i class="material-icons left">attach_money</i>
-                            </span>
-                            <p>Pagamentos para aquisição e contratação de obras e compras governamentais, dentre outros, realizados
-                                pelos órgãos e entidades da Administração Pública Federal, que executam as despesas pelo
-                                Sistema Integrado de Administração Financeira do Governo Federal (Siafi).</p>
-                        </div>
-                        <div class="card-action">
-                            <a href="#">Visualizar</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col s12 m6">
-                <div class="card horizontal small">
-                    <div class="card-stacked">
-                        <div class="card-content">
-                            <span class="card-title activator grey-text text-darken-4">Sugira um dataset
-                                <i class="material-icons left">rate_review</i>
-                            </span>
-                            <p>Quais outros dados precisam ser libertados? Sugira aqui.</p>
-                        </div>
-                        <div class="card-action indigo-text text-accent-4">
-                            <p>
-                                <a href="#">Sugerir</a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      {% block content %}{% endblock %}
     </div>
     <div class="footer indigo darken-4">
-        <div class="container">
-            <div class="section indigo-text text-lighten-5">
-                <p>A api.brasil.io é mantida com muito carinho por <a href="https://twitter.com/turicas">Álvaro Justen</a> e <a href="https://github.com/turicas/api.brasil.io/graphs/contributors">contribuidores</a>.</p>
-            </div>
+      <div class="container">
+        <div class="section indigo-text text-lighten-5">
+          <p>
+            O <b>Brasil.IO</b> é mantido com muito carinho por
+            <a href="https://twitter.com/turicas">Álvaro Justen</a> e
+            <a href="https://github.com/turicas/brasil.io/graphs/contributors">contribuidores</a>.
+            <a href="https://github.com/turicas/brasil.io/issues">Colabore também</a>.
+          </p>
         </div>
+      </div>
     </div>
 
     <!--JavaScript at end of body for optimized loading-->
@@ -191,6 +78,5 @@
     </script>
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
-</body>
-
+  </body>
 </html>

@@ -1,95 +1,34 @@
-<!DOCTYPE html>
-<style>
-    .card .card-action a:not(.btn):not(.btn-large):not(.btn-small):not(.btn-large):not(.btn-floating) {
-        color: #1A237E !important;
-        margin-right: 24px;
-        -webkit-transition: color .3s ease;
-        transition: color .3s ease;
-        text-transform: uppercase;
-    }
-
-    .wrap-container {
-        padding: 25px;
-    }
-</style>
-
-<html>
-
-<head>
-    <meta charset="utf-8">
-    <!--Import Google Icon Font-->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!-- Compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
-    <!--Let browser know website is optimized for mobile-->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-</head>
-
-<body>
-    <nav>
-        <div class="nav-wrapper indigo">
-            <a href="index.html" class="brand-logo"><img src="img/logo_br-io_fundo-escuro.png" style="max-height:40px;margin-left: 20px; margin-top: 10px;"></a>
-            <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
-            <ul class="right hide-on-med-and-down">
-            <li><a href="manifesto.html">Sobre</a></li>
-            <li><a href="http://brasil.io/api/datasets">Datasets</a></li>
-            <li><a href="sugira.html">Sugira um dataset</a></li>
-            <li><a href="contato.html">Contato</a></li>
-            <li><a href="https://apoia.se/brasilio">Apoie</a></li>
-            </ul>
-        </div>
-    </nav>
-    
-    <ul class="sidenav" id="mobile-demo">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="manifesto.html">Sobre</a></li>
-        <li><a href="http://brasil.io/api/datasets">Datasets</a></li>
-        <li><a href="sugira.html">Sugira um dataset</a></li>
-        <li><a href="contato.html">Contato</a></li>
-        <li><a href="https://apoia.se/brasilio">Apoie</a></li>
-    </ul>
-    
-    <div class="top-container indigo darken-1">
-        <div class="container">
-            <div class="section indigo-text text-lighten-5">
-                <h3>Brasil.IO</h3>
-                <p class="flow-text">Dados abertos para um Brasil mais ligado</p>
-            </div>
-        </div>
-    </div>
-    <div class="container">
-        <div class="section">
-            <h4>Sobre o Brasil.IO</h4>
-            <div class="divider"></div>
-            <h5>O Problema</h5>
-            <p>Muitos dados públicos brasileiros estão disponíveis (principalmente depois da criação da <a href="http://www.planalto.gov.br/ccivil_03/_Ato2011-2014/2011/Lei/L12527.htm">Lei de Acesso à Informação</a>), mas não necessariamente acessíveis. Mesmo que a informação esteja disponível, nem sempre ela está disponível em um formato legível por máquina, ou utilizando um formato aberto, ou possui descrição (metadados) que facilitem a interpretação (manual ou automática) desses dados. Quanto menos acessível é uma informação, mais perto de ser fechada ela está.</p>
-            <p>Além do problema relativo à acessibilidade, não existe um lugar comum em que todos os dados disponíveis estejam organizados e catalogados, dificultando ainda mais o acesso (ou a descoberta que esse tipo de informação está disponível).</p>
-            <p>O objetivo do projeto não é concorrer com iniciativas correlatas do Governo (como o dados.gov.br) e de outras organizações – pelo contrário, gostaríamos de disponibilizar os dados que essas organizações já disponibilizam, porém de forma integrada e estruturada, permitindo a qualquer um (independente de vínculo) possa disponibilizar dados, independente da fonte.</p>
-        </div>
-        <div class="divider"></div>
-        <div class="section">
-            <h5>A Solução</h5>
-            <p>O projeto Brasil.IO foi criado com o objetivo de ser referência para quem procura ou quer publicar dados abertos sobre o Brasil de forma organizada, legível por máquina e usando padrões abertos. O projeto foi idealizado e está sendo desenvolvido por Álvaro Justen, com a colaboração de outros desenvolvedores.</p>
-        </div>           
-    </div>
-    <div class="footer indigo darken-4">
-        <div class="container">
-            <div class="section indigo-text text-lighten-5">
-                <p>A api.brasil.io é mantida com muito carinho por <a href="https://twitter.com/turicas">Álvaro Justen</a> e <a href="https://github.com/turicas/api.brasil.io/graphs/contributors">contribuidores</a>.</p>
-            </div>
-        </div>
-    </div>
-
-    <!--JavaScript at end of body for optimized loading-->
-    <!-- JQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
-    <script>
-        $(document).ready(function(){
-            $('.sidenav').sidenav();
-        });
-    </script>
-    <!-- Compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
-</body>
-
-</html>
+{% extends 'base.html' %}
+{% block title %}Manifesto - Brasil.IO{% endblock %}
+{% block content %}
+<div class="section">
+  <h4>Brasil.IO: Manifesto</h4>
+  <div class="divider"></div>
+  <p>
+    Muitos dados públicos brasileiros estão disponíveis (principalmente depois
+    da criação da <a
+      href="http://www.planalto.gov.br/ccivil_03/_Ato2011-2014/2011/Lei/L12527.htm">Lei
+      de Acesso à Informação</a>), mas não necessariamente acessíveis. Mesmo
+    que a informação esteja disponível, nem sempre ela está disponível em um
+    formato legível por máquina, ou utilizando um formato aberto, ou possui
+    descrição (metadados) que facilitem a interpretação (manual ou automática)
+    desses dados. <b>O nível de acessibilidade de um dado é um filtro sobre
+    quem conseguirá utilizá-lo.  </b>
+  </p>
+  <p>
+    Além do problema relativo à acessibilidade, não existe um lugar comum em
+    que todos os dados disponíveis estejam organizados e catalogados,
+    dificultando ainda mais o acesso (ou a descoberta que esse tipo de
+    informação está disponível).
+  </p>
+  <p>
+    O objetivo do <b>Brasil.IO</b> não é concorrer com iniciativas correlatas
+    do Governo (como o <a href="https://dados.gov.br/">dados.gov.br</a>) e de
+    outras organizações – pelo contrário, gostaríamos de disponibilizar os
+    dados que essas organizações já disponibilizam, porém de forma integrada e
+    estruturada, permitindo a qualquer um acessar esses dados, independente do
+    conhecimento de computação (muitas bases são disponibilizadas de forma que
+    apenas programadores conseguem criar programas para ler os arquivos).
+  </p>
+</div>
+{% endblock %}
