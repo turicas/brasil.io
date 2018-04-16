@@ -61,6 +61,33 @@ python manage.py migrate
 python manage.py update_data
 ```
 
+## Deploying on Dokku
+
+Dokku is a very small plataform-as-a-service software, it works like Heroku
+and can be used to easily deploy apps in your own infrastructure.
+
+- On remote machine:
+  - Install dokku
+  - Run `dokku apps:create brasilio-web`
+- On local machine:
+  - `git remote add dokku dokku@HOSTNAME:brasilio-web`
+  - `git push dokku master`
+- On remote machine:
+  - `dokku postgres:create brasilio-pgsql`
+  - `dokku postgres:expose brasilio-pgsql`
+  - `dokku postgres:link brasilio-pgsql brasilio-web`
+  - `dokku ps:scale brasilio-web web=4`
+  - `dokku domains:add brasilio-web brasil.io`
+  - `dokku domains:add brasilio-web api.brasil.io`
+  - `dokku domains:add brasilio-web www.brasil.io`
+  - Put `.csv.xz` files inside `/root/data` and run: `dokku storage:mount brasilio-web /root/data:/data`
+  - `dokku run brasilio-web /bin/bash`
+  - Inside container:
+    - `cd /app && python manage.py migrate`
+    - `cd /app && python manage.py createsuperuser`
+    - `cd /app && python manage.py update_data`
+    - `cd /app && python manage.py import_data <dataset-slug> /data/<filename.csv.xz>`
+
 
 ### Licença
 
