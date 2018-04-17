@@ -1,48 +1,82 @@
-<!doctype html>
-<html lang="en">
+{% load static %}
+<!DOCTYPE html>
+<html>
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>{% block title%}{% endblock %}</title>
-    {% block css %}
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    {% endblock %}
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Brasil.IO{% endblock %}</title>
+    <style>
+        .card .card-action a:not(.btn):not(.btn-large):not(.btn-small):not(.btn-large):not(.btn-floating) {
+            color: #1A237E !important;
+            margin-right: 24px;
+            -webkit-transition: color .3s ease;
+            transition: color .3s ease;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .wrap-container {
+            padding: 25px;
+        }
+    </style>
   </head>
-  <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="{% url 'core:dataset-list' %}">Datasets</a>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link" href="{% url 'core:manifesto' %}">Manifesto</a>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link" href="{% url 'core:dataset-suggestion' %}">Sugira um dataset</a>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link" href="{% url 'core:contact' %}">Contato</a>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link" href="https://apoia.se/brasilio">Apoie</a>
-          </li>
-        </ul>
-      </div>
+  <body>
+    <nav>
+        <div class="nav-wrapper indigo">
+          <a href="/" class="brand-logo"><img src="{% static 'img/logo_br-io_fundo-escuro.png' %}" style="max-height:40px;margin-left: 20px; margin-top: 10px;"></a>
+            <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+            <ul class="right hide-on-med-and-down">
+              <li><a href="{% url 'core:manifesto' %}">Manifesto</a></li>
+              <li><a href="{% url 'core:dataset-list' %}">Datasets</a></li>
+              <li><a href="{% url 'core:dataset-suggestion' %}">Sugira um dataset</a></li>
+              <li><a href="{% url 'api:dataset-list' %}">API</a></li>
+              <li><a href="{% url 'core:contact' %}">Contato</a></li>
+              <li><a href="https://apoia.se/brasilio">Apoie</a></li>
+            </ul>
+        </div>
     </nav>
 
-    <div class="content">
-    {% block content %}
-    {% endblock %}
+    <ul class="sidenav" id="mobile-demo">
+      <li><a href="{% url 'core:manifesto' %}">Manifesto</a></li>
+      <li><a href="{% url 'core:dataset-list' %}">Datasets</a></li>
+      <li><a href="{% url 'core:dataset-suggestion' %}">Sugira um dataset</a></li>
+      <li><a href="{% url 'api:dataset-list' %}">API</a></li>
+      <li><a href="{% url 'core:contact' %}">Contato</a></li>
+      <li><a href="https://apoia.se/brasilio">Apoie</a></li>
+    </ul>
+
+    {% block top %}{% endblock %}
+
+    <div class="container">
+      {% block content %}{% endblock %}
+    </div>
+    <div class="footer indigo darken-4">
+      <div class="container">
+        <div class="section indigo-text text-lighten-5">
+          <p>
+            O <b>Brasil.IO</b> é mantido com muito carinho por
+            <a href="https://twitter.com/turicas">Álvaro Justen</a> e
+            <a href="https://github.com/turicas/brasil.io/graphs/contributors">contribuidores</a>.
+            <a href="https://github.com/turicas/brasil.io/issues">Colabore também</a>.
+          </p>
+        </div>
+      </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    {% block js %}{% endblock %}
+    <!--JavaScript at end of body for optimized loading-->
+    <!-- JQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('.sidenav').sidenav();
+        });
+    </script>
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
   </body>
 </html>

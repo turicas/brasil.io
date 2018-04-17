@@ -4,8 +4,9 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-from core import paginators
 from core.models import Dataset, Link
+
+from . import paginators
 
 
 class LinkSerializer(serializers.ModelSerializer):
@@ -19,7 +20,7 @@ class DatasetSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
 
     def get_id(self, obj):
-        return reverse('core:dataset', kwargs={'slug': obj.slug},
+        return reverse('api:dataset-detail', kwargs={'slug': obj.slug},
                        request=self.context['request'])
 
     class Meta:
@@ -38,11 +39,11 @@ class DatasetDetailSerializer(serializers.ModelSerializer):
     # TODO: add schema
 
     def get_id(self, obj):
-        return reverse('core:dataset', kwargs={'slug': obj.slug},
+        return reverse('api:dataset-detail', kwargs={'slug': obj.slug},
                        request=self.context['request'])
 
     def get_data_url(self, obj):
-        return reverse('core:dataset-data', kwargs={'slug': obj.slug},
+        return reverse('api:dataset-data', kwargs={'slug': obj.slug},
                        request=self.context['request'])
 
     class Meta:

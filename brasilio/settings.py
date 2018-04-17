@@ -101,11 +101,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 public_root = root.path('public/')
-MEDIA_ROOT = public_root('media')
+MEDIA_ROOT = str(public_root.path('media/'))
 MEDIA_URL = '/media/'
-STATIC_ROOT = public_root('static')
+STATIC_ROOT = str(public_root.path('static/'))
 STATIC_URL = '/static/'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_DIRS = [
+    str(root.path('static')),
+]
 
 # Data-related settings
 DATA_URL = env('DATA_URL')
