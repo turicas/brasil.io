@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}{{ dataset.name }} - Datasets - Brasil.IO{% endblock %}
+{% block content %}
+<div class="section">
+  <h4>{{ dataset.name }}</h4>
+  <p>
+    {{ dataset.description }}
+  </p>
+</div>
+
+<div class="row">
+
+  <div class="col s12 m6">
+    <div class="card horizontal small">
+      <div class="card-stacked">
+        <div class="card-content">
+          <span class="card-title activator grey-text text-darken-4">
+            Dados
+          </span>
+          <p>
+            Estamos trabalhando para disponibilizar os dados nessa interface.
+            Por enquanto, você pode <a href="{{ version.download_url }}">baixar o dataset completo</a> ou
+            <a href="{% url 'api:dataset-data' dataset.slug %}">utilizar nossa API</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col s12 m6">
+    <div class="card horizontal">
+      <div class="card-stacked">
+        <div class="card-content">
+
+          <span class="card-title activator grey-text text-darken-4">
+            Mais Informações
+          </span>
+          <ul>
+            <li>
+              Fonte original: <a href="{{ dataset.source_url }}">{{ dataset.source_name }}</a>.
+            </li>
+            <li>
+              Libertado por: <a href="{{ dataset.author_url }}">{{ dataset.author_name }}</a>.
+            </li>
+            <li>
+              Código-fonte: <a href="{{ dataset.code_url }}">{{ dataset.code_url }}</a>.
+            </li>
+            <li>
+              Licença: <a href="{{ dataset.license_url }}">{{ dataset.license_name }}</a>.
+            </li>
+          </ul>
+
+          <span>Links:</span>
+          {% if dataset.link_set.all %}
+          <ul>
+            {% for link in dataset.link_set.all %}
+            <li><a href="{{ link.url }}" target="_blank">{{ link.title }}</a></li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          Esse dataset ainda não possui links! Conhece algum link que possui
+          informações interessantes sobre ele?
+          <a href="{% url 'core:contact' %}">Entre em contato</a>!
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col s12 m12">
+    <div class="card horizontal">
+      <div class="card-stacked">
+        <div class="card-content">
+          <span class="card-title activator grey-text text-darken-4">
+            Dicionário de Dados
+          </span>
+          <ul>
+            <li>
+              <b>Tabela {{ table.name }}:</b>
+              <ul>
+                {% for field in table.field_set.all %}
+                <li>{{ field.name }}: {{ field.type }}{% if field.options_text %} ({{ field.options_text }}){% endif %}</li>
+                {% endfor %}
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

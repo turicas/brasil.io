@@ -9,7 +9,15 @@ def contact(request):
 
 def dataset_detail(request, slug):
     dataset = get_object_or_404(Dataset, slug=slug)
-    context = {'dataset': dataset}
+    version = dataset.version_set.order_by('-order').first()
+    table = version.table_set.get(default=True)
+    fields = table.field_set.all()
+    context = {
+        'dataset': dataset,
+        'fields': fields,
+        'table': table,
+        'version': version,
+    }
     return render(request, 'dataset-detail.html', context)
 
 def dataset_list(request):

@@ -281,3 +281,10 @@ class Field(models.Model):
         kwargs = self.options or {}
         kwargs['null'] = self.null
         return FIELD_TYPES[self.type](**kwargs)
+
+    def options_text(self):
+        if not self.options:
+            return ''
+
+        return ', '.join(['{}={}'.format(key, repr(value))
+                          for key, value in self.options.items()])
