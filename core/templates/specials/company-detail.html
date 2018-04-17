@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}{{ company.name }} - Empresa - Brasil.IO{% endblock %}
+{% block content %}
+<div class="section">
+  <h4>{{ company.name }}</h4>
+
+  Unidade federativa de registro: <b>{{ company.state }}</b>.
+</div>
+
+<div class="row">
+
+  <h4>Quadro Societário</h4>
+  Total de <b>{{ partners.count }}</b> sócios.
+  <table>
+    <tr>
+      <th> Documento </th>
+      <th> Tipo </th>
+      <th> Qualificação </th>
+      <th> Nome </th>
+    </tr>
+
+    {% for partner in partners %}
+    <tr>
+      <td> {{ partner.cpf_cnpj_socio }} </td>
+      <td> {{ partner.tipo_socio }} </td>
+      <td> {{ partner.qualificacao_socio }} </td>
+      <td> {{ partner.nome_socio }} </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <h4>Gastos da Cota Parlmentar</h4>
+  Total de <b>{{ spending.count }}</b> notas.
+  <table>
+    <tr>
+      <th> Data da Emissão </th>
+      <th> Parlamentar </th>
+      <th> Partido </th>
+      <th> UF </th>
+      <th> Descrição </th>
+      <th> Valor do Documento </th>
+      <th> Valor Líquido </th>
+      <th> Valor Glosa </th>
+    </tr>
+
+    {% for row in spending %}
+    <tr>
+      <td> {{ row.datemissao|date:"d/m/Y" }} </td>
+      <td> {{ row.txnomeparlamentar }} </td>
+      <td> {{ row.sgpartido }} </td>
+      <td> {{ row.sguf }} </td>
+      <td> {{ row.txtdescricao }}{% if row.txtdescricaoespecificacao %} / {{ row.txtdescricaoespecificacao }}{% endif %} </td>
+      <td class="right-align"> R$ {{ row.vlrdocumento }} </td>
+      <td class="right-align"> R$ {{ row.vlrliquido }} </td>
+      <td class="right-align"> R$ {{ row.vlrglosa }} </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+</div>
+{% endblock %}
