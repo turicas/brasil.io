@@ -1,9 +1,13 @@
-version: '3'
+version: '3.2'
 
 services:
     db:
-        image: postgres:10
+        image: postgres:10.3
         container_name: brasilio_postgres
         env_file: .env
         ports:
             - "39001:5432"
+        volumes:
+            - ./docker/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
+            - ./docker/postgresql/data:/var/lib/postgresql/data
+        command: -c "config_file=/etc/postgresql/postgresql.conf"
