@@ -117,6 +117,7 @@ class Dataset(models.Model):
     license_name = models.CharField(max_length=255, null=False, blank=False)
     license_url = models.URLField(max_length=2000, null=False, blank=False)
     name = models.CharField(max_length=255, null=False, blank=False)
+    show = models.BooleanField(null=False, blank=False, default=False)
     slug = models.SlugField(max_length=50, null=False, blank=False)
     source_name = models.CharField(max_length=255, null=False, blank=False)
     source_url = models.URLField(max_length=2000, null=False, blank=False)

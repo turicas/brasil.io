@@ -21,7 +21,7 @@ def dataset_detail(request, slug):
     return render(request, 'dataset-detail.html', context)
 
 def dataset_list(request):
-    context = {'datasets': Dataset.objects.all()}
+    context = {'datasets': Dataset.objects.filter(show=True)}
     return render(request, 'dataset-list.html', context)
 
 def dataset_suggestion(request):

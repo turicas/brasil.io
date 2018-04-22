@@ -60,10 +60,11 @@ class DatasetViewSet(viewsets.ModelViewSet):
     serializer_class = DatasetSerializer
 
     def get_queryset(self):
-        return Dataset.objects.all()
+        return Dataset.objects.filter(show=True)
 
     def retrieve(self, request, slug):
-        obj = get_object_or_404(self.get_queryset(), slug=slug)
+        queryset = Dataset.objects.all()  # TODO: use self.get_queryset()
+        obj = get_object_or_404(queryset, slug=slug)
         serializer = DatasetDetailSerializer(
             obj,
             context=self.get_serializer_context(),
