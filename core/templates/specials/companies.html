@@ -7,8 +7,8 @@
     <form method="get">
       <div class="input-field col s6">
         <label for="q">Busque por razão social ou CNPJ</label>
-        <input type="text" id="q" name="q" value="{{ search_query|default:'' }}">
-        <input type="button" value="Buscar">
+        <input autofocus type="text" id="q" name="q" value="{{ search_query|default:'' }}">
+        <input class="btn" type="submit" value="Buscar">
       </div>
     </form>
   </p>
@@ -21,14 +21,17 @@
     {% if not result.count %}
     Nenhum resultado encontrado. :(
     {% else %}
-    Total de <b>{{ total }}</b> empresas encontradas, mostrando {{ result.count }}.
+    Total de <b>{{ result.count }}</b> empresas encontradas
+    {% if result.count > 500 %}
+    (mostrando as <b>500</b> primeiras)
+    {% endif %}
     <table>
       <tr>
         <th> CNPJ </th>
         <th> Razão Social </th>
       </tr>
 
-      {% for document, name in result %}
+      {% for document, name in result|slice:":500" %}
       <tr>
         <td> <a href="{% url 'core:special-company-detail' document=document %}">{{ document }}</a> </td>
         <td> {{ name }} </td>

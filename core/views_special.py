@@ -7,7 +7,7 @@ from core.models import Dataset
 
 def companies(request):
     Socios = Dataset.objects.get(slug='socios-brasil').get_last_data_model()
-    result, total, max_results = [], 0, 500
+    result = []
     search_query = request.GET.get('q')
 
     if search_query:
@@ -15,14 +15,10 @@ def companies(request):
                                .values_list('cnpj_empresa', 'nome_empresa')\
                                .distinct()\
                                .order_by('nome_empresa')
-        total = result.count()
-        result = result[:max_results]
 
     context = {
         'result': result,
-        'max_results': max_results,
         'search_query': search_query,
-        'total': total,
     }
     return render(request, 'specials/companies.html', context)
 

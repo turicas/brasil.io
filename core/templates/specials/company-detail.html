@@ -21,7 +21,13 @@
 
     {% for partner in partners %}
     <tr>
-      <td> {{ partner.cpf_cnpj_socio }} </td>
+      <td>
+        {% if partner.tipo_socio == 'Pessoa Jurídica' %}
+        <a href="{% url 'core:special-company-detail' document=partner.cpf_cnpj_socio %}">{{ partner.cpf_cnpj_socio }}</a>
+        {% else %}
+        {{ partner.cpf_cnpj_socio|default:'' }}
+        {% endif %}
+      </td>
       <td> {{ partner.tipo_socio }} </td>
       <td> {{ partner.qualificacao_socio }} </td>
       <td> {{ partner.nome_socio }} </td>
