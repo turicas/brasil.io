@@ -25,13 +25,24 @@ def companies(request):
 def company_detail(request, document):
     document = document.replace('.', '').replace('-', '').replace('/', '').strip()
     Socios = Dataset.objects.get(slug='socios-brasil').get_last_data_model()
-    Gastos = Dataset.objects.get(slug='gastos-deputados').get_last_data_model()
+    GastosDeputados = Dataset.objects.get(slug='gastos-deputados').get_last_data_model()
+    GastosDiretos = Dataset.objects.get(slug='gastos-diretos').get_last_data_model()
 
     partners = Socios.objects.filter(cnpj_empresa=document)\
                              .order_by('nome_socio')
+    camara_spending = GastosDeputados.objects.filter(txtcnpjcpf=document)\
+                                             .order_by('-datemissao')
+    federal_spending = GastosDiretos.objects.filter(codigo_favorecido=document)\
+                                    .order_by('-data_pagamento')
+
+    camara_spending_url = reverse(
+        'api:dataset-data', kwargs={'slug': 'gastos-deputados'}
+    ) + '?txtcnpjcpf=' + str(document)
+    federal_spending_url = reverse(
+        'api:dataset-data', kwargs={'slug': 'gastos-diretos'}
+    ) + '?codigo_favorecido=' + str(document)
+
     first_partner = partners.first()
-    spending = Gastos.objects.filter(txtcnpjcpf=document)\
-                             .order_by('-datemissao')
     company = {
             'document': document,
             'name': first_partner.nome_empresa,
@@ -41,6 +52,9 @@ def company_detail(request, document):
     context = {
         'company': company,
         'partners': partners,
-        'spending': spending,
+        'camara_spending': camara_spending,
+        'camara_spending_url': camara_spending_url,
+        'federal_spending': federal_spending,
+        'federal_spending_url': federal_spending_url,
     }
     return render(request, 'specials/company-detail.html', context)

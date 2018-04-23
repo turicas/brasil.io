@@ -35,8 +35,12 @@
     {% endfor %}
   </table>
 
-  <h4>Gastos da Cota Parlmentar</h4>
-  Total de <b>{{ spending.count }}</b> notas.
+  <h4>Gastos da Cota Parlmentar da Câmara dos Deputados</h4>
+  {% if camara_spending.count == 0 %}
+  Não foram identificados gastos para essa empresa.
+  {% else %}
+  Foram identificadas <b>{{ camara_spending.count }}</b> notas, mostrando
+  apenas as <b>20</b> últimas (<a href="{{ camara_spending_url }}">veja todas</a>).
   <table>
     <tr>
       <th> Data da Emissão </th>
@@ -49,7 +53,7 @@
       <th> Valor Glosa </th>
     </tr>
 
-    {% for row in spending %}
+    {% for row in camara_spending|slice:':20' %}
     <tr>
       <td> {{ row.datemissao|date:"d/m/Y" }} </td>
       <td> {{ row.txnomeparlamentar }} </td>
@@ -62,6 +66,36 @@
     </tr>
     {% endfor %}
   </table>
+  {% endif %}
+
+  <h4>Gastos Diretos do Governo Federal</h4>
+  {% if federal_spending.count == 0 %}
+  Não foram identificados gastos para essa empresa.
+  {% else %}
+  Foram identificadas <b>{{ federal_spending.count }}</b> notas, mostrando
+  apenas as <b>20</b> últimas (<a href="{{ federal_spending_url }}">veja todas</a>).
+  <table>
+    <tr>
+      <th> Mês/Ano </th>
+      <th> Data de Pagamento </th>
+      <th> Órgão </th>
+      <th> Ação </th>
+      <th> Número do Documento </th>
+      <th> Valor </th>
+    </tr>
+
+    {% for row in federal_spending|slice:':20' %}
+    <tr>
+      <td> {{ row.mes }}/{{ row.ano }} </td>
+      <td> {{ row.data_pagamento }} </td>
+      <td> {{ row.nome_orgao }} </td>
+      <td> {{ row.nome_acao }} </td>
+      <td> {{ row.numero_documento }} </td>
+      <td class="right-align"> R$ {{ row.valor }} </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
 
 </div>
 {% endblock %}
