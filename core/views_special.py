@@ -22,39 +22,40 @@ def companies(request):
     }
     return render(request, 'specials/companies.html', context)
 
-def company_detail(request, document):
-    document = document.replace('.', '').replace('-', '').replace('/', '').strip()
+def document_detail(request, document):
+    Documents = Dataset.objects.get(slug='documentos-brasil').get_last_data_model()
     Socios = Dataset.objects.get(slug='socios-brasil').get_last_data_model()
     GastosDeputados = Dataset.objects.get(slug='gastos-deputados').get_last_data_model()
     GastosDiretos = Dataset.objects.get(slug='gastos-diretos').get_last_data_model()
 
-    partners = Socios.objects.filter(cnpj_empresa=document)\
-                             .order_by('nome_socio')
-    camara_spending = GastosDeputados.objects.filter(txtcnpjcpf=document)\
+    document = document.replace('.', '').replace('-', '').replace('/', '').strip()
+    obj = get_object_or_404(Documents, document=document)
+
+    partners, companies = None, None
+    if obj.document_type == 'cnpj':
+        partners = Socios.objects.filter(cnpj_empresa=obj.document)\
+                                 .order_by('nome_socio')
+    elif obj.document_type == 'cpf':
+        companies = Socios.objects.filter(nome_socio=obj.name)\
+                                  .values('cnpj_empresa', 'nome_empresa')\
+                                  .distinct()\
+                                  .order_by('nome_empresa')
+
+    camara_spending = GastosDeputados.objects.filter(txtcnpjcpf=obj.document)\
                                              .order_by('-datemissao')
-    federal_spending = GastosDiretos.objects.filter(codigo_favorecido=document)\
+    federal_spending = GastosDiretos.objects.filter(codigo_favorecido=obj.document)\
                                     .order_by('-data_pagamento')
 
-    camara_spending_url = reverse(
-        'api:dataset-data', kwargs={'slug': 'gastos-deputados'}
-    ) + '?txtcnpjcpf=' + str(document)
-    federal_spending_url = reverse(
-        'api:dataset-data', kwargs={'slug': 'gastos-diretos'}
-    ) + '?codigo_favorecido=' + str(document)
-
-    first_partner = partners.first()
-    company = {
-            'document': document,
-            'name': first_partner.nome_empresa,
-            'state': first_partner.unidade_federativa,
-    }
+    obj = obj.__dict__
+    if partners:
+        partner = partners.first()
+        obj['state'] = partner.unidade_federativa if partner else None
 
     context = {
-        'company': company,
+        'obj': obj,
         'partners': partners,
+        'companies': companies,
         'camara_spending': camara_spending,
-        'camara_spending_url': camara_spending_url,
         'federal_spending': federal_spending,
-        'federal_spending_url': federal_spending_url,
     }
-    return render(request, 'specials/company-detail.html', context)
+    return render(request, 'specials/document-detail.html', context)

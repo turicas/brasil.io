@@ -1,14 +1,22 @@
 {% extends 'base.html' %}
-{% block title %}{{ company.name }} - Empresa - Brasil.IO{% endblock %}
+{% block title %}{{ obj.name }} - {% if obj.document_type == 'cpf' %}Pessoa Física{% elif obj.document_type == 'cnpj' %}Pessoa Jurídica{% endif %} - Brasil.IO{% endblock %}
 {% block content %}
 <div class="section">
-  <h4>{{ company.name }}</h4>
+  <h4>{{ obj.name }}</h4>
 
-  Unidade federativa de registro: <b>{{ company.state }}</b>.
+  <dl>
+    <dt> Documento: </dt>
+    <dd>{{ obj.document }} ({{ obj.document_type|upper }})</b></dd>
+    {% if obj.state %}
+    <dt> Unidade federativa de registro: </dt>
+    <dd>{{ obj.state }}</b></dd>
+    {% endif %}
+  </dl>
 </div>
 
 <div class="row">
 
+  {% if partners %}
   <h4>Quadro Societário</h4>
   Total de <b>{{ partners.count }}</b> sócios.
   <table>
@@ -22,8 +30,8 @@
     {% for partner in partners %}
     <tr>
       <td>
-        {% if partner.tipo_socio == 'Pessoa Jurídica' %}
-        <a href="{% url 'core:special-company-detail' document=partner.cpf_cnpj_socio %}">{{ partner.cpf_cnpj_socio }}</a>
+        {% if partner.cpf_cnpj_socio %}
+        <a href="{% url 'core:special-document-detail' document=partner.cpf_cnpj_socio %}">{{ partner.cpf_cnpj_socio }}</a>
         {% else %}
         {{ partner.cpf_cnpj_socio|default:'' }}
         {% endif %}
@@ -34,13 +42,37 @@
     </tr>
     {% endfor %}
   </table>
+  {% endif %}
 
-  <h4>Gastos da Cota Parlmentar da Câmara dos Deputados</h4>
+  {% if companies %}
+  <h4>Sociedades</h4>
+  Total de <b>{{ companies.count }}</b> sociedades encontradas.
+  Nota: esses registros foram encontrados buscando pelo nome "{{ obj.name }}" e
+  podem aparecer homônimos nos resultados.
+  <table>
+    <tr>
+      <th> CNPJ </th>
+      <th> Razão Social </th>
+    </tr>
+
+    {% for company in companies %}
+    <tr>
+      <td>
+        <a href="{% url 'core:special-document-detail' document=company.cnpj_empresa %}">{{ company.cnpj_empresa }}</a>
+      </td>
+      <td> {{ company.nome_empresa }} </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+  <h4>Gastos da Cota Parlamentar (Câmara dos Deputados)</h4>
   {% if camara_spending.count == 0 %}
-  Não foram identificados gastos para essa empresa.
+  Não foram identificados gastos para esse documento.
   {% else %}
   Foram identificadas <b>{{ camara_spending.count }}</b> notas, mostrando
-  apenas as <b>20</b> últimas (<a href="{{ camara_spending_url }}">veja todas</a>).
+  apenas as <b>20</b> últimas
+  (<a href="{% url 'api:dataset-data' slug='gastos-deputados' %}?txtcnpjcpf={{ obj.document }}">veja todas</a>).
   <table>
     <tr>
       <th> Data da Emissão </th>
@@ -70,10 +102,11 @@
 
   <h4>Gastos Diretos do Governo Federal</h4>
   {% if federal_spending.count == 0 %}
-  Não foram identificados gastos para essa empresa.
+  Não foram identificados gastos para esse documento.
   {% else %}
   Foram identificadas <b>{{ federal_spending.count }}</b> notas, mostrando
-  apenas as <b>20</b> últimas (<a href="{{ federal_spending_url }}">veja todas</a>).
+  apenas as <b>20</b> últimas
+  (<a href="{% url 'api:dataset-data' slug='gastos-diretos' %}?codigo_favorecido={{ obj.document }}">veja todas</a>).
   <table>
     <tr>
       <th> Mês/Ano </th>
