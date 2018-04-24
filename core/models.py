@@ -198,6 +198,8 @@ class Table(models.Model):
             indexes.append(models.Index(fields=ordering))
         if filtering:
             for field_name in filtering:
+                if ordering == [field_name]:
+                    continue
                 indexes.append(models.Index(fields=[field_name]))
         if search:
             indexes.append(GinIndex(fields=['search_data']))
