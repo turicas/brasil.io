@@ -14,6 +14,7 @@ urlpatterns = [
     path('manifesto', views.manifesto, name='manifesto'),
 
     # Dataset-specific pages (specials)
-    path('especiais/empresas', views_special.companies, name='special-companies'),
-    path('especiais/empresa/<document>', views_special.company_detail, name='special-company-detail'),
+    path('especiais', views_special.index, name='specials'),
+    path('especiais/registro-nacional', views_special.registry, name='special-registry'),
+    path('especiais/documento/<document>', views_special.document_detail, name='special-document-detail'),
 ]

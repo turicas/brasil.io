@@ -5,22 +5,20 @@ from django.urls import reverse
 from core.models import Dataset
 
 
-def companies(request):
-    Socios = Dataset.objects.get(slug='socios-brasil').get_last_data_model()
+def registry(request):
+    Documents = Dataset.objects.get(slug='documentos-brasil').get_last_data_model()
     result = []
-    search_query = request.GET.get('q')
+    query = request.GET.get('q')
 
-    if search_query:
-        result = Socios.objects.filter(search_data=SearchQuery(search_query))\
-                               .values_list('cnpj_empresa', 'nome_empresa')\
-                               .distinct()\
-                               .order_by('nome_empresa')
+    if query:
+        result = Documents.objects.filter(search_data=SearchQuery(query))\
+                                  .order_by('name')
 
     context = {
         'result': result,
-        'search_query': search_query,
+        'query': query,
     }
-    return render(request, 'specials/companies.html', context)
+    return render(request, 'specials/registry.html', context)
 
 def document_detail(request, document):
     Documents = Dataset.objects.get(slug='documentos-brasil').get_last_data_model()

@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
-{% block title %}Empresas - Busca - Brasil.IO{% endblock %}
+{% block title %}Registro Nacional - Busca - Brasil.IO{% endblock %}
 {% block content %}
 <div class="section">
-  <h4>Empresas - Busca</h4>
+  <h4>Registro Nacional</h4>
   <p>
     <form method="get">
       <div class="input-field col s6">
-        <label for="q">Busque por razão social ou CNPJ</label>
-        <input autofocus type="text" id="q" name="q" value="{{ search_query|default:'' }}">
+        <label for="q">Busque por nome, CPF, razão social ou CNPJ</label>
+        <input autofocus type="text" id="q" name="q" value="{{ query|default:'' }}">
         <input class="btn" type="submit" value="Buscar">
       </div>
     </form>
@@ -16,25 +16,28 @@
 
 <div class="row">
 
-  {% if search_query %}
+  {% if query %}
 
     {% if not result.count %}
     Nenhum resultado encontrado. :(
     {% else %}
-    Total de <b>{{ result.count }}</b> empresas encontradas
-    {% if result.count > 500 %}
-    (mostrando as <b>500</b> primeiras)
-    {% endif %}
+    Total de <b>{{ result.count }}</b> registros encontrados (entre pessoas
+    físicas e jurídicas){% if result.count > 500 %}, mostrando os <b>500</b>
+    primeiros).{% else %}.{% endif %}
     <table>
       <tr>
-        <th> CNPJ </th>
-        <th> Razão Social </th>
+        <th> Tipo de Documento </th>
+        <th> Documento </th>
+        <th> Nome </th>
       </tr>
 
-      {% for document, name in result|slice:":500" %}
+      {% for row in result|slice:":500" %}
       <tr>
-        <td> <a href="{% url 'core:special-company-detail' document=document %}">{{ document }}</a> </td>
-        <td> {{ name }} </td>
+        <td> {{ row.document_type|upper }} </td>
+        <td>
+          <a href="{% url 'core:special-document-detail' document=row.document %}">{{ row.document }}</a>
+        </td>
+        <td> {{ row.name }} </td>
       </tr>
       {% endfor %}
     </table>
