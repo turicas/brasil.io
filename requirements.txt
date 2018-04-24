@@ -1,3 +1,4 @@
+django-cors-headers
 django-environ
 django-extensions
 django>=2.0
@@ -7,6 +8,6 @@ ipython
 markdown
 openpyxl
 psycopg2-binary
-rows
+git+https://github.com/turicas/rows.git@develop#egg=rows
 tqdm
 whitenoise
