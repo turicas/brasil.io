@@ -46,6 +46,7 @@ MIDDLEWARE = [
 ]
 if DEBUG:
     MIDDLEWARE.append('utils.sqlprint.SqlPrintingMiddleware')
+    INSTALLED_APPS += ('naomi',)
 
 ROOT_URLCONF = 'brasilio.urls'
 TEMPLATES = [
@@ -121,3 +122,11 @@ REST_FRAMEWORK = {
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+
+EMAIL_BACKEND = env('EMAIL_BACKEND')
+SENDGRID_API_KEY = env('SENDGRID_API_KEY')
+ADMINS = env('ADMINS').strip() or []
+if ADMINS:
+    ADMINS = [[item.strip() for item in admin.split('|')]
+              for admin in ADMINS.split(',')]
