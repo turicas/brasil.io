@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Especiais - Brasil.IO{% endblock %}
+{% block content %}
+
+<h3>Aplicações Especiais</h3>
+<div class="divider"></div>
+
+<div class="section">
+  <p>
+    O Brasil.IO disponibiliza diversos datasets em formatos mais acessíveis
+    que nas fontes originais de dados e acreditamos que assim conseguiremos
+    melhorar não somente o acesso a dados públicos brasileiros, mas também
+    teremos um impacto positivo em criar uma nação mais democrática. Porém,
+    muitas vezes os datasets sozinhos não são suficientes para descobrir fatos
+    - em diversos casos precisamos cruzar datasets para identificar padrões.
+    Para resolver esse problema criamos as <b>Aplicações Especiais</b>.
+  </p>
+  <p>
+    <b>Aplicações Especiais</b> são páginas que cruzam dados de diversos
+    datasets e facilitam o trabalho investigativo. Se você tiver ideia de dados
+    que poderíamos cruzar, <a href="{% url 'core:contact' %}">entre em contato</a>.
+  </p>
+
+  <h4>Aplicações Disponíveis</h4>
+
+  <ul>
+    <li>
+      <a href="{% url 'core:special-registry' %}">Registro Nacional</a>
+    </li>
+  </ul>
+</div>
+{% endblock %}

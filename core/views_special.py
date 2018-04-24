@@ -5,6 +5,10 @@ from django.urls import reverse
 from core.models import Dataset
 
 
+def index(request):
+    return render(request, 'specials/index.html', {})
+
+
 def registry(request):
     Documents = Dataset.objects.get(slug='documentos-brasil').get_last_data_model()
     result = []
