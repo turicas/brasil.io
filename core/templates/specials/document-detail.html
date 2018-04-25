@@ -123,7 +123,7 @@
       <td> {{ row.data_pagamento }} </td>
       <td> {{ row.nome_orgao }} </td>
       <td> {{ row.nome_acao }} </td>
-      <td> {{ row.numero_documento }} </td>
+      <td> <a href="http://portaldatransparencia.gov.br/despesasdiarias/pagamento?documento={{ row.codigo_unidade_gestora }}{{ row.gestao_pagamento }}{{ row.numero_documento }}"> {{ row.numero_documento }} </a> </td>
       <td class="right-align"> R$ {{ row.valor }} </td>
     </tr>
     {% endfor %}

@@ -123,6 +123,8 @@
           {% else %}
           <td> {{ row|getattribute:field.name|default:'' }} </td>
           {% endif %}
+        {% elif dataset.slug == 'gastos-diretos' and field.name == 'numero_documento' %}
+        <td> <a href="http://portaldatransparencia.gov.br/despesasdiarias/pagamento?documento={{ row.codigo_unidade_gestora }}{{ row.gestao_pagamento }}{{ row.numero_documento }}"> {{ row.numero_documento }} </a> </td>
         {% else %}
         <td> {{ row|getattribute:field.name|default:'' }} </td>
         {% endif %}
