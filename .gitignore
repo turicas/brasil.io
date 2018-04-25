@@ -18,3 +18,4 @@ build/*
 dist/*
 public/
 reg_settings.py
+docker/neo4j
