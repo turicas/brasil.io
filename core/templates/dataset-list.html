@@ -12,28 +12,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
-
-  {% for dataset in datasets %}
-  <div class="col s12 m6">
-    <div class="card horizontal small">
-      <div class="card-stacked">
-        <div class="card-content">
-          <span class="card-title activator grey-text text-darken-4">
-            <i class="material-icons left">{{ dataset.icon }}</i>
-            {{ dataset.name }}
-          </span>
-          <p>
-            {{ dataset.description }}
-          </p>
-        </div>
-        <div class="card-action">
-          <a href="{% url 'core:dataset-detail' dataset.slug %}">Visualizar</a>
-        </div>
-      </div>
-    </div>
-  </div>
-  {% endfor %}
+<div id="datasets" class="row">
 
   <div class="col s12 m6">
     <div class="card horizontal small">
@@ -57,4 +36,15 @@
   </div>
 
 </div>
+{% endblock %}
+
+{% block scripts %}
+ <script type="text/javascript">
+ $(document).ready(function(){
+    Brasilio.pullDatasets()
+})
+
+</script>
+
+ </script>
 {% endblock %}
