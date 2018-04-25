@@ -94,11 +94,11 @@
       <div class="col s12 m3">
         <ul class="pagination right">
           {% if data.has_previous %}
-          <li> <a href="?page={{ data.previous_page_number }}&q={{ query }}"><i class="material-icons">chevron_left</i></a> </li>
+          <li> <a href="?page={{ data.previous_page_number }}&q={{ query|default:'' }}"><i class="material-icons">chevron_left</i></a> </li>
           {% endif %}
           <li> {{ start_count }}-{{ end_count }}/{{ total_count }} </li>
           {% if data.has_next %}
-          <li> <a href="?page={{ data.next_page_number }}&q={{ query }}"><i class="material-icons">chevron_right</i></a> </li>
+          <li> <a href="?page={{ data.next_page_number }}&q={{ query|default:'' }}"><i class="material-icons">chevron_right</i></a> </li>
           {% endif %}
         </ul>
       </div>
