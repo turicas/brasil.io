@@ -2,6 +2,8 @@ import os
 
 import environ
 
+from urllib.parse import urlparse
+
 
 root = environ.Path(__file__) - 2
 env = environ.Env(DEBUG=(bool, False))
@@ -132,3 +134,19 @@ ADMINS = env('ADMINS').strip() or []
 if ADMINS:
     ADMINS = [[item.strip() for item in admin.split('|')]
               for admin in ADMINS.split(',')]
+
+
+# Neo4J db conf
+def get_neo4j_config_dict(neo4j_uri):
+    parsed_uri = urlparse(neo4j_uri)
+    return {
+        'SCHEME': parsed_uri.scheme,
+        'HOST': parsed_uri.hostname,
+        'PORT': parsed_uri.port,
+        'USERNAME': parsed_uri.username,
+        'PASSWORD': parsed_uri.password,
+    }
+
+
+NEO4J_CONF = get_neo4j_config_dict(env('GRAPHENEDB_URL'))
+NEO4J_BOLT_PORT = int(env('NEO4J_BOLT_PORT', default=39003))
