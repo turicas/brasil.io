@@ -84,7 +84,7 @@ class Command(BaseCommand):
 
         print('Importando os sócios para o Neo4J')
         start = time.time()
-        for partnership in SociosBrasil.objects.all()[:100].iterator():
+        for partnership in SociosBrasil.objects.iterator():
             company = self.get_company(partnership)
             partner = self.get_partner(partnership)
             partnership_data = self.get_partnership_properties(partnership)
