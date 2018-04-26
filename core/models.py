@@ -268,16 +268,26 @@ class Field(models.Model):
 
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE,
                                 null=False, blank=False)
+    link_template = models.URLField(max_length=2000, null=True, blank=True)
+    order = models.PositiveIntegerField(null=False, blank=False)
     null = models.BooleanField(null=False, blank=True, default=True)
     name = models.CharField(max_length=63)
     options = JSONField(null=True, blank=True)
     show = models.BooleanField(null=False, blank=True, default=True)
+    show_on_frontend = models.BooleanField(null=False, blank=True, default=False)
     table = models.ForeignKey(Table, on_delete=models.CASCADE,
                               null=False, blank=False)
+    title = models.CharField(max_length=63)
     type = models.CharField(max_length=15, choices=TYPE_CHOICES,
                             null=False, blank=False)
     version = models.ForeignKey(Version, on_delete=models.CASCADE,
                                 null=True, blank=True)
+
+    def __str__(self):
+        options = self.options or {}
+        options_str = ', '.join('{}={}'.format(key, repr(value))
+                                               for key, value in options.items())
+        return '{}.{}({})'.format(self.table.name, self.name, options_str)
 
     @property
     def field_class(self):
