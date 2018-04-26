@@ -47,7 +47,7 @@ class Command(BaseCommand):
                 "nome": partnership.nome_socio.upper(),
                 "cnpj": partnership.cnpj_empresa.upper(),
                 "uf": partnership.unidade_federativa.upper(),
-                "nome_emp": partnership.nome_empresa.upper(),
+                "nome_emp": (partnership.nome_empresa or '').upper(),
                 'codigo_qualificacao_socio': partnership.codigo_qualificacao_socio,
                 'qualificacao_socio': partnership.qualificacao_socio,
             })
@@ -74,7 +74,7 @@ class Command(BaseCommand):
                 'codigo_qualificacao_socio': partnership.codigo_qualificacao_socio,
                 'qualificacao_socio': partnership.qualificacao_socio,
                 "cnpj_emp": partnership.cnpj_empresa.upper(),
-                "nome_emp": partnership.nome_empresa.upper(),
+                "nome_emp": (partnership.nome_empresa or '').upper(),
                 "uf": partnership.unidade_federativa.upper(),
             })
 
@@ -100,7 +100,7 @@ class Command(BaseCommand):
                 'codigo_qualificacao_socio': partnership.codigo_qualificacao_socio,
                 'qualificacao_socio': partnership.qualificacao_socio,
                 "cnpj_emp": partnership.cnpj_empresa.upper(),
-                "nome_emp": partnership.nome_empresa.upper(),
+                "nome_emp": (partnership.nome_empresa or '').upper(),
                 "uf": partnership.unidade_federativa.upper(),
             })
 
