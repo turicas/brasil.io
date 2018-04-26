@@ -1,139 +1,141 @@
 {% extends 'base.html' %}
+{% load humanize %}
+{% load l10n %}
 {% load utils %}
 {% block title %}{{ dataset.name }} - Datasets - Brasil.IO{% endblock %}
-{% block content %}
+{% block content %}{% localize off %}
 <div class="section">
   <h4>{{ dataset.name }}</h4>
   <p>
     {{ dataset.description }}
   </p>
-</div>
 
-<div class="row">
+  <div class="row">
+    <div class="col s12">
+      <ul class="tabs tabs-fixed-width" id="tabs">
+        <li class="tab col s3"><a class="active" href="#data">Dados</a></li>
+        <li class="tab col s3"><a href="#metadata">Metadados</a></li>
+      </ul>
+    </div>
+    <div id="data" class="col s12">
+      <p>
+        Você também pode <a href="{{ version.download_url }}">baixar o dataset completo</a> ou
+        <a href="{% url 'api:dataset-data' dataset.slug %}">utilizar nossa API</a>.
+      </p>
 
-  <div class="col s12 m6">
-    <div class="card horizontal">
-      <div class="card-stacked">
-        <div class="card-content">
+      <div class="row">
+        <div class="col s12 m9">
+          <form method="get">
+            <div class="input-field col s6">
+              <label for="q">Busca</label>
+              <input type="text" id="q" name="q" value="{{ query|default:'' }}">
+              <input class="btn" type="submit" value="Buscar">
+            </div>
+          </form>
+        </div>
 
-          <span class="card-title activator grey-text text-darken-4">
-            Metadatados
-          </span>
-          <ul>
-            <li>
-              Fonte original: <a href="{{ dataset.source_url }}">{{ dataset.source_name }}</a>.
-            </li>
-            <li>
-              Libertado por: <a href="{{ dataset.author_url }}">{{ dataset.author_name }}</a>.
-            </li>
-            <li>
-              Código-fonte: <a href="{{ dataset.code_url }}">{{ dataset.code_url }}</a>.
-            </li>
-            <li>
-              Licença: <a href="{{ dataset.license_url }}">{{ dataset.license_name }}</a>.
-            </li>
+        <div class="col s12 m3">
+          <ul class="pagination right">
+            {% if data.has_previous %}
+            <li> <a href="?page={{ data.previous_page_number }}&q={{ query|default:'' }}"><i class="material-icons">chevron_left</i></a> </li>
+            {% endif %}
+            <li> {{ data.start_index|localize }}-{{ data.end_index|localize }}/{{ total_count|localize }} </li>
+            {% if data.has_next %}
+            <li> <a href="?page={{ data.next_page_number }}&q={{ query|default:'' }}"><i class="material-icons">chevron_right</i></a> </li>
+            {% endif %}
           </ul>
-
-          <span>Links:</span>
-          {% if dataset.link_set.all %}
-          <ul>
-            {% for link in dataset.link_set.all %}
-            <li><a href="{{ link.url }}" target="_blank">{{ link.title }}</a></li>
-            {% endfor %}
-          </ul>
-          {% else %}
-          Esse dataset ainda não possui links! Conhece algum link que possui
-          informações interessantes sobre ele?
-          <a href="{% url 'core:contact' %}">Entre em contato</a>!
-          {% endif %}
         </div>
       </div>
-    </div>
-  </div>
 
-  <div class="col s12 m6">
-    <div class="card horizontal">
-      <div class="card-stacked">
-        <div class="card-content">
-          <span class="card-title activator grey-text text-darken-4">
-            Dicionário de Dados
-          </span>
-          <ul>
-            <li>
-              <b>Tabela {{ table.name }}:</b>
+      <table>
+        <tr>
+          {% for field in fields %}
+          {% if field.show_on_frontend %}
+          <th> {{ field.title }} </th>
+          {% endif %}
+          {% endfor %}
+        </tr>
+
+        {% for row in data %}
+        <tr>
+          {% for field in fields %}{% if field.show_on_frontend %}{% with value=row|getattribute:field.name %}
+          {% if field.link_template and value %}
+          <td> <a href="{{ field.link_template|render:row }}"> {{ value }} </a> </td>
+          {% else %}
+          <td> {{ value|default:'' }} </td>
+          {% endif %}
+          {% endwith %}{% endif %}{% endfor %}
+        </tr>
+        {% endfor %}
+      </table>
+
+    </div>
+    <div id="metadata" class="col s12">
+
+      <div class="row">
+        <div class="card horizontal">
+          <div class="card-stacked">
+            <div class="card-content">
+
+              <span class="card-title activator grey-text text-darken-4">
+                Metadatados
+              </span>
               <ul>
-                {% for field in table.field_set.all %}
-                <li>{{ field.name }}: {{ field.type }}{% if field.options_text %} ({{ field.options_text }}){% endif %}</li>
+                <li>
+                  Fonte original: <a href="{{ dataset.source_url }}">{{ dataset.source_name }}</a>.
+                </li>
+                <li>
+                  Libertado por: <a href="{{ dataset.author_url }}">{{ dataset.author_name }}</a>.
+                </li>
+                <li>
+                  Código-fonte: <a href="{{ dataset.code_url }}">{{ dataset.code_url }}</a>.
+                </li>
+                <li>
+                  Licença: <a href="{{ dataset.license_url }}">{{ dataset.license_name }}</a>.
+                </li>
+              </ul>
+
+              <span>Links:</span>
+              {% if dataset.link_set.all %}
+              <ul>
+                {% for link in dataset.link_set.all %}
+                <li><a href="{{ link.url }}" target="_blank">{{ link.title }}</a></li>
                 {% endfor %}
               </ul>
-            </li>
-          </ul>
+              {% else %}
+              Esse dataset ainda não possui links! Conhece algum link que possui
+              informações interessantes sobre ele?
+              <a href="{% url 'core:contact' %}">Entre em contato</a>!
+              {% endif %}
+
+              <span class="card-title activator grey-text text-darken-4">
+                Dicionário de Dados
+              </span>
+              <ul>
+                <li>
+                  <b>Tabela {{ table.name }}:</b>
+                  <ul>
+                    {% for field in table.field_set.all %}
+                    <li>{{ field.title }} ({{ field.name }}): {{ field.type }}{% if field.options_text %} ({{ field.options_text }}){% endif %}</li>
+                    {% endfor %}
+                  </ul>
+                </li>
+              </ul>
+
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <div class="col s12 m12">
-    <h2> Dados </h2>
-    <p>
-      Você também pode <a href="{{ version.download_url }}">baixar o dataset completo</a> ou
-      <a href="{% url 'api:dataset-data' dataset.slug %}">utilizar nossa API</a>.
-    </p>
-
-    <div class="row">
-      <div class="col s12 m9">
-        <form method="get">
-          <div class="input-field col s6">
-            <label for="q">Busca</label>
-            <input type="text" id="q" name="q" value="{{ query|default:'' }}">
-            <input class="btn" type="submit" value="Buscar">
-          </div>
-        </form>
-      </div>
-
-      <div class="col s12 m3">
-        <ul class="pagination right">
-          {% if data.has_previous %}
-          <li> <a href="?page={{ data.previous_page_number }}&q={{ query|default:'' }}"><i class="material-icons">chevron_left</i></a> </li>
-          {% endif %}
-          <li> {{ start_count }}-{{ end_count }}/{{ total_count }} </li>
-          {% if data.has_next %}
-          <li> <a href="?page={{ data.next_page_number }}&q={{ query|default:'' }}"><i class="material-icons">chevron_right</i></a> </li>
-          {% endif %}
-        </ul>
-      </div>
     </div>
 
-    <table>
-      <tr>
-        {% for field in fields %}
-        {% if field.show %}
-        <th> {{ field.name }} </th>
-        {% endif %}
-        {% endfor %}
-      </tr>
-
-      {% for row in data %}
-      <tr>
-        {% for field in fields %}
-        {% if field.show %}
-        {% if field.name == 'cnpj_empresa' or field.name == 'cpf_cnpj_socio' or field.name == 'codigo_favorecido' or field.name == 'txtcnpjcpf' %}
-          {% if row|getattribute:field.name|is_digit %}
-          <td> <a href="{% url 'core:special-document-detail' document=row|getattribute:field.name|default:'' %}"> {{ row|getattribute:field.name|default:'' }} </a> </td>
-          {% else %}
-          <td> {{ row|getattribute:field.name|default:'' }} </td>
-          {% endif %}
-        {% elif dataset.slug == 'gastos-diretos' and field.name == 'numero_documento' %}
-        <td> <a href="http://portaldatransparencia.gov.br/despesasdiarias/pagamento?documento={{ row.codigo_unidade_gestora }}{{ row.gestao_pagamento }}{{ row.numero_documento }}"> {{ row.numero_documento }} </a> </td>
-        {% else %}
-        <td> {{ row|getattribute:field.name|default:'' }} </td>
-        {% endif %}
-        {% endif %}
-        {% endfor %}
-      </tr>
-      {% endfor %}
-    </table>
   </div>
-
 </div>
+{% endlocalize %}{% endblock %}
+
+{% block script %}
+{{ block.super }}
+<script type="text/javascript">
+  var instance = M.Tabs.init(document.getElementById('tabs'));
+</script>
 {% endblock %}

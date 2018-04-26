@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
+{% load l10n %}
 {% block title %}{{ obj.name }} - {% if obj.document_type == 'cpf' %}Pessoa Física{% elif obj.document_type == 'cnpj' %}Pessoa Jurídica{% endif %} - Brasil.IO{% endblock %}
-{% block content %}
+{% block content %}{% localize off %}
 <div class="section">
   <h4>{{ obj.name }}</h4>
 
@@ -81,8 +82,8 @@
       <th> UF </th>
       <th> Descrição </th>
       <th> Valor do Documento </th>
-      <th> Valor Líquido </th>
       <th> Valor Glosa </th>
+      <th> Valor Líquido </th>
     </tr>
 
     {% for row in camara_spending|slice:':20' %}
@@ -93,8 +94,8 @@
       <td> {{ row.sguf }} </td>
       <td> {{ row.txtdescricao }}{% if row.txtdescricaoespecificacao %} / {{ row.txtdescricaoespecificacao }}{% endif %} </td>
       <td class="right-align"> R$ {{ row.vlrdocumento }} </td>
-      <td class="right-align"> R$ {{ row.vlrliquido }} </td>
       <td class="right-align"> R$ {{ row.vlrglosa }} </td>
+      <td class="right-align"> R$ {{ row.vlrliquido }} </td>
     </tr>
     {% endfor %}
   </table>
@@ -131,4 +132,4 @@
   {% endif %}
 
 </div>
-{% endblock %}
+{% endlocalize %}{% endblock %}

@@ -283,6 +283,9 @@ class Field(models.Model):
     version = models.ForeignKey(Version, on_delete=models.CASCADE,
                                 null=True, blank=True)
 
+    class Meta:
+        ordering = ['order']
+
     def __str__(self):
         options = self.options or {}
         options_str = ', '.join('{}={}'.format(key, repr(value))

@@ -28,8 +28,6 @@ def dataset_detail(request, slug):
     data = paginator.get_page(page)
 
     context = {
-        'start_count': (data.number - 1) * data.paginator.per_page + 1,
-        'end_count': data.number * data.paginator.per_page,
         'total_count': all_data.count(),
         'data': data,
         'dataset': dataset,
@@ -41,7 +39,7 @@ def dataset_detail(request, slug):
     return render(request, 'dataset-detail.html', context)
 
 def dataset_list(request):
-    context = {'datasets': Dataset.objects.filter(show=True)}
+    context = {'datasets': Dataset.objects.filter(show=True).order_by('name')}
     return render(request, 'dataset-list.html', context)
 
 def dataset_suggestion(request):

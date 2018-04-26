@@ -1,7 +1,7 @@
-from django import template
+from django.template import Context, Library, Template
 
 
-register = template.Library()
+register = Library()
 
 @register.filter(name='getattribute')
 def getattribute(obj, attr):
@@ -13,6 +13,8 @@ def getattribute(obj, attr):
         raise ValueError('Cannot get attribute "{}"'.format(attr))
 
 
-@register.filter(name='is_digit')
-def is_digit(value):
-    return str(value).isdigit()
+@register.filter(name='render')
+def render(template_text, obj):
+    return Template(template_text).render(
+        Context(obj.__dict__, use_l10n=False)
+    )
