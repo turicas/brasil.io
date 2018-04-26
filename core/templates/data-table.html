@@ -1,0 +1,22 @@
+{% load utils %}
+<table>
+  <tr>
+    {% for field in fields %}
+    {% if field.show_on_frontend %}
+    <th> {{ field.title }} </th>
+    {% endif %}
+    {% endfor %}
+  </tr>
+
+  {% for row in data %}
+  <tr>
+    {% for field in fields %}{% if field.show_on_frontend %}{% with value=row|getattribute:field %}
+    {% if field.link_template and value %}
+    <td> <a href="{{ field.link_template|render:row }}"> {{ value }} </a> </td>
+    {% else %}
+    <td> {{ value|default:'' }} </td>
+    {% endif %}
+    {% endwith %}{% endif %}{% endfor %}
+  </tr>
+  {% endfor %}
+</table>

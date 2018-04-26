@@ -273,6 +273,7 @@ class Field(models.Model):
     null = models.BooleanField(null=False, blank=True, default=True)
     name = models.CharField(max_length=63)
     options = JSONField(null=True, blank=True)
+    obfuscate = models.BooleanField(null=False, blank=True, default=False)
     show = models.BooleanField(null=False, blank=True, default=True)
     show_on_frontend = models.BooleanField(null=False, blank=True, default=False)
     table = models.ForeignKey(Table, on_delete=models.CASCADE,

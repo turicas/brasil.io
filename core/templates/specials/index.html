@@ -25,7 +25,12 @@
 
   <ul>
     <li>
-      <a href="{% url 'core:special-registry' %}">Registro Nacional</a>
+      <a
+        href="{% url 'core:dataset-detail' slug='documentos-brasil' %}">Coleção
+        de CNPJs e CPFs brasileiros</a> - a partir de uma busca por nome ou
+      documento, o visitante poderá acessar um dossiê do documento (CPF ou
+      CNPJ), onde serão mostradas ocorrências em vários datasets disponíveis no
+      portal. Exemplo: <a href="{% url 'core:special-document-detail' document='75095679000149' %}">Universidade Federal do Paraná</a>.
     </li>
   </ul>
 </div>

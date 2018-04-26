@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load l10n %}
+{% load utils %}
 {% block title %}{{ obj.name }} - {% if obj.document_type == 'cpf' %}Pessoa Física{% elif obj.document_type == 'cnpj' %}Pessoa Jurídica{% endif %} - Brasil.IO{% endblock %}
 {% block content %}{% localize off %}
 <div class="section">
@@ -7,7 +8,7 @@
 
   <dl>
     <dt> Documento: </dt>
-    <dd>{{ obj.document }} ({{ obj.document_type|upper }})</b></dd>
+    <dd>{% if encrypted %}{{ obj.document|obfuscate }}{% else %}{{ obj.document }}{% endif %} ({{ obj.document_type|upper }})</b></dd>
     {% if obj.state %}
     <dt> Unidade federativa de registro: </dt>
     <dd>{{ obj.state }}</b></dd>

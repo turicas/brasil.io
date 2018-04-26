@@ -12,6 +12,7 @@ BASE_DIR = root()
 DEBUG = env('DEBUG')
 PRODUCTION = env('PRODUCTION', bool)
 SECRET_KEY = env('SECRET_KEY')
+FERNET_KEY = env('FERNET_KEY')
 
 
 # Application definition

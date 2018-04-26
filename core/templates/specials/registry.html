@@ -18,29 +18,15 @@
 
   {% if query %}
 
-    {% if not result.count %}
+    {% if not data.count %}
     Nenhum resultado encontrado. :(
     {% else %}
-    Total de <b>{{ result.count }}</b> registros encontrados (entre pessoas
-    físicas e jurídicas){% if result.count > 500 %}, mostrando os <b>500</b>
+    Total de <b>{{ data.count }}</b> registros encontrados (entre pessoas
+    físicas e jurídicas){% if data.count > 500 %}, mostrando os <b>500</b>
     primeiros).{% else %}.{% endif %}
-    <table>
-      <tr>
-        <th> Tipo de Documento </th>
-        <th> Documento </th>
-        <th> Nome </th>
-      </tr>
 
-      {% for row in result|slice:":500" %}
-      <tr>
-        <td> {{ row.document_type|upper }} </td>
-        <td>
-          <a href="{% url 'core:special-document-detail' document=row.document %}">{{ row.document }}</a>
-        </td>
-        <td> {{ row.name }} </td>
-      </tr>
-      {% endfor %}
-    </table>
+    {% include 'data-table.html' %}
+
     {% endif %}
 
   {% endif %}

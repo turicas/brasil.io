@@ -15,6 +15,5 @@ urlpatterns = [
 
     # Dataset-specific pages (specials)
     path('especiais', views_special.index, name='specials'),
-    path('especiais/registro-nacional', views_special.registry, name='special-registry'),
     path('especiais/documento/<document>', views_special.document_detail, name='special-document-detail'),
 ]

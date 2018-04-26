@@ -1,3 +1,4 @@
+cryptography
 django-cors-headers
 django-environ
 django-extensions
