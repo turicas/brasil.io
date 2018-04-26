@@ -16,6 +16,7 @@ class Command(BaseCommand):
 
     def get_company(self, partnership):
         company = PessoaJuridica.select(graph_db, partnership.cnpj_empresa).first()
+
         if not company:
             company = PessoaJuridica()
             company.nome = partnership.nome_empresa.upper()
@@ -35,7 +36,6 @@ class Command(BaseCommand):
             company = PessoaJuridica()
             company.nome = partnership.nome_socio.upper()
             company.cnpj = partnership.cpf_cnpj_socio.upper()
-            graph_db.push(company)
 
         return company
 
@@ -46,7 +46,6 @@ class Command(BaseCommand):
             person = PessoaFisica()
             person.nome = partnership.nome_socio.upper()
             person.cpf = (partnership.cpf_cnpj_socio or '').upper()
-            graph_db.push(person)
 
         return person
 
@@ -57,7 +56,6 @@ class Command(BaseCommand):
             partner = NomeExterior()
             partner.nome = partnership.nome_socio.upper()
             partner.cpf_cnpj = (partnership.cpf_cnpj_socio or '').upper()
-            graph_db.push(partner)
 
         return partner
 
@@ -75,6 +73,12 @@ class Command(BaseCommand):
             )
             raise ValueError(msg)
 
+    def get_partnership_properties(self, partnership):
+        return {
+            'codigo_qualificacao_socio': partnership.codigo_qualificacao_socio,
+            'qualificacao_socio': partnership.qualificacao_socio,
+        }
+
     def handle(self, *args, **kwargs):
         SociosBrasil = self.get_socios_brasil_model()
 
@@ -83,6 +87,10 @@ class Command(BaseCommand):
         for partnership in SociosBrasil.objects.all()[:100].iterator():
             company = self.get_company(partnership)
             partner = self.get_partner(partnership)
+            partnership_data = self.get_partnership_properties(partnership)
+
+            partner.empresas.add(company, properties=partnership_data)
+            graph_db.push(partner)
 
         end = time.time()
         print('  finalizado em {:.3f}s.'.format(end - start))
