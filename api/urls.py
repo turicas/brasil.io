@@ -9,5 +9,5 @@ urlpatterns = [
     path('datasets', views.dataset_list, name='dataset-list'),
     path('dataset/<slug>', views.dataset_detail, name='dataset-detail'),
     path('dataset/<slug>/data', views.dataset_data, name='dataset-data'),
-    path('especiais/grafo/', graph_views.GetResourceNetworkView.as_view(), name='resource-graph'),
+    path('especiais/grafo/sociedades', graph_views.GetResourceNetworkView.as_view(), name='resource-graph'),
 ]
