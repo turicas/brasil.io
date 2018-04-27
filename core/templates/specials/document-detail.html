@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load l10n %}
 {% load utils %}
-{% block title %}{{ obj.name }} - {% if obj.document_type == 'cpf' %}Pessoa Física{% elif obj.document_type == 'cnpj' %}Pessoa Jurídica{% endif %} - Brasil.IO{% endblock %}
+{% block title %}{{ obj.name }} - {% if obj.document_type == 'CPF' %}Pessoa Física{% elif obj.document_type == 'CNPJ' %}Pessoa Jurídica{% endif %} - Brasil.IO{% endblock %}
 {% block content %}{% localize off %}
 <div class="section">
   <h4>{{ obj.name }}</h4>
@@ -49,7 +49,7 @@
   {% if companies %}
   <h4>Sociedades</h4>
   Total de <b>{{ companies.count }}</b> sociedades encontradas.
-  {% if obj.document_type == 'cpf' %}
+  {% if obj.document_type == 'CPF' %}
   Nota: esses registros foram encontrados buscando pelo nome "{{ obj.name }}" e
   podem aparecer homônimos nos resultados.
   {% endif %}

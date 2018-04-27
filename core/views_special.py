@@ -33,14 +33,14 @@ def document_detail(request, document):
     obj = get_object_or_404(Documents, document=document)
 
     partners, companies = None, None
-    if obj.document_type == 'cnpj':
+    if obj.document_type == 'CNPJ':
         partners = Socios.objects.filter(cnpj_empresa=obj.document)\
                                  .order_by('nome_socio')
         companies = \
             EmpresasSocias.objects.filter(cnpj_socia=obj.document)\
                                   .values('cnpj_empresa', 'nome_empresa')\
                                   .order_by('nome_empresa')
-    elif obj.document_type == 'cpf':
+    elif obj.document_type == 'CPF':
         companies = Socios.objects.filter(nome_socio=obj.name)\
                                   .values('cnpj_empresa', 'nome_empresa')\
                                   .distinct()\
