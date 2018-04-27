@@ -18,6 +18,7 @@ def document_detail(request, document):
     Socios = Dataset.objects.get(slug='socios-brasil').get_last_data_model()
     GastosDeputados = Dataset.objects.get(slug='gastos-deputados').get_last_data_model()
     GastosDiretos = Dataset.objects.get(slug='gastos-diretos').get_last_data_model()
+    EmpresasSocias = Dataset.objects.get(slug='empresas-socias').get_last_data_model()
 
     encrypted = False
     if len(document) not in (11, 14):  # encrypted
@@ -35,6 +36,10 @@ def document_detail(request, document):
     if obj.document_type == 'cnpj':
         partners = Socios.objects.filter(cnpj_empresa=obj.document)\
                                  .order_by('nome_socio')
+        companies = \
+            EmpresasSocias.objects.filter(cnpj_socia=obj.document)\
+                                  .values('cnpj_empresa', 'nome_empresa')\
+                                  .order_by('nome_empresa')
     elif obj.document_type == 'cpf':
         companies = Socios.objects.filter(nome_socio=obj.name)\
                                   .values('cnpj_empresa', 'nome_empresa')\

@@ -49,8 +49,10 @@
   {% if companies %}
   <h4>Sociedades</h4>
   Total de <b>{{ companies.count }}</b> sociedades encontradas.
+  {% if obj.document_type == 'cpf' %}
   Nota: esses registros foram encontrados buscando pelo nome "{{ obj.name }}" e
   podem aparecer homônimos nos resultados.
+  {% endif %}
   <table>
     <tr>
       <th> CNPJ </th>
