@@ -62,7 +62,6 @@ class Command(BaseCommand):
             ON MATCH SET c.uf=r.uf, c.nome=r.nome_emp
             MERGE (p:PessoaJuridica { cnpj: r.cnpj })
             ON CREATE SET p.nome=r.nome
-            ON MATCH SET p.nome=r.nome
             CREATE (p)-[:TEM_SOCIEDADE { codigo_tipo_socio: r.codigo_qualificacao_socio, qualificacao_socio: r.qualificacao_socio }]->(c)
         """
 
