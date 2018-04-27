@@ -28,7 +28,7 @@ def _extract_network(query, path_key='p'):
     return graph
 
 
-def get_company_network(cnpj, depth):
+def get_company_network(cnpj, depth=1):
     query = f"""
         MATCH p=((c:PessoaJuridica {{ cnpj: "{cnpj}" }})-[:TEM_SOCIEDADE*{depth}]-(n))
         RETURN p
@@ -36,7 +36,7 @@ def get_company_network(cnpj, depth):
     return _extract_network(query)
 
 
-def get_person_network(name, depth):
+def get_person_network(name, depth=1):
     name = name.upper()
     query = f"""
         MATCH p=((c:PessoaFisica {{ nome: "{name}" }})-[:TEM_SOCIEDADE*{depth}]-(n))
@@ -45,7 +45,7 @@ def get_person_network(name, depth):
     return _extract_network(query)
 
 
-def get_foreigner_network(name, depth):
+def get_foreigner_network(name, depth=1):
     name = name.upper()
     query = f"""
         MATCH p=((c:NomeExterior {{ nome: "{name}" }})-[:TEM_SOCIEDADE*{depth}]-(n))
