@@ -148,6 +148,18 @@ class Command(BaseCommand):
                     pfs, pjs, ext = [], [], []
 
         if open_transaction:
+            query, params = self.get_pfs_query_and_params(pfs)
+            if params:
+                open_transaction.run(query, parameters=params)
+
+            query, params = self.get_pjs_query_and_params(pjs)
+            if params:
+                open_transaction.run(query, parameters=params)
+
+            query, params = self.get_ext_query_and_params(ext)
+            if params:
+                open_transaction.run(query, parameters=params)
+
             open_transaction.commit()
 
         end = time.time()
