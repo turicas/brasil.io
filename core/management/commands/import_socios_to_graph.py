@@ -6,7 +6,6 @@ from django.core.management.base import BaseCommand
 
 from core.models import Table
 from graphs.connection import graph_db
-from graphs.nodes import PessoaJuridica, PessoaFisica, NomeExterior
 
 
 class Command(BaseCommand):
@@ -18,11 +17,13 @@ class Command(BaseCommand):
         self.batch_size = 1000
 
     def create_indexes(self):
-        objects = [PessoaJuridica, PessoaFisica, NomeExterior]
-        for graph_obj in objects:
-            graph_db.schema.create_uniqueness_constraint(
-                graph_obj.__primarylabel__, graph_obj.__primarykey__
-            )
+        labels_keys = [
+            ('PessoaJuridica', 'cnpj'),
+            ('PessoaFisica', 'nome'),
+            ('NomeExterior', 'nome'),
+        ]
+        for label, key in labels_keys:
+            graph_db.schema.create_uniqueness_constraint(label, key)
 
     def get_socios_brasil_model(self):
         table = Table.objects.get(dataset__slug='socios-brasil')
