@@ -18,121 +18,101 @@
 
 <div class="row">
 
-  {% if partners %}
+  {% if partners_data.count %}
   <h4>Quadro Societário</h4>
-  Total de <b>{{ partners.count }}</b> sócios.
-  <table>
-    <tr>
-      <th> Documento </th>
-      <th> Tipo </th>
-      <th> Qualificação </th>
-      <th> Nome </th>
-    </tr>
-
-    {% for partner in partners %}
-    <tr>
-      <td>
-        {% if partner.cpf_cnpj_socio %}
-        <a href="{% url 'core:special-document-detail' document=partner.cpf_cnpj_socio %}">{{ partner.cpf_cnpj_socio }}</a>
-        {% else %}
-        {{ partner.cpf_cnpj_socio|default:'' }}
-        {% endif %}
-      </td>
-      <td> {{ partner.tipo_socio }} </td>
-      <td> {{ partner.qualificacao_socio }} </td>
-      <td> {{ partner.nome_socio }} </td>
-    </tr>
-    {% endfor %}
-  </table>
+  <p>
+    Total de <b>{{ partners_data.count }}</b> sócios.
+  </p>
+  {% with data=partners_data fields=partners_fields %}
+    {% include 'data-table.html' %}
+  {% endwith %}
   {% endif %}
 
-  {% if companies %}
+  {% if filiations_data.count %}
+  <h4>Filiações</h4>
+  <p>
+    Foram identificadas <b>{{ filiations_data.count }}</b> filiações a partidos
+    políticos vinculadas a esse nome.
+    <br>
+    Nota: esses registros foram encontrados buscando pelo nome "{{ obj.name }}" e
+    podem aparecer homônimos nos resultados.
+  </p>
+  {% with data=filiations_data fields=filiations_fields %}
+    {% include 'data-table.html' %}
+  {% endwith %}
+  {% endif %}
+
+  {% if applications_data.count %}
+  <h4>Candidaturas</h4>
+  <p>
+    Foram identificadas <b>{{ applications_data.count }}</b> candidaturas vinculadas
+    a esse CPF.
+  </p>
+  {% with data=applications_data fields=applications_fields %}
+    {% include 'data-table.html' %}
+  {% endwith %}
+  {% endif %}
+
+  {% if companies_data.count %}
   <h4>Sociedades</h4>
-  Total de <b>{{ companies.count }}</b> sociedades encontradas.
-  {% if obj.document_type == 'CPF' %}
-  Nota: esses registros foram encontrados buscando pelo nome "{{ obj.name }}" e
-  podem aparecer homônimos nos resultados.
-  {% endif %}
-  <table>
-    <tr>
-      <th> CNPJ </th>
-      <th> Razão Social </th>
-    </tr>
-
-    {% for company in companies %}
-    <tr>
-      <td>
-        <a href="{% url 'core:special-document-detail' document=company.cnpj_empresa %}">{{ company.cnpj_empresa }}</a>
-      </td>
-      <td> {{ company.nome_empresa }} </td>
-    </tr>
-    {% endfor %}
-  </table>
+  <p>
+    Foram identificadas <b>{{ companies_data.count }}</b> sociedades vinculadas
+    {% if obj.document_type == 'CNPJ' %}a esse CNPJ.
+    {% elif obj.document_type == 'CPF' %}a esse nome.{% endif %}
+    {% if obj.document_type == 'CPF' %}
+    <br>
+    Nota: esses registros foram encontrados buscando pelo nome "{{ obj.name }}" e
+    podem aparecer homônimos nos resultados.
+    {% endif %}
+  </p>
+  {% with data=companies_data fields=companies_fields %}
+    {% include 'data-table.html' %}
+  {% endwith %}
   {% endif %}
 
   <h4>Gastos da Cota Parlamentar (Câmara dos Deputados)</h4>
-  {% if camara_spending.count == 0 %}
-  Não foram identificados gastos para esse documento.
-  {% else %}
-  Foram identificadas <b>{{ camara_spending.count }}</b> notas, mostrando
-  apenas as <b>20</b> últimas
-  (<a href="{% url 'api:dataset-data' slug='gastos-deputados' %}?txtcnpjcpf={{ obj.document }}">veja todas</a>).
-  <table>
-    <tr>
-      <th> Data da Emissão </th>
-      <th> Parlamentar </th>
-      <th> Partido </th>
-      <th> UF </th>
-      <th> Descrição </th>
-      <th> Valor do Documento </th>
-      <th> Valor Glosa </th>
-      <th> Valor Líquido </th>
-    </tr>
-
-    {% for row in camara_spending|slice:':20' %}
-    <tr>
-      <td> {{ row.datemissao|date:"d/m/Y" }} </td>
-      <td> {{ row.txnomeparlamentar }} </td>
-      <td> {{ row.sgpartido }} </td>
-      <td> {{ row.sguf }} </td>
-      <td> {{ row.txtdescricao }}{% if row.txtdescricaoespecificacao %} / {{ row.txtdescricaoespecificacao }}{% endif %} </td>
-      <td class="right-align"> R$ {{ row.vlrdocumento }} </td>
-      <td class="right-align"> R$ {{ row.vlrglosa }} </td>
-      <td class="right-align"> R$ {{ row.vlrliquido }} </td>
-    </tr>
-    {% endfor %}
-  </table>
+  <p>
+    {% if camara_spending_data.count == 0 %}
+    Não foram identificados gastos para esse documento.
+    {% else %}
+    Foram identificadas <b>{{ camara_spending_data.count }}</b> notas.
+  </p>
+  {% with data=camara_spending_data fields=camara_spending_fields %}
+    {% include 'data-table.html' %}
+  {% endwith %}
   {% endif %}
 
   <h4>Gastos Diretos do Governo Federal</h4>
-  {% if federal_spending.count == 0 %}
-  Não foram identificados gastos para esse documento.
-  {% else %}
-  Foram identificadas <b>{{ federal_spending.count }}</b> notas, mostrando
-  apenas as <b>20</b> últimas
-  (<a href="{% url 'api:dataset-data' slug='gastos-diretos' %}?codigo_favorecido={{ obj.document }}">veja todas</a>).
-  <table>
-    <tr>
-      <th> Mês/Ano </th>
-      <th> Data de Pagamento </th>
-      <th> Órgão </th>
-      <th> Ação </th>
-      <th> Número do Documento </th>
-      <th> Valor </th>
-    </tr>
-
-    {% for row in federal_spending|slice:':20' %}
-    <tr>
-      <td> {{ row.mes }}/{{ row.ano }} </td>
-      <td> {{ row.data_pagamento }} </td>
-      <td> {{ row.nome_orgao }} </td>
-      <td> {{ row.nome_acao }} </td>
-      <td> <a href="http://portaldatransparencia.gov.br/despesasdiarias/pagamento?documento={{ row.codigo_unidade_gestora }}{{ row.gestao_pagamento }}{{ row.numero_documento }}"> {{ row.numero_documento }} </a> </td>
-      <td class="right-align"> R$ {{ row.valor }} </td>
-    </tr>
-    {% endfor %}
-  </table>
+  <p>
+    {% if federal_spending_data.count == 0 %}
+    Não foram identificados gastos para esse documento.
+    {% else %}
+    Foram identificadas <b>{{ federal_spending_data.count }}</b> notas.
+  </p>
+  {% with data=federal_spending_data fields=federal_spending_fields %}
+    {% include 'data-table.html' %}
+  {% endwith %}
   {% endif %}
 
 </div>
 {% endlocalize %}{% endblock %}
+
+{% block head %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
+{% endblock %}
+
+{% block script %}
+{{ block.super }}
+<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+  $('.mdl-data-table').DataTable({
+      "scrollY":        "200px",
+      "scrollCollapse": true,
+      "paging":         false,
+      "searching":      false,
+  });
+});
+</script>
+{% endblock %}

@@ -25,8 +25,10 @@ def getattribute(obj, field):
 @register.filter(name='render')
 def render(template_text, obj):
     template_text = '{% load utils %}' + template_text  # inception
+    if not isinstance(obj, dict):
+        obj = obj.__dict__
     return Template(template_text).render(
-        Context(obj.__dict__, use_l10n=False)
+        Context(obj, use_l10n=False)
     )
 
 

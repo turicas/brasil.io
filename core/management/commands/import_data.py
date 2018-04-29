@@ -95,6 +95,8 @@ class Command(BaseCommand):
         else:
             print('  done in {:.3f}s ({} rows imported, {:.3f} rows/s).'
                   .format(duration, rows_imported, rows_imported / duration))
+        # TODO: do not continue if error
+        # TODO: add flags for each action
 
         print('Running VACUUM ANALYSE...', end='', flush=True)
         start = time.time()

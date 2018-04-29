@@ -1,5 +1,6 @@
 {% load utils %}
-<table>
+<table class="mdl-data-table">
+  <thead>
   <tr>
     {% for field in fields %}
     {% if field.show_on_frontend %}
@@ -7,7 +8,9 @@
     {% endif %}
     {% endfor %}
   </tr>
+  </thead>
 
+  <tbody>
   {% for row in data %}
   <tr>
     {% for field in fields %}{% if field.show_on_frontend %}{% with value=row|getattribute:field %}
@@ -19,4 +22,5 @@
     {% endwith %}{% endif %}{% endfor %}
   </tr>
   {% endfor %}
+  </tbody>
 </table>
