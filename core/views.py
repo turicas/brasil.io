@@ -1,14 +1,46 @@
+import csv
+import itertools
+import uuid
+
 from django.contrib.postgres.search import SearchQuery
 from django.core.paginator import Paginator
-from django.http import HttpResponseBadRequest
+from django.forms.models import model_to_dict
+from django.http import HttpResponseBadRequest, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from core.models import Dataset
+from core.templatetags.utils import obfuscate
+
+
+max_export_rows = 350000
+
+class Echo:
+    def write(self, value):
+        return value
 
 
 def contact(request):
     return render(request, 'contact.html', {})
+
+
+def queryset_to_csv(data, fields):
+    header = None
+    for row in data.iterator():
+        row_data = {}
+        for field in fields:
+            if not field.show_on_frontend or field.name == 'search_data':
+                continue
+            else:
+                value = getattr(row, field.name)
+                if field.obfuscate:
+                    value = obfuscate(value)
+                row_data[field.name] = value
+        if header is None:
+            header = list(row_data.keys())
+            yield header
+        yield [row_data[field] for field in header]
+
 
 def dataset_detail(request, slug):
     dataset = get_object_or_404(Dataset, slug=slug)
@@ -30,6 +62,21 @@ def dataset_detail(request, slug):
         all_data = all_data.apply_filters(querystring)
 
     all_data = all_data.apply_ordering(order_by)
+    if (querystring.get('format', '') == 'csv' and
+        0 < all_data.count() <= max_export_rows):
+        filename = '{}-{}.csv'.format(slug, uuid.uuid4().hex)
+        pseudo_buffer = Echo()
+        writer = csv.writer(pseudo_buffer, dialect=csv.excel)
+        csv_rows = queryset_to_csv(all_data, fields)
+        response = StreamingHttpResponse(
+            (writer.writerow(row) for row in csv_rows),
+            content_type='text/csv;charset=UTF-8',
+        )
+        response['Content-Disposition'] = ('attachment; filename="{}"'
+                                           .format(filename))
+        response.encoding = 'UTF-8'
+        return response
+
 
     paginator = Paginator(all_data, 20)
     try:
@@ -43,13 +90,15 @@ def dataset_detail(request, slug):
     if search_query:
         querystring['search'] = search_query
     context = {
-        'total_count': all_data.count(),
         'data': data,
         'dataset': dataset,
         'fields': fields,
-        'search_query': search_query,
+        'max_export_rows': max_export_rows,
         'querystring': querystring.urlencode(),
+        'search_query': search_query,
+        'slug': slug,
         'table': table,
+        'total_count': all_data.count(),
         'version': version,
     }
     return render(request, 'dataset-detail.html', context)

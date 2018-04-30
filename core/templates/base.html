@@ -26,7 +26,7 @@
         }
     </style>
 
-    <!-- Global site tag (gtag.js) - Google Analytics -->
+    {% block script %}
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117698282-1"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -34,6 +34,14 @@
       gtag('js', new Date());
       gtag('config', 'UA-117698282-1');
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('.sidenav').sidenav();
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+    {% endblock %}
     {% endblock %}
 
   </head>
@@ -82,18 +90,5 @@
       </div>
     </div>
 
-    {% block script %}
-    <!--JavaScript at end of body for optimized loading-->
-    <!-- JQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
-    <script>
-        $(document).ready(function(){
-            $('.sidenav').sidenav();
-        });
-    </script>
-    <!-- Compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
-
-    {% endblock %}
   </body>
 </html>

@@ -1,8 +1,16 @@
 {% extends 'base.html' %}
 {% load l10n %}
+{% load static %}
 {% load utils %}
+
 {% block title %}{{ obj.name }} - {% if obj.document_type == 'CPF' %}Pessoa Física{% elif obj.document_type == 'CNPJ' %}Pessoa Jurídica{% endif %} - Brasil.IO{% endblock %}
-{% block content %}{% localize off %}
+
+{% block head %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
+{% endblock %}
+
+{% block content %}{% localize off %}{% with client_export_csv=True %}
 <div class="section">
   <h4>{{ obj.name }}</h4>
 
@@ -23,7 +31,7 @@
   <p>
     Total de <b>{{ partners_data.count }}</b> sócios.
   </p>
-  {% with data=partners_data fields=partners_fields %}
+  {% with table_id='partners' data=partners_data fields=partners_fields caption='quadro-societario-'|add:obj.name %}
     {% include 'data-table.html' %}
   {% endwith %}
   {% endif %}
@@ -37,7 +45,7 @@
     Nota: esses registros foram encontrados buscando pelo nome "{{ obj.name }}" e
     podem aparecer homônimos nos resultados.
   </p>
-  {% with data=filiations_data fields=filiations_fields %}
+  {% with table_id='filiations' data=filiations_data fields=filiations_fields caption='filiacoes-'|add:obj.name %}
     {% include 'data-table.html' %}
   {% endwith %}
   {% endif %}
@@ -48,7 +56,7 @@
     Foram identificadas <b>{{ applications_data.count }}</b> candidaturas vinculadas
     a esse CPF.
   </p>
-  {% with data=applications_data fields=applications_fields %}
+  {% with table_id='applications' data=applications_data fields=applications_fields caption='candidaturas-'|add:obj.name  %}
     {% include 'data-table.html' %}
   {% endwith %}
   {% endif %}
@@ -65,7 +73,7 @@
     podem aparecer homônimos nos resultados.
     {% endif %}
   </p>
-  {% with data=companies_data fields=companies_fields %}
+  {% with table_id='companies' data=companies_data fields=companies_fields caption='sociedades-'|add:obj.name  %}
     {% include 'data-table.html' %}
   {% endwith %}
   {% endif %}
@@ -77,7 +85,7 @@
     {% else %}
     Foram identificadas <b>{{ camara_spending_data.count }}</b> notas.
   </p>
-  {% with data=camara_spending_data fields=camara_spending_fields %}
+  {% with table_id='camara-spending' data=camara_spending_data fields=camara_spending_fields caption='gastos-deputados-'|add:obj.name  %}
     {% include 'data-table.html' %}
   {% endwith %}
   {% endif %}
@@ -89,21 +97,17 @@
     {% else %}
     Foram identificadas <b>{{ federal_spending_data.count }}</b> notas.
   </p>
-  {% with data=federal_spending_data fields=federal_spending_fields %}
+  {% with table_id='federal-spending' data=federal_spending_data fields=federal_spending_fields caption='gastos-diretos-'|add:obj.name  %}
     {% include 'data-table.html' %}
   {% endwith %}
   {% endif %}
 
 </div>
-{% endlocalize %}{% endblock %}
-
-{% block head %}
-  {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
-{% endblock %}
+{% endwith %}{% endlocalize %}{% endblock %}
 
 {% block script %}
 {{ block.super }}
+<script type="text/javascript" language="javascript" src="{% static 'js/jquery.tabletocsv.js' %}"></script>
 <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
@@ -112,6 +116,7 @@ $(document).ready(function() {
       "scrollCollapse": true,
       "paging":         false,
       "searching":      false,
+      "bInfo":          false,
   });
 });
 </script>
