@@ -16,23 +16,39 @@ def dataset_detail(request, slug):
     table = version.table_set.get(default=True)
     fields = table.field_set.all()
     all_data = dataset.get_last_data_model().objects.all()
-    query = request.GET.get('q')
-    if query:
-        all_data = all_data.filter(search_data=SearchQuery(query))
+    querystring = request.GET.copy()
+    page_number = querystring.pop('page', ['1'])[0].strip() or '1'
+    search_query = request.GET.get('search')
+    order_by = querystring.pop('order-by', [''])
+    order_by = [field.strip().lower()
+                for field in order_by[0].split(',')
+                if field.strip()]
+
+    if search_query:
+        all_data = all_data.filter(search_data=SearchQuery(search_query))
+    if querystring:
+        all_data = all_data.apply_filters(querystring)
+
+    all_data = all_data.apply_ordering(order_by)
 
     paginator = Paginator(all_data, 20)
     try:
-        page = int(request.GET.get('page', 1) or 1)
+        page = int(page_number)
     except ValueError:
         raise HttpResponseBadRequest
     data = paginator.get_page(page)
 
+    if order_by:
+        querystring['order-by'] = ','.join(order_by)
+    if search_query:
+        querystring['search'] = search_query
     context = {
         'total_count': all_data.count(),
         'data': data,
         'dataset': dataset,
         'fields': fields,
-        'query': query,
+        'search_query': search_query,
+        'querystring': querystring.urlencode(),
         'table': table,
         'version': version,
     }

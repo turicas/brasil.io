@@ -27,8 +27,8 @@
         <div class="col s12 m9">
           <form method="get">
             <div class="input-field col s6">
-              <label for="q">Busca</label>
-              <input type="text" id="q" name="q" value="{{ query|default:'' }}">
+              <label for="search">Busca</label>
+              <input type="text" id="search" name="search" value="{{ search_query|default:'' }}">
               <input class="btn" type="submit" value="Buscar">
             </div>
           </form>
@@ -37,11 +37,11 @@
         <div class="col s12 m3">
           <ul class="pagination right">
             {% if data.has_previous %}
-            <li> <a href="?page={{ data.previous_page_number }}&q={{ query|default:'' }}"><i class="material-icons">chevron_left</i></a> </li>
+            <li> <a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ data.previous_page_number }}"><i class="material-icons">chevron_left</i></a> </li>
             {% endif %}
             <li> {{ data.start_index|localize }}-{{ data.end_index|localize }}/{{ total_count|localize }} </li>
             {% if data.has_next %}
-            <li> <a href="?page={{ data.next_page_number }}&q={{ query|default:'' }}"><i class="material-icons">chevron_right</i></a> </li>
+            <li> <a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ data.next_page_number }}"><i class="material-icons">chevron_right</i></a> </li>
             {% endif %}
           </ul>
         </div>
