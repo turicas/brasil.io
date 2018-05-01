@@ -266,8 +266,10 @@ class Field(models.Model):
              'float', 'integer', 'json', 'percent', 'text',]
     TYPE_CHOICES = [(value, value) for value in TYPES]
 
+    choices = JSONField(null=True, blank=True)
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE,
                                 null=False, blank=False)
+    has_choices = models.BooleanField(null=False, blank=True, default=False)
     link_template = models.URLField(max_length=2000, null=True, blank=True)
     order = models.PositiveIntegerField(null=False, blank=False)
     null = models.BooleanField(null=False, blank=True, default=True)
