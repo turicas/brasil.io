@@ -15,7 +15,7 @@ def getattribute(obj, field):
     elif attr in obj:
         value = obj[attr]
     else:
-        raise ValueError('Cannot get attribute "{}"'.format(attr))
+        return None
 
     if field.obfuscate:
         value = obfuscate(value)

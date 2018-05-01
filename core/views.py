@@ -59,6 +59,10 @@ def dataset_detail(request, slug):
     if search_query:
         all_data = all_data.filter(search_data=SearchQuery(search_query))
     if querystring:
+        keys = list(querystring.keys())
+        for key in keys:
+            if not querystring[key]:
+                del querystring[key]
         all_data = all_data.apply_filters(querystring)
 
     all_data = all_data.apply_ordering(order_by)
@@ -94,7 +98,8 @@ def dataset_detail(request, slug):
         'dataset': dataset,
         'fields': fields,
         'max_export_rows': max_export_rows,
-        'querystring': querystring.urlencode(),
+        'query_dict': querystring,
+        'querystring': querystring,
         'search_query': search_query,
         'slug': slug,
         'table': table,
