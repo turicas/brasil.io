@@ -269,6 +269,7 @@ class Field(models.Model):
     choices = JSONField(null=True, blank=True)
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE,
                                 null=False, blank=False)
+    frontend_filter = models.BooleanField(null=False, blank=True, default=False)
     has_choices = models.BooleanField(null=False, blank=True, default=False)
     link_template = models.URLField(max_length=2000, null=True, blank=True)
     order = models.PositiveIntegerField(null=False, blank=False)

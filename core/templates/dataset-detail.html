@@ -35,16 +35,20 @@
                 <input type="text" id="search" name="search" value="{{ search_query|default:'' }}">
               </div>
 
-            {% for field in fields %}
-            {% if field.show_on_frontend and field.has_choices %}{% with value=query_dict|getattribute:field|default:'' %}
+              {% for field in fields %}
+              {% if field.frontend_filter %}{% with value=query_dict|getplainattribute:field|default:'' %}
               <div class="input-field col s6">
                 <label class="active" for="{{ field.name }}">{{ field.title }}</label>
+              {% if field.has_choices %}
                 <select name="{{ field.name }}">
                   <option value="" {% if value == "" %} selected{% endif %}>Todos</option>
                   {% for choice in field.choices.data %}
                   <option value="{{ choice }}"{% if value == choice %} selected{% endif %}>{% if choice == 'None' %}(vazio){% else %}{{ choice }}{% endif %}</option>
                   {% endfor %}
                 </select>
+                {% else %}
+                <input type="text" name="{{ field.name }}" value="{{ value }}">
+              {% endif %}
               </div>
             {% endwith %}{% endif %}
             {% endfor %}

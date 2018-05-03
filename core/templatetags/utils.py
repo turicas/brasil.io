@@ -7,8 +7,7 @@ from cryptography.fernet import Fernet
 cipher_suite = Fernet(settings.FERNET_KEY)
 register = Library()
 
-@register.filter(name='getattribute')
-def getattribute(obj, field):
+def _getattr(obj, field, should_obfuscate):
     attr = field.name
     if hasattr(obj, attr):
         value = getattr(obj, attr)
@@ -17,9 +16,17 @@ def getattribute(obj, field):
     else:
         return None
 
-    if field.obfuscate:
+    if should_obfuscate and field.obfuscate:
         value = obfuscate(value)
     return value
+
+@register.filter(name='getattribute')
+def getattribute(obj, field):
+    return _getattr(obj, field, should_obfuscate=True)
+
+@register.filter(name='getplainattribute')
+def getattribute(obj, field):
+    return _getattr(obj, field, should_obfuscate=False)
 
 
 @register.filter(name='render')
