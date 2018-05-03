@@ -104,6 +104,7 @@ class Command(BaseCommand):
         end = time.time()
         print('  done in {:.3f}s.'.format(end - start))
 
+        # TODO: warn if field has_choices but not in Table.filtering
         print('Creating indexes...', end='', flush=True)
         start = time.time()
         Model.create_indexes()

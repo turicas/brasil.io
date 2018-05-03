@@ -194,6 +194,7 @@ class Table(models.Model):
         filtering = self.filtering or []
         search = self.search or []
         indexes = []
+        # TODO: add has_choices fields also
         if ordering:
             indexes.append(models.Index(fields=ordering))
         if filtering:

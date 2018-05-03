@@ -8,7 +8,8 @@ CREATE TABLE core_empresassocias AS
 	FROM core_sociosbrasil
 	WHERE cpf_cnpj_socio IS NOT NULL;
 
-CREATE INDEX idx_cnpj_socio ON core_empresassocias (cnpj_empresa, cnpj_socia, nome_empresa, qualificacao_socia);
+CREATE INDEX idx_empresassocias_cnpj_socia ON core_empresassocias (cnpj_empresa, cnpj_socia, nome_empresa, qualificacao_socia);
+CREATE INDEX idx_empresassocias_qualificacao_socia ON core_empresassocias (qualificacao_socia);
 
 ALTER TABLE core_empresassocias ADD search_data tsvector;
 

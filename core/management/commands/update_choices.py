@@ -14,6 +14,7 @@ class Command(BaseCommand):
             start_dataset = time.time()
             Model = dataset.get_last_data_model()
             # TODO: change when add table support
+            # TODO: move this to QuerySet
             choiceables = dataset.field_set.filter(show_on_frontend=True,
                                                    has_choices=True)
             for field in choiceables:
