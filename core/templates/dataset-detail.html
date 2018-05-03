@@ -42,7 +42,7 @@
                 <select name="{{ field.name }}">
                   <option value="" {% if value == "" %} selected{% endif %}>Todos</option>
                   {% for choice in field.choices.data %}
-                  <option value="{{ choice }}"{% if value == choice %} selected{% endif %}>{{ choice }}</option>
+                  <option value="{{ choice }}"{% if value == choice %} selected{% endif %}>{% if choice == 'None' %}(vazio){% else %}{{ choice }}{% endif %}</option>
                   {% endfor %}
                 </select>
               </div>
