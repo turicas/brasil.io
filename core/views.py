@@ -99,7 +99,7 @@ def dataset_detail(request, slug):
         'fields': fields,
         'max_export_rows': max_export_rows,
         'query_dict': querystring,
-        'querystring': querystring,
+        'querystring': querystring.urlencode(),
         'search_query': search_query,
         'slug': slug,
         'table': table,
