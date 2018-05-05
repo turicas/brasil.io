@@ -53,3 +53,27 @@ class ResourceNetworkSerializer(serializers.Serializer):
         network = self.build_graph()
         network_serializer = GraphSerializer(instance=network)
         return network_serializer.data
+
+
+class NodeSerializer(serializers.Serializer):
+    RESOURCE_TYPES = [
+        (1, 'Pessoa Jurídica'),
+        (2, 'Pessoa Física'),
+        (3, 'Nome Exterior'),
+    ]
+
+    tipo = serializers.ChoiceField(choices=RESOURCE_TYPES)
+    identificador = serializers.CharField()
+    node = serializers.SerializerMethodField()
+
+    def get_node(self, *args, **kwargs):
+        extractors = {
+            1: graph_extractor.get_company_node,
+            2: graph_extractor.get_person_node,
+            3: graph_extractor.get_foreigner_node,
+        }
+        tipo = self.validated_data['tipo']
+        node = extractors[tipo](self.validated_data['identificador'])
+        data = node.properties.copy()
+        data['id'] = node.__name__
+        return data
