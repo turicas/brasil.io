@@ -9,21 +9,17 @@ from django.urls import reverse
 
 from core.forms import TracePathForm
 from core.models import Dataset
-from graphs.serializers import PathSerializer
+#from graphs.serializers import PathSerializer
 
 
 cipher_suite = Fernet(settings.FERNET_KEY)
-slugs = ['documentos-brasil', 'eleicoes-brasil', 'empresas-socias',
-         'filiados-partidos', 'gastos-deputados', 'gastos-diretos',
-         'socios-brasil']
-datasets = {slug: Dataset.objects.get(slug=slug) for slug in slugs}
-Candidatos = datasets['eleicoes-brasil'].get_last_data_model()
-Documents = datasets['documentos-brasil'].get_last_data_model()
-EmpresasSocias = datasets['empresas-socias'].get_last_data_model()
-FiliadosPartidos = datasets['filiados-partidos'].get_last_data_model()
-GastosDeputados = datasets['gastos-deputados'].get_last_data_model()
-GastosDiretos = datasets['gastos-diretos'].get_last_data_model()
-Socios = datasets['socios-brasil'].get_last_data_model()
+
+
+def get_datasets():
+    slugs = ['documentos-brasil', 'eleicoes-brasil', 'empresas-socias',
+             'filiados-partidos', 'gastos-deputados', 'gastos-diretos',
+             'socios-brasil']
+    return {slug: Dataset.objects.get(slug=slug) for slug in slugs}
 
 
 def index(request):
@@ -41,6 +37,14 @@ def unaccent(text):
 
 
 def document_detail(request, document):
+    datasets = get_datasets()
+    Candidatos = datasets['eleicoes-brasil'].get_last_data_model()
+    Documents = datasets['documentos-brasil'].get_last_data_model()
+    EmpresasSocias = datasets['empresas-socias'].get_last_data_model()
+    FiliadosPartidos = datasets['filiados-partidos'].get_last_data_model()
+    GastosDeputados = datasets['gastos-deputados'].get_last_data_model()
+    GastosDiretos = datasets['gastos-diretos'].get_last_data_model()
+    Socios = datasets['socios-brasil'].get_last_data_model()
 
     encrypted = False
     if len(document) not in (11, 14):  # encrypted

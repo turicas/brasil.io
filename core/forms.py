@@ -3,9 +3,6 @@ from django import forms
 from core.models import Dataset
 
 
-Socios = Dataset.objects.get(slug='socios-brasil').get_last_data_model()
-
-
 def _resolve_field_by_type(person_type):
     if person_type == 'pessoa-fisica':
         return 'nome_socio'
@@ -37,6 +34,7 @@ class TracePathForm(forms.Form):
     destination_identifier = forms.CharField(required=True)
 
     def clean(self):
+        Socios = Dataset.objects.get(slug='socios-brasil').get_last_data_model()
         cleaned_data = super().clean()
         origin_type = cleaned_data.get('origin_type')
         origin_identifier = cleaned_data.get('origin_identifier')
