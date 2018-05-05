@@ -1,5 +1,9 @@
 import networkx as nx
+from py2neo.database.selection import NodeSelector
+
 from graphs.connection import graph_db
+
+selector = NodeSelector(graph_db)
 
 
 def _extract_network(query, path_key='p'):
@@ -52,3 +56,33 @@ def get_foreigner_network(name, depth=1):
         RETURN p
     """.strip()
     return _extract_network(query)
+
+
+def get_company_node(cnpj):
+    """
+    Returns py2neo.types.Node or None
+    """
+    node = selector.select('PessoaJuridica', cnpj=cnpj).first()
+    if not node:
+        raise NodeDoesNotExistException()
+    return node
+
+
+def get_person_node(name):
+    """
+    Returns py2neo.types.Node or None
+    """
+    node = selector.select('PessoaFisica', nome=name).first()
+    if not node:
+        raise NodeDoesNotExistException()
+    return node
+
+
+def get_foreigner_node(name):
+    """
+    Returns py2neo.types.Node or None
+    """
+    node = selector.select('NomeExterior', nome=name).first()
+    if not node:
+        raise NodeDoesNotExistException()
+    return node
