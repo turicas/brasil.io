@@ -7,10 +7,20 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
+from core.forms import TracePathForm
 from core.models import Dataset
+from graphs.serializers import PathSerializer
 
 
 cipher_suite = Fernet(settings.FERNET_KEY)
+
+
+def get_datasets():
+    slugs = ['documentos-brasil', 'eleicoes-brasil', 'empresas-socias',
+             'filiados-partidos', 'gastos-deputados', 'gastos-diretos',
+             'socios-brasil']
+    return {slug: Dataset.objects.get(slug=slug) for slug in slugs}
+
 
 def index(request):
     return render(request, 'specials/index.html', {})
@@ -27,11 +37,7 @@ def unaccent(text):
 
 
 def document_detail(request, document):
-    slugs = ['documentos-brasil', 'eleicoes-brasil', 'empresas-socias',
-             'filiados-partidos', 'gastos-deputados', 'gastos-diretos',
-             'socios-brasil']
-    datasets = {slug: Dataset.objects.get(slug=slug)
-                for slug in slugs}
+    datasets = get_datasets()
     Candidatos = datasets['eleicoes-brasil'].get_last_data_model()
     Documents = datasets['documentos-brasil'].get_last_data_model()
     EmpresasSocias = datasets['empresas-socias'].get_last_data_model()
@@ -129,3 +135,42 @@ def document_detail(request, document):
         'partners_fields': partners_fields,
     }
     return render(request, 'specials/document-detail.html', context)
+
+
+def _get_path(origin, destination):
+    serializer = PathSerializer(data={
+        'tipo1': origin['type'],
+        'identificador1': origin['identifier'],
+        'tipo2': destination['type'],
+        'identificador2': destination['identifier'],
+    })
+    serializer.is_valid()
+    return serializer.data['path']
+
+
+def trace_path(request):
+    form = TracePathForm(request.GET or None)
+    errors, path, origin_name, destination_name = None, None, None, None
+
+    if form.is_valid():
+        origin_name = form.cleaned_data['origin_name']
+        destination_name = form.cleaned_data['destination_name']
+        path = _get_path(
+            {
+                'type': 1 if form.cleaned_data['origin_type'] == 'pessoa-juridica' else 2,
+                'identifier': form.cleaned_data['origin_identifier'],
+            },
+            {
+                'type': 1 if form.cleaned_data['destination_type'] == 'pessoa-juridica' else 2,
+                'identifier': form.cleaned_data['destination_identifier'],
+            },
+        )
+
+    context = {
+        'destination_name': destination_name,
+        'errors': errors,
+        'form': form,
+        'origin_name': origin_name,
+        'path': path,
+    }
+    return render(request, 'specials/trace-path.html', context)

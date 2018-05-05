@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load l10n %}
+{% load static %}
+{% load utils %}
+
+{% block title %}Traçador de Caminhos - Brasil.IO{% endblock %}
+
+{% block content %}
+<div class="section">
+
+  <form method="get">
+    {{ form }}
+    <input type="submit" value="Traçar" class="btn">
+  </form>
+</div>
+
+<div class="section">
+  <div class="row">
+  {% if errors %}
+    <h4>Erros</h4>
+    {{ errors }}
+  {% elif path %}
+  <h4>Caminho entre {{ origin_name }} e {{ destination_name }}</h4>
+  {% for node in path %}
+    <div>
+      {% if node.tipo == 'PessoaJuridica' %}
+      <a href="{% url 'core:special-document-detail' document=node.cnpj %}">{{ node.nome }}</a>
+      {% else %}
+      <a href="{% url 'core:dataset-detail' 'socios-brasil' %}?nome_socio={{ node.nome }}">{{ node.nome }}</a>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{{ block.super }}
+<script type="text/javascript">
+$(document).ready(function() {
+  $('select').formSelect();
+});
+</script>
+{% endblock %}
