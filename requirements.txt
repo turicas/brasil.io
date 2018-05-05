@@ -14,3 +14,5 @@ psycopg2-binary
 sendgrid-django
 tqdm
 whitenoise
+py2neo==3.1.2
+networkx==2.1
