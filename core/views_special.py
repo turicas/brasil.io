@@ -146,9 +146,11 @@ def _get_path(origin, destination):
 
 def trace_path(request):
     form = TracePathForm(request.GET or None)
-    errors, path = None, None
+    errors, path, origin_name, destination_name = None, None, None, None
 
     if form.is_valid():
+        origin_name = form.cleaned_data['origin_name']
+        destination_name = form.cleaned_data['destination_name']
         path = _get_path(
             {
                 'type': 1 if form.cleaned_data['origin_type'] == 'pessoa-juridica' else 2,
@@ -161,8 +163,10 @@ def trace_path(request):
         )
 
     context = {
+        'destination_name': destination_name,
         'errors': errors,
         'form': form,
+        'origin_name': origin_name,
         'path': path,
     }
     return render(request, 'specials/trace-path.html', context)
