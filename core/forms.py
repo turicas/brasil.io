@@ -11,6 +11,7 @@ def _resolve_field_by_type(person_type):
 
 
 def _get_obj(field, identifier):
+    Socios = Dataset.objects.get(slug='socios-brasil').get_last_data_model()
     return Socios.objects.filter(**{field: identifier}).first()
 
 
@@ -34,7 +35,6 @@ class TracePathForm(forms.Form):
     destination_identifier = forms.CharField(required=True)
 
     def clean(self):
-        Socios = Dataset.objects.get(slug='socios-brasil').get_last_data_model()
         cleaned_data = super().clean()
         origin_type = cleaned_data.get('origin_type')
         origin_identifier = cleaned_data.get('origin_identifier')

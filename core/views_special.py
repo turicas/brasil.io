@@ -9,7 +9,7 @@ from django.urls import reverse
 
 from core.forms import TracePathForm
 from core.models import Dataset
-#from graphs.serializers import PathSerializer
+from graphs.serializers import PathSerializer
 
 
 cipher_suite = Fernet(settings.FERNET_KEY)
