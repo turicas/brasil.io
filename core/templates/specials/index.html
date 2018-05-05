@@ -25,12 +25,21 @@
 
   <ul>
     <li>
-      <a
-        href="{% url 'core:dataset-detail' slug='documentos-brasil' %}">Coleção
-        de CNPJs e CPFs brasileiros</a> - a partir de uma busca por nome ou
-      documento, o visitante poderá acessar um dossiê do documento (CPF ou
-      CNPJ), onde serão mostradas ocorrências em vários datasets disponíveis no
-      portal. Exemplo: <a href="{% url 'core:special-document-detail' document='75095679000149' %}">Universidade Federal do Paraná</a>.
+      <b>Dossiê de Pessoa (Física ou Jurídica)</b> - a partir de uma <a
+        href="{% url 'core:dataset-detail' slug='documentos-brasil' %}">busca
+        por nome ou documento</a> o visitante poderá acessar um dossiê do
+      documento (CPF ou CNPJ), onde serão mostradas ocorrências em vários
+      datasets disponíveis no portal. Exemplo: <a href="{% url
+        'core:special-document-detail' document='75095679000149'
+        %}">Universidade Federal do Paraná</a>.
+    </li>
+    <li>
+      <a href="{% url 'core:special-trace-path' %}">Caminhos nas relações
+        pessoais (física e/ou jurídica)</a> - a partir de duas pessoas (físicas
+      e/ou jurídicas) o visitante conseguirá verificar a existência de uma
+      relação de sociedade, independente do nível (exemplo: A é sócio da
+      empresa X, que é sócia da empresa Y e tem como sócio também Z - dessa
+      forma, A é indiretamente sócio de Z).
     </li>
   </ul>
 </div>
