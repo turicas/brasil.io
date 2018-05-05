@@ -7,10 +7,24 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
+from core.forms import TracePathForm
 from core.models import Dataset
+from graphs.serializers import PathSerializer
 
 
 cipher_suite = Fernet(settings.FERNET_KEY)
+slugs = ['documentos-brasil', 'eleicoes-brasil', 'empresas-socias',
+         'filiados-partidos', 'gastos-deputados', 'gastos-diretos',
+         'socios-brasil']
+datasets = {slug: Dataset.objects.get(slug=slug) for slug in slugs}
+Candidatos = datasets['eleicoes-brasil'].get_last_data_model()
+Documents = datasets['documentos-brasil'].get_last_data_model()
+EmpresasSocias = datasets['empresas-socias'].get_last_data_model()
+FiliadosPartidos = datasets['filiados-partidos'].get_last_data_model()
+GastosDeputados = datasets['gastos-deputados'].get_last_data_model()
+GastosDiretos = datasets['gastos-diretos'].get_last_data_model()
+Socios = datasets['socios-brasil'].get_last_data_model()
+
 
 def index(request):
     return render(request, 'specials/index.html', {})
@@ -27,18 +41,6 @@ def unaccent(text):
 
 
 def document_detail(request, document):
-    slugs = ['documentos-brasil', 'eleicoes-brasil', 'empresas-socias',
-             'filiados-partidos', 'gastos-deputados', 'gastos-diretos',
-             'socios-brasil']
-    datasets = {slug: Dataset.objects.get(slug=slug)
-                for slug in slugs}
-    Candidatos = datasets['eleicoes-brasil'].get_last_data_model()
-    Documents = datasets['documentos-brasil'].get_last_data_model()
-    EmpresasSocias = datasets['empresas-socias'].get_last_data_model()
-    FiliadosPartidos = datasets['filiados-partidos'].get_last_data_model()
-    GastosDeputados = datasets['gastos-deputados'].get_last_data_model()
-    GastosDiretos = datasets['gastos-diretos'].get_last_data_model()
-    Socios = datasets['socios-brasil'].get_last_data_model()
 
     encrypted = False
     if len(document) not in (11, 14):  # encrypted
@@ -129,3 +131,38 @@ def document_detail(request, document):
         'partners_fields': partners_fields,
     }
     return render(request, 'specials/document-detail.html', context)
+
+
+def _get_path(origin, destination):
+    serializer = PathSerializer(data={
+        'tipo1': origin['type'],
+        'identificador1': origin['identifier'],
+        'tipo2': destination['type'],
+        'identificador2': destination['identifier'],
+    })
+    serializer.is_valid()
+    return serializer.data['path']
+
+
+def trace_path(request):
+    form = TracePathForm(request.GET or None)
+    errors, path = None, None
+
+    if form.is_valid():
+        path = _get_path(
+            {
+                'type': 1 if form.cleaned_data['origin_type'] == 'pessoa-juridica' else 2,
+                'identifier': form.cleaned_data['origin_identifier'],
+            },
+            {
+                'type': 1 if form.cleaned_data['destination_type'] == 'pessoa-juridica' else 2,
+                'identifier': form.cleaned_data['destination_identifier'],
+            },
+        )
+
+    context = {
+        'errors': errors,
+        'form': form,
+        'path': path,
+    }
+    return render(request, 'specials/trace-path.html', context)
