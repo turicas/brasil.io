@@ -15,7 +15,7 @@
 <div class="row">
 
   {% for dataset in datasets %}
-  <div class="col s12 m4">
+  <div class="col s12 m6">
     <a href="{% url 'core:dataset-detail' dataset.slug %}">
       <div class="card horizontal small">
         <div class="card-stacked">
@@ -29,7 +29,7 @@
             </p>
           </div>
           <div class="card-action">
-            <a> Visualizar </a>
+            <a href="{% url 'core:dataset-detail' dataset.slug %}"> Visualizar </a>
           </div>
         </div>
       </div>
@@ -37,7 +37,7 @@
   </div>
   {% endfor %}
 
-  <div class="col s12 m4">
+  <div class="col s12 m6">
     <a href="{% url 'core:dataset-suggestion' %}">
       <div class="card horizontal small">
         <div class="card-stacked">
@@ -52,7 +52,7 @@
           </div>
           <div class="card-action indigo-text text-accent-4">
             <p>
-              <a> Sugerir </a>
+              <a href="{% url 'core:dataset-suggestion' %}"> Sugerir </a>
             </p>
           </div>
         </div>

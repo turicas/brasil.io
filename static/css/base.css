@@ -17,10 +17,7 @@ body {
 }
 
 .container {
-  width: 98%;
   padding: 10px;
-  max-width: unset;
-  min-height: 100%;
 }
 
 .card .card-action a:not(.btn):not(.btn-large):not(.btn-small):not(.btn-large):not(.btn-floating) {
@@ -30,10 +27,6 @@ body {
   transition: color .3s ease;
   text-transform: uppercase;
   font-weight: bold;
-}
-
-.wrap-container {
-  padding: 10px;
 }
 
 .card.small {
