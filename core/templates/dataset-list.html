@@ -16,44 +16,48 @@
 
   {% for dataset in datasets %}
   <div class="col s12 m6">
-    <div class="card horizontal small">
-      <div class="card-stacked">
-        <div class="card-content">
-          <span class="card-title activator grey-text text-darken-4">
-            <i class="material-icons left">{{ dataset.icon }}</i>
-            {{ dataset.name }}
-          </span>
-          <p>
-            {{ dataset.description }}
-          </p>
-        </div>
-        <div class="card-action">
-          <a href="{% url 'core:dataset-detail' dataset.slug %}">Visualizar</a>
+    <a href="{% url 'core:dataset-detail' dataset.slug %}">
+      <div class="card horizontal small">
+        <div class="card-stacked">
+          <div class="card-content">
+            <span class="card-title activator grey-text text-darken-4">
+              <i class="material-icons left">{{ dataset.icon }}</i>
+              {{ dataset.name }}
+            </span>
+            <p class="card-description">
+              {{ dataset.description }}
+            </p>
+          </div>
+          <div class="card-action">
+            <a href="{% url 'core:dataset-detail' dataset.slug %}"> Visualizar </a>
+          </div>
         </div>
       </div>
-    </div>
+    </a>
   </div>
   {% endfor %}
 
   <div class="col s12 m6">
-    <div class="card horizontal small">
-      <div class="card-stacked">
-        <div class="card-content">
-          <span class="card-title activator grey-text text-darken-4">
-            Sugira um dataset
-            <i class="material-icons left">rate_review</i>
-          </span>
-          <p>
-            Quais outros dados precisam ser libertados? Sugira aqui.
-          </p>
-        </div>
-        <div class="card-action indigo-text text-accent-4">
-          <p>
-            <a href="{% url 'core:dataset-suggestion' %}">Sugerir</a>
-          </p>
+    <a href="{% url 'core:dataset-suggestion' %}">
+      <div class="card horizontal small">
+        <div class="card-stacked">
+          <div class="card-content">
+            <span class="card-title activator grey-text text-darken-4">
+              Sugira um dataset
+              <i class="material-icons left">rate_review</i>
+            </span>
+            <p class="card-description">
+              Quais outros dados precisam ser libertados? Sugira aqui.
+            </p>
+          </div>
+          <div class="card-action indigo-text text-accent-4">
+            <p>
+              <a href="{% url 'core:dataset-suggestion' %}"> Sugerir </a>
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </a>
   </div>
 
 </div>
