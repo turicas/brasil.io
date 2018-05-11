@@ -36,6 +36,7 @@ INSTALLED_APPS = [
 
     # Project apps
     'core',
+    'brasilio_auth',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
