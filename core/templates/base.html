@@ -41,6 +41,9 @@
           <a href="/" class="brand-logo"><img src="{% static 'img/logo_br-io_fundo-escuro.png' %}" style="max-height:40px;margin-left: 20px; margin-top: 10px;"></a>
             <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             <ul class="right hide-on-med-and-down">
+              {% if request.user.is_authenticated %}
+              <li>Olá, {{ request.user.username }}</li>
+              {% endif %}
               <li><a href="{% url 'core:manifesto' %}">Manifesto</a></li>
               <li><a href="{% url 'core:dataset-list' %}">Datasets</a></li>
               <li><a href="{% url 'core:specials' %}">Especiais</a></li>
@@ -48,6 +51,9 @@
               <li><a href="{% url 'api:dataset-list' %}">API</a></li>
               <li><a href="{% url 'core:contact' %}">Contato</a></li>
               <li><a href="https://apoia.se/brasilio">Apoie</a></li>
+              {% if not request.user.is_authenticated %}
+              <li><a href="#">Cadastre-se</a></li>
+              {% endif %}
             </ul>
         </div>
     </nav>
