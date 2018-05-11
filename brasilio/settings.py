@@ -152,3 +152,8 @@ def get_neo4j_config_dict(neo4j_uri):
 
 NEO4J_CONF = get_neo4j_config_dict(env('GRAPHENEDB_URL'))
 NEO4J_BOLT_PORT = int(env('NEO4J_BOLT_PORT', default=39003))
+
+
+# Auth conf
+LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/'
