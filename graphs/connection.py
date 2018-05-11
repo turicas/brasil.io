@@ -20,4 +20,8 @@ if username or password:
     )
     graph_kwargs.update({'user': username, 'password': password})
 
-graph_db = Py2NeoGraph(**graph_kwargs)
+
+def get_graph_db_connection():
+    if not getattr(get_graph_db_connection, '_open_conn', None):
+        get_graph_db_connection._open_conn = Py2NeoGraph(**graph_kwargs)
+    return get_graph_db_connection._open_conn
