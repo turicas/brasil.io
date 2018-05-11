@@ -33,7 +33,10 @@ desenvolvedores.
 
 ### Colabore
 
-Para rodar o projeto em sua máquina, certifique-se de que você tem instalados:
+Há duas formas de rodar o projeto em sua máquina, uma utilizando `docker` e outra utilizando o `PostegreSQL`.
+Vamos começar pela que utiliza o docker:
+
+Primeiramente, certifique-se de que você tenha instalados:
 
 - git
 - [pyenv](https://github.com/pyenv/pyenv) com
@@ -49,7 +52,7 @@ git clone git@github.com:turicas/brasil.io.git
 # Criar um virtualenv:
 pyenv virtualenv 3.6.4 brasil.io
 
-# Criar containers
+# Criar containers e ativar o virtualenv
 cd brasil.io
 source .activate
 
@@ -60,6 +63,76 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py update_data
 ```
+
+Caso você escolha não utilizar o docker, siga os seguintes passos:
+
+Certifique-se de que você tenha instalados:
+
+- git
+- [pyenv](https://github.com/pyenv/pyenv) com
+  [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv) e Python 3.6.4
+- [postregreSQL](https://www.postgresql.org/)
+
+Após instalar o `postgreSQL`, crie o banco de dados que será utilizado pelo projeto.
+Como o `docker` não está sendo utilizado será necessário comentar algumas linhas no arquivo `.activate`.
+
+Comente as seguintes linhas:
+
+```bash
+
+DOCKER_COMPOSE_FILE=docker-compose.yml
+
+if [ -f "$DOCKER_COMPOSE_FILE" ]; then
+   docker-compose -p $PROJECT_NAME -f $DOCKER_COMPOSE_FILE up -d
+fi
+```
+
+e siga os passos:
+
+```bash
+# Clonar o repositório:
+git clone git@github.com:turicas/brasil.io.git
+
+# Criar um virtualenv:
+pyenv virtualenv 3.6.4 brasil.io
+
+# Modificar o arquivo .env para as configurações do seu Banco de Dados.
+# Caso você use as configurações padrões, o arquivo será parecido com algo assim:
+
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=<sua senha>
+POSTGRES_DB=brasilio
+
+DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/brasilio
+
+# Ativar o virtualenv
+cd brasil.io
+source .activate
+
+# Instalar dependências
+pip install -r requirements.txt
+
+# Criar schema e popular base de dados
+python manage.py migrate
+python manage.py update_data
+
+# Startar o server
+python manage.py runserver
+```
+
+Para importar alguma base de dados para rodar no sistema é necessário o baixar o dump [aqui](https://drive.google.com/drive/u/0/folders/1yJyDFbTfX8w3uEJ9mTIN3Jow5TvJsYo7).
+
+Alguns arquivos demoram bastante para serem importados, pois são muito grandes. Um exemplo de arquivo menor é o dataset [balneabilidade-bahia](https://drive.google.com/file/d/1-Ctem8laBPl9MBlbkoxqzEZU1paZZTA8/view?usp=sharing).
+
+Após fazer o download do arquivo basta executar o seguinte comando:
+
+```bash
+$ python manage.py import_data balneabilidade-bahia balneabilidade-bahia.csv.xz
+
+```
+
 
 ## Deploying on Dokku
 
