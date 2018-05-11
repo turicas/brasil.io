@@ -5,7 +5,7 @@ from tqdm import tqdm
 from django.core.management.base import BaseCommand
 
 from core.models import Table
-from graphs.connection import graph_db
+from graphs.connection import get_graph_db_connection
 
 
 class Command(BaseCommand):
@@ -15,6 +15,7 @@ class Command(BaseCommand):
         super(BaseCommand, self).__init__(*args, **kwargs)
         self.open_transaction = None
         self.batch_size = 1000
+        self.graph_db = get_graph_db_connection()
 
     def create_indexes(self):
         labels_keys = [
@@ -23,7 +24,7 @@ class Command(BaseCommand):
             ('NomeExterior', 'nome'),
         ]
         for label, key in labels_keys:
-            graph_db.schema.create_uniqueness_constraint(label, key)
+            self.graph_db.schema.create_uniqueness_constraint(label, key)
 
     def get_socios_brasil_model(self):
         table = Table.objects.get(dataset__slug='socios-brasil')
@@ -120,7 +121,7 @@ class Command(BaseCommand):
             pfs, pjs, ext = [], [], []
             for i, partnership in enumerate(SociosBrasil.objects.iterator()):
                 if not i % self.batch_size:
-                    open_transaction = graph_db.begin()
+                    open_transaction = self.graph_db.begin()
 
                 partner_type = partnership.codigo_tipo_socio
                 if partner_type == 1:  # Pessoa Jurídica
