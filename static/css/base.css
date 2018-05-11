@@ -12,9 +12,45 @@ html {
 body {
   position: relative;
   margin: 0;
-  padding-bottom: 6rem;
+  padding-bottom: 12rem;
   min-height: 100%;
 }
+
+.text-center {
+    text-align: center!important;
+}
+
+.m-t-5 {
+  margin-top: 5px !important;
+}
+
+.m-t-10 {
+  margin-top: 10px !important;
+}
+
+.m-t-15 {
+  margin-top: 15px !important;
+}
+.m-t-20 {
+  margin-top: 20px !important;
+}
+
+.m-b-5 {
+  margin-bottom: 5px !important;
+}
+
+.m-b-10 {
+  margin-bottom: 10px !important;
+}
+
+.m-b-15 {
+  margin-bottom: 15px !important;
+}
+
+.m-b-20 {
+  margin-bottom: 20px !important;
+}
+
 
 .container {
   padding: 10px;
@@ -43,4 +79,23 @@ body {
   right: 0;
   bottom: 0;
   left: 0;
+}
+
+.dark-blue {
+  color: #1A237E !important;
+}
+
+.btn-dark-blue {
+  background-color: #3f51b5;
+  color: #fff !important;
+}
+
+.btn-dark-blue:hover {
+  background-color: #fff ;
+  color: #1A237E !important;
+}
+
+.email-newsletter {
+  height: 2em !important;
+  font-size: 12px !important;
 }
