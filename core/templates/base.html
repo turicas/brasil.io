@@ -53,6 +53,9 @@
               <li><a href="https://apoia.se/brasilio">Apoie</a></li>
               {% if not request.user.is_authenticated %}
               <li><a href="#">Cadastre-se</a></li>
+              <li><a href="{% url 'brasilio_auth:login' %}">Login</a></li>
+              {% else %}
+              <li><a href="{% url 'brasilio_auth:logout' %}">Logout</a></li>
               {% endif %}
             </ul>
         </div>
