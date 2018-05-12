@@ -3,6 +3,7 @@ import os
 import environ
 
 from urllib.parse import urlparse
+from django.urls import reverse_lazy
 
 
 root = environ.Path(__file__) - 2
@@ -160,3 +161,4 @@ NEO4J_BOLT_PORT = int(env('NEO4J_BOLT_PORT', default=39003))
 # Auth conf
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = reverse_lazy('brasilio_auth:login')
