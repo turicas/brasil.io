@@ -3,15 +3,14 @@
 {% block content %}
 
 {% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
+<p>Senha inválida. Por favor tente novamente.</p>
 {% endif %}
 
 {% if next %}
     {% if user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
+    <p>Seu usuário não possui permissão para accessar esta págica. Para seguir, por favor utilize algum usuário com permissão.</p>
     {% else %}
-    <p>Please login to see this page.</p>
+    <p>Faça o login para acessar a página.</p>
     {% endif %}
 {% endif %}
 
@@ -32,7 +31,6 @@
 <input type="hidden" name="next" value="{{ next }}" />
 </form>
 
- {# Assumes you setup the password_reset view in your URLconf #}
-<p><a href="{% url 'brasilio_auth:password_reset' %}">Lost password?</a></p>
+<p><a href="{% url 'brasilio_auth:password_reset' %}">Esqueci minha senha</a></p>
 
 {% endblock %}
