@@ -132,7 +132,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 
 EMAIL_BACKEND = env('EMAIL_BACKEND')
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='contato@brasilio.com.br')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='contato@brasil.io')
 SENDGRID_API_KEY = env('SENDGRID_API_KEY')
 ADMINS = env('ADMINS').strip() or []
 if ADMINS:
