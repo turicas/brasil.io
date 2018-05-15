@@ -112,11 +112,15 @@ def dataset_list(request):
     context = {'datasets': Dataset.objects.filter(show=True).order_by('name')}
     return render(request, 'dataset-list.html', context)
 
+def home(request):
+    context = {'datasets': Dataset.objects.filter(show=True).order_by('name')[:6]}
+    return render(request, 'home.html', context)
+
 def dataset_suggestion(request):
     return render(request, 'dataset-suggestion.html', {})
 
 def index(request):
-    return redirect(reverse('core:dataset-list'))
+    return redirect(reverse('core:home'))
 
 def manifesto(request):
     return render(request, 'manifesto.html', {})

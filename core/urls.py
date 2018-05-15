@@ -9,6 +9,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('contato', views.contact, name='contact'),
     path('datasets', views.dataset_list, name='dataset-list'),
+    path('home', views.home, name='home'),
     path('dataset/<slug>', views.dataset_detail, name='dataset-detail'),
     path('datasets/sugira', views.dataset_suggestion, name='dataset-suggestion'),
     path('manifesto', views.manifesto, name='manifesto'),

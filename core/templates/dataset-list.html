@@ -1,27 +1,19 @@
 {% extends 'base.html' %}
 {% block title %}Lista de datasets - Brasil.IO{% endblock %}
-{% block top %}
-<div class="top-container indigo darken-1">
-  <div class="container">
-    <div class="section indigo-text text-lighten-5">
-      <h3>O Brasil em dados libertos</h3>
-      <p class="flow-text">Repositório de dados públicos disponibilizados em formato acessível</p>
-    </div>
-  </div>
-</div>
-{% endblock %}
 
 {% block content %}
 <div class="row">
+  <h4>Datasets</h4>
+  <div class="divider"></div>
 
   {% for dataset in datasets %}
-  <div class="col s12 m6">
+  <div class="col s12 m4 m-t-15">
     <a href="{% url 'core:dataset-detail' dataset.slug %}">
       <div class="card horizontal small">
         <div class="card-stacked">
           <div class="card-content">
             <span class="card-title activator grey-text text-darken-4">
-              <i class="material-icons left">{{ dataset.icon }}</i>
+              <i class="material-icons fa-1x left">{{ dataset.icon }}</i>
               {{ dataset.name }}
             </span>
             <p class="card-description">
@@ -37,7 +29,7 @@
   </div>
   {% endfor %}
 
-  <div class="col s12 m6">
+  <div class="col s12 m4 m-t-15">
     <a href="{% url 'core:dataset-suggestion' %}">
       <div class="card horizontal small">
         <div class="card-stacked">
