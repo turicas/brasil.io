@@ -2,6 +2,7 @@ from django.contrib.auth.forms import UserCreationForm as DjangoUserCreationForm
 from django.test import TestCase
 
 from brasilio_auth.forms import UserCreationForm
+from brasilio_auth.models import NewsletterSubscriber
 
 
 class UserCreationFormTests(TestCase):
@@ -33,3 +34,19 @@ class UserCreationFormTests(TestCase):
         assert data['username'] == user.username
         assert data['email'] == user.email
         assert user.check_password(passwd) is True
+        assert not NewsletterSubscriber.objects.filter(user=user).exists()
+
+    def test_subscribe_to_newsleter(self):
+        data = {
+            'username': 'foo',
+            'email': 'foo@bar.com',
+            'password1': '123123asd',
+            'password2': '123123asd',
+            'subscribe_newsletter': True,
+        }
+
+        form = UserCreationForm(data)
+        assert form.is_valid() is True
+        user = form.save()
+
+        assert NewsletterSubscriber.objects.filter(user=user).exists()

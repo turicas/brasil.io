@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm as DjangoUserCreationForm
 from django.utils.translation import ugettext_lazy as _
 
+from brasilio_auth.models import NewsletterSubscriber
+
 
 class UserCreationForm(DjangoUserCreationForm):
     email = forms.EmailField()
@@ -12,7 +14,14 @@ class UserCreationForm(DjangoUserCreationForm):
         widget=forms.PasswordInput,
         help_text=_("Enter the same password as above, for verification.")
     )
+    subscribe_newsletter = forms.BooleanField(required=False)
 
     class Meta:
         model = get_user_model()
         fields = ('username', 'email')
+
+    def save(self, *args, **kwargs):
+        user = super(UserCreationForm, self).save(*args, **kwargs)
+        if self.cleaned_data.get('subscribe_newsletter'):
+            NewsletterSubscriber.objects.create(user=user)
+        return user

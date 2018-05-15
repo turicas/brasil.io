@@ -25,9 +25,14 @@
         <label for="id_password2">Confirmação de senha:</label>
         {{ form.password2 }}
     </div>
+    <div>
+      <label>
+        {{ form.subscribe_newsletter }}
+        <span>Deseja assinar nossa newsletter? </span>
+      </label>
+    </div>
     <input class='btn' type="submit" value="Salvar" />
 </form>
 
 
 {% endblock %}
-
