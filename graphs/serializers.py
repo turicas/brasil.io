@@ -91,13 +91,16 @@ class PathSerializer(serializers.Serializer):
     tipo2 = serializers.ChoiceField(choices=RESOURCE_TYPES)
     identificador2 = serializers.CharField()
     path = serializers.SerializerMethodField()
+    all_shortest_paths = serializers.BooleanField(default=True, required=False)
 
     def get_path(self, *args, **kwargs):
-        path = graph_extractor.get_shortest_path(
+        all_paths = self.validated_data.get('all_shortest_paths', True)
+        path = graph_extractor.get_shortest_paths(
             self.validated_data['tipo1'],
             self.validated_data['identificador1'],
             self.validated_data['tipo2'],
             self.validated_data['identificador2'],
+            all_shortest_paths=all_paths
         )
         serializer = GraphSerializer(instance=path)
-        return serializer.data['nodes']
+        return serializer.data

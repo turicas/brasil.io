@@ -90,7 +90,7 @@ def get_foreigner_node(name):
     return node
 
 
-def get_shortest_path(tipo_1, id_1, tipo_2, id_2):
+def get_shortest_paths(tipo_1, id_1, tipo_2, id_2, all_shortest_paths=True):
     if tipo_1 == 1:
         source_node_query = f'(s:PessoaJuridica {{ cnpj: "{id_1}" }})'
     elif tipo_1 == 2:
@@ -105,11 +105,18 @@ def get_shortest_path(tipo_1, id_1, tipo_2, id_2):
     elif tipo_2 == 3:
         target_node_query = f'(t:NomeExterior {{ nome: "{id_2}" }})'
 
-    query = f"""
-        MATCH {source_node_query},{target_node_query},
-        p = shortestPath((s)-[:TEM_SOCIEDADE*]-(t))
-        return p
-    """.strip()
+    if all_shortest_paths:
+        query = f"""
+            MATCH {source_node_query},{target_node_query},
+            p = allShortestPaths((s)-[:TEM_SOCIEDADE*]-(t))
+            return p
+        """.strip()
+    else:
+        query = f"""
+            MATCH {source_node_query},{target_node_query},
+            p = shortestPath((s)-[:TEM_SOCIEDADE*]-(t))
+            return p
+        """.strip()
 
     print(query)
     return _extract_network(query)
