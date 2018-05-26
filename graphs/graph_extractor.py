@@ -120,3 +120,12 @@ def get_shortest_paths(tipo_1, id_1, tipo_2, id_2, all_shortest_paths=True):
 
     print(query)
     return _extract_network(query)
+
+
+def get_company_subsequent_partnerships(cnpj):
+    query = f"""
+        MATCH (n:PessoaJuridica {{ cnpj: "{cnpj}" }}),
+        p=((n)-[:TEM_SOCIEDADE*]->(:PessoaJuridica))
+        RETURN p
+    """
+    return _extract_network(query)

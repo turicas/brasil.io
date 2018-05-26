@@ -104,3 +104,14 @@ class PathSerializer(serializers.Serializer):
         )
         serializer = GraphSerializer(instance=path)
         return serializer.data
+
+
+class CompanySubsequentPartnershipsSerializer(serializers.Serializer):
+    identificador = serializers.CharField()
+    network = serializers.SerializerMethodField()
+
+    def get_network(self, *args, **kwargs):
+        cnpj = self.validated_data['identificador']
+        network = graph_extractor.get_company_subsequent_partnerships(cnpj)
+        network_serializer = GraphSerializer(instance=network)
+        return network_serializer.data
