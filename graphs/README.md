@@ -37,3 +37,12 @@ As relações são sempre de qualquer um desses 3 labels para um outro nó `Pess
 Por fim, a query a seguir mostra que o Neo4J tem o mesmo número de relacionamentos (entradas) que no banco postgres:
 
 ![screenshot from 2018-04-26 22-25-44](https://user-images.githubusercontent.com/238223/39341218-76e848fe-49a8-11e8-8242-00db6f8ebc63.png)
+
+
+### API
+
+Exemplos para os métodos da API de grafos (rodando localmente):
+
+- Detalhes do nó TIM BRASIL S/A: [/api/especiais/grafo/no](http://localhost:8000/api/especiais/grafo/no?tipo=1&identificador=04214266000198)
+- Grafo de societário da TIM BRASIL S/A: [/api/especiais/grafo/sociedades](http://localhost:8000/api/especiais/grafo/sociedades?tipo=1&identificador=04214266000198)
+- Caminhos entre Odebrecht e a Rossi: [/api/especiais/grafo/sociedades/caminhos](http://localhost:8000/api/especiais/grafo/sociedades/caminhos?tipo1=1&identificador1=15102288000182&tipo2=1&identificador2=61065751000180)
