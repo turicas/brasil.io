@@ -1,7 +1,34 @@
 from copy import deepcopy
 from rest_framework import serializers
+from urllib.parse import urlencode
+
+from django.urls import reverse
 
 from graphs import graph_extractor
+
+
+def get_node_urls(node_data):
+    urls = {
+        'graph': reverse('api:resource-graph'),
+        'node': reverse('api:node-data')
+    }
+    node_type = node_data['tipo']
+
+    if node_type == 'NomeExterior':
+        graph_params = {'tipo': 3, 'identificador': node_data['nome']}
+    elif node_type == 'PessoaFisica':
+        graph_params = {'tipo': 2, 'identificador': node_data['nome']}
+    else:  # Pessoa Jurídica
+        id_ = node_data['cnpj']
+        graph_params = {'tipo': 1, 'identificador': id_}
+        subsequent_partnerships = reverse('api:subsequent-partnerships') + f'?identificador={id_}'
+        urls['sociedades_subsequentes'] = subsequent_partnerships
+
+    graph_qs = urlencode(graph_params)
+    urls['graph'] += f'?{graph_qs}'
+    urls['node'] += f'?{graph_qs}'
+
+    return urls
 
 
 class GraphSerializer(serializers.Serializer):
@@ -14,6 +41,7 @@ class GraphSerializer(serializers.Serializer):
         for node, data in network.nodes(data=True):
             node_data = deepcopy(data)
             node_data['id'] = str(node)
+            node_data['urls'] = get_node_urls(data)
             serialized_nodes.append(node_data)
         return serialized_nodes
 
