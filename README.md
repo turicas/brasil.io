@@ -33,6 +33,9 @@ desenvolvedores.
 
 ### Colabore
 
+[![Entre em contato com o Brasil.IO por chat!](docs/chat-banner.png)](https://chat.brasil.io/)
+
+
 Há duas formas de rodar o projeto em sua máquina, uma utilizando `docker` e outra utilizando o `PostegreSQL`.
 Vamos começar pela que utiliza o docker:
 
