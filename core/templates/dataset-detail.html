@@ -64,7 +64,7 @@
 
       <div class="row">
           {% if total_count > 0 and total_count <= max_export_rows %}
-          <div class="col s9 m9 left">
+          <div class="col s12 m7 left" style="padding-left: 0px;">
             <a class="btn" href="{% url 'core:dataset-detail' slug=slug %}?{% if querystring %}{{ querystring }}&amp;{% endif %}format=csv">
             {% if querystring %}
               Baixar resultado em CSV
@@ -75,12 +75,13 @@
           </div>
           {% endif %}
 
-        <div class="col s12 m3 right">
+        <div class="col s12 m5 right">
           <ul class="pagination right">
+             <li> {{ data.start_index|localize }}-{{ data.end_index|localize }} de um total de {{ total_count|localize }} | </li>
             {% if data.has_previous %}
             <li> <a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ data.previous_page_number }}"><i class="material-icons">chevron_left</i></a> </li>
             {% endif %}
-            <li> {{ data.start_index|localize }}-{{ data.end_index|localize }}/{{ total_count|localize }} </li>
+
             {% if data.has_next %}
             <li> <a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ data.next_page_number }}"><i class="material-icons">chevron_right</i></a> </li>
             {% endif %}
@@ -89,10 +90,11 @@
 
       </div>
 
-
-      {% with table_id=dataset.slug %}
-      {% include 'data-table.html' %}
-      {% endwith %}
+      <div class="row table-container" style="padding-left: 0px;">
+        {% with table_id=dataset.slug %}
+        {% include 'data-table.html' %}
+        {% endwith %}
+      </div>
 
     </div>
     <div id="metadata" class="col s12">
