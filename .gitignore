@@ -19,3 +19,4 @@ dist/*
 public/
 reg_settings.py
 docker/neo4j
+.pytest_cache/
