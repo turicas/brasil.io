@@ -6,8 +6,7 @@
 </div>
 {% endif %}
 
-<table id="{{ table_id }}"{% if caption %} data-filename="{{ caption }}"{% endif %} class="mdl-data-table">
-
+<table id="{{ table_id }}"{% if caption %}data-filename="{{ caption }}"{% endif %} class="mdl-data-table table-custom">
   <thead>
   <tr>
     {% for field in fields %}
@@ -32,6 +31,7 @@
   {% endfor %}
   </tbody>
 </table>
+
 <script type="text/javascript">
   $(".download-button").off('click');
   $(".download-button").click(function (event) {

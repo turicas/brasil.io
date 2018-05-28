@@ -99,3 +99,31 @@ body {
   height: 2em !important;
   font-size: 12px !important;
 }
+
+.table-container {
+  overflow: scroll;
+}
+
+.table-container tr:nth-child(even) {
+  background-color: #f2f2f2
+}
+
+.table-container tbody tr:hover {
+  background-color: #ddd !important;
+}
+
+.table-custom {
+  font-size: 13px;
+}
+
+.table-custom td, .table-custom th {
+  padding: 5px 5px;
+}
+
+.pagination {
+  font-size: 13px;
+}
+
+.pagination li i {
+  font-size: 1.3rem;
+}
