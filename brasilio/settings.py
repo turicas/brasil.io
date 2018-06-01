@@ -36,6 +36,7 @@ INSTALLED_APPS = [
 
     # Project apps
     'core',
+    'graphs',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
