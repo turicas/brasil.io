@@ -131,10 +131,16 @@ class Dataset(models.Model):
         table = self.table_set.get(version=version, default=True)
         return table.get_model_declaration()
 
+    def get_last_version(self):
+        return self.version_set.order_by('order').last()
+
+    def get_table(self):
+        version = self.get_last_version()
+        return self.table_set.get(version=version, default=True)
+
     def get_last_data_model(self):
         if self.slug not in DYNAMIC_MODEL_REGISTRY:
-            version = self.version_set.order_by('order').last()
-            table = self.table_set.get(version=version, default=True)
+            table = self.get_table()
             DYNAMIC_MODEL_REGISTRY[self.slug] = table.get_model()
 
         return DYNAMIC_MODEL_REGISTRY[self.slug]
