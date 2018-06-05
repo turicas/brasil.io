@@ -19,6 +19,23 @@ $ python manage.py import_socios_to_graph
 Na minha máquina rodou em **142 minutos**:
 ![screenshot from 2018-04-26 22-24-40](https://user-images.githubusercontent.com/238223/39340934-426abae0-49a7-11e8-893c-bb1355626526.png)
 
+Para marcar as empresas mãe, também temos um comando do `manage.py` que é **muito** mais rápido:
+
+```
+$ python manage.py build_company_groups_network
+Atualizando nós que são empresas mães com a query:
+
+            MATCH (e:PessoaJuridica)-[:TEM_SOCIEDADE]->(:PessoaJuridica)
+            WITH DISTINCT e as empresa, COLLECT(e) as companies
+            WHERE ALL(c in companies WHERE NOT (:PessoaJuridica)-[:TEM_SOCIEDADE]->(c))
+            SET empresa :EmpresaMae
+            RETURN COUNT(empresa)
+        
+Importação realizada com sucesso terminada.
+  + 112714 empresas consideradas empresas mãe.
+  + Finalizado em 16 segundos
+```
+
 ### Acessando
 Para acessar os dados é necessário ter o docker pro Neo4j de pé e acessar http://localhost:39002/browser/. Terá uma página de login e para acessar você deve somete alterar o **host** para `bolt://localhost:39003`. Não é necessário entrar com usuário ou senha.
 
