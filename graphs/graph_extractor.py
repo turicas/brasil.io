@@ -17,9 +17,11 @@ def _extract_network(query, path_key='p'):
         rels = path.relationships()
 
         for node in nodes:
+            labels = list(node.labels())
             graph.add_node(
                 node.__name__,
-                tipo=list(node.labels())[0],
+                tipo=labels[0],
+                labels=labels,
                 **node.properties
             )
 

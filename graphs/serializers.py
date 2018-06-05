@@ -104,6 +104,7 @@ class NodeSerializer(serializers.Serializer):
         node = extractors[tipo](self.validated_data['identificador'])
         data = node.properties.copy()
         data['id'] = node.__name__
+        data['labels'] = node.labels()
         return data
 
 
