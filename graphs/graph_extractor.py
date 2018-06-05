@@ -129,3 +129,11 @@ def get_company_subsequent_partnerships(cnpj):
         RETURN p
     """
     return _extract_network(query)
+
+
+def get_company_groups_cnpj_belongs_to(cnpj):
+    query = f"""
+        MATCH p=((:EmpresaMae)-[:TEM_SOCIEDADE*]->(:PessoaJuridica {{ cnpj: "{cnpj}" }}))
+        RETURN p
+    """
+    return _extract_network(query)

@@ -12,5 +12,6 @@ urlpatterns = [
     path('especiais/grafo/sociedades', graph_views.GetResourceNetworkView.as_view(), name='resource-graph'),
     path('especiais/grafo/sociedades/caminhos', graph_views.GetPartnershipPathsView.as_view(), name='partnership-paths'),
     path('especiais/grafo/sociedades/subsequentes', graph_views.GetCompanySubsequentPartnershipsGraphView.as_view(), name='subsequent-partnerships'),
+    path('especiais/grafo/sociedades/empresas-mae', graph_views.CNPJCompanyGroupsView.as_view(), name='company-groups'),
     path('especiais/grafo/no', graph_views.GetNodeDataView.as_view(), name='node-data'),
 ]

@@ -46,4 +46,5 @@ Exemplos para os métodos da API de grafos (rodando localmente):
 - Detalhes do nó TIM BRASIL S/A: [/api/especiais/grafo/no](http://localhost:8000/api/especiais/grafo/no?tipo=1&identificador=04214266000198)
 - Grafo de societário da TIM BRASIL S/A: [/api/especiais/grafo/sociedades](http://localhost:8000/api/especiais/grafo/sociedades?tipo=1&identificador=04214266000198)
 - Caminhos entre Odebrecht e a Rossi: [/api/especiais/grafo/sociedades/caminhos](http://localhost:8000/api/especiais/grafo/sociedades/caminhos?tipo1=1&identificador1=15102288000182&tipo2=1&identificador2=61065751000180)
-- Grupo empresas sócias partindo da Odebrecht: [/api/especiais/grafo/sociedades/subsequentes](http://localhost:8000/api/especiais/grafo/sociedades/subsequentes?identificador=15102288000182)
+- Todas a árvore de empresas sócias partindo da Odebrecht: [/api/especiais/grafo/sociedades/subsequentes](http://localhost:8000/api/especiais/grafo/sociedades/subsequentes?identificador=15102288000182)
+- Caminhos para as empresas mãe partindo do CONSORCIO ANDRADE GUTIERREZ / CBPO LOTE 3: [/api/especiais/grafo/sociedades/empresas-mae](http://localhost:8000/api/especiais/grafo/sociedades/empresas-mae?identificador=02447044000190)

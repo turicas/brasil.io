@@ -46,3 +46,14 @@ class GetCompanySubsequentPartnershipsGraphView(APIView):
             return Response(serializer.data)
         except NodeDoesNotExistException:
             raise Http404
+
+
+class CNPJCompanyGroupsView(APIView):
+
+    def get(self, request):
+        serializer = serializers.CNPJCompanyGroupsSerializer(data=request.GET)
+        serializer.is_valid(raise_exception=True)
+        try:
+            return Response(serializer.data)
+        except NodeDoesNotExistException:
+            raise Http404

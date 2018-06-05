@@ -143,3 +143,14 @@ class CompanySubsequentPartnershipsSerializer(serializers.Serializer):
         network = graph_extractor.get_company_subsequent_partnerships(cnpj)
         network_serializer = GraphSerializer(instance=network)
         return network_serializer.data
+
+
+class CNPJCompanyGroupsSerializer(serializers.Serializer):
+    identificador = serializers.CharField()
+    network = serializers.SerializerMethodField()
+
+    def get_network(self, *args, **kwargs):
+        cnpj = self.validated_data['identificador']
+        network = graph_extractor.get_company_groups_cnpj_belongs_to(cnpj)
+        network_serializer = GraphSerializer(instance=network)
+        return network_serializer.data
