@@ -143,9 +143,10 @@ def _get_path(origin, destination):
         'identificador1': origin['identifier'],
         'tipo2': destination['type'],
         'identificador2': destination['identifier'],
+        'all_shortest_paths': False,
     })
     serializer.is_valid()
-    return serializer.data['path']
+    return serializer.data['path']['nodes']
 
 
 def trace_path(request):

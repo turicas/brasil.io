@@ -1,7 +1,34 @@
 from copy import deepcopy
 from rest_framework import serializers
+from urllib.parse import urlencode
+
+from django.urls import reverse
 
 from graphs import graph_extractor
+
+
+def get_node_urls(node_data):
+    urls = {
+        'graph': reverse('api:resource-graph'),
+        'node': reverse('api:node-data')
+    }
+    node_type = node_data['tipo']
+
+    if node_type == 'NomeExterior':
+        graph_params = {'tipo': 3, 'identificador': node_data['nome']}
+    elif node_type == 'PessoaFisica':
+        graph_params = {'tipo': 2, 'identificador': node_data['nome']}
+    else:  # Pessoa Jurídica
+        id_ = node_data['cnpj']
+        graph_params = {'tipo': 1, 'identificador': id_}
+        subsequent_partnerships = reverse('api:subsequent-partnerships') + f'?identificador={id_}'
+        urls['sociedades_subsequentes'] = subsequent_partnerships
+
+    graph_qs = urlencode(graph_params)
+    urls['graph'] += f'?{graph_qs}'
+    urls['node'] += f'?{graph_qs}'
+
+    return urls
 
 
 class GraphSerializer(serializers.Serializer):
@@ -14,6 +41,7 @@ class GraphSerializer(serializers.Serializer):
         for node, data in network.nodes(data=True):
             node_data = deepcopy(data)
             node_data['id'] = str(node)
+            node_data['urls'] = get_node_urls(data)
             serialized_nodes.append(node_data)
         return serialized_nodes
 
@@ -76,6 +104,7 @@ class NodeSerializer(serializers.Serializer):
         node = extractors[tipo](self.validated_data['identificador'])
         data = node.properties.copy()
         data['id'] = node.__name__
+        data['labels'] = node.labels()
         return data
 
 
@@ -91,13 +120,38 @@ class PathSerializer(serializers.Serializer):
     tipo2 = serializers.ChoiceField(choices=RESOURCE_TYPES)
     identificador2 = serializers.CharField()
     path = serializers.SerializerMethodField()
+    all_shortest_paths = serializers.BooleanField(default=True, required=False)
 
     def get_path(self, *args, **kwargs):
-        path = graph_extractor.get_shortest_path(
+        all_paths = self.validated_data.get('all_shortest_paths', True)
+        path = graph_extractor.get_shortest_paths(
             self.validated_data['tipo1'],
             self.validated_data['identificador1'],
             self.validated_data['tipo2'],
             self.validated_data['identificador2'],
+            all_shortest_paths=all_paths
         )
         serializer = GraphSerializer(instance=path)
-        return serializer.data['nodes']
+        return serializer.data
+
+
+class CompanySubsequentPartnershipsSerializer(serializers.Serializer):
+    identificador = serializers.CharField()
+    network = serializers.SerializerMethodField()
+
+    def get_network(self, *args, **kwargs):
+        cnpj = self.validated_data['identificador']
+        network = graph_extractor.get_company_subsequent_partnerships(cnpj)
+        network_serializer = GraphSerializer(instance=network)
+        return network_serializer.data
+
+
+class CNPJCompanyGroupsSerializer(serializers.Serializer):
+    identificador = serializers.CharField()
+    network = serializers.SerializerMethodField()
+
+    def get_network(self, *args, **kwargs):
+        cnpj = self.validated_data['identificador']
+        network = graph_extractor.get_company_groups_cnpj_belongs_to(cnpj)
+        network_serializer = GraphSerializer(instance=network)
+        return network_serializer.data

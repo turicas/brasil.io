@@ -37,6 +37,7 @@ INSTALLED_APPS = [
 
     # Project apps
     'core',
+    'graphs',
     'brasilio_auth',
 ]
 MIDDLEWARE = [
