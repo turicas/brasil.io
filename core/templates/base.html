@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}" >
+    <link rel="stylesheet" type="text/css" href="{% static 'css/application.css' %}" >
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
@@ -24,12 +25,8 @@
       gtag('config', 'UA-117698282-1');
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
-    <script>
-        $(document).ready(function(){
-            $('.sidenav').sidenav();
-        });
-    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+    <script src="{% static 'js/application.js' %}"></script>
     {% endblock %}
     {% endblock %}
 
@@ -38,9 +35,14 @@
   <body>
     <nav>
         <div class="nav-wrapper indigo">
-          <a href="/" class="brand-logo"><img src="{% static 'img/logo_br-io_fundo-escuro.png' %}" style="max-height:40px;margin-left: 20px; margin-top: 10px;"></a>
+          <a href="/" class="brand-logo">
+            <img src="{% static 'img/logo/logo_br-io_fundo-escuro.png' %}" style="max-height:40px;margin-left: 20px; margin-top: 10px;">
+          </a>
             <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             <ul class="right hide-on-med-and-down">
+              {% if request.user.is_authenticated %}
+              <li>Olá, {{ request.user.username }}</li>
+              {% endif %}
               <li><a href="{% url 'core:manifesto' %}">Manifesto</a></li>
               <li><a href="{% url 'core:dataset-list' %}">Datasets</a></li>
               <li><a href="{% url 'core:specials' %}">Especiais</a></li>
@@ -48,6 +50,12 @@
               <li><a href="{% url 'api:dataset-list' %}">API</a></li>
               <li><a href="{% url 'core:contact' %}">Contato</a></li>
               <li><a href="https://apoia.se/brasilio">Apoie</a></li>
+              {% if not request.user.is_authenticated %}
+              <li><a href="{% url 'brasilio_auth:sign_up' %}">Cadastre-se</a></li>
+              <li><a href="{% url 'brasilio_auth:login' %}">Login</a></li>
+              {% else %}
+              <li><a href="{% url 'brasilio_auth:logout' %}">Logout</a></li>
+              {% endif %}
             </ul>
         </div>
     </nav>

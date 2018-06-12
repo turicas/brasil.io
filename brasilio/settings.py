@@ -3,6 +3,7 @@ import os
 import environ
 
 from urllib.parse import urlparse
+from django.urls import reverse_lazy
 
 
 root = environ.Path(__file__) - 2
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     # Project apps
     'core',
     'graphs',
+    'brasilio_auth',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -131,11 +133,14 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 
 EMAIL_BACKEND = env('EMAIL_BACKEND')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='contato@brasil.io')
 SENDGRID_API_KEY = env('SENDGRID_API_KEY')
 ADMINS = env('ADMINS').strip() or []
 if ADMINS:
     ADMINS = [[item.strip() for item in admin.split('|')]
               for admin in ADMINS.split(',')]
+if DEBUG:
+    EMAIL_FILE_PATH = MEDIA_ROOT
 
 
 # Neo4J db conf
@@ -152,3 +157,9 @@ def get_neo4j_config_dict(neo4j_uri):
 
 NEO4J_CONF = get_neo4j_config_dict(env('GRAPHENEDB_URL'))
 NEO4J_BOLT_PORT = int(env('NEO4J_BOLT_PORT', default=39003))
+
+
+# Auth conf
+LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = reverse_lazy('brasilio_auth:login')

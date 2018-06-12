@@ -1,23 +1,24 @@
-html {
-  height: 100%;
-  box-sizing: border-box;
+
+/* Padding and Margin */
+
+
+.m-5 {
+  margin: 5px !important;
 }
 
-*,
-*:before,
-*:after {
-  box-sizing: inherit;
+.m-10 {
+  margin: 10px !important;
 }
 
-body {
-  position: relative;
-  margin: 0;
-  padding-bottom: 12rem;
-  min-height: 100%;
+.m-15 {
+  margin: 15px !important;
+}
+.m-20 {
+  margin: 20px !important;
 }
 
-.text-center {
-    text-align: center!important;
+.m-t-5 {
+  margin-top: 0px !important;
 }
 
 .m-t-5 {
@@ -51,38 +52,74 @@ body {
   margin-bottom: 20px !important;
 }
 
-
-.container {
-  padding: 10px;
+.p-5 {
+  padding: 5px !important;
+}
+.p-b-5 {
+  padding-bottom: 5px !important;
 }
 
-.card .card-action a:not(.btn):not(.btn-large):not(.btn-small):not(.btn-large):not(.btn-floating) {
-  color: #1A237E !important;
-  margin-right: 10px;
-  -webkit-transition: color .3s ease;
-  transition: color .3s ease;
-  text-transform: uppercase;
-  font-weight: bold;
+.p-b-10 {
+  padding-bottom: 10px !important;
 }
 
-.card.small {
-  height: 250px;
+.p-b-15 {
+  padding-bottom: 15px !important;
 }
 
-.card.small .card-description {
-  color: rgba(0,0,0,0.87);
+.p-b-20 {
+  padding-bottom: 20px !important;
 }
 
-.footer {
-  text-align: center;
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
+.p-t-5{
+  padding-top: 5px !important;
 }
+
+.p-t-10{
+  padding-top: 10px !important;
+}
+
+.p-t-15{
+  padding-top: 15px !important;
+}
+
+.p-t-20{
+  padding-top: 20px !important;
+}
+
+/* Icons */
+.fa-3x {
+  font-size: 3em;
+}
+
+.fa-2x {
+  font-size: 2em;
+}
+
+.fa-1x {
+  font-size: 1.5em;
+}
+
+/* Text Aligment */
+
+.text-center {
+  text-align: center!important;
+}
+
+/* Font */
+
+.font-weight-bold {
+  font-weight: 700!important;
+}
+
+/* Colors */
 
 .dark-blue {
-  color: #1A237E !important;
+  color: #3f51b5 !important;
+}
+
+.dark-green {
+  color: #00695c !important;
 }
 
 .btn-dark-blue {
@@ -98,4 +135,32 @@ body {
 .email-newsletter {
   height: 2em !important;
   font-size: 12px !important;
+}
+
+.table-container {
+  overflow: scroll;
+}
+
+.table-container tr:nth-child(even) {
+  background-color: #f2f2f2
+}
+
+.table-container tbody tr:hover {
+  background-color: #ddd !important;
+}
+
+.table-custom {
+  font-size: 13px;
+}
+
+.table-custom td, .table-custom th {
+  padding: 5px 5px;
+}
+
+.pagination {
+  font-size: 13px;
+}
+
+.pagination li i {
+  font-size: 1.3rem;
 }

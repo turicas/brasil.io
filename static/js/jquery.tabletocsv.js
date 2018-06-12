@@ -44,7 +44,7 @@
 				{
 					rowData.push('"'+text+'"');
 				}
-				
+
 			});
 			csvData.push(rowData);
 		});

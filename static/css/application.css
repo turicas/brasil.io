@@ -1,0 +1,106 @@
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+body {
+  position: relative;
+  margin: 0;
+  padding-bottom: 12rem;
+  min-height: 100%;
+  font-family: Roboto, sans-serif;
+  font-weight: 300;
+}
+
+.divider-new:before {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin: 0 .45em 0 0;
+}
+
+.divider-new:after {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin: 0 0 0 .45em;
+}
+
+.divider-new:after, .divider-new:before {
+  content: '';
+  height: 1px;
+  background: #c6c6c6;
+}
+
+.divider-new {
+  display: flex;
+  align-items: center;
+  margin-top: 45px;
+  margin-bottom: 45px;
+}
+
+.divider-new{
+  font-weight: 300;
+}
+
+.container {
+  padding: 10px;
+}
+
+
+.card .card-action a:not(.btn):not(.btn-large):not(.btn-small):not(.btn-large):not(.btn-floating) {
+  color: #1A237E !important;
+  margin-right: 10px;
+  -webkit-transition: color .3s ease;
+  transition: color .3s ease;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.card.small {
+  height: 350px;
+}
+
+.card .card-title {
+  font-size: 20px;
+  font-weight: 300;
+}
+
+.card .card-content.card-body {
+  height: 150px;
+}
+
+.card.small .card-description {
+  color: rgba(0,0,0,0.87);
+}
+
+.footer {
+  text-align: center;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.email-newsletter {
+  height: 2em !important;
+  font-size: 12px !important;
+}
+
+.parceiro-img {
+  max-height: 100px;
+  opacity: 0.6;
+  margin: 0 auto;
+  display: block;
+  filter: gray; /* IE6-9 */
+  -webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
+  filter: grayscale(1); /* Microsoft Edge and Firefox 35+ */
+}
