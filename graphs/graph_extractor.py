@@ -120,7 +120,6 @@ def get_shortest_paths(tipo_1, id_1, tipo_2, id_2, all_shortest_paths=True):
             return p
         """.strip()
 
-    print(query)
     return _extract_network(query)
 
 
