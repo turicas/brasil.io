@@ -1,0 +1,20 @@
+# Docker settings
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=brasilio
+GRAPHENEDB_URL="http://graph_db:39002"
+NEO4J_BOLT_PORT=7687
+
+# Django settings
+ALLOWED_HOSTS=*
+DATABASE_URL=postgres://postgres:postgres@db:5432/brasilio
+DATA_URL="https://docs.google.com/spreadsheets/d/1-hw07Q7PBGlz2QjOifkwM3T8406OqsGOAWA-fikgW8c/export?format=xlsx"
+DEBUG=True
+PRODUCTION=False
+SECRET_KEY=012345678901234567890123456789
+EMAIL_BACKEND=naomi.mail.backends.naomi.NaomiBackend
+SENDGRID_API_KEY=12345
+ADMINS="programmer|email@example.com"
+FERNET_KEY="1Vo_8aX-WIKEyOWsusu8SHdMDc258elXTN4-WYu_9MQ="
