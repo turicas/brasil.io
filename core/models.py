@@ -122,6 +122,13 @@ class Dataset(models.Model):
     source_name = models.CharField(max_length=255, null=False, blank=False)
     source_url = models.URLField(max_length=2000, null=False, blank=False)
 
+    @property
+    def tables(self):
+        # By now we're ignoring version - just take the last one
+        version = self.get_last_version()
+        return self.table_set.filter(version=version).order_by('name')
+
+
     def __str__(self):
         return ('{} (by {}, source: {})'
                 .format(self.name, self.author_name, self.source_name))

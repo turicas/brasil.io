@@ -42,7 +42,26 @@ def queryset_to_csv(data, fields):
         yield [row_data[field] for field in header]
 
 
-def dataset_detail(request, slug):
+def index(request):
+    return redirect(reverse('core:home'))
+
+
+def home(request):
+    context = {
+        'datasets': Dataset.objects.filter(show=True).order_by('?')[:6],
+    }
+    return render(request, 'home.html', context)
+
+
+def dataset_list(request):
+    context = {
+        'datasets': Dataset.objects.filter(show=True).order_by('name'),
+    }
+    return render(request, 'dataset-list.html', context)
+
+
+def dataset_detail(request, slug, tablename=''):
+    # TODO: set table based on tablename
     dataset = get_object_or_404(Dataset, slug=slug)
     version = dataset.version_set.order_by('-order').first()
     table = version.table_set.get(default=True)
@@ -108,19 +127,10 @@ def dataset_detail(request, slug):
     }
     return render(request, 'dataset-detail.html', context)
 
-def dataset_list(request):
-    context = {'datasets': Dataset.objects.filter(show=True).order_by('name')}
-    return render(request, 'dataset-list.html', context)
-
-def home(request):
-    context = {'datasets': Dataset.objects.filter(show=True).order_by('name')[:6]}
-    return render(request, 'home.html', context)
 
 def dataset_suggestion(request):
     return render(request, 'dataset-suggestion.html', {})
 
-def index(request):
-    return redirect(reverse('core:home'))
 
 def manifesto(request):
     return render(request, 'manifesto.html', {})
