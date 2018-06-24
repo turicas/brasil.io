@@ -192,10 +192,16 @@ class Table(models.Model):
     version = models.ForeignKey(Version, on_delete=models.CASCADE,
                                 null=False, blank=False)
 
-
     def __str__(self):
         return ('{}.{}.{}'.
                 format(self.dataset.slug, self.version.name, self.name))
+
+    @property
+    def db_table(self):
+        return 'data_{}_{}'.format(
+            self.dataset.slug.replace('-', ''),
+            self.name.replace('_', ''),
+        )
 
     def get_model(self):
         model_name = ''.join([word.capitalize()
@@ -224,6 +230,7 @@ class Table(models.Model):
             {
                 'ordering': ordering,
                 'indexes': indexes,
+                'db_table': self.db_table,
             },
         )
         Model = type(
