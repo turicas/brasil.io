@@ -36,8 +36,9 @@ desenvolvedores.
 [![Entre em contato com o Brasil.IO por chat!](docs/chat-banner.png)](https://chat.brasil.io/)
 
 
-Há duas formas de rodar o projeto em sua máquina, uma utilizando `docker` e outra utilizando o `PostegreSQL`.
-Vamos começar pela que utiliza o docker:
+Há duas formas de rodar o projeto em sua máquina, uma utilizando o PostgreSQL
+como um container Docker e outra utilizando o PostegreSQL rodando diretamente
+em sua máquina. Vamos começar pela que utiliza o Docker:
 
 Primeiramente, certifique-se de que você tenha instalados:
 
@@ -76,13 +77,11 @@ Certifique-se de que você tenha instalados:
   [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv) e Python 3.6.4
 - [postregreSQL](https://www.postgresql.org/)
 
-Após instalar o `postgreSQL`, crie o banco de dados que será utilizado pelo projeto.
-Como o `docker` não está sendo utilizado será necessário comentar algumas linhas no arquivo `.activate`.
-
-Comente as seguintes linhas:
+Após instalar o PostgreSQL crie o banco de dados que será utilizado pelo
+projeto. Como o docker não está sendo utilizado será necessário comentar
+algumas linhas no arquivo `.activate`. Comente as seguintes linhas:
 
 ```bash
-
 DOCKER_COMPOSE_FILE=docker-compose.yml
 
 if [ -f "$DOCKER_COMPOSE_FILE" ]; then
@@ -99,15 +98,13 @@ git clone git@github.com:turicas/brasil.io.git
 # Criar um virtualenv:
 pyenv virtualenv 3.6.4 brasil.io
 
-# Modificar o arquivo .env para as configurações do seu Banco de Dados.
-# Caso você use as configurações padrões, o arquivo será parecido com algo assim:
-
+# Modifique o arquivo .env para as configurações do seu banco de dados
+# Caso você use as configurações padrões, o arquivo será parecido com:
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_USER=postgres
-POSTGRES_PASSWORD=<sua senha>
+POSTGRES_PASSWORD=<senha>
 POSTGRES_DB=brasilio
-
 DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/brasilio
 
 # Ativar o virtualenv
@@ -125,15 +122,18 @@ python manage.py update_data
 python manage.py runserver
 ```
 
-Para importar alguma base de dados para rodar no sistema é necessário o baixar o dump [aqui](https://drive.google.com/drive/u/0/folders/1yJyDFbTfX8w3uEJ9mTIN3Jow5TvJsYo7).
+Para importar alguma base de dados para rodar no sistema é necessário o baixar
+o dump
+[aqui](https://drive.google.com/drive/u/0/folders/1yJyDFbTfX8w3uEJ9mTIN3Jow5TvJsYo7).
 
-Alguns arquivos demoram bastante para serem importados, pois são muito grandes. Um exemplo de arquivo menor é o dataset [balneabilidade-bahia](https://drive.google.com/file/d/1-Ctem8laBPl9MBlbkoxqzEZU1paZZTA8/view?usp=sharing).
+Alguns arquivos demoram bastante para serem importados, pois são muito grandes.
+Um exemplo de arquivo menor é o dataset
+[balneabilidade-bahia](https://drive.google.com/file/d/1-Ctem8laBPl9MBlbkoxqzEZU1paZZTA8/view?usp=sharing).
 
 Após fazer o download do arquivo basta executar o seguinte comando:
 
 ```bash
-$ python manage.py import_data balneabilidade-bahia balneabilidade-bahia.csv.xz
-
+python manage.py import_data balneabilidade-bahia balneabilidade balneabilidade-bahia.csv.xz
 ```
 
 
@@ -167,7 +167,7 @@ and can be used to easily deploy apps in your own infrastructure.
     - `cd /app && python manage.py migrate`
     - `cd /app && python manage.py createsuperuser`
     - `cd /app && python manage.py update_data`
-    - `cd /app && python manage.py import_data <dataset-slug> /data/<filename.csv.xz>`
+    - `cd /app && python manage.py import_data <dataset-slug> <tablename> /data/<filename.csv.xz>`
 
 
 ### Licença
