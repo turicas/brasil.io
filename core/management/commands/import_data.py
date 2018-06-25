@@ -12,7 +12,7 @@ from django.db import connection, transaction
 from django.db.utils import ProgrammingError
 from tqdm import tqdm
 
-from core.models import Dataset
+from core.models import Field, Table
 from core.util import get_fobj
 
 
@@ -20,17 +20,19 @@ class Command(BaseCommand):
     help = 'Import data to Brasil.IO database'
 
     def add_arguments(self, parser):
-        parser.add_argument('slug')
+        parser.add_argument('dataset_slug')
+        parser.add_argument('tablename')
         parser.add_argument('filename')
         # TODO: create a way to import other tables
 
     def handle(self, *args, **kwargs):
-        slug = kwargs['slug']
+        dataset_slug = kwargs['dataset_slug']
+        tablename = kwargs['tablename']
         filename = kwargs['filename']
 
-        # Get the model and create the table
-        dataset = Dataset.objects.get(slug=slug)
-        Model = dataset.get_last_data_model()
+        # Get the model and create the table if not exists
+        table = Table.objects.for_dataset(dataset_slug).named(tablename)
+        Model = table.get_model()
         with transaction.atomic():
             try:
                 Model.delete_table()
@@ -60,7 +62,6 @@ class Command(BaseCommand):
                         '"{database_url}"'
                    .format(table_name=table_name, first_line=first_line,
                            database_url=database_url, encoding=encoding))
-
         start = time.time()
         rows_imported = 0
         error = None
@@ -91,7 +92,8 @@ class Command(BaseCommand):
         end = time.time()
         duration = end - start
         if error:
-            print('ERROR:', error)
+            print('ERROR: {}'.format(error.decode('utf-8')))
+            exit(1)
         else:
             print('  done in {:.3f}s ({} rows imported, {:.3f} rows/s).'
                   .format(duration, rows_imported, rows_imported / duration))
