@@ -23,12 +23,30 @@ class Command(BaseCommand):
         parser.add_argument('dataset_slug')
         parser.add_argument('tablename')
         parser.add_argument('filename')
-        # TODO: create a way to import other tables
+        parser.add_argument('--no-input', required=False, action='store_true')
+        parser.add_argument('--no-vacuum', required=False, action='store_true')
+        parser.add_argument('--no-create-filter-indexes', required=False, action='store_true')
+        parser.add_argument('--no-fill-choices', required=False, action='store_true')
+        parser.add_argument('--no-create-search-index', required=False, action='store_true')
 
     def handle(self, *args, **kwargs):
         dataset_slug = kwargs['dataset_slug']
         tablename = kwargs['tablename']
         filename = kwargs['filename']
+        ask_confirmation = not kwargs['no_input']
+        vacuum = not kwargs['no_vacuum']
+        create_filter_indexes = not kwargs['no_create_filter_indexes']
+        fill_choices = not kwargs['no_fill_choices']
+        create_search_index = not kwargs['no_create_search_index']
+
+        if ask_confirmation:
+            print(
+                'This operation will DESTROY the existing data for this '
+                'dataset table.'
+            )
+            answer = input('Do you want to continue? (y/n) ')
+            if answer.lower().strip() not in ('y', 'yes'):
+                exit()
 
         # Get the model and create the table if not exists
         table = Table.objects.for_dataset(dataset_slug).named(tablename)
@@ -97,37 +115,39 @@ class Command(BaseCommand):
         else:
             print('  done in {:.3f}s ({} rows imported, {:.3f} rows/s).'
                   .format(duration, rows_imported, rows_imported / duration))
-        # TODO: do not continue if error
-        # TODO: add flags for each action
 
-        print('Running VACUUM ANALYSE...', end='', flush=True)
-        start = time.time()
-        Model.analyse_table()
-        end = time.time()
-        print('  done in {:.3f}s.'.format(end - start))
+        if vacuum:
+            print('Running VACUUM ANALYSE...', end='', flush=True)
+            start = time.time()
+            Model.analyse_table()
+            end = time.time()
+            print('  done in {:.3f}s.'.format(end - start))
 
-        # TODO: warn if field has_choices but not in Table.filtering
-        print('Creating filter indexes...', end='', flush=True)
-        start = time.time()
-        Model.create_indexes()
-        end = time.time()
-        print('  done in {:.3f}s.'.format(end - start))
+        if create_filter_indexes:
+            # TODO: warn if field has_choices but not in Table.filtering
+            print('Creating filter indexes...', end='', flush=True)
+            start = time.time()
+            Model.create_indexes()
+            end = time.time()
+            print('  done in {:.3f}s.'.format(end - start))
 
-        print('Filling choices...')
-        start = time.time()
-        choiceables = Field.objects.for_table(table).choiceables()
-        for field in choiceables:
-            print('  {}'.format(field.name), end='', flush=True)
-            start_field = time.time()
-            field.update_choices()
-            field.save()
-            end_field = time.time()
-            print(' - done in {:.3f}s.'.format(end_field - start_field))
-        end = time.time()
-        print('  done in {:.3f}s.'.format(end - start))
+        if fill_choices:
+            print('Filling choices...')
+            start = time.time()
+            choiceables = Field.objects.for_table(table).choiceables()
+            for field in choiceables:
+                print('  {}'.format(field.name), end='', flush=True)
+                start_field = time.time()
+                field.update_choices()
+                field.save()
+                end_field = time.time()
+                print(' - done in {:.3f}s.'.format(end_field - start_field))
+            end = time.time()
+            print('  done in {:.3f}s.'.format(end - start))
 
-        print('Updating search index...', end='', flush=True)
-        start = time.time()
-        Model.objects.update_search_index()
-        end = time.time()
-        print('  done in {:.3f}s.'.format(end - start))
+        if create_search_index:
+            print('Updating search index...', end='', flush=True)
+            start = time.time()
+            Model.objects.update_search_index()
+            end = time.time()
+            print('  done in {:.3f}s.'.format(end - start))
