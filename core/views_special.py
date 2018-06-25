@@ -38,13 +38,13 @@ def unaccent(text):
 
 def document_detail(request, document):
     datasets = get_datasets()
-    Candidatos = datasets['eleicoes-brasil'].get_last_data_model()
-    Documents = datasets['documentos-brasil'].get_last_data_model()
-    EmpresasSocias = datasets['empresas-socias'].get_last_data_model()
-    FiliadosPartidos = datasets['filiados-partidos'].get_last_data_model()
-    GastosDeputados = datasets['gastos-deputados'].get_last_data_model()
-    GastosDiretos = datasets['gastos-diretos'].get_last_data_model()
-    Socios = datasets['socios-brasil'].get_last_data_model()
+    Candidatos = datasets['eleicoes-brasil'].get_table('candidatos').get_model()
+    Documents = datasets['documentos-brasil'].get_table('documents').get_model()
+    EmpresasSocias = datasets['empresas-socias'].get_table('socias').get_model()
+    FiliadosPartidos = datasets['filiados-partidos'].get_table('filiados').get_model()
+    GastosDeputados = datasets['gastos-deputados'].get_table('cota_parlamentar').get_model()
+    GastosDiretos = datasets['gastos-diretos'].get_table('gastos').get_model()
+    Socios = datasets['socios-brasil'].get_table('socios').get_model()
 
     encrypted = False
     if len(document) not in (11, 14):  # encrypted

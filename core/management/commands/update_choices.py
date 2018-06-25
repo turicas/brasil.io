@@ -2,30 +2,46 @@ import time
 
 from django.core.management.base import BaseCommand
 
-from core.models import Dataset
+from core.models import Dataset, Field, Table
 
 
 class Command(BaseCommand):
     help = 'Update choices cache'
 
+    def add_arguments(self, parser):
+        parser.add_argument('--dataset-slug', required=False, action='store')
+        parser.add_argument('--tablename', required=False, action='store')
+
     def handle(self, *args, **kwargs):
-        for dataset in Dataset.objects.all().iterator():
+        dataset_slug = kwargs['dataset_slug']
+        tablename = kwargs['tablename']
+
+        datasets = Dataset.objects.all()
+        if dataset_slug:
+            datasets = datasets.filter(slug=dataset_slug)
+
+        for dataset in datasets.iterator():
             print('{}...'.format(dataset.slug))
             start_dataset = time.time()
-            Model = dataset.get_last_data_model()
-            # TODO: change when add table support
-            # TODO: move this to QuerySet
-            choiceables = dataset.field_set.filter(show_on_frontend=True,
-                                                   has_choices=True)
-            for field in choiceables:
-                start = time.time()
-                print('  {}... '.format(field.name), end='', flush=True)
-                choices = Model.objects.order_by(field.name)\
-                                       .distinct(field.name)\
-                                       .values_list(field.name, flat=True)
-                field.choices = {'data': [str(value) for value in choices]}
-                field.save()
-                end = time.time()
-                print('done in {:7.3f}s.'.format(end - start))
+
+            tables = Table.objects.for_dataset(dataset)
+            if tablename:
+                tables = [tables.named(tablename)]
+            for table in tables:
+                print('  {}...'.format(table.name))
+                start_table = time.time()
+
+                choiceables = Field.objects.for_table(table).choiceables()
+                for field in choiceables:
+                    start = time.time()
+                    print('    {}... '.format(field.name), end='', flush=True)
+                    field.update_choices()
+                    field.save()
+                    end = time.time()
+                    print('done in {:7.3f}s.'.format(end - start))
+
+                end_table = time.time()
+                print('  table done in {:7.3f}s.'.format(end_table - start_table))
+
             end_dataset = time.time()
-            print('  dataset done in: {:7.3f}s.'.format(end_dataset - start_dataset))
+            print('  dataset done in {:7.3f}s.'.format(end_dataset - start_dataset))

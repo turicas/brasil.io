@@ -1,0 +1,31 @@
+<div class="col m4">
+  <div class="card horizontal small">
+    <div class="card-stacked">
+      <div class="card-content">
+        <span class="card-title activator grey-text text-darken-4">
+          <i class="material-icons fa-1x left">{{ dataset.icon }}</i>
+            <a href="{% url 'core:dataset-detail' dataset.slug %}">
+              {{ dataset.name }}
+            </a>
+        </span>
+        <p class="card-description">
+          {{ dataset.description }}
+        </p>
+        <p class="card-dataset-tables">
+          <br>
+          Tabelas:
+          {% for table in dataset.tables %}
+          {% spaceless %}
+          <a href="{% url 'core:dataset-table-detail' dataset.slug table.name %}">
+            {% if table.default %}<b>{{ table.name }}</b>
+            {% else %}
+            {{ table.name }}
+            {% endif %}
+          </a>
+          {% endspaceless %}{% if not forloop.last %}, {% endif %}
+          {% endfor %}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

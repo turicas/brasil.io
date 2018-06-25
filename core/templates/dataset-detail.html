@@ -5,24 +5,54 @@
 {% block title %}{{ dataset.name }} - Datasets - Brasil.IO{% endblock %}
 {% block content %}{% localize off %}
 <div class="section">
-  <h4>{{ dataset.name }}</h4>
-  <p>
-    {{ dataset.description }}
-  </p>
+  <div id="dataset-detail">
+    <h4>{{ dataset.name }}</h4>
+    <p>
+      {{ dataset.description }}
+    </p>
+    <ul>
+      <li>
+        Fonte original: <a href="{{ dataset.source_url }}">{{ dataset.source_name }}</a>
+      </li>
+      <li>
+        Libertado por: <a href="{{ dataset.author_url }}">{{ dataset.author_name }}</a>
+      </li>
+      <li>
+        Código-fonte: <a href="{{ dataset.code_url }}">{{ dataset.code_url }}</a>
+      </li>
+      <li>
+        Licença: <a href="{{ dataset.license_url }}">{{ dataset.license_name }}</a>
+      </li>
+      {% if dataset.link_set.all %}
+      <li>
+        Links relacionados:
+        {% for link in dataset.link_set.all %}
+          <a href="{{ link.url }}" target="_blank">{{ link.title }}</a>{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </li>
+      {% endif %}
+    </ul>
+  </div>
 
   <div class="row">
     <div class="col s12">
+      Tabelas:
+      {% for dataset_table in dataset.tables %}
+        {% spaceless %}
+        {% if dataset_table == table %}
+        <strong>{{ dataset_table.name }}</strong>
+        {% else %}
+        <a href="{% url 'core:dataset-table-detail' dataset.slug dataset_table.name %}">{{ dataset_table.name }}</a>
+        {% endif %}
+        {% endspaceless %}{% if not forloop.last %}, {% else %}.{% endif %}
+      {% endfor %}
+
       <ul class="tabs tabs-fixed-width" id="tabs">
         <li class="tab col s3"><a class="active" href="#data">Dados</a></li>
         <li class="tab col s3"><a href="#metadata">Metadados</a></li>
       </ul>
     </div>
     <div id="data" class="col s12">
-      <p>
-        Você também pode <a href="{{ version.download_url }}">baixar o dataset completo</a> ou
-        <a href="{% url 'api:dataset-data' dataset.slug %}">utilizar nossa API</a>.
-      </p>
-
       <div class="row">
         <div class="col s12 m12">
           <h5>Filtros</h5>
@@ -63,17 +93,19 @@
       </div>
 
       <div class="row">
-          {% if total_count > 0 and total_count <= max_export_rows %}
-          <div class="col s12 m7 left" style="padding-left: 0px;">
-            <a class="btn" href="{% url 'core:dataset-detail' slug=slug %}?{% if querystring %}{{ querystring }}&amp;{% endif %}format=csv">
-            {% if querystring %}
-              Baixar resultado em CSV
-            {% else %}
-              Baixar dados em CSV
-            {% endif %}
-            </a>
-          </div>
+        <p> Última atualização: {{ table.last_update }} </p>
+
+        {% if total_count > 0 and total_count <= max_export_rows %}
+        <div class="col s12 m7 left" style="padding-left: 0px;">
+          <a class="btn" href="{% url 'core:dataset-detail' slug=slug %}?{% if querystring %}{{ querystring }}&amp;{% endif %}format=csv">
+          {% if querystring %}
+            Baixar resultado em CSV
+          {% else %}
+            Baixar dados em CSV
           {% endif %}
+          </a>
+        </div>
+        {% endif %}
 
         <div class="col s12 m5 right">
           <ul class="pagination right">
@@ -95,6 +127,10 @@
         {% include 'data-table.html' %}
         {% endwith %}
       </div>
+      <p>
+        Você também pode <a href="{{ version.download_url }}">baixar o dataset completo</a> ou
+        <a href="{% url 'api:dataset-detail' dataset.slug %}">utilizar nossa API</a>.
+      </p>
 
     </div>
     <div id="metadata" class="col s12">
@@ -103,51 +139,30 @@
         <div class="card horizontal">
           <div class="card-stacked">
             <div class="card-content">
-
               <span class="card-title activator grey-text text-darken-4">
-                Metadatados
+                Dicionário de Dados - Tabela {{ table.name }}
               </span>
-              <ul>
-                <li>
-                  Fonte original: <a href="{{ dataset.source_url }}">{{ dataset.source_name }}</a>.
-                </li>
-                <li>
-                  Libertado por: <a href="{{ dataset.author_url }}">{{ dataset.author_name }}</a>.
-                </li>
-                <li>
-                  Código-fonte: <a href="{{ dataset.code_url }}">{{ dataset.code_url }}</a>.
-                </li>
-                <li>
-                  Licença: <a href="{{ dataset.license_url }}">{{ dataset.license_name }}</a>.
-                </li>
-              </ul>
 
-              <span>Links:</span>
-              {% if dataset.link_set.all %}
-              <ul>
-                {% for link in dataset.link_set.all %}
-                <li><a href="{{ link.url }}" target="_blank">{{ link.title }}</a></li>
-                {% endfor %}
-              </ul>
-              {% else %}
-              Esse dataset ainda não possui links! Conhece algum link que possui
-              informações interessantes sobre ele?
-              <a href="{% url 'core:contact' %}">Entre em contato</a>!
-              {% endif %}
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nome da Coluna</th>
+                    <th>Descrição</th>
+                    <th>Tipo</th>
+                  </tr>
+                </thead>
 
-              <span class="card-title activator grey-text text-darken-4">
-                Dicionário de Dados
-              </span>
-              <ul>
-                <li>
-                  <b>Tabela {{ table.name }}:</b>
-                  <ul>
-                    {% for field in table.field_set.all %}
-                    <li>{{ field.title }} ({{ field.name }}): {{ field.type }}{% if field.options_text %} ({{ field.options_text }}){% endif %}</li>
-                    {% endfor %}
-                  </ul>
-                </li>
-              </ul>
+                <tbody>
+                  {% for field in table.fields %}
+                  <tr>
+                    <td> {{ field.name }} </td>
+                    <td> {{ field.title }} </td>
+                    <td> {{ field.type }}{% if field.options_text %} ({{ field.options_text }}){% endif %}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+
+              </table>
 
             </div>
           </div>

@@ -7,26 +7,7 @@
   <div class="divider"></div>
 
   {% for dataset in datasets %}
-  <div class="col s12 m4 m-t-15">
-    <a href="{% url 'core:dataset-detail' dataset.slug %}">
-      <div class="card horizontal small">
-        <div class="card-stacked">
-          <div class="card-content">
-            <span class="card-title activator grey-text text-darken-4">
-              <i class="material-icons fa-1x left">{{ dataset.icon }}</i>
-              {{ dataset.name }}
-            </span>
-            <p class="card-description">
-              {{ dataset.description }}
-            </p>
-          </div>
-          <div class="card-action">
-            <a href="{% url 'core:dataset-detail' dataset.slug %}"> Visualizar </a>
-          </div>
-        </div>
-      </div>
-    </a>
-  </div>
+    {% include 'dataset-card.html' %}
   {% endfor %}
 
   <div class="col s12 m4 m-t-15">

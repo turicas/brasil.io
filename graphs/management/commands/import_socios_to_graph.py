@@ -27,7 +27,7 @@ class Command(BaseCommand):
             self.graph_db.schema.create_uniqueness_constraint(label, key)
 
     def get_socios_brasil_model(self):
-        table = Table.objects.get(dataset__slug='socios-brasil')
+        table = Table.objects.for_dataset('socios-brasil').named('socios')
         return table.get_model()
 
     def get_pfs_query_and_params(self, pfs):
@@ -117,7 +117,7 @@ class Command(BaseCommand):
 
         open_transaction = None
         self.create_indexes()
-        with tqdm(desc='Importando lotes de 1000 registros', total=num_batches) as progress:
+        with tqdm(total=num_batches) as progress:
             pfs, pjs, ext = [], [], []
             for i, partnership in enumerate(SociosBrasil.objects.iterator()):
                 if not i % self.batch_size:

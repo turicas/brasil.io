@@ -20,10 +20,18 @@ class FieldSerializer(serializers.ModelSerializer):
 
 class TableSerializer(serializers.ModelSerializer):
     fields = FieldSerializer(many=True, source='field_set')
+    data_url = serializers.SerializerMethodField()
+
+    def get_data_url(self, obj):
+        return reverse(
+            'api:dataset-table-data',
+            kwargs={'slug': obj.dataset.slug, 'tablename': obj.name},
+            request=self.context['request']
+        )
 
     class Meta:
         model = Table
-        fields = ('fields',)
+        fields = ('fields', 'name', 'data_url')
 
 
 class DatasetSerializer(serializers.ModelSerializer):
@@ -43,25 +51,20 @@ class DatasetSerializer(serializers.ModelSerializer):
 
 
 class DatasetDetailSerializer(serializers.ModelSerializer):
-    data_url = serializers.SerializerMethodField()
     id = serializers.SerializerMethodField()
     links = LinkSerializer(many=True, source='link_set')
-    schema = TableSerializer(source='get_table')
+    tables = TableSerializer(many=True)
 
     def get_id(self, obj):
         return reverse('api:dataset-detail', kwargs={'slug': obj.slug},
                        request=self.context['request'])
 
-    def get_data_url(self, obj):
-        return reverse('api:dataset-data', kwargs={'slug': obj.slug},
-                       request=self.context['request'])
-
     class Meta:
         model = Dataset
         fields = (
-            'author_name', 'author_url', 'code_url', 'data_url', 'description',
+            'author_name', 'author_url', 'code_url', 'description',
             'id', 'license_name', 'license_url', 'links', 'name', 'slug',
-            'source_name', 'source_url', 'schema'
+            'source_name', 'source_url', 'tables'
         )
 
 

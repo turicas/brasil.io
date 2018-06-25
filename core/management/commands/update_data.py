@@ -55,7 +55,6 @@ def link_update_data(row):
 def version_update_data(row):
     return {
         'dataset': row['dataset'],
-        'download_url': row['download_url'],
         'name': row['name'],
         'defaults': row,
     }

@@ -11,7 +11,9 @@ def _resolve_field_by_type(person_type):
 
 
 def _get_obj(field, identifier):
-    Socios = Dataset.objects.get(slug='socios-brasil').get_last_data_model()
+    Socios = Dataset.objects.get(slug='socios-brasil')\
+                            .get_table('socios')\
+                            .get_model()
     return Socios.objects.filter(**{field: identifier}).first()
 
 

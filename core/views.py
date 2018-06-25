@@ -42,12 +42,35 @@ def queryset_to_csv(data, fields):
         yield [row_data[field] for field in header]
 
 
-def dataset_detail(request, slug):
+def index(request):
+    return redirect(reverse('core:home'))
+
+
+def home(request):
+    context = {
+        'datasets': Dataset.objects.filter(show=True).order_by('?')[:6],
+    }
+    return render(request, 'home.html', context)
+
+
+def dataset_list(request):
+    context = {
+        'datasets': Dataset.objects.filter(show=True).order_by('name'),
+    }
+    return render(request, 'dataset-list.html', context)
+
+
+def dataset_detail(request, slug, tablename=''):
     dataset = get_object_or_404(Dataset, slug=slug)
+    if not tablename:
+        tablename = dataset.get_default_table().name
+        return redirect(reverse('core:dataset-table-detail',
+                                kwargs={'slug': slug, 'tablename': tablename}))
+
+    table = dataset.get_table(tablename)
     version = dataset.version_set.order_by('-order').first()
-    table = version.table_set.get(default=True)
-    fields = table.field_set.all()
-    all_data = dataset.get_last_data_model().objects.all()
+    fields = table.fields
+    all_data = table.get_model().objects
     querystring = request.GET.copy()
     page_number = querystring.pop('page', ['1'])[0].strip() or '1'
     search_query = request.GET.get('search')
@@ -96,6 +119,7 @@ def dataset_detail(request, slug):
     context = {
         'data': data,
         'dataset': dataset,
+        'table': table,
         'fields': fields,
         'max_export_rows': max_export_rows,
         'query_dict': querystring,
@@ -108,19 +132,10 @@ def dataset_detail(request, slug):
     }
     return render(request, 'dataset-detail.html', context)
 
-def dataset_list(request):
-    context = {'datasets': Dataset.objects.filter(show=True).order_by('name')}
-    return render(request, 'dataset-list.html', context)
-
-def home(request):
-    context = {'datasets': Dataset.objects.filter(show=True).order_by('name')[:6]}
-    return render(request, 'home.html', context)
 
 def dataset_suggestion(request):
     return render(request, 'dataset-suggestion.html', {})
 
-def index(request):
-    return redirect(reverse('core:home'))
 
 def manifesto(request):
     return render(request, 'manifesto.html', {})
