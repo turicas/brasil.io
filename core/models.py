@@ -201,6 +201,7 @@ class Table(models.Model):
                         null=True, blank=True)
     version = models.ForeignKey(Version, on_delete=models.CASCADE,
                                 null=False, blank=False)
+    last_update = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return ('{}.{}.{}'.

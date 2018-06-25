@@ -10,6 +10,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import connection, transaction
 from django.db.utils import ProgrammingError
+from django.utils import timezone
 from tqdm import tqdm
 
 from core.models import Field, Table
@@ -113,6 +114,8 @@ class Command(BaseCommand):
             print('ERROR: {}'.format(error.decode('utf-8')))
             exit(1)
         else:
+            table.last_update = timezone.now()
+            table.save()
             print('  done in {:.3f}s ({} rows imported, {:.3f} rows/s).'
                   .format(duration, rows_imported, rows_imported / duration))
 
