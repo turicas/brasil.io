@@ -117,7 +117,7 @@ class Command(BaseCommand):
 
         open_transaction = None
         self.create_indexes()
-        with tqdm(desc='Importando lotes de 1000 registros', total=num_batches) as progress:
+        with tqdm(total=num_batches) as progress:
             pfs, pjs, ext = [], [], []
             for i, partnership in enumerate(SociosBrasil.objects.iterator()):
                 if not i % self.batch_size:
