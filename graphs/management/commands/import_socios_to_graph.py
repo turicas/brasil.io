@@ -27,7 +27,7 @@ class Command(BaseCommand):
             self.graph_db.schema.create_uniqueness_constraint(label, key)
 
     def get_socios_brasil_model(self):
-        table = Table.objects.get(dataset__slug='socios-brasil')
+        table = Table.objects.for_dataset('socios-brasil').named('socios')
         return table.get_model()
 
     def get_pfs_query_and_params(self, pfs):
