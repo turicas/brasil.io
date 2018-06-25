@@ -174,9 +174,11 @@ class Version(models.Model):
 class TableQuerySet(models.QuerySet):
 
     def for_dataset(self, dataset):
-        if isinstance(dataset, str):  # dataset slug
-            dataset = Dataset.objects.get(slug=dataset)
-        return self.filter(dataset=dataset)
+        if isinstance(dataset, str):
+            kwargs = {'dataset__slug': dataset}
+        else:
+            kwargs = {'dataset': dataset}
+        return self.filter(**kwargs)
 
     def default(self):
         return self.get(default=True)
