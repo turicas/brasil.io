@@ -15,9 +15,14 @@
           <br>
           Tabelas:
           {% for table in dataset.tables %}
+          {% spaceless %}
           <a href="{% url 'core:dataset-table-detail' dataset.slug table.name %}">
-            {% if table.default %}<b>{{ table.name }}</b>{% else %}{{ table.name }}{% endif %}
+            {% if table.default %}<b>{{ table.name }}</b>
+            {% else %}
+            {{ table.name }}
+            {% endif %}
           </a>
+          {% endspaceless %}{% if not forloop.last %}, {% endif %}
           {% endfor %}
         </p>
       </div>
