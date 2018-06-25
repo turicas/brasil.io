@@ -128,6 +128,11 @@ class Dataset(models.Model):
         version = self.get_last_version()
         return self.table_set.filter(version=version).order_by('name')
 
+    def get_table(self, tablename):
+        return Table.objects.for_dataset(self).named(tablename)
+
+    def get_default_table(self):
+        return Table.objects.for_dataset(self).default()
 
     def __str__(self):
         return ('{} (by {}, source: {})'
@@ -140,17 +145,6 @@ class Dataset(models.Model):
 
     def get_last_version(self):
         return self.version_set.order_by('order').last()
-
-    def get_table(self):
-        version = self.get_last_version()
-        return self.table_set.get(version=version, default=True)
-
-    def get_last_data_model(self):
-        if self.slug not in DYNAMIC_MODEL_REGISTRY:
-            table = self.get_table()
-            DYNAMIC_MODEL_REGISTRY[self.slug] = table.get_model()
-
-        return DYNAMIC_MODEL_REGISTRY[self.slug]
 
 
 class Link(models.Model):
@@ -177,7 +171,23 @@ class Version(models.Model):
                 .format(self.dataset.slug, self.name, self.order))
 
 
+class TableQuerySet(models.QuerySet):
+
+    def for_dataset(self, dataset):
+        if isinstance(dataset, str):  # dataset slug
+            dataset = Dataset.objects.get(slug=dataset)
+        return self.filter(dataset=dataset)
+
+    def default(self):
+        return self.get(default=True)
+
+    def named(self, name):
+        return self.get(name=name)
+
+
 class Table(models.Model):
+    objects = TableQuerySet.as_manager()
+
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE,
                                 null=False, blank=False)
     default = models.BooleanField(null=False, blank=False)
@@ -203,11 +213,18 @@ class Table(models.Model):
             self.name.replace('_', ''),
         )
 
+    @property
+    def fields(self):
+        return self.field_set.all()
+
     def get_model(self):
+        if self.id in DYNAMIC_MODEL_REGISTRY:
+            return DYNAMIC_MODEL_REGISTRY[self.id]
+
         model_name = ''.join([word.capitalize()
                               for word in self.dataset.slug.split('-')])
         fields = {field.name: field.field_class
-                  for field in self.field_set.all()}
+                  for field in self.fields}
         fields['search_data'] = SearchVectorField(null=True)
         ordering = self.ordering or []
         filtering = self.filtering or []
@@ -248,6 +265,7 @@ class Table(models.Model):
             'ordering': ordering,
             'search': search,
         }
+        DYNAMIC_MODEL_REGISTRY[self.id] = Model
         return Model
 
     def get_model_declaration(self):
@@ -263,7 +281,7 @@ class Table(models.Model):
             indexes.extend(filtering)
         # TODO: add search indexes
         fields_text = []
-        for field in self.field_set.all():
+        for field in self.fields:
             kwargs = field.options or {}
             kwargs['null'] = field.null
             field_args = ', '.join(['{}={}'.format(key, repr(value))
@@ -282,7 +300,18 @@ class Table(models.Model):
         # TODO: missing objects?
 
 
+class FieldQuerySet(models.QuerySet):
+
+    def for_table(self, table):
+        return self.filter(table=table)
+
+    def choiceables(self):
+        return self.filter(has_choices=True, show_on_frontend=True)
+
+
 class Field(models.Model):
+    objects = FieldQuerySet.as_manager()
+
     TYPES = ['binary', 'bool', 'date', 'datetime', 'decimal', 'email',
              'float', 'integer', 'json', 'percent', 'text',]
     TYPE_CHOICES = [(value, value) for value in TYPES]
@@ -329,3 +358,10 @@ class Field(models.Model):
 
         return ', '.join(['{}={}'.format(key, repr(value))
                           for key, value in self.options.items()])
+
+    def update_choices(self):
+        Model = self.table.get_model()
+        choices = Model.objects.order_by(self.name)\
+                       .distinct(self.name)\
+                       .values_list(self.name, flat=True)
+        self.choices = {'data': [str(value) for value in choices]}

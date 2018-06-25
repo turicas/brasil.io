@@ -135,19 +135,26 @@
               <a href="{% url 'core:contact' %}">Entre em contato</a>!
               {% endif %}
 
-              <span class="card-title activator grey-text text-darken-4">
-                Dicionário de Dados
-              </span>
-              <ul>
-                <li>
-                  <b>Tabela {{ table.name }}:</b>
-                  <ul>
-                    {% for field in table.field_set.all %}
-                    <li>{{ field.title }} ({{ field.name }}): {{ field.type }}{% if field.options_text %} ({{ field.options_text }}){% endif %}</li>
-                    {% endfor %}
-                  </ul>
-                </li>
-              </ul>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nome da Coluna</th>
+                    <th>Descrição</th>
+                    <th>Tipo</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {% for field in table.fields %}
+                  <tr>
+                    <td> {{ field.name }} </td>
+                    <td> {{ field.title }} </td>
+                    <td> {{ field.type }}{% if field.options_text %} ({{ field.options_text }}){% endif %}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+
+              </table>
 
             </div>
           </div>
