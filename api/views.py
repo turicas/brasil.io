@@ -4,7 +4,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-from core.models import Dataset, Link
+from core.models import Dataset, Table, Link
 from api.serializers import (DatasetDetailSerializer,
                              DatasetSerializer,
                              GenericSerializer)
@@ -35,7 +35,8 @@ class DatasetDataListView(ListAPIView):
 
     def get_model_class(self):
         dataset = get_object_or_404(Dataset, slug=self.kwargs['slug'])
-        return dataset.get_last_data_model()
+        table = get_object_or_404(Table, dataset=dataset, name=self.kwargs['tablename'])
+        return table.get_model()
 
     def get_queryset(self):
         querystring = self.request.query_params.copy()
