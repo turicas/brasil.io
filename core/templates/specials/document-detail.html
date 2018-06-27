@@ -102,6 +102,16 @@
   {% endwith %}
   {% endif %}
 
+  {% if branches.count %}
+  <h4>Matriz e Filiais</h4>
+  <p>
+    Foram identificadas <b>{{ branches.count }}</b> filiais e matriz.
+  </p>
+  {% with table_id='branches' data=branches fields=branches_fields caption='branches-'|add:obj.name  %}
+    {% include 'data-table.html' %}
+  {% endwith %}
+  {% endif %}
+
 </div>
 {% endwith %}{% endlocalize %}{% endblock %}
 

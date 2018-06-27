@@ -95,6 +95,7 @@ def document_detail(request, document):
                     obj = branches[0]
             url = reverse('core:special-document-detail', args=[obj.document]) + "?original_document={}".format(document)
             return redirect(url)
+        branches = branches.exclude(pk=obj.pk).order_by('document')
 
     else:
         obj = get_object_or_404(Documents, document=document)
@@ -128,6 +129,11 @@ def document_detail(request, document):
         datasets['filiados-partidos']['filiados'],
         remove=[],
     )
+    branches_fields = _get_fields(
+        datasets['documentos-brasil']['documents'],
+        remove=['document_type', 'sources', 'text'],
+    )
+
     if obj.document_type == 'CNPJ':
         partners_data = \
             Socios.objects.filter(cnpj__startswith=doc_prefix)\
@@ -182,6 +188,8 @@ def document_detail(request, document):
         'obj': obj_dict,
         'partners_data': partners_data,
         'partners_fields': partners_fields,
+        'branches': branches,
+        'branches_fields': branches_fields,
     }
     return render(request, 'specials/document-detail.html', context)
 
