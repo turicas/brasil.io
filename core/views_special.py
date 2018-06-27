@@ -129,19 +129,26 @@ def document_detail(request, document):
         remove=[],
     )
     if obj.document_type == 'CNPJ':
-        # TODO: use only its root (document[:8]) on all appearances of 'obj.document'
         partners_data = \
-            Socios.objects.filter(cnpj=obj.document)\
+            Socios.objects.filter(cnpj__startswith=doc_prefix)\
                           .order_by('nome_socio')
         partner = partners_data.first()
         company = Empresas.objects.filter(cnpj=obj.document).first()
         obj_dict['state'] = company.uf if company else ''
-        companies_data = Holdings.objects.filter(cnpj_socia=obj.document)\
+        companies_data = Holdings.objects.filter(cnpj_socia__startswith=doc_prefix)\
                                          .order_by('razao_social')
         companies_fields = _get_fields(
             datasets['socios-brasil']['holdings'],
             remove=['cnpj_socia'],
         )
+
+        # all appearances of 'obj.document'
+        camara_spending_data = \
+            GastosDeputados.objects.filter(txtcnpjcpf__startswith=doc_prefix)\
+                                   .order_by('-datemissao')
+        federal_spending_data = \
+            GastosDiretos.objects.filter(codigo_favorecido__startswith=doc_prefix)\
+                                 .order_by('-data_pagamento')
     elif obj.document_type == 'CPF':
         companies_data = \
             Socios.objects.filter(nome_socio=unaccent(obj.name))\
@@ -152,14 +159,13 @@ def document_detail(request, document):
         filiations_data = \
             FiliadosPartidos.objects.filter(nome_do_filiado=unaccent(obj.name))
 
-    # TODO: if len(document) == 14 (CNPJ) use only its root (document[:8]) on
-    # all appearances of 'obj.document'
-    camara_spending_data = \
-        GastosDeputados.objects.filter(txtcnpjcpf=obj.document)\
-                               .order_by('-datemissao')
-    federal_spending_data = \
-        GastosDiretos.objects.filter(codigo_favorecido=obj.document)\
-                             .order_by('-data_pagamento')
+        # all appearances of 'obj.document'
+        camara_spending_data = \
+            GastosDeputados.objects.filter(txtcnpjcpf=obj.document)\
+                                   .order_by('-datemissao')
+        federal_spending_data = \
+            GastosDiretos.objects.filter(codigo_favorecido=obj.document)\
+                                 .order_by('-data_pagamento')
 
     context = {
         'applications_data': applications_data,
