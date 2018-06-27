@@ -137,7 +137,6 @@ def document_detail(request, document):
         partners_data = \
             Socios.objects.filter(cnpj__startswith=doc_prefix)\
                           .order_by('nome_socio')
-        partner = partners_data.first()
         company = Empresas.objects.filter(cnpj=obj.document).first()
         obj_dict['state'] = company.uf if company else ''
         companies_data = Holdings.objects.filter(cnpj_socia__startswith=doc_prefix)\
