@@ -73,7 +73,6 @@ def document_detail(request, document):
         except (UnicodeEncodeError, InvalidToken, UnicodeDecodeError):
             raise Http404
     document = document.replace('.', '').replace('-', '').replace('/', '').strip()
-
     cnpj_search = len(document) == 14
     doc_prefix = document[:8]
     branches = Documents.objects.none()
@@ -173,6 +172,7 @@ def document_detail(request, document):
             GastosDiretos.objects.filter(codigo_favorecido=obj.document)\
                                  .order_by('-data_pagamento')
 
+    original_document = request.GET.get('original_document', None)
     context = {
         'applications_data': applications_data,
         'applications_fields': applications_fields,
@@ -190,6 +190,7 @@ def document_detail(request, document):
         'partners_fields': partners_fields,
         'branches': branches,
         'branches_fields': branches_fields,
+        'original_document': original_document,
     }
     return render(request, 'specials/document-detail.html', context)
 

@@ -14,6 +14,9 @@
 <div class="section">
   <h4>{{ obj.name }}</h4>
 
+  {% if original_document %}
+  <p><strong>Importante:</strong> A busca realizada foi pelo documento {{ original_document }}, mas o mesmo não existe no nosso banco. Estamos apresentando o resultado para uma das empresas da mesma rede empresarial na qual o documento {{ original_document }} pertence.</p>
+  {% endif %}
   <dl>
     <dt> Documento: </dt>
     <dd>{% if encrypted %}{{ obj.document|obfuscate }}{% else %}{{ obj.document }}{% endif %} ({{ obj.document_type|upper }})</b></dd>
