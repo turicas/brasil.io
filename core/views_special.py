@@ -76,6 +76,7 @@ def document_detail(request, document):
     cnpj_search = len(document) == 14
     doc_prefix = document[:8]
     branches = Documents.objects.none()
+    branches_cnpjs = []
 
     if cnpj_search:  # CNPJ
         branches = Documents.objects.filter(document__startswith=doc_prefix)
@@ -95,6 +96,9 @@ def document_detail(request, document):
             url = reverse('core:special-document-detail', args=[obj.document]) + "?original_document={}".format(document)
             return redirect(url)
         branches = branches.exclude(pk=obj.pk).order_by('document')
+        branches_cnpjs.append(obj.document)
+        for branch in branches:
+            branches_cnpjs.append(branch.document)
 
     else:
         obj = get_object_or_404(Documents, document=document)
@@ -135,11 +139,11 @@ def document_detail(request, document):
 
     if obj.document_type == 'CNPJ':
         partners_data = \
-            Socios.objects.filter(cnpj__startswith=doc_prefix)\
+            Socios.objects.filter(cnpj__in=branches_cnpjs)\
                           .order_by('nome_socio')
         company = Empresas.objects.filter(cnpj=obj.document).first()
         obj_dict['state'] = company.uf if company else ''
-        companies_data = Holdings.objects.filter(cnpj_socia__startswith=doc_prefix)\
+        companies_data = Holdings.objects.filter(cnpj_socia__in=branches_cnpjs)\
                                          .order_by('razao_social')
         companies_fields = _get_fields(
             datasets['socios-brasil']['holdings'],
@@ -148,10 +152,10 @@ def document_detail(request, document):
 
         # all appearances of 'obj.document'
         camara_spending_data = \
-            GastosDeputados.objects.filter(txtcnpjcpf__startswith=doc_prefix)\
+            GastosDeputados.objects.filter(txtcnpjcpf__in=branches_cnpjs)\
                                    .order_by('-datemissao')
         federal_spending_data = \
-            GastosDiretos.objects.filter(codigo_favorecido__startswith=doc_prefix)\
+            GastosDiretos.objects.filter(codigo_favorecido__in=branches_cnpjs)\
                                  .order_by('-data_pagamento')
     elif obj.document_type == 'CPF':
         companies_data = \
