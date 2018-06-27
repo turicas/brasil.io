@@ -162,6 +162,7 @@ class Command(BaseCommand):
                 table.save()
                 print('  done in {:.3f}s ({} rows imported, {:.3f} rows/s).'
                     .format(duration, rows_imported, rows_imported / duration))
+            Model = table.get_model(cache=False)
 
         if vacuum:
             print('Running VACUUM ANALYSE...', end='', flush=True)
