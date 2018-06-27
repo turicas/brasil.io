@@ -224,8 +224,8 @@ class Table(models.Model):
         if self.id in DYNAMIC_MODEL_REGISTRY:
             return DYNAMIC_MODEL_REGISTRY[self.id]
 
-        model_name = ''.join([word.capitalize()
-                              for word in self.dataset.slug.split('-')])
+        name = self.dataset.slug + '-' + self.name.replace('_', '-')
+        model_name = ''.join([word.capitalize() for word in name.split('-')])
         fields = {field.name: field.field_class
                   for field in self.fields}
         fields['search_data'] = SearchVectorField(null=True)
