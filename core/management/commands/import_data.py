@@ -1,6 +1,7 @@
 import csv
 import io
 import lzma
+import re
 import shlex
 import subprocess
 import time
@@ -15,6 +16,30 @@ from tqdm import tqdm
 
 from core.models import Field, Table
 from core.util import get_fobj
+
+
+regexp_sizes = re.compile('([0-9,.]+ [a-zA-Z]+B)')
+MULTIPLIERS = {'B': 1, 'KiB': 1024, 'MiB': 1024 ** 2, 'GiB': 1024 ** 3}
+
+def uncompressed_size(filename):
+    command = shlex.split(f'xz --list "{shlex.quote(filename)}"')
+    try:
+        process = subprocess.Popen(
+            command,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+    except FileNotFoundError:
+        raise RuntimeError('Command `xz` not found')
+    process.wait()
+    if process.returncode > 0:
+        raise ValueError(process.stderr.read().decode('utf-8'))
+    output = process.stdout.read().decode('utf-8')
+    compressed_size, uncompressed_size = regexp_sizes.findall(output)
+    value, unit = uncompressed_size.split()
+    value = float(value.replace(',', ''))
+    return int(value * MULTIPLIERS[unit])
 
 
 def get_psql_copy_command(table_name, header, encoding, database):
@@ -98,8 +123,13 @@ class Command(BaseCommand):
             start = time.time()
             rows_imported = 0
             error = None
+            try:
+                total_size = uncompressed_size(filename)
+            except (RuntimeError, ValueError):
+                total_size = None
+
             with tqdm(desc='Importing data', unit='bytes', unit_scale=True,
-                    unit_divisor=1024) as progress:
+                      unit_divisor=1024, total=total_size) as progress:
                 try:
                     process = subprocess.Popen(
                         shlex.split(command),
