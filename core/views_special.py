@@ -74,8 +74,30 @@ def document_detail(request, document):
             raise Http404
     document = document.replace('.', '').replace('-', '').replace('/', '').strip()
 
-    # TODO: if len(document) == 14 (CNPJ), use onle its root (document[:8])
-    obj = get_object_or_404(Documents, document=document)
+    cnpj_search = len(document) == 14
+    doc_prefix = document[:8]
+    branches = Documents.objects.none()
+
+    if cnpj_search:  # CNPJ
+        branches = Documents.objects.filter(document__startswith=doc_prefix)
+        if not branches.exists():
+            raise Http404()
+        try:
+            obj = branches.get(document=document)
+        except Documents.DoesNotExist:
+            if branches.count() == 1:
+                obj = branches[0]
+            else:
+                headquarter = doc_prefix + '0001'
+                try:
+                    obj = branches.get(document__startswith=headquarter)
+                except Documents.DoesNotExist:
+                    obj = branches[0]
+            url = reverse('core:special-document-detail', args=[obj.document]) + "?original_document={}".format(document)
+            return redirect(url)
+
+    else:
+        obj = get_object_or_404(Documents, document=document)
     obj_dict = obj.__dict__
 
     partners_data = Socios.objects.none()
