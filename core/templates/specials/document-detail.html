@@ -14,6 +14,16 @@
 <div class="section">
   <h4>{{ obj.name }}</h4>
 
+  {% if branches.count %}
+  <p>
+    {% if original_document %}
+    O documento {{ original_document }} não foi encontrado!
+    {% endif %}
+    Mostrando informações sobre todas as empresas (filial e matrizes) cujo CNPJ
+    começa com {{ doc_prefix }}.
+  </p>
+  {% endif %}
+
   <dl>
     <dt> Documento: </dt>
     <dd>{% if encrypted %}{{ obj.document|obfuscate }}{% else %}{{ obj.document }}{% endif %} ({{ obj.document_type|upper }})</b></dd>
@@ -22,6 +32,13 @@
     <dd>{{ obj.state }}</b></dd>
     {% endif %}
   </dl>
+
+  {% if branches.count %}
+  <h4>Filial/Matrizes</h4>
+  {% with table_id='branches' data=branches fields=branches_fields caption='branches-'|add:obj.name  %}
+    {% include 'data-table.html' %}
+  {% endwith %}
+  {% endif %}
 </div>
 
 <div class="row">

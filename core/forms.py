@@ -7,7 +7,7 @@ def _resolve_field_by_type(person_type):
     if person_type == 'pessoa-fisica':
         return 'nome_socio'
     elif person_type == 'pessoa-juridica':
-        return 'cnpj_empresa'
+        return 'cnpj'
 
 
 def _get_obj(field, identifier):
@@ -21,7 +21,7 @@ def _get_name(obj, person_type):
     if person_type == 'pessoa-fisica':
         return obj.nome_socio
     elif person_type == 'pessoa-juridica':
-        return obj.nome_empresa
+        return obj.razao_social
 
 
 class TracePathForm(forms.Form):

@@ -31,6 +31,9 @@ class DynamicModelMixin:
         except:
             raise
         finally:
+            # TODO: check if this approach really works - it looks like Django
+            # is caching something so the model class must be recreated - see
+            # Table.get_model comments.
             cls._meta.indexes = indexes
 
     @classmethod
@@ -220,12 +223,16 @@ class Table(models.Model):
     def fields(self):
         return self.field_set.all()
 
-    def get_model(self):
-        if self.id in DYNAMIC_MODEL_REGISTRY:
+    def get_model(self, cache=True):
+        if cache and self.id in DYNAMIC_MODEL_REGISTRY:
             return DYNAMIC_MODEL_REGISTRY[self.id]
 
-        model_name = ''.join([word.capitalize()
-                              for word in self.dataset.slug.split('-')])
+        # TODO: unregister the model in Django if already registered (self.id
+        # in DYNAMIC_MODEL_REGISTRY and not cache)
+        # TODO: may use Django's internal registry instead of
+        # DYNAMIC_MODEL_REGISTRY
+        name = self.dataset.slug + '-' + self.name.replace('_', '-')
+        model_name = ''.join([word.capitalize() for word in name.split('-')])
         fields = {field.name: field.field_class
                   for field in self.fields}
         fields['search_data'] = SearchVectorField(null=True)
@@ -365,6 +372,6 @@ class Field(models.Model):
     def update_choices(self):
         Model = self.table.get_model()
         choices = Model.objects.order_by(self.name)\
-                       .distinct(self.name)\
-                       .values_list(self.name, flat=True)
+                               .distinct(self.name)\
+                               .values_list(self.name, flat=True)
         self.choices = {'data': [str(value) for value in choices]}

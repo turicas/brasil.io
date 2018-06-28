@@ -124,11 +124,11 @@ class Command(BaseCommand):
         print(' created: {}, updated: {}, skipped: {}.'
               .format(total_created, total_updated, total_skipped))
 
-    def handle(self, *args, **kwargs):
-        self.datasets, self.tables, self.versions = {}, {}, {}
-        response = urlopen(settings.DATA_URL)
-        data = response.read()
+    def add_arguments(self, parser):
+        parser.add_argument('--truncate', action='store_true')
 
+    def handle(self, *args, **kwargs):
+        truncate = kwargs.get('truncate', False)
         update_functions = [
             (Dataset, dataset_update_data),
             (Link, link_update_data),
@@ -136,6 +136,19 @@ class Command(BaseCommand):
             (Table, table_update_data),
             (Field, field_update_data),
         ]
+
+        if truncate:
+            print('Deleting metadata to create new objects...')
+            for Model, _ in update_functions:
+                Model.objects.all().delete()
+        else:
+            print('WARNING: updating data only. If some field was removed '
+                  'this change will not be reflected on your database. '
+                  'Consider using --truncate')
+
+        self.datasets, self.tables, self.versions = {}, {}, {}
+        response = urlopen(settings.DATA_URL)
+        data = response.read()
         for Model, update_data_function in update_functions:
             table = rows.import_from_xlsx(
                 io.BytesIO(data),
