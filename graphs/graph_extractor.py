@@ -37,8 +37,9 @@ def _extract_network(query, path_key='p'):
 
 
 def get_company_network(cnpj, depth=1):
+    cnpj_root = cnpj[:8]
     query = f"""
-        MATCH p=((c:PessoaJuridica {{ cnpj: "{cnpj}" }})-[:TEM_SOCIEDADE*{depth}]-(n))
+        MATCH p=((c:PessoaJuridica {{ cnpj_root: "{cnpj_root}" }})-[:TEM_SOCIEDADE*{depth}]-(n))
         RETURN p
     """.strip()
     return _extract_network(query)
@@ -66,7 +67,8 @@ def get_company_node(cnpj):
     """
     Returns py2neo.types.Node or None
     """
-    node = selector().select('PessoaJuridica', cnpj=cnpj).first()
+    cnpj_root = cnpj[:8]
+    node = selector().select('PessoaJuridica', cnpj_root=cnpj_root).first()
     if not node:
         raise NodeDoesNotExistException()
     return node
@@ -94,14 +96,16 @@ def get_foreigner_node(name):
 
 def get_shortest_paths(tipo_1, id_1, tipo_2, id_2, all_shortest_paths=True):
     if tipo_1 == 1:
-        source_node_query = f'(s:PessoaJuridica {{ cnpj: "{id_1}" }})'
+        id_1 = id_1[:8]
+        source_node_query = f'(s:PessoaJuridica {{ cnpj_root: "{id_1}" }})'
     elif tipo_1 == 2:
         source_node_query = f'(s:PessoaFisica {{ nome: "{id_1}" }})'
     elif tipo_1 == 3:
         source_node_query = f'(s:NomeExterior {{ nome: "{id_1}" }})'
 
     if tipo_2 == 1:
-        target_node_query = f'(t:PessoaJuridica {{ cnpj: "{id_2}" }})'
+        id_2 = id_2[:8]
+        target_node_query = f'(t:PessoaJuridica {{ cnpj_root: "{id_2}" }})'
     elif tipo_2 == 2:
         target_node_query = f'(t:PessoaFisica {{ nome: "{id_2}" }})'
     elif tipo_2 == 3:
@@ -124,8 +128,9 @@ def get_shortest_paths(tipo_1, id_1, tipo_2, id_2, all_shortest_paths=True):
 
 
 def get_company_subsequent_partnerships(cnpj):
+    cnpj_root = cnpj[:8]
     query = f"""
-        MATCH (n:PessoaJuridica {{ cnpj: "{cnpj}" }}),
+        MATCH (n:PessoaJuridica {{ cnpj_root: "{cnpj_root}" }}),
         p=((n)-[:TEM_SOCIEDADE*]->(:PessoaJuridica))
         RETURN p
     """
@@ -133,8 +138,9 @@ def get_company_subsequent_partnerships(cnpj):
 
 
 def get_company_groups_cnpj_belongs_to(cnpj):
+    cnpj_root = cnpj[:8]
     query = f"""
-        MATCH p=((:EmpresaMae)-[:TEM_SOCIEDADE*]->(:PessoaJuridica {{ cnpj: "{cnpj}" }}))
+        MATCH p=((:EmpresaMae)-[:TEM_SOCIEDADE*]->(:PessoaJuridica {{ cnpj_root: "{cnpj_root}" }}))
         RETURN p
     """
     return _extract_network(query)
