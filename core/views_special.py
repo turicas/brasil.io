@@ -73,9 +73,35 @@ def document_detail(request, document):
         except (UnicodeEncodeError, InvalidToken, UnicodeDecodeError):
             raise Http404
     document = document.replace('.', '').replace('-', '').replace('/', '').strip()
+    cnpj_search = len(document) == 14
+    doc_prefix = document[:8]
+    branches = Documents.objects.none()
+    branches_cnpjs = []
 
-    # TODO: if len(document) == 14 (CNPJ), use onle its root (document[:8])
-    obj = get_object_or_404(Documents, document=document)
+    if cnpj_search:  # CNPJ
+        branches = Documents.objects.filter(docroot=doc_prefix)
+        if not branches.exists():
+            raise Http404()
+        try:
+            obj = branches.get(document=document)
+        except Documents.DoesNotExist:
+            if branches.count() == 1:
+                obj = branches[0]
+            else:
+                headquarter = doc_prefix + '0001'
+                try:
+                    obj = branches.get(docroot=headquarter)
+                except Documents.DoesNotExist:
+                    obj = branches[0]
+            url = reverse('core:special-document-detail', args=[obj.document]) + "?original_document={}".format(document)
+            return redirect(url)
+        branches = branches.exclude(pk=obj.pk).order_by('document')
+        branches_cnpjs.append(obj.document)
+        for branch in branches:
+            branches_cnpjs.append(branch.document)
+
+    else:
+        obj = get_object_or_404(Documents, document=document)
     obj_dict = obj.__dict__
 
     partners_data = Socios.objects.none()
@@ -106,20 +132,31 @@ def document_detail(request, document):
         datasets['filiados-partidos']['filiados'],
         remove=[],
     )
+    branches_fields = _get_fields(
+        datasets['documentos-brasil']['documents'],
+        remove=['document_type', 'sources', 'text'],
+    )
+
     if obj.document_type == 'CNPJ':
-        # TODO: use only its root (document[:8]) on all appearances of 'obj.document'
         partners_data = \
-            Socios.objects.filter(cnpj=obj.document)\
+            Socios.objects.filter(cnpj__in=branches_cnpjs)\
                           .order_by('nome_socio')
-        partner = partners_data.first()
         company = Empresas.objects.filter(cnpj=obj.document).first()
         obj_dict['state'] = company.uf if company else ''
-        companies_data = Holdings.objects.filter(cnpj_socia=obj.document)\
+        companies_data = Holdings.objects.filter(cnpj_socia__in=branches_cnpjs)\
                                          .order_by('razao_social')
         companies_fields = _get_fields(
             datasets['socios-brasil']['holdings'],
             remove=['cnpj_socia'],
         )
+
+        # all appearances of 'obj.document'
+        camara_spending_data = \
+            GastosDeputados.objects.filter(txtcnpjcpf__in=branches_cnpjs)\
+                                   .order_by('-datemissao')
+        federal_spending_data = \
+            GastosDiretos.objects.filter(codigo_favorecido__in=branches_cnpjs)\
+                                 .order_by('-data_pagamento')
     elif obj.document_type == 'CPF':
         companies_data = \
             Socios.objects.filter(nome_socio=unaccent(obj.name))\
@@ -130,15 +167,15 @@ def document_detail(request, document):
         filiations_data = \
             FiliadosPartidos.objects.filter(nome_do_filiado=unaccent(obj.name))
 
-    # TODO: if len(document) == 14 (CNPJ) use only its root (document[:8]) on
-    # all appearances of 'obj.document'
-    camara_spending_data = \
-        GastosDeputados.objects.filter(txtcnpjcpf=obj.document)\
-                               .order_by('-datemissao')
-    federal_spending_data = \
-        GastosDiretos.objects.filter(codigo_favorecido=obj.document)\
-                             .order_by('-data_pagamento')
+        # all appearances of 'obj.document'
+        camara_spending_data = \
+            GastosDeputados.objects.filter(txtcnpjcpf=obj.document)\
+                                   .order_by('-datemissao')
+        federal_spending_data = \
+            GastosDiretos.objects.filter(codigo_favorecido=obj.document)\
+                                 .order_by('-data_pagamento')
 
+    original_document = request.GET.get('original_document', None)
     context = {
         'applications_data': applications_data,
         'applications_fields': applications_fields,
@@ -154,6 +191,9 @@ def document_detail(request, document):
         'obj': obj_dict,
         'partners_data': partners_data,
         'partners_fields': partners_fields,
+        'branches': branches,
+        'branches_fields': branches_fields,
+        'original_document': original_document,
     }
     return render(request, 'specials/document-detail.html', context)
 
