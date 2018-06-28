@@ -79,7 +79,7 @@ def document_detail(request, document):
     branches_cnpjs = []
 
     if cnpj_search:  # CNPJ
-        branches = Documents.objects.filter(document__startswith=doc_prefix)
+        branches = Documents.objects.filter(docroot=doc_prefix)
         if not branches.exists():
             raise Http404()
         try:
@@ -90,7 +90,7 @@ def document_detail(request, document):
             else:
                 headquarter = doc_prefix + '0001'
                 try:
-                    obj = branches.get(document__startswith=headquarter)
+                    obj = branches.get(docroot=headquarter)
                 except Documents.DoesNotExist:
                     obj = branches[0]
             url = reverse('core:special-document-detail', args=[obj.document]) + "?original_document={}".format(document)
