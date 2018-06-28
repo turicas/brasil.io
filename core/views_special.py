@@ -52,6 +52,16 @@ def unaccent(text):
                                   .decode('ascii')
 
 
+def redirect_company(from_document, to_document, warn):
+    url = reverse(
+        'core:special-document-detail',
+        args=[to_document]
+    )
+    if warn:
+        url += "?original_document={}".format(from_document)
+    return redirect(url)
+
+
 def document_detail(request, document):
     datasets = get_datasets()
     Candidatos = datasets['eleicoes-brasil']['candidatos'].get_model()
@@ -69,41 +79,60 @@ def document_detail(request, document):
             encrypted_document = document.encode('ascii')
             document_bytes = cipher_suite.decrypt(encrypted_document)
             document = document_bytes.decode('ascii')
-            encrypted = True
         except (UnicodeEncodeError, InvalidToken, UnicodeDecodeError):
             raise Http404
+        else:
+            encrypted = True
     document = document.replace('.', '').replace('-', '').replace('/', '').strip()
-    cnpj_search = len(document) == 14
-    doc_prefix = document[:8]
+    document_size = len(document)
+    is_company = document_size == 14
+    is_person = document_size == 11
+
     branches = Documents.objects.none()
     branches_cnpjs = []
 
-    if cnpj_search:  # CNPJ
-        branches = Documents.objects.filter(docroot=doc_prefix)
+    if is_company:
+        doc_prefix = document[:8]
+        headquarter_prefix = doc_prefix + '0001'
+        branches = Documents.objects.filter(
+            docroot=doc_prefix,
+            document_type='CNPJ',
+        )
         if not branches.exists():
+            # no document found with this prefix - we don't know this company
             raise Http404()
+
         try:
             obj = branches.get(document=document)
         except Documents.DoesNotExist:
-            if branches.count() == 1:
+            # document not found, but a branch or HQ exists
+            try:
+                obj = branches.get(document__startswith=headquarter_prefix)
+            except Documents.DoesNotExist:
+                # there's no HQ, but a branch exists
                 obj = branches[0]
-            else:
-                headquarter = doc_prefix + '0001'
+            return redirect_company(document, obj.document, warn=True)
+
+        else:
+            # document found - let's check if there's a HQ
+            if not document.startswith(headquarter_prefix):
                 try:
-                    obj = branches.get(docroot=headquarter)
+                    obj = branches.get(document__startswith=headquarter_prefix)
                 except Documents.DoesNotExist:
-                    obj = branches[0]
-            url = reverse('core:special-document-detail', args=[obj.document]) + "?original_document={}".format(document)
-            return redirect(url)
-        branches = branches.exclude(pk=obj.pk).order_by('document')
-        branches_cnpjs.append(obj.document)
-        for branch in branches:
-            branches_cnpjs.append(branch.document)
+                    # there's no HQ, but the object was found anyway
+                    pass
+                else:
+                    # HQ found for this object, let's redirect!
+                    return redirect_company(document, obj.document, warn=False)
 
-    else:
+        # From here only HQs or companies without HQs
+        branches_cnpjs = [branch.document for branch in branches]
+
+    else:  # not a company
+        doc_prefix = None
         obj = get_object_or_404(Documents, document=document)
-    obj_dict = obj.__dict__
 
+    obj_dict = obj.__dict__
     partners_data = Socios.objects.none()
     companies_data = Socios.objects.none()
     applications_data = Candidatos.objects.none()
@@ -137,7 +166,7 @@ def document_detail(request, document):
         remove=['document_type', 'sources', 'text'],
     )
 
-    if obj.document_type == 'CNPJ':
+    if is_company:
         partners_data = \
             Socios.objects.filter(cnpj__in=branches_cnpjs)\
                           .order_by('nome_socio')
@@ -157,7 +186,7 @@ def document_detail(request, document):
         federal_spending_data = \
             GastosDiretos.objects.filter(codigo_favorecido__in=branches_cnpjs)\
                                  .order_by('-data_pagamento')
-    elif obj.document_type == 'CPF':
+    elif is_person:
         companies_data = \
             Socios.objects.filter(nome_socio=unaccent(obj.name))\
                           .distinct('cnpj', 'razao_social')\
@@ -179,21 +208,22 @@ def document_detail(request, document):
     context = {
         'applications_data': applications_data,
         'applications_fields': applications_fields,
+        'branches': branches,
+        'branches_fields': branches_fields,
         'camara_spending_data': camara_spending_data,
         'camara_spending_fields': camara_spending_fields,
         'companies_data': companies_data,
         'companies_fields': companies_fields,
+        'doc_prefix': doc_prefix,
         'encrypted': encrypted,
         'federal_spending_data': federal_spending_data,
         'federal_spending_fields': federal_spending_fields,
         'filiations_data': filiations_data,
         'filiations_fields': filiations_fields,
         'obj': obj_dict,
+        'original_document': original_document,
         'partners_data': partners_data,
         'partners_fields': partners_fields,
-        'branches': branches,
-        'branches_fields': branches_fields,
-        'original_document': original_document,
     }
     return render(request, 'specials/document-detail.html', context)
 

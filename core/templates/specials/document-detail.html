@@ -14,9 +14,16 @@
 <div class="section">
   <h4>{{ obj.name }}</h4>
 
-  {% if original_document %}
-  <p><strong>Importante:</strong> A busca realizada foi pelo documento {{ original_document }}, mas o mesmo não existe no nosso banco. Estamos apresentando o resultado para uma das empresas da mesma rede empresarial na qual o documento {{ original_document }} pertence.</p>
+  {% if branches.count %}
+  <p>
+    {% if original_document %}
+    O documento {{ original_document }} não foi encontrado!
+    {% endif %}
+    Mostrando informações sobre todas as empresas (filial e matrizes) cujo CNPJ
+    começa com {{ doc_prefix }}.
+  </p>
   {% endif %}
+
   <dl>
     <dt> Documento: </dt>
     <dd>{% if encrypted %}{{ obj.document|obfuscate }}{% else %}{{ obj.document }}{% endif %} ({{ obj.document_type|upper }})</b></dd>
@@ -25,6 +32,13 @@
     <dd>{{ obj.state }}</b></dd>
     {% endif %}
   </dl>
+
+  {% if branches.count %}
+  <h4>Filial/Matrizes</h4>
+  {% with table_id='branches' data=branches fields=branches_fields caption='branches-'|add:obj.name  %}
+    {% include 'data-table.html' %}
+  {% endwith %}
+  {% endif %}
 </div>
 
 <div class="row">
@@ -101,16 +115,6 @@
     Foram identificadas <b>{{ federal_spending_data.count }}</b> notas.
   </p>
   {% with table_id='federal-spending' data=federal_spending_data fields=federal_spending_fields caption='gastos-diretos-'|add:obj.name  %}
-    {% include 'data-table.html' %}
-  {% endwith %}
-  {% endif %}
-
-  {% if branches.count %}
-  <h4>Matriz e Filiais</h4>
-  <p>
-    Foram identificadas <b>{{ branches.count }}</b> filiais e matriz.
-  </p>
-  {% with table_id='branches' data=branches fields=branches_fields caption='branches-'|add:obj.name  %}
     {% include 'data-table.html' %}
   {% endwith %}
   {% endif %}
