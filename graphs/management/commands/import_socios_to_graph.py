@@ -37,8 +37,8 @@ class Command(BaseCommand):
         table = Table.objects.for_dataset('socios-brasil').named('socios')
         return table.get_model()
 
-    def get_emp_name(self, partnership):
-        cnpj_prefix = partnership.cnpj[:8]
+    def get_emp_name(self, cnpj, default):
+        cnpj_prefix = cnpj[:8]
 
         if cnpj_prefix not in self.company_names:
             headquarter_prefix = cnpj_prefix + '0001'
@@ -52,12 +52,12 @@ class Command(BaseCommand):
                     company = branches.get(document__startswith=headquarter_prefix)
                 except self.Documentos.DoesNotExist:
                     try:
-                        company = branches.get(document=partnership.cnpj)
+                        company = branches.get(document=cnpj)
                     except self.Documentos.DoesNotExist:
                         company = branches[0]
                 self.company_names[cnpj_prefix] = company.name
             else:
-                self.company_names[cnpj_prefix] = partnership.razao_social
+                self.company_names[cnpj_prefix] = default
 
         return self.company_names[cnpj_prefix]
 
@@ -79,7 +79,7 @@ class Command(BaseCommand):
                 "cpf": (partnership.cpf_cnpj_socio or '').upper(),
                 "nome": partnership.nome_socio.upper(),
                 "cnpj_root": partnership.cnpj.upper()[:8],
-                "nome_emp": self.get_emp_name(partnership),
+                "nome_emp": self.get_emp_name(partnership.cnpj, default=partnership.razao_social),
                 'codigo_qualificacao_socio': partnership.codigo_qualificacao_socio,
                 'qualificacao_socio': partnership.qualificacao_socio,
             })
@@ -101,11 +101,11 @@ class Command(BaseCommand):
         for partnership in pjs:
             batches.append({
                 "cnpj_root": partnership.cpf_cnpj_socio.upper()[:8],
-                "nome": partnership.nome_socio.upper(),
+                "nome": self.get_emp_name(partnership.cpf_cnpj_socio, default=partnership.nome_socio),
                 'codigo_qualificacao_socio': partnership.codigo_qualificacao_socio,
                 'qualificacao_socio': partnership.qualificacao_socio,
                 "cnpj_root_emp": partnership.cnpj.upper()[:8],
-                "nome_emp": self.get_emp_name(partnership),
+                "nome_emp": self.get_emp_name(partnership.cnpj, default=partnership.razao_social),
             })
 
         return query, {'batches': batches}
@@ -130,7 +130,7 @@ class Command(BaseCommand):
                 'codigo_qualificacao_socio': partnership.codigo_qualificacao_socio,
                 'qualificacao_socio': partnership.qualificacao_socio,
                 "cnpj_root_emp": partnership.cnpj.upper()[:8],
-                "nome_emp": self.get_emp_name(partnership),
+                "nome_emp": self.get_emp_name(partnership.cnpj, default=partnership.razao_social),
             })
 
         return query, {'batches': batches}
