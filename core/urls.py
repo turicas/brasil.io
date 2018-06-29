@@ -1,4 +1,5 @@
 from django.urls import path
+from django.contrib.auth.decorators import login_required
 
 from . import views, views_special
 
@@ -16,7 +17,7 @@ urlpatterns = [
     path('manifesto', views.manifesto, name='manifesto'),
 
     # Dataset-specific pages (specials)
-    path('especiais', views_special.index, name='specials'),
-    path('especiais/documento/<document>', views_special.document_detail, name='special-document-detail'),
-    path('especiais/caminho', views_special.trace_path, name='special-trace-path'),
+    path('especiais', login_required(views_special.index), name='specials'),
+    path('especiais/documento/<document>', login_required(views_special.document_detail), name='special-document-detail'),
+    path('especiais/caminho', login_required(views_special.trace_path), name='special-trace-path'),
 ]
