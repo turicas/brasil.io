@@ -19,8 +19,12 @@ services:
             - NEO4J_dbms_connector_bolt_listen__address=0.0.0.0:7687
             - NEO4J_dbms_connector_bolt_address=0.0.0.0:7687
             - NEO4J_dbms_connectors_default__listen__address=0.0.0.0:7474
+            - NEO4J_dbms_security_allow__csv__import__from__file__urls=true
+            - NEO4J_dbms_memory_heap_max__size=5G
+            - NEO4J_dbms_memory_heap_initial__size=5G
         ports:
             - "39002:7474"
             - "39003:7687"
         volumes:
             - ./docker/neo4j/data/:/data/
+            - ./docker/neo4j/data/import/:/var/lib/neo4j/import/
