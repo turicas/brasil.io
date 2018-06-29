@@ -10,6 +10,7 @@ from django.urls import reverse
 
 from core.forms import TracePathForm
 from core.models import Dataset
+from core.util import get_company_by_document
 from graphs.serializers import PathSerializer
 
 
@@ -92,40 +93,21 @@ def document_detail(request, document):
     branches_cnpjs = []
 
     if is_company:
-        doc_prefix = document[:8]
-        headquarter_prefix = doc_prefix + '0001'
+        try:
+            obj = get_company_by_document(document)
+        except Documents.DoesNotExist:
+            raise Http404
+        # From here only HQs or companies without HQs
+        if document != obj.document:
+            if obj.document[:12].endswith('0001'):  # HQ
+                return redirect_company(document, obj.document, warn=False)
+            else:
+                return redirect_company(document, obj.document, warn=True)
+
         branches = Documents.objects.filter(
-            docroot=doc_prefix,
+            docroot=obj.docroot,
             document_type='CNPJ',
         )
-        if not branches.exists():
-            # no document found with this prefix - we don't know this company
-            raise Http404()
-
-        try:
-            obj = branches.get(document=document)
-        except Documents.DoesNotExist:
-            # document not found, but a branch or HQ exists
-            try:
-                obj = branches.get(document__startswith=headquarter_prefix)
-            except Documents.DoesNotExist:
-                # there's no HQ, but a branch exists
-                obj = branches[0]
-            return redirect_company(document, obj.document, warn=True)
-
-        else:
-            # document found - let's check if there's a HQ
-            if not document.startswith(headquarter_prefix):
-                try:
-                    obj = branches.get(document__startswith=headquarter_prefix)
-                except Documents.DoesNotExist:
-                    # there's no HQ, but the object was found anyway
-                    pass
-                else:
-                    # HQ found for this object, let's redirect!
-                    return redirect_company(document, obj.document, warn=False)
-
-        # From here only HQs or companies without HQs
         branches_cnpjs = [branch.document for branch in branches]
 
     else:  # not a company
