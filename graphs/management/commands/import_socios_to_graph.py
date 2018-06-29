@@ -16,10 +16,17 @@ class Command(BaseCommand):
         self.open_transaction = None
         self.batch_size = 1000
         self.graph_db = get_graph_db_connection()
+        self.company_names = {}
+
+    @property
+    def Documentos(self):
+        if not getattr(self, '_Documentos', None):
+            self._Documentos = Table.objects.for_dataset('documentos-brasil').named('documents').get_model()
+        return self._Documentos
 
     def create_indexes(self):
         labels_keys = [
-            ('PessoaJuridica', 'cnpj'),
+            ('PessoaJuridica', 'cnpj_root'),
             ('PessoaFisica', 'nome'),
             ('NomeExterior', 'nome'),
         ]
@@ -30,12 +37,36 @@ class Command(BaseCommand):
         table = Table.objects.for_dataset('socios-brasil').named('socios')
         return table.get_model()
 
+    def get_emp_name(self, cnpj, default):
+        cnpj_prefix = cnpj[:8]
+
+        if cnpj_prefix not in self.company_names:
+            headquarter_prefix = cnpj_prefix + '0001'
+            branches = self.Documentos.objects.filter(
+                docroot=cnpj_prefix,
+                document_type='CNPJ',
+            )
+
+            if branches.exists():
+                try:
+                    company = branches.get(document__startswith=headquarter_prefix)
+                except self.Documentos.DoesNotExist:
+                    try:
+                        company = branches.get(document=cnpj)
+                    except self.Documentos.DoesNotExist:
+                        company = branches[0]
+                self.company_names[cnpj_prefix] = company.name
+            else:
+                self.company_names[cnpj_prefix] = default
+
+        return self.company_names[cnpj_prefix]
+
     def get_pfs_query_and_params(self, pfs):
         query = """
             UNWIND {batches} AS r
-            MERGE (c:PessoaJuridica { cnpj: r.cnpj })
-            ON CREATE SET c.uf=r.uf, c.nome=r.nome_emp
-            ON MATCH SET c.uf=r.uf, c.nome=r.nome_emp
+            MERGE (c:PessoaJuridica { cnpj_root: r.cnpj_root })
+            ON CREATE SET c.nome=r.nome_emp
+            ON MATCH SET c.nome=r.nome_emp
             MERGE (p:PessoaFisica { nome: r.nome })
             ON CREATE SET p.cpf=r.cpf
             ON MATCH SET p.cpf=r.cpf
@@ -47,9 +78,8 @@ class Command(BaseCommand):
             batches.append({
                 "cpf": (partnership.cpf_cnpj_socio or '').upper(),
                 "nome": partnership.nome_socio.upper(),
-                "cnpj": partnership.cnpj_empresa.upper(),
-                "uf": partnership.unidade_federativa.upper(),
-                "nome_emp": (partnership.nome_empresa or '').upper(),
+                "cnpj_root": partnership.cnpj.upper()[:8],
+                "nome_emp": self.get_emp_name(partnership.cnpj, default=partnership.razao_social),
                 'codigo_qualificacao_socio': partnership.codigo_qualificacao_socio,
                 'qualificacao_socio': partnership.qualificacao_socio,
             })
@@ -59,10 +89,10 @@ class Command(BaseCommand):
     def get_pjs_query_and_params(self, pjs):
         query = """
             UNWIND {batches} as r
-            MERGE (c:PessoaJuridica { cnpj: r.cnpj_emp })
-            ON CREATE SET c.uf=r.uf, c.nome=r.nome_emp
-            ON MATCH SET c.uf=r.uf, c.nome=r.nome_emp
-            MERGE (p:PessoaJuridica { cnpj: r.cnpj })
+            MERGE (c:PessoaJuridica { cnpj_root: r.cnpj_root_emp })
+            ON CREATE SET c.nome=r.nome_emp
+            ON MATCH SET c.nome=r.nome_emp
+            MERGE (p:PessoaJuridica { cnpj_root: r.cnpj_root })
             ON CREATE SET p.nome=r.nome
             CREATE (p)-[:TEM_SOCIEDADE { codigo_tipo_socio: r.codigo_qualificacao_socio, qualificacao_socio: r.qualificacao_socio }]->(c)
         """
@@ -70,13 +100,12 @@ class Command(BaseCommand):
         batches = []
         for partnership in pjs:
             batches.append({
-                "cnpj": (partnership.cpf_cnpj_socio or '').upper(),
-                "nome": partnership.nome_socio.upper(),
+                "cnpj_root": partnership.cpf_cnpj_socio.upper()[:8],
+                "nome": self.get_emp_name(partnership.cpf_cnpj_socio, default=partnership.nome_socio),
                 'codigo_qualificacao_socio': partnership.codigo_qualificacao_socio,
                 'qualificacao_socio': partnership.qualificacao_socio,
-                "cnpj_emp": partnership.cnpj_empresa.upper(),
-                "nome_emp": (partnership.nome_empresa or '').upper(),
-                "uf": partnership.unidade_federativa.upper(),
+                "cnpj_root_emp": partnership.cnpj.upper()[:8],
+                "nome_emp": self.get_emp_name(partnership.cnpj, default=partnership.razao_social),
             })
 
         return query, {'batches': batches}
@@ -84,9 +113,9 @@ class Command(BaseCommand):
     def get_ext_query_and_params(self, ext):
         query = """
             UNWIND {batches} as r
-            MERGE (c:PessoaJuridica { cnpj: r.cnpj_emp })
-            ON CREATE SET c.uf=r.uf, c.nome=r.nome_emp
-            ON MATCH SET c.uf=r.uf, c.nome=r.nome_emp
+            MERGE (c:PessoaJuridica { cnpj_root: r.cnpj_root_emp })
+            ON CREATE SET c.nome=r.nome_emp
+            ON MATCH SET c.nome=r.nome_emp
             MERGE (p:NomeExterior { nome: r.nome })
             ON CREATE SET p.cpf_cnpj=r.cpf_cnpj
             ON MATCH SET p.cpf_cnpj=r.cpf_cnpj
@@ -100,9 +129,8 @@ class Command(BaseCommand):
                 "nome": partnership.nome_socio.upper(),
                 'codigo_qualificacao_socio': partnership.codigo_qualificacao_socio,
                 'qualificacao_socio': partnership.qualificacao_socio,
-                "cnpj_emp": partnership.cnpj_empresa.upper(),
-                "nome_emp": (partnership.nome_empresa or '').upper(),
-                "uf": partnership.unidade_federativa.upper(),
+                "cnpj_root_emp": partnership.cnpj.upper()[:8],
+                "nome_emp": self.get_emp_name(partnership.cnpj, default=partnership.razao_social),
             })
 
         return query, {'batches': batches}

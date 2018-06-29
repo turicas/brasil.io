@@ -19,7 +19,7 @@ def get_node_urls(node_data):
     elif node_type == 'PessoaFisica':
         graph_params = {'tipo': 2, 'identificador': node_data['nome']}
     else:  # Pessoa Jurídica
-        id_ = node_data['cnpj']
+        id_ = node_data['cnpj_root']
         graph_params = {'tipo': 1, 'identificador': id_}
         subsequent_partnerships = reverse('api:subsequent-partnerships') + f'?identificador={id_}'
         urls['sociedades_subsequentes'] = subsequent_partnerships
