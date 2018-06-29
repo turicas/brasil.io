@@ -21,7 +21,7 @@ def get_datasets():
     slugs = (
         'documentos-brasil:documents',
         'eleicoes-brasil:candidatos',
-        'filiados-partidos:filiados',
+        'eleicoes-brasil:filiados',
         'gastos-deputados:cota_parlamentar',
         'gastos-diretos:gastos',
         'socios-brasil:socios',
@@ -69,7 +69,7 @@ def document_detail(request, document):
     Empresas = datasets['socios-brasil']['empresas'].get_model()
     Holdings = datasets['socios-brasil']['holdings'].get_model()
     Socios = datasets['socios-brasil']['socios'].get_model()
-    FiliadosPartidos = datasets['filiados-partidos']['filiados'].get_model()
+    FiliadosPartidos = datasets['eleicoes-brasil']['filiados'].get_model()
     GastosDeputados = datasets['gastos-deputados']['cota_parlamentar'].get_model()
     GastosDiretos = datasets['gastos-diretos']['gastos'].get_model()
 
@@ -158,7 +158,7 @@ def document_detail(request, document):
         remove=['cnpj', 'razao_social'],
     )
     filiations_fields = _get_fields(
-        datasets['filiados-partidos']['filiados'],
+        datasets['eleicoes-brasil']['filiados'],
         remove=[],
     )
     branches_fields = _get_fields(
