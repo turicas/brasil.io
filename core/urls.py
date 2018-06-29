@@ -1,7 +1,9 @@
-from django.urls import path
+from django.urls import path, reverse_lazy
 from django.contrib.auth.decorators import login_required
 
 from . import views, views_special
+
+sign_up_url = reverse_lazy('brasilio_auth:sign_up')
 
 
 app_name = 'core'
@@ -17,7 +19,7 @@ urlpatterns = [
     path('manifesto', views.manifesto, name='manifesto'),
 
     # Dataset-specific pages (specials)
-    path('especiais', login_required(views_special.index), name='specials'),
-    path('especiais/documento/<document>', login_required(views_special.document_detail), name='special-document-detail'),
-    path('especiais/caminho', login_required(views_special.trace_path), name='special-trace-path'),
+    path('especiais', login_required(views_special.index, login_url=sign_up_url), name='specials'),
+    path('especiais/documento/<document>', login_required(views_special.document_detail, login_url=sign_up_url), name='special-document-detail'),
+    path('especiais/caminho', login_required(views_special.trace_path, login_url=sign_up_url), name='special-trace-path'),
 ]
