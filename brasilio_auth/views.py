@@ -12,7 +12,15 @@ class CreateUserView(CreateView):
     form_class = UserCreationForm
     success_url = settings.LOGIN_REDIRECT_URL
 
+    def get_context_data(self, *args, **kwargs):
+        context = super(CreateUserView, self).get_context_data()
+        next = self.request.GET.get('next', None)
+        if next:
+            context['next'] = next
+        return context
+
     def form_valid(self, *args, **kwargs):
         super(CreateUserView, self).form_valid(*args, **kwargs)
         login(self.request, self.object)
-        return redirect(self.success_url)
+        url = self.request.POST.get('next', None) or self.success_url
+        return redirect(url)
