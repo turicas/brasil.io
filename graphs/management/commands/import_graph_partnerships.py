@@ -42,6 +42,7 @@ class Command(BaseCommand):
 
     def __init__(self, *args, **kwargs):
         super(BaseCommand, self).__init__(*args, **kwargs)
+        self.graph_db = get_graph_db_connection()
 
     def get_company_name(self, cnpj, default):
         cnpj_prefix = cnpj[:8]
@@ -110,6 +111,59 @@ class Command(BaseCommand):
             )
         self.companies = companies
 
+    def create_indexes(self):
+        labels_keys = [
+            ('PessoaJuridica', 'cnpj_root'),
+            ('PessoaFisica', 'nome'),
+            ('NomeExterior', 'nome'),
+        ]
+        for label, key in labels_keys:
+            self.graph_db.schema.create_uniqueness_constraint(label, key)
+
+    def import_pfs_query(self):
+        pfs_query = """
+            USING PERIODIC COMMIT
+            LOAD CSV WITH HEADERS FROM "file:///graph-pfs.csv.gz" AS r
+            MERGE (c:PessoaJuridica { cnpj_root: r.cnpj_root })
+            ON CREATE SET c.nome=r.nome_emp
+            ON MATCH SET c.nome=r.nome_emp
+            MERGE (p:PessoaFisica { nome: r.nome })
+            ON CREATE SET p.cpf=r.cpf
+            ON MATCH SET p.cpf=r.cpf
+            CREATE (p)-[:TEM_SOCIEDADE { codigo_tipo_socio: r.codigo_qualificacao_socio, qualificacao_socio: r.qualificacao_socio }]->(c)
+        """
+
+        self.graph_db.run(pfs_query)
+
+    def import_pjs_query(self):
+        pjs_query = """
+            USING PERIODIC COMMIT
+            LOAD CSV WITH HEADERS FROM "file:///graph-pjs.csv.gz" AS r
+            MERGE (c:PessoaJuridica { cnpj_root: r.cnpj_root_emp })
+            ON CREATE SET c.nome=r.nome_emp
+            ON MATCH SET c.nome=r.nome_emp
+            MERGE (p:PessoaJuridica { cnpj_root: r.cnpj_root })
+            ON CREATE SET p.nome=r.nome
+            CREATE (p)-[:TEM_SOCIEDADE { codigo_tipo_socio: r.codigo_qualificacao_socio, qualificacao_socio: r.qualificacao_socio }]->(c)
+        """
+
+        self.graph_db.run(pjs_query)
+
+    def import_ext_query(self):
+        ext_query = """
+            USING PERIODIC COMMIT
+            LOAD CSV WITH HEADERS FROM "file:///graph-ext.csv.gz" AS r
+            MERGE (c:PessoaJuridica { cnpj_root: r.cnpj_root_emp })
+            ON CREATE SET c.nome=r.nome_emp
+            ON MATCH SET c.nome=r.nome_emp
+            MERGE (p:NomeExterior { nome: r.nome })
+            ON CREATE SET p.cpf_cnpj=r.cpf_cnpj
+            ON MATCH SET p.cpf_cnpj=r.cpf_cnpj
+            CREATE (p)-[:TEM_SOCIEDADE { codigo_tipo_socio: r.codigo_qualificacao_socio, qualificacao_socio: r.qualificacao_socio }]->(c)
+        """
+
+        self.graph_db.run(ext_query)
+
     def handle(self, *args, **kwargs):
         self.load_tables()
 
@@ -137,39 +191,32 @@ class Command(BaseCommand):
             writers[partner_type].writerow(row)
 
         # Second step: create needed indexes
-        # TODO: connect to the database and execute queries
-        #CREATE CONSTRAINT ON (PessoaJuridica) ASSERT PessoaJuridica.cnpj_root IS UNIQUE;
-        #CREATE CONSTRAINT ON (PessoaFisica) ASSERT PessoaFisica.nome IS UNIQUE;
-        #CREATE CONSTRAINT ON (NomeExterior) ASSERT NomeExterior.nome IS UNIQUE;
+        main_start = time.time()
 
-        # Third step: bulk import CSV data into Neo4J
-        # TODO: execute bulk queries
-        #pfs_query = """
-        #    UNWIND {batches} AS r
-        #    MERGE (c:PessoaJuridica { cnpj_root: r.cnpj_root })
-        #    ON CREATE SET c.nome=r.nome_emp
-        #    ON MATCH SET c.nome=r.nome_emp
-        #    MERGE (p:PessoaFisica { nome: r.nome })
-        #    ON CREATE SET p.cpf=r.cpf
-        #    ON MATCH SET p.cpf=r.cpf
-        #    CREATE (p)-[:TEM_SOCIEDADE { codigo_tipo_socio: r.codigo_qualificacao_socio, qualificacao_socio: r.qualificacao_socio }]->(c)
-        #"""
-        #pjs_query = """
-        #    UNWIND {batches} as r
-        #    MERGE (c:PessoaJuridica { cnpj_root: r.cnpj_root_emp })
-        #    ON CREATE SET c.nome=r.nome_emp
-        #    ON MATCH SET c.nome=r.nome_emp
-        #    MERGE (p:PessoaJuridica { cnpj_root: r.cnpj_root })
-        #    ON CREATE SET p.nome=r.nome
-        #    CREATE (p)-[:TEM_SOCIEDADE { codigo_tipo_socio: r.codigo_qualificacao_socio, qualificacao_socio: r.qualificacao_socio }]->(c)
-        #"""
-        #ext_query = """
-        #    UNWIND {batches} as r
-        #    MERGE (c:PessoaJuridica { cnpj_root: r.cnpj_root_emp })
-        #    ON CREATE SET c.nome=r.nome_emp
-        #    ON MATCH SET c.nome=r.nome_emp
-        #    MERGE (p:NomeExterior { nome: r.nome })
-        #    ON CREATE SET p.cpf_cnpj=r.cpf_cnpj
-        #    ON MATCH SET p.cpf_cnpj=r.cpf_cnpj
-        #    CREATE (p)-[:TEM_SOCIEDADE { codigo_tipo_socio: r.codigo_qualificacao_socio, qualificacao_socio: r.qualificacao_socio }]->(c)
-        #"""
+        print('Criando os índices...')
+        self.create_indexes()
+
+        start = time.time()
+        print('Criando sociedades com nomes no exterior...')
+        self.import_ext_query()
+        end = time.time()
+        duration = int((end - start) / 60)
+        print('  + Finalizado em {} min'.format(duration))
+
+        start = time.time()
+        print('\nCriando sociedades entre pessoas jurídicas...')
+        self.import_pjs_query()
+        end = time.time()
+        duration = int((end - start) / 60)
+        print('  + Finalizado em {} min'.format(duration))
+
+        start = time.time()
+        print('\nCriando sociedades entre pessoas físicas...')
+        self.import_pfs_query()
+        end = time.time()
+        duration = int((end - start) / 60)
+        print('  + Finalizado em {} min'.format(duration))
+
+        main_end = time.time()
+        main_duration = int((main_end - main_start) / 60)
+        print('\nToda a importação foi finalizada em {} min'.format(main_duration))
