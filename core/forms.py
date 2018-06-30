@@ -57,7 +57,6 @@ class TracePathForm(forms.Form):
         origin = _get_obj(origin_field, origin_identifier, origin_type)
         destination = _get_obj(destination_field, destination_identifier, destination_type)
 
-        import ipdb; ipdb.set_trace()
         if origin is None:
             self.add_error('origin_identifier', 'Name/document not found')
         else:
