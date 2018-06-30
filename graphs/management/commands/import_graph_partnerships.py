@@ -1,8 +1,10 @@
 import csv
 import gzip
 import io
+import os
 from collections import defaultdict
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from py2neo import Relationship
 from tqdm import tqdm
@@ -165,33 +167,45 @@ class Command(BaseCommand):
         self.graph_db.run(ext_query)
 
     def handle(self, *args, **kwargs):
-        self.load_tables()
+        main_start = time.time()
 
-        # Before start, let's cache companies based on docroot
-        print('Loading companies in memory to speed up the process')
-        self.load_companies()
+        pfs_filename = settings.NEO4J_IMPORT_DIR + '/graph-pfs.csv.gz'
+        pjs_filename = settings.NEO4J_IMPORT_DIR + '/graph-pjs.csv.gz'
+        ext_filename = settings.NEO4J_IMPORT_DIR + '/graph-ext.csv.gz'
 
-        # First step: serialize data to CSV, split by partnership type
-        print('Exporting data to CSV')
-        serializers = {
-            1: self.serialize_pj,
-            2: self.serialize_pf,
-            3: self.serialize_ext,
-        }
-        writers = {
-            1: CsvLazyDictWriter('pjs.csv.gz'),
-            2: CsvLazyDictWriter('pfs.csv.gz'),
-            3: CsvLazyDictWriter('ext.csv.gz'),
-        }
-        qs = self.SociosBrasil.objects.all()
-        total = self.SociosBrasil.objects.count()
-        for partnership in tqdm(qs.iterator(), total=total):
-            partner_type = partnership.codigo_tipo_socio
-            row = serializers[partner_type](partnership)
-            writers[partner_type].writerow(row)
+        all_files_exists = all([
+            os.path.isfile(pfs_filename),
+            os.path.isfile(pjs_filename),
+            os.path.isfile(ext_filename),
+        ])
+
+        if not all_files_exists:
+            self.load_tables()
+
+            # Before start, let's cache companies based on docroot
+            print('Loading companies in memory to speed up the process')
+            self.load_companies()
+
+            # First step: serialize data to CSV, split by partnership type
+            print('Exporting data to CSV')
+            serializers = {
+                1: self.serialize_pj,
+                2: self.serialize_pf,
+                3: self.serialize_ext,
+            }
+            writers = {
+                1: CsvLazyDictWriter(pjs_filename),
+                2: CsvLazyDictWriter(pfs_filename),
+                3: CsvLazyDictWriter(ext_filename),
+            }
+            qs = self.SociosBrasil.objects.all()
+            total = self.SociosBrasil.objects.count()
+            for partnership in tqdm(qs.iterator(), total=total):
+                partner_type = partnership.codigo_tipo_socio
+                row = serializers[partner_type](partnership)
+                writers[partner_type].writerow(row)
 
         # Second step: create needed indexes
-        main_start = time.time()
 
         print('Criando os índices...')
         self.create_indexes()
