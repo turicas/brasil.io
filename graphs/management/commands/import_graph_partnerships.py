@@ -2,6 +2,7 @@ import csv
 import gzip
 import io
 import os
+import time
 from collections import defaultdict
 
 from django.conf import settings
@@ -122,10 +123,9 @@ class Command(BaseCommand):
         for label, key in labels_keys:
             self.graph_db.schema.create_uniqueness_constraint(label, key)
 
-    def import_pfs_query(self):
-        pfs_query = """
-            USING PERIODIC COMMIT
-            LOAD CSV WITH HEADERS FROM "file:///graph-pfs.csv.gz" AS r
+    def pfs_query_and_params(self, pfs):
+        batch_query = """
+            UNWIND {batches} AS r
             MERGE (c:PessoaJuridica { cnpj_root: r.cnpj_root })
             ON CREATE SET c.nome=r.nome_emp
             ON MATCH SET c.nome=r.nome_emp
@@ -134,8 +134,55 @@ class Command(BaseCommand):
             ON MATCH SET p.cpf=r.cpf
             CREATE (p)-[:TEM_SOCIEDADE { codigo_tipo_socio: r.codigo_qualificacao_socio, qualificacao_socio: r.qualificacao_socio }]->(c)
         """
+        batches = []
+        for partnership in pfs:
+            batches.append({
+                "cpf": (partnership['cpf'] or '').upper(),
+                "nome": partnership['nome'].upper(),
+                "cnpj_root": partnership['cnpj_root'].upper(),
+                "nome_emp": partnership['nome_emp'],
+                'codigo_qualificacao_socio': partnership['codigo_qualificacao_socio'],
+                'qualificacao_socio': partnership['qualificacao_socio'],
+            })
 
-        self.graph_db.run(pfs_query)
+        params = {'batches': batches}
+        return batch_query, params
+
+    def import_pfs_query(self, filename):
+        open_transaction = None
+        # TODO: Definir o tamanho do arquivo com um zcat | wc -l
+        total = 17470930
+        batch_size = 10000
+        num_batches = int(total / batch_size)
+
+        with tqdm(total=num_batches) as progress:
+            pfs = []
+            fobj = io.TextIOWrapper(
+                gzip.GzipFile(filename, mode='r'),
+                encoding='utf-8',
+            )
+            partnerships = csv.DictReader(fobj)
+            for i, partnership in enumerate(partnerships):
+                if not i % batch_size:
+                    open_transaction = self.graph_db.begin()
+
+                pfs.append(partnership)
+
+                if not (i + 1) % batch_size:
+                    query, params = self.pfs_query_and_params(pfs)
+                    open_transaction.run(query, parameters=params)
+                    open_transaction.commit()
+                    progress.update(1)
+                    open_transaction = None
+                    pfs = []
+
+            if open_transaction:
+                query, params = self.pfs_query_and_params(pfs)
+                open_transaction.run(query, parameters=params)
+                open_transaction.commit()
+                progress.update(1)
+                open_transaction = None
+                pfs = []
 
     def import_pjs_query(self):
         pjs_query = """
@@ -211,6 +258,13 @@ class Command(BaseCommand):
         self.create_indexes()
 
         start = time.time()
+        print('\nCriando sociedades entre pessoas físicas...')
+        self.import_pfs_query(pfs_filename)
+        end = time.time()
+        duration = int((end - start) / 60)
+        print('  + Finalizado em {} min'.format(duration))
+
+        start = time.time()
         print('Criando sociedades com nomes no exterior...')
         self.import_ext_query()
         end = time.time()
@@ -220,13 +274,6 @@ class Command(BaseCommand):
         start = time.time()
         print('\nCriando sociedades entre pessoas jurídicas...')
         self.import_pjs_query()
-        end = time.time()
-        duration = int((end - start) / 60)
-        print('  + Finalizado em {} min'.format(duration))
-
-        start = time.time()
-        print('\nCriando sociedades entre pessoas físicas...')
-        self.import_pfs_query()
         end = time.time()
         duration = int((end - start) / 60)
         print('  + Finalizado em {} min'.format(duration))
