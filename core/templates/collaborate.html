@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Colabore - Brasil.IO{% endblock %}
+{% block content %}
+<div class="section">
+  <h4>Colabore</h4>
+  <div class="divider"></div>
+
+  <p>
+    Que bom que você se interessou em colaborar com o projeto! :) Existem
+    algumas maneiras possíveis:
+  </p>
+
+  <h5>Tecnicamente</h5>
+  <p>
+    Desenvolver e manter a plataforma e novos scripts de libertação de dados é
+    de suma importância para que o projeto seja bem sucedido. <a
+      href="https://chat.brasil.io/">Entre em nosso chat</a> para conversarmos
+    sobre a melhor maneira de colaborar.
+  </p>
+  <ol>
+    <li>
+      Utilizando e citando os dados disponíveis no site;
+    </li>
+    <li>
+      <a href="{% url 'core:dataset-suggestion' %}">Sugerindo um novo dataset</a> para libertarmos;
+    </li>
+    <li>
+      Libertando dados e o código do software.
+    </li>
+  </ol>
+
+  <h5>Financeiramente</h5>
+  <p>
+    Possuímos diversos gastos para manter o site online e desenvolver novas
+    funcionalidades e você pode também contribuir para a sustentabilidade
+    financeira do projeto. Se tiver interesse,
+    <a href="{% url 'core:contact' %}">entre em contato</a>.
+  </p>
+  <ol>
+    <li>
+      Encomendando a libertação de um novo dataset;
+    </li>
+    <li>
+      Encomendando análises e visualizações complexas nos dados que já temos
+      disponíveis;
+    </li>
+    <li>
+      <a href="https://apoia.se/brasilio">Doando recorrentemente</a>.
+    </li>
+  </ol>
+
+</div>
+{% endblock %}
