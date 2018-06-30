@@ -139,3 +139,7 @@ def dataset_suggestion(request):
 
 def manifesto(request):
     return render(request, 'manifesto.html', {})
+
+
+def collaborate(request):
+    return render(request, 'collaborate.html', {})

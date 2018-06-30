@@ -5,7 +5,10 @@
     {% block head %}
     <meta charset="utf-8">
     <!--Import Google Icon Font-->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://raw.githubusercontent.com/TerryMooreII/materialize-social/master/materialize-social.css">
+
     <!-- Compiled and minified CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
@@ -40,33 +43,13 @@
           </a>
             <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             <ul class="right hide-on-med-and-down">
-              {% if request.user.is_authenticated %}
-              <li>Olá, {{ request.user.username }}</li>
-              {% endif %}
-              <li><a href="{% url 'core:manifesto' %}">Manifesto</a></li>
-              <li><a href="{% url 'core:dataset-list' %}">Datasets</a></li>
-              <li><a href="{% url 'core:specials' %}">Especiais</a></li>
-              <li><a href="{% url 'core:dataset-suggestion' %}">Sugira um dataset</a></li>
-              <li><a href="{% url 'api:dataset-list' %}">API</a></li>
-              <li><a href="{% url 'core:contact' %}">Contato</a></li>
-              <li><a href="https://apoia.se/brasilio">Apoie</a></li>
-              {% if not request.user.is_authenticated %}
-              <li><a href="{% url 'brasilio_auth:sign_up' %}">Cadastre-se</a></li>
-              <li><a href="{% url 'brasilio_auth:login' %}">Login</a></li>
-              {% else %}
-              <li><a href="{% url 'brasilio_auth:logout' %}">Logout</a></li>
-              {% endif %}
+              {% include 'menu.html' %}
             </ul>
         </div>
     </nav>
 
     <ul class="sidenav" id="mobile-demo">
-      <li><a href="{% url 'core:manifesto' %}">Manifesto</a></li>
-      <li><a href="{% url 'core:dataset-list' %}">Datasets</a></li>
-      <li><a href="{% url 'core:dataset-suggestion' %}">Sugira um dataset</a></li>
-      <li><a href="{% url 'api:dataset-list' %}">API</a></li>
-      <li><a href="{% url 'core:contact' %}">Contato</a></li>
-      <li><a href="https://apoia.se/brasilio">Apoie</a></li>
+      {% include 'menu.html' %}
     </ul>
 
     {% block top %}{% endblock %}
