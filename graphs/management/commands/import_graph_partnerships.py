@@ -3,6 +3,7 @@ import gzip
 import io
 import os
 import time
+import glob
 from collections import defaultdict
 
 from django.conf import settings
@@ -148,55 +149,44 @@ class Command(BaseCommand):
         params = {'batches': batches}
         return batch_query, params
 
-    def import_pfs_query(self, filename):
-        open_transaction = None
-        # TODO: Definir o tamanho do arquivo com um zcat | wc -l
-        total = 17470930
-        batch_size = 10000
-        num_batches = int(total / batch_size)
+    def import_pfs_csv_query(self):
+        glob_search = settings.NEO4J_IMPORT_DIR + '/temp-graph-pfs-part-*.csv'
+        pfs_csvs = glob.glob(glob_search)
 
-        with tqdm(total=num_batches) as progress:
-            pfs = []
-            fobj = io.TextIOWrapper(
-                gzip.GzipFile(filename, mode='r'),
-                encoding='utf-8',
-            )
-            partnerships = csv.DictReader(fobj)
-            for i, partnership in enumerate(partnerships):
-                if not i % batch_size:
-                    open_transaction = self.graph_db.begin()
+        for abs_path in tqdm(pfs_csvs):
+            filename = os.path.basename(abs_path)
+            pfs_query = f"""
+                USING PERIODIC COMMIT
+                LOAD CSV WITH HEADERS FROM "file:///{ filename }" AS r
+                MERGE (c:PessoaJuridica {{ cnpj_root: r.cnpj_root }})
+                ON CREATE SET c.nome=r.nome_emp
+                ON MATCH SET c.nome=r.nome_emp
+                MERGE (p:PessoaFisica {{ nome: r.nome }})
+                ON CREATE SET p.cpf=r.cpf
+                ON MATCH SET p.cpf=r.cpf
+                CREATE (p)-[:TEM_SOCIEDADE {{ codigo_tipo_socio: r.codigo_qualificacao_socio, qualificacao_socio: r.qualificacao_socio }}]->(c)
+            """
 
-                pfs.append(partnership)
-
-                if not (i + 1) % batch_size:
-                    query, params = self.pfs_query_and_params(pfs)
-                    open_transaction.run(query, parameters=params)
-                    open_transaction.commit()
-                    progress.update(1)
-                    open_transaction = None
-                    pfs = []
-
-            if open_transaction:
-                query, params = self.pfs_query_and_params(pfs)
-                open_transaction.run(query, parameters=params)
-                open_transaction.commit()
-                progress.update(1)
-                open_transaction = None
-                pfs = []
+            self.graph_db.run(pfs_query)
 
     def import_pjs_query(self):
-        pjs_query = """
-            USING PERIODIC COMMIT
-            LOAD CSV WITH HEADERS FROM "file:///graph-pjs.csv.gz" AS r
-            MERGE (c:PessoaJuridica { cnpj_root: r.cnpj_root_emp })
-            ON CREATE SET c.nome=r.nome_emp
-            ON MATCH SET c.nome=r.nome_emp
-            MERGE (p:PessoaJuridica { cnpj_root: r.cnpj_root })
-            ON CREATE SET p.nome=r.nome
-            CREATE (p)-[:TEM_SOCIEDADE { codigo_tipo_socio: r.codigo_qualificacao_socio, qualificacao_socio: r.qualificacao_socio }]->(c)
-        """
+        glob_search = settings.NEO4J_IMPORT_DIR + '/temp-graph-pjs-part-*.csv'
+        pjs_csvs = glob.glob(glob_search)
 
-        self.graph_db.run(pjs_query)
+        for abs_path in tqdm(pjs_csvs):
+            filename = os.path.basename(abs_path)
+            pjs_query = f"""
+                USING PERIODIC COMMIT
+                LOAD CSV WITH HEADERS FROM "file:///{ filename }" AS r
+                MERGE (c:PessoaJuridica {{ cnpj_root: r.cnpj_root_emp }})
+                ON CREATE SET c.nome=r.nome_emp
+                ON MATCH SET c.nome=r.nome_emp
+                MERGE (p:PessoaJuridica {{ cnpj_root: r.cnpj_root }})
+                ON CREATE SET p.nome=r.nome
+                CREATE (p)-[:TEM_SOCIEDADE {{ codigo_tipo_socio: r.codigo_qualificacao_socio, qualificacao_socio: r.qualificacao_socio }}]->(c)
+            """
+
+            self.graph_db.run(pjs_query)
 
     def import_ext_query(self):
         ext_query = """
@@ -259,7 +249,7 @@ class Command(BaseCommand):
 
         start = time.time()
         print('\nCriando sociedades entre pessoas físicas...')
-        self.import_pfs_query(pfs_filename)
+        self.import_pfs_csv_query()
         end = time.time()
         duration = int((end - start) / 60)
         print('  + Finalizado em {} min'.format(duration))
