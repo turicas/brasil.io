@@ -93,6 +93,7 @@ def document_detail(request, document):
     branches_cnpjs = []
 
     if is_company:
+        doc_prefix = document[:8]
         try:
             obj = get_company_by_document(document)
         except Documents.DoesNotExist:
