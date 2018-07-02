@@ -212,16 +212,21 @@ def document_detail(request, document):
 
 
 def _get_path(origin, destination):
+    types = {'pessoa-juridica': 1, 'pessoa-fisica': 2}
+    identifiers = {
+        'pessoa-juridica': lambda document: str(document or '')[:8],
+        'pessoa-fisica': lambda document: document,
+    }
     serializer = PathSerializer(data={
-        'tipo1': origin['type'],
-        'identificador1': origin['identifier'],
-        'tipo2': destination['type'],
-        'identificador2': destination['identifier'],
+        'tipo1': types[origin[0]],
+        'identificador1': identifiers[origin[0]](origin[1]),
+        'tipo2': types[destination[0]],
+        'identificador2': identifiers[destination[0]](destination[1]),
         'all_shortest_paths': False,
     })
     serializer.is_valid()
-    return serializer.data['path']['nodes']
-
+    path = serializer.data['path']
+    return {'nodes': path['nodes'], 'links': path['links']}
 
 def trace_path(request):
     form = TracePathForm(request.GET or None)
@@ -231,14 +236,10 @@ def trace_path(request):
         origin_name = form.cleaned_data['origin_name']
         destination_name = form.cleaned_data['destination_name']
         path = _get_path(
-            {
-                'type': 1 if form.cleaned_data['origin_type'] == 'pessoa-juridica' else 2,
-                'identifier': form.cleaned_data['origin_identifier'],
-            },
-            {
-                'type': 1 if form.cleaned_data['destination_type'] == 'pessoa-juridica' else 2,
-                'identifier': form.cleaned_data['destination_identifier'],
-            },
+            (form.cleaned_data['origin_type'],
+             form.cleaned_data['origin_identifier']),
+            (form.cleaned_data['destination_type'],
+             form.cleaned_data['destination_identifier']),
         )
 
     context = {
@@ -246,6 +247,7 @@ def trace_path(request):
         'errors': errors,
         'form': form,
         'origin_name': origin_name,
-        'path': path,
+        'nodes': path['nodes'],
+        'links': path['links'],
     }
     return render(request, 'specials/trace-path.html', context)

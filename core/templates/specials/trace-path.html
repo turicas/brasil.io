@@ -36,15 +36,16 @@
 
 <div class="section">
   <div class="row">
+
   {% if errors %}
     <h4>Erros</h4>
     {{ errors }}
-  {% elif path %}
+  {% elif nodes %}
   <h4>Caminho entre {{ origin_name }} e {{ destination_name }}</h4>
-  {% for node in path %}
+  {% for node in nodes %}
     <div>
       {% if node.tipo == 'PessoaJuridica' %}
-      <a href="{% url 'core:special-document-detail' document=node.cnpj %}">{{ node.nome }}</a>
+      <a href="{% url 'core:special-document-detail' document=node.cnpj_root %}">{{ node.nome }}</a>
       {% else %}
       <a href="{% url 'core:dataset-detail' 'socios-brasil' %}?nome_socio={{ node.nome }}">{{ node.nome }}</a>
       {% endif %}
