@@ -45,7 +45,7 @@
   {% for node in nodes %}
     <div>
       {% if node.tipo == 'PessoaJuridica' or node.tipo == 'EmpresaMae' %}
-      <a href="{% url 'core:special-document-detail' document=node.cnpj_root %}">{{ node.nome }}</a>
+      <a href="{% url 'core:special-document-detail' document=node.cnpj_root %}?prefixo_cnpj=True">{{ node.nome }}</a>
       {% else %}
       <a href="{% url 'core:dataset-table-detail' 'socios-brasil' 'socios' %}?nome_socio={{ node.nome }}">{{ node.nome }}</a>
       {% endif %}
