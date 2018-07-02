@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load l10n %}
+{% load static %}
+{% load utils %}
+
+{% block title %}Grupos Empresariais - Brasil.IO{% endblock %}
+
+{% block content %}
+
+<div class="col s12 m12">
+  <div class="card horizontal">
+    <div class="card-stacked">
+      <div class="card-content">
+        <h4>
+          <i class="material-icons">info</i>
+          Contas Gratuitas
+        </h4>
+        <p>
+          Essa página é restrita a quem possui uma conta no Brasil.IO.
+          Durante nossa fase BETA as contas serão todas gratuitas - após esse
+          período será necessária a assinatura do site para acessar todas as
+          páginas restritas.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+
+  <form method="get">
+    {{ form }}
+    <input type="submit" value="Buscar" class="btn">
+  </form>
+</div>
+
+<div class="section">
+  <div class="row">
+
+  {% if errors %}
+    <h4>Erros</h4>
+    {{ errors }}
+  {% elif company %}
+  <h4>Grupos Empresariais a que {{ company.name }} pertence:</h4>
+  {% for node in nodes %}
+    {% if 'EmpresaMae' in node.labels %}
+      <div>
+        <a href="{% url 'core:special-document-detail' document=node.cnpj_root %}?prefixo_cnpj=True">{{ node.nome }}</a>
+      </div>
+    {% endif %}
+  {% empty %}
+    <p>A empresa não pertence a nenhum grupo empresarial ou já é a raiz de um grupo empresarial</p>
+  {% endfor %}
+  {% endif %}
+  </div>
+</div>
+{% endblock %}

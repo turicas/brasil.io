@@ -67,3 +67,16 @@ class TracePathForm(forms.Form):
             cleaned_data['destination_name'] = _get_name(destination, destination_type)
 
         return cleaned_data
+
+
+class CompanyGroupsForm(forms.Form):
+    identifier = forms.CharField(required=True, label='CNPJ')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        company = _get_obj('', cleaned_data['identifier'], 'pessoa-juridica')
+        if not company:
+            self.add_error('identifier', 'Document not found')
+        else:
+            cleaned_data['company'] = company
+        return cleaned_data
