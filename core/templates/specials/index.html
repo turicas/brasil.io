@@ -64,6 +64,15 @@
         ligação entre a Rossi Residencial SA e a Construtora Norberto Odebrecht
       SA?</a>
     </li>
+    <li>
+      <a href="{% url 'core:special-company-groups' %}">Grupos Empresariais de uma empresa</a> -
+      Com o CNPJ de uma empresa, podemos listar a qual ou quais grupos empresariais
+      a empresa pertence. Um grupo empresarial é determinado através das relações
+      de sociedades entre empresas (exemplo: a empresa A é sócia de B que também tem
+      como sócia a empresa C - dessa forma, B pertence aos grupos empresariais de A e C).
+      Exemplo real: <a href="{% url 'core:special-company-groups' %}?identifier=24657281000123">qual
+      os grupos empresariais da empresa Passos Construções SPE LTDA?</a>
+    </li>
   </ul>
 </div>
 {% endblock %}
