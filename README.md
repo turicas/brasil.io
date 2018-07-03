@@ -47,12 +47,17 @@ Primeiramente, certifique-se de que você tenha instalados:
   [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv) e Python 3.6.4
 - [docker](https://www.docker.com/)
 
-Siga os passos:
+e em seguida clone o repositório:
 
 ```bash
 # Clonar o repositório:
 git clone git@github.com:turicas/brasil.io.git
 
+```
+
+Siga os passos:
+
+```bash
 # Criar um virtualenv:
 pyenv virtualenv 3.6.4 brasil.io
 
@@ -77,6 +82,14 @@ Certifique-se de que você tenha instalados:
   [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv) e Python 3.6.4
 - [postregreSQL](https://www.postgresql.org/)
 
+e em seguida clone o repositório:
+
+```bash
+# Clonar o repositório:
+git clone git@github.com:turicas/brasil.io.git
+
+```
+
 Após instalar o PostgreSQL crie o banco de dados que será utilizado pelo
 projeto. Como o docker não está sendo utilizado será necessário comentar
 algumas linhas no arquivo `.activate`. Comente as seguintes linhas:
@@ -92,9 +105,6 @@ fi
 e siga os passos:
 
 ```bash
-# Clonar o repositório:
-git clone git@github.com:turicas/brasil.io.git
-
 # Criar um virtualenv:
 pyenv virtualenv 3.6.4 brasil.io
 
