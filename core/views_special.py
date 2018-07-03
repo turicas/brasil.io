@@ -8,10 +8,10 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from core.forms import TracePathForm
+from core.forms import TracePathForm, CompanyGroupsForm
 from core.models import Dataset
 from core.util import get_company_by_document
-from graphs.serializers import PathSerializer
+from graphs.serializers import PathSerializer, CNPJCompanyGroupsSerializer
 
 
 cipher_suite = Fernet(settings.FERNET_KEY)
@@ -251,3 +251,30 @@ def trace_path(request):
         'links': path['links'],
     }
     return render(request, 'specials/trace-path.html', context)
+
+
+def _get_groups(company):
+    data = {'identificador': company.document}
+    serializer = CNPJCompanyGroupsSerializer(data=data)
+    serializer.is_valid()
+    network = serializer.data['network']
+    return {'nodes': network['nodes'], 'links': network['links']}
+
+
+def company_groups(request):
+    form = CompanyGroupsForm(request.GET or None)
+    company, nodes, links = None, [], []
+
+    if form.is_valid():
+        company = form.cleaned_data['company']
+        groups = _get_groups(company)
+        nodes = groups['nodes']
+        links = groups['links']
+
+    context = {
+        'form': form,
+        'company': company,
+        'nodes': nodes,
+        'links': links,
+    }
+    return render(request, 'specials/company-groups.html', context)
