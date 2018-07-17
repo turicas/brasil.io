@@ -10,11 +10,17 @@ from django.db import connection, models
 
 DYNAMIC_MODEL_REGISTRY = {}
 FIELD_TYPES = {
+    'binary': models.BinaryField,
+    'bool': models.BooleanField,
     'date': models.DateField,
     'datetime': models.DateTimeField,
     'decimal': models.DecimalField,
+    'email': models.EmailField,
+    'float': models.FloatField,
     'integer': models.IntegerField,
+    'json': JSONField,
     'string': models.CharField,
+    'text': models.TextField,
 }
 
 
@@ -322,13 +328,12 @@ class FieldQuerySet(models.QuerySet):
 class Field(models.Model):
     objects = FieldQuerySet.as_manager()
 
-    TYPES = ['binary', 'bool', 'date', 'datetime', 'decimal', 'email',
-             'float', 'integer', 'json', 'percent', 'text',]
-    TYPE_CHOICES = [(value, value) for value in TYPES]
+    TYPE_CHOICES = [(value, value) for value in FIELD_TYPES.keys()]
 
     choices = JSONField(null=True, blank=True)
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE,
                                 null=False, blank=False)
+    description = models.CharField(max_length=255, null=True, blank=True)
     frontend_filter = models.BooleanField(null=False, blank=True, default=False)
     has_choices = models.BooleanField(null=False, blank=True, default=False)
     link_template = models.URLField(max_length=2000, null=True, blank=True)
