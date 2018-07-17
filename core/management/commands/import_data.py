@@ -1,66 +1,13 @@
-import csv
-import io
-import lzma
-import re
-import shlex
-import subprocess
+import os
 import time
 
-import rows
-from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.db import connection, transaction
+from django.db import transaction
 from django.db.utils import ProgrammingError
 from django.utils import timezone
-from tqdm import tqdm
+from rows.utils import pgimport
 
 from core.models import Field, Table
-from core.util import get_fobj
-
-
-regexp_sizes = re.compile('([0-9,.]+ [a-zA-Z]+B)')
-MULTIPLIERS = {'B': 1, 'KiB': 1024, 'MiB': 1024 ** 2, 'GiB': 1024 ** 3}
-
-def uncompressed_size(filename):
-    command = shlex.split(f'xz --list "{shlex.quote(filename)}"')
-    try:
-        process = subprocess.Popen(
-            command,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-    except FileNotFoundError:
-        raise RuntimeError('Command `xz` not found')
-    process.wait()
-    if process.returncode > 0:
-        raise ValueError(process.stderr.read().decode('utf-8'))
-    output = process.stdout.read().decode('utf-8')
-    compressed_size, uncompressed_size = regexp_sizes.findall(output)
-    value, unit = uncompressed_size.split()
-    value = float(value.replace(',', ''))
-    return int(value * MULTIPLIERS[unit])
-
-
-def get_psql_copy_command(table_name, header, encoding, database):
-    database_url = \
-        "postgres://{user}:{password}@{host}:{port}/{name}".format(
-            user=database['USER'],
-            password=database['PASSWORD'],
-            host=database['HOST'],
-            port=database['PORT'],
-            name=database['NAME']
-        )
-    command = ('psql -c "\copy {table_name} ({header}) FROM STDIN '
-                        'DELIMITER \',\' '
-                        'QUOTE \'\\"\' '
-                        'ENCODING \'{encoding}\' '
-                        'CSV;" '
-                    '"{database_url}"'
-        .format(table_name=table_name, header=header,
-                database_url=database_url, encoding=encoding)
-    )
-    return command
 
 
 class Command(BaseCommand):
@@ -112,56 +59,30 @@ class Command(BaseCommand):
 
             # Get file object, header and set command to run
             table_name = Model._meta.db_table
+            database_uri = os.environ['DATABASE_URL']
             encoding = 'utf-8'  # TODO: receive as a parameter
-            batch_size = 50000  # TODO: receive as a paramenter
-            timeout = 0.1
-            fobj = get_fobj(filename)
-            header = next(fobj).decode(encoding).strip()
-            command = get_psql_copy_command(
-                table_name, header, encoding, settings.DATABASES['default']
-            )
-            start = time.time()
-            rows_imported = 0
-            error = None
+            timeout = 0.1  # TODO: receive as a parameter
+            start_time = time.time()
             try:
-                total_size = uncompressed_size(filename)
-            except (RuntimeError, ValueError):
-                total_size = None
-
-            with tqdm(desc='Importing data', unit='bytes', unit_scale=True,
-                      unit_divisor=1024, total=total_size) as progress:
-                try:
-                    process = subprocess.Popen(
-                        shlex.split(command),
-                        stdin=subprocess.PIPE,
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
-                    )
-                    finished = False
-                    chunk_size = 8388608  # 8MiB
-                    while not finished:
-                        data = fobj.read(chunk_size)
-                        if data == b'':
-                            finished = True
-                        else:
-                            progress.update(process.stdin.write(data))
-                    stdout, stderr = process.communicate()
-                    if stderr != b'':
-                        error = stderr
-                    else:
-                        rows_imported = int(stdout.replace(b'COPY ', b'').strip())
-                except BrokenPipeError:
-                    error = process.stderr.read()
-            end = time.time()
-            duration = end - start
-            if error:
-                print('ERROR: {}'.format(error.decode('utf-8')))
+                rows_imported = pgimport(
+                    filename=filename,
+                    encoding=encoding,
+                    database_uri=database_uri,
+                    table_name=table_name,
+                    create_table=False,
+                    timeout=timeout,
+                    progress=True,
+                )
+            except RuntimeError as exception:
+                print('ERROR: {}'.format(exception.args[0]))
                 exit(1)
             else:
                 table.last_update = timezone.now()
                 table.save()
-                print('  done in {:.3f}s ({} rows imported, {:.3f} rows/s).'
-                    .format(duration, rows_imported, rows_imported / duration))
+                end_time = time.time()
+                duration = end_time - start_time
+                print('  done in {:7.3f}s ({} rows imported, {:.3f} rows/s).'
+                      .format(duration, rows_imported, rows_imported / duration))
             Model = table.get_model(cache=False)
 
         if vacuum:
