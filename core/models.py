@@ -322,7 +322,7 @@ class FieldQuerySet(models.QuerySet):
         return self.filter(table=table)
 
     def choiceables(self):
-        return self.filter(has_choices=True, show_on_frontend=True)
+        return self.filter(has_choices=True, frontend_filter=True)
 
 
 class Field(models.Model):

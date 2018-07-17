@@ -19,7 +19,7 @@ def is_empty(row):
 def is_complete(row):
     return all([str(value).strip()
                 for key, value in row._asdict().items()
-                if key not in ('options', 'link_template')])
+                if key not in ('options', 'link_template', 'description')])
 
 def get_dataset(slug):
     if slug not in DATASETS:

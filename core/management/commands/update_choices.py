@@ -1,6 +1,7 @@
 import time
 
 from django.core.management.base import BaseCommand
+from django.db.utils import ProgrammingError
 
 from core.models import Dataset, Field, Table
 
@@ -21,27 +22,31 @@ class Command(BaseCommand):
             datasets = datasets.filter(slug=dataset_slug)
 
         for dataset in datasets.iterator():
-            print('{}...'.format(dataset.slug))
+            print('{}'.format(dataset.slug))
             start_dataset = time.time()
 
             tables = Table.objects.for_dataset(dataset)
             if tablename:
                 tables = [tables.named(tablename)]
             for table in tables:
-                print('  {}...'.format(table.name))
+                print('  {}'.format(table.name))
                 start_table = time.time()
 
                 choiceables = Field.objects.for_table(table).choiceables()
                 for field in choiceables:
                     start = time.time()
                     print('    {}... '.format(field.name), end='', flush=True)
-                    field.update_choices()
-                    field.save()
-                    end = time.time()
-                    print('done in {:7.3f}s.'.format(end - start))
+                    try:
+                        field.update_choices()
+                        field.save()
+                    except ProgrammingError:
+                        print('ERROR: model does not exist.')
+                    else:
+                        end = time.time()
+                        print('done in {:7.3f}s.'.format(end - start))
 
                 end_table = time.time()
-                print('  table done in {:7.3f}s.'.format(end_table - start_table))
+                print('    table done in {:7.3f}s.'.format(end_table - start_table))
 
             end_dataset = time.time()
             print('  dataset done in {:7.3f}s.'.format(end_dataset - start_dataset))
