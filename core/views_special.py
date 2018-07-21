@@ -75,7 +75,8 @@ def document_detail(request, document):
     GastosDiretos = datasets['gastos-diretos']['gastos'].get_model()
 
     encrypted = False
-    if len(document) not in (11, 14):  # encrypted
+    query_for_cnpj_root = request.GET.get('prefixo_cnpj', False)
+    if len(document) not in (11, 14) and not query_for_cnpj_root:  # encrypted
         try:
             encrypted_document = document.encode('ascii')
             document_bytes = cipher_suite.decrypt(encrypted_document)
@@ -86,14 +87,17 @@ def document_detail(request, document):
             encrypted = True
     document = document.replace('.', '').replace('-', '').replace('/', '').strip()
     document_size = len(document)
-    is_company = document_size == 14
+    is_company = document_size == 14 or query_for_cnpj_root
     is_person = document_size == 11
 
     branches = Documents.objects.none()
     branches_cnpjs = []
 
     if is_company:
-        doc_prefix = document[:8]
+        if document_size == 8:
+            doc_prefix = document
+        else:
+            doc_prefix = document[:8]
         try:
             obj = get_company_by_document(document)
         except Documents.DoesNotExist:
