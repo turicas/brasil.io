@@ -273,8 +273,8 @@ def trace_path(request):
         'errors': errors,
         'form': form,
         'origin_name': origin_name,
-        'nodes': fix_nodes(path['nodes']),
-        'links': path['links'],
+        'nodes': fix_nodes(path['nodes'] if path else []),
+        'links': path['links'] if path else [],
     }
     return render(request, 'specials/trace-path.html', context)
 
