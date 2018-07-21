@@ -9,7 +9,7 @@ from django.http import HttpResponseBadRequest, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from core.models import Dataset
+from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
 
 
@@ -67,7 +67,14 @@ def dataset_detail(request, slug, tablename=''):
         return redirect(reverse('core:dataset-table-detail',
                                 kwargs={'slug': slug, 'tablename': tablename}))
 
-    table = dataset.get_table(tablename)
+    try:
+        table = dataset.get_table(tablename)
+    except Table.DoesNotExist:
+        return HttpResponseBadRequest(
+            f'Table "{tablename}" does not exist.',
+            status=404,
+        )
+
     version = dataset.version_set.order_by('-order').first()
     fields = table.fields
     all_data = table.get_model().objects
