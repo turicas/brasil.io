@@ -229,6 +229,31 @@ def _get_path(origin, destination):
     path = serializer.data['path']
     return {'nodes': path['nodes'], 'links': path['links']}
 
+
+def fix_nodes(nodes):
+    """Add `cnpj` to company nodes"""
+
+    datasets = get_datasets()
+    Documents = datasets['documentos-brasil']['documents'].get_model()
+
+    result = []
+    for node in nodes:
+        node = node.copy()
+        cnpj_root = node.get('cnpj_root')
+        if cnpj_root:
+            documents = Documents.objects.filter(document_type='CNPJ',
+                                                docroot=cnpj_root)\
+                                        .order_by('document')
+            if documents:
+                cnpj = documents.first().document
+            else:
+                cnpj = f'{cnpj_root}000100'
+
+            node['cnpj'] = cnpj
+        result.append(node)
+    return result
+
+
 def trace_path(request):
     form = TracePathForm(request.GET or None)
     errors, path, origin_name, destination_name = None, None, None, None
@@ -248,7 +273,7 @@ def trace_path(request):
         'errors': errors,
         'form': form,
         'origin_name': origin_name,
-        'nodes': path['nodes'],
+        'nodes': fix_nodes(path['nodes']),
         'links': path['links'],
     }
     return render(request, 'specials/trace-path.html', context)
