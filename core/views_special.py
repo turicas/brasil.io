@@ -1,4 +1,5 @@
 from collections import defaultdict
+from functools import lru_cache
 from unicodedata import normalize
 
 from cryptography.fernet import Fernet, InvalidToken
@@ -17,8 +18,8 @@ from graphs.serializers import PathSerializer, CNPJCompanyGroupsSerializer
 cipher_suite = Fernet(settings.FERNET_KEY)
 
 
+@lru_cache()
 def get_datasets():
-    # TODO: we may need to cache these queries
     slugs = (
         'documentos-brasil:documents',
         'eleicoes-brasil:candidatos',
