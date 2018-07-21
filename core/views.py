@@ -70,10 +70,7 @@ def dataset_detail(request, slug, tablename=''):
     try:
         table = dataset.get_table(tablename)
     except Table.DoesNotExist:
-        return HttpResponseBadRequest(
-            f'Table "{tablename}" does not exist.',
-            status=404,
-        )
+        return HttpResponseBadRequest(f'Table does not exist.', status=404)
 
     version = dataset.version_set.order_by('-order').first()
     fields = table.fields
