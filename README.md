@@ -37,7 +37,7 @@ desenvolvedores.
 
 
 Há duas formas de rodar o projeto em sua máquina, uma utilizando o PostgreSQL
-como um container Docker e outra utilizando o PostegreSQL rodando diretamente
+como um container Docker e outra utilizando o PostgreSQL rodando diretamente
 em sua máquina. Vamos começar pela que utiliza o Docker:
 
 Primeiramente, certifique-se de que você tenha instalados:
@@ -80,7 +80,7 @@ Certifique-se de que você tenha instalados:
 - git
 - [pyenv](https://github.com/pyenv/pyenv) com
   [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv) e Python 3.6.4
-- [postregreSQL](https://www.postgresql.org/)
+- [PostgreSQL](https://www.postgresql.org/)
 
 e em seguida clone o repositório:
 
