@@ -77,20 +77,18 @@ def dataset_detail(request, slug, tablename=''):
     all_data = table.get_model().objects
     querystring = request.GET.copy()
     page_number = querystring.pop('page', ['1'])[0].strip() or '1'
-    search_query = request.GET.get('search')
+    search_query = querystring.pop('search', [''])[0]
     order_by = querystring.pop('order-by', [''])
     order_by = [field.strip().lower()
                 for field in order_by[0].split(',')
                 if field.strip()]
 
     if search_query:
-        all_data = all_data.filter(search_data=SearchQuery(search_query))
+        all_data = all_data.search(search_query)
     if querystring:
-        keys = list(querystring.keys())
-        for key in keys:
-            if not querystring[key]:
-                del querystring[key]
-        all_data = all_data.apply_filters(querystring)
+        all_data = all_data.apply_filters(
+            {key: value for key, value in querystring.items() if value}
+        )
 
     all_data = all_data.apply_ordering(order_by)
     if (querystring.get('format', '') == 'csv' and

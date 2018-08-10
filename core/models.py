@@ -77,6 +77,23 @@ class DynamicModelMixin:
 
 class DynamicModelQuerySet(models.QuerySet):
 
+    def search(self, search_query):
+        qs = self
+        search_fields = self.model.extra['search']
+        if search_query and search_fields:
+            words = search_query.split()
+            config = 'pg_catalog.portuguese'  # TODO: get from self.model.extra
+            query = None
+            for word in set(words):
+                if not word:
+                    continue
+                if query is None:
+                    query = SearchQuery(word, config=config)
+                else:
+                    query = query & SearchQuery(word, config=config)
+            qs = qs.filter(search_data=query)
+        return qs
+
     def apply_filters(self, filtering):
         qs = self
         model_filtering = self.model.extra['filtering']
@@ -85,11 +102,6 @@ class DynamicModelQuerySet(models.QuerySet):
                 value = filtering.get(field_name, None)
                 if value is not None:
                     qs = qs.filter(**{field_name: value})
-
-            search_query = filtering.get('search', None)
-            search_fields = self.model.extra['search']
-            if search_query and search_fields:
-                qs = qs.filter(search_data=SearchQuery(search_query))
         return qs
 
     def apply_ordering(self, query):
