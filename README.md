@@ -146,6 +146,10 @@ Após fazer o download do arquivo basta executar o seguinte comando:
 python manage.py import_data balneabilidade-bahia balneabilidade balneabilidade-bahia.csv.xz
 ```
 
+> Nota: em um computador moderno (Intel(R) Core(TM) i7-7500U CPU @ 2.70GHz,
+> 16GB RAM e SSD) os dados costumam demorar entre 2.3 a 2.7MB/s para serem
+> importados completamente (esse valor é o do dado descompactado).
+
 
 ## Deploying on Dokku
 
