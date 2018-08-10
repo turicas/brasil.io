@@ -48,6 +48,22 @@ class DynamicModelMixin:
             cursor.execute('VACUUM ANALYSE {}'.format(cls._meta.db_table))
 
     @classmethod
+    def create_triggers(cls):
+        tablename = cls._meta.db_table
+        trigger_name = f'tgr_tsv_{tablename}'
+        fieldnames = ', '.join(cls.extra['search'])
+        query = dedent(f'''
+            CREATE TRIGGER {trigger_name}
+                BEFORE INSERT OR UPDATE
+                ON {tablename}
+                FOR EACH ROW EXECUTE PROCEDURE
+                tsvector_update_trigger(search_data, 'pg_catalog.portuguese', {fieldnames})
+        ''').strip()
+        # TODO: replace pg_catalog.portuguese with dataset language
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+
+    @classmethod
     def create_indexes(cls):
         with connection.schema_editor() as schema_editor:
             for index in cls._meta.indexes:
@@ -112,9 +128,6 @@ class DynamicModelQuerySet(models.QuerySet):
             self._count = super().count()
 
         return self._count
-
-    def update_search_index(self):
-        self.update(search_data=SearchVector(*self.model.extra['search']))
 
 
 class Dataset(models.Model):

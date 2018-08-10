@@ -22,7 +22,6 @@ class Command(BaseCommand):
         parser.add_argument('--no-vacuum', required=False, action='store_true')
         parser.add_argument('--no-create-filter-indexes', required=False, action='store_true')
         parser.add_argument('--no-fill-choices', required=False, action='store_true')
-        parser.add_argument('--no-create-search-index', required=False, action='store_true')
 
     def handle(self, *args, **kwargs):
         dataset_slug = kwargs['dataset_slug']
@@ -33,7 +32,6 @@ class Command(BaseCommand):
         vacuum = not kwargs['no_vacuum']
         create_filter_indexes = not kwargs['no_create_filter_indexes']
         fill_choices = not kwargs['no_fill_choices']
-        create_search_index = not kwargs['no_create_search_index']
 
         if ask_confirmation:
             print(
@@ -56,6 +54,7 @@ class Command(BaseCommand):
                     pass
                 finally:
                     Model.create_table(create_indexes=False)
+                    Model.create_triggers()
 
             # Get file object, header and set command to run
             table_name = Model._meta.db_table
@@ -111,12 +110,5 @@ class Command(BaseCommand):
                 field.save()
                 end_field = time.time()
                 print(' - done in {:.3f}s.'.format(end_field - start_field))
-            end = time.time()
-            print('  done in {:.3f}s.'.format(end - start))
-
-        if create_search_index:
-            print('Updating search index...', end='', flush=True)
-            start = time.time()
-            Model.objects.update_search_index()
             end = time.time()
             print('  done in {:.3f}s.'.format(end - start))
