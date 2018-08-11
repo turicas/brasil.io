@@ -129,9 +129,22 @@ class DynamicModelMixin:
 
     @classmethod
     def create_indexes(cls):
-        with connection.schema_editor() as schema_editor:
+        with connection.cursor() as cursor:
             for index in cls._meta.indexes:
-                schema_editor.add_index(cls, index)
+                fieldnames = []
+                for fieldname in index.fields:
+                    if fieldname.startswith('-'):
+                        fieldnames.append(f'{fieldname[1:]} DESC')
+                    else:
+                        fieldnames.append(f'{fieldname} ASC')
+                fieldnames = ',\n                            '.join(fieldnames)
+                query = dedent(f'''
+                    CREATE INDEX CONCURRENTLY {index.name}
+                        ON {cls.tablename()} (
+                            {fieldnames}
+                        );
+                ''').strip()
+                cursor.execute(query)
 
     @classmethod
     def delete_table(cls):
