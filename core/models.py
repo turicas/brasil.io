@@ -1,3 +1,4 @@
+import hashlib
 from textwrap import dedent
 from urllib.parse import urlparse
 
@@ -23,8 +24,72 @@ FIELD_TYPES = {
     'text': models.TextField,
 }
 
+def model_to_code(Model):
+    meta = Model._meta
+    extra = Model.extra
+    model_name = Model.__name__
+    ordering = extra.get('ordering', [])
+    filtering = extra.get('filtering', [])
+    search = extra.get('search', [])
+    indexes = ',\n                    '.join(
+        f'models.{index.__class__.__name__}(name={repr(index.name)}, fields={repr(index.fields)})'
+        for index in meta.indexes
+    )
+    fields_text = []
+    for field in meta.fields:
+        if field.name == 'id':
+            continue
+        field_type = field.__class__.__name__.replace('Field', '').lower()
+        if field_type == 'searchvector':
+            field_class = 'SearchVector'
+        elif field_type == 'jsonfield':
+            field_class = 'JSONField'
+        else:
+            if field_type == 'char':
+                field_type = 'string'
+            field_class = 'models.' + FIELD_TYPES[field_type].__name__
+        kwargs = {
+            'null': field.null,
+        }
+        options = 'max_length max_digits decimal_places'.split()
+        for option in options:
+            value = getattr(field, option, None)
+            if value:
+                kwargs[option] = value
+        field_args = ', '.join(
+            '{}={}'.format(key, repr(value)) for key, value in kwargs.items()
+        )
+        fields_text.append(
+            f'{field.name} = {field_class}({field_args})'
+        )
+
+    fields = '\n            '.join(fields_text)
+    # TODO: missing objects?
+    return dedent(f'''
+        class {model_name}(models.Model):
+
+            {fields}
+
+            class Meta:
+                indexes = [
+                    {indexes}
+                ]
+                ordering = {repr(ordering)}
+    ''').strip()
+
+def make_index_name(tablename, index_type, fields):
+    idx_hash = hashlib.md5(
+        f'{tablename} {index_type} {", ".join(sorted(fields))}'.encode('ascii')
+    ).hexdigest()
+    tablename = tablename.replace('data_', '').replace('-', '')[:12]
+    return f'idx_{tablename}_{index_type[0]}{idx_hash[-12:]}'
+
 
 class DynamicModelMixin:
+
+    @classmethod
+    def tablename(cls):
+        return cls._meta.db_table
 
     @classmethod
     def create_table(cls, create_indexes=True):
@@ -45,17 +110,16 @@ class DynamicModelMixin:
     @classmethod
     def analyse_table(cls):
         with connection.cursor() as cursor:
-            cursor.execute('VACUUM ANALYSE {}'.format(cls._meta.db_table))
+            cursor.execute('VACUUM ANALYSE {}'.format(cls.tablename()))
 
     @classmethod
     def create_triggers(cls):
-        tablename = cls._meta.db_table
-        trigger_name = f'tgr_tsv_{tablename}'
+        trigger_name = f'tgr_tsv_{cls.tablename()}'
         fieldnames = ', '.join(cls.extra['search'])
         query = dedent(f'''
             CREATE TRIGGER {trigger_name}
                 BEFORE INSERT OR UPDATE
-                ON {tablename}
+                ON {cls.tablename()}
                 FOR EACH ROW EXECUTE PROCEDURE
                 tsvector_update_trigger(search_data, 'pg_catalog.portuguese', {fieldnames})
         ''').strip()
@@ -65,9 +129,22 @@ class DynamicModelMixin:
 
     @classmethod
     def create_indexes(cls):
-        with connection.schema_editor() as schema_editor:
+        with connection.cursor() as cursor:
             for index in cls._meta.indexes:
-                schema_editor.add_index(cls, index)
+                fieldnames = []
+                for fieldname in index.fields:
+                    if fieldname.startswith('-'):
+                        fieldnames.append(f'{fieldname[1:]} DESC')
+                    else:
+                        fieldnames.append(f'{fieldname} ASC')
+                fieldnames = ',\n                            '.join(fieldnames)
+                query = dedent(f'''
+                    CREATE INDEX CONCURRENTLY {index.name}
+                        ON {cls.tablename()} (
+                            {fieldnames}
+                        );
+                ''').strip()
+                cursor.execute(query)
 
     @classmethod
     def delete_table(cls):
@@ -273,14 +350,27 @@ class Table(models.Model):
         indexes = []
         # TODO: add has_choices fields also
         if ordering:
-            indexes.append(models.Index(fields=ordering))
+            indexes.append(
+                models.Index(name=make_index_name(name, 'order', ordering),
+                             fields=ordering)
+            )
         if filtering:
             for field_name in filtering:
                 if ordering == [field_name]:
                     continue
-                indexes.append(models.Index(fields=[field_name]))
+                indexes.append(
+                    models.Index(
+                        name=make_index_name(name, 'filter', [field_name]),
+                        fields=[field_name]
+                    )
+                )
         if search:
-            indexes.append(GinIndex(fields=['search_data']))
+            indexes.append(
+                GinIndex(
+                    name=make_index_name(name, 'search', ['search_data']),
+                    fields=['search_data']
+                )
+            )
 
         Options = type(
             'Meta',
@@ -310,35 +400,8 @@ class Table(models.Model):
         return Model
 
     def get_model_declaration(self):
-        model_name = ''.join([word.capitalize()
-                              for word in self.dataset.slug.split('-')])
-        ordering = self.ordering or []
-        filtering = self.filtering or []
-        search = self.search or []
-        indexes = []
-        if ordering:
-            indexes.append(ordering)
-        if filtering:
-            indexes.extend(filtering)
-        # TODO: add search indexes
-        fields_text = []
-        for field in self.fields:
-            kwargs = field.options or {}
-            kwargs['null'] = field.null
-            field_args = ', '.join(['{}={}'.format(key, repr(value))
-                                    for key, value in kwargs.items()])
-            field_class = FIELD_TYPES[field.type].__name__
-            fields_text.append('{} = models.{}({})'.format(field.name, field_class, field_args))
-        return dedent('''
-            class {model_name}(models.Model):
-            {fields}
-
-                class Meta:
-                    indexes = {indexes}
-                    ordering = {ordering}
-        ''').format(model_name=model_name, indexes=repr(indexes), ordering=repr(ordering),
-                    fields='    ' + '\n    '.join(fields_text))
-        # TODO: missing objects?
+        Model = self.get_model()
+        return model_to_code(Model)
 
 
 class FieldQuerySet(models.QuerySet):
