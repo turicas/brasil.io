@@ -2,8 +2,9 @@ import hashlib
 from textwrap import dedent
 from urllib.parse import urlparse
 
+import django.db.models.indexes as django_indexes
 from django.contrib.postgres.fields import ArrayField, JSONField
-from django.contrib.postgres.indexes import GinIndex
+import django.contrib.postgres.indexes as pg_indexes
 from django.contrib.postgres.search import (SearchQuery, SearchVector,
                                             SearchVectorField)
 from django.db import connection, models
@@ -131,16 +132,28 @@ class DynamicModelMixin:
     def create_indexes(cls):
         with connection.cursor() as cursor:
             for index in cls._meta.indexes:
+                index_class = type(index)
+                if index_class is django_indexes.Index:
+                    index_type = 'btree'
+                elif index_class is pg_indexes.GinIndex:
+                    index_type = 'gin'
+                else:
+                    raise ValueError('Cannot identify index type of {index}')
+
                 fieldnames = []
                 for fieldname in index.fields:
                     if fieldname.startswith('-'):
-                        fieldnames.append(f'{fieldname[1:]} DESC')
+                        value = f'{fieldname[1:]} DESC'
                     else:
-                        fieldnames.append(f'{fieldname} ASC')
+                        value = f'{fieldname} ASC'
+                    if index_type == 'gin':
+                        value = value.split(' ')[0]
+                    fieldnames.append(value)
+
                 fieldnames = ',\n                            '.join(fieldnames)
                 query = dedent(f'''
                     CREATE INDEX CONCURRENTLY {index.name}
-                        ON {cls.tablename()} (
+                        ON {cls.tablename()} USING {index_type} (
                             {fieldnames}
                         );
                 ''').strip()
@@ -351,22 +364,24 @@ class Table(models.Model):
         # TODO: add has_choices fields also
         if ordering:
             indexes.append(
-                models.Index(name=make_index_name(name, 'order', ordering),
-                             fields=ordering)
+                django_indexes.Index(
+                    name=make_index_name(name, 'order', ordering),
+                    fields=ordering,
+                )
             )
         if filtering:
             for field_name in filtering:
                 if ordering == [field_name]:
                     continue
                 indexes.append(
-                    models.Index(
+                    django_indexes.Index(
                         name=make_index_name(name, 'filter', [field_name]),
                         fields=[field_name]
                     )
                 )
         if search:
             indexes.append(
-                GinIndex(
+                pg_indexes.GinIndex(
                     name=make_index_name(name, 'search', ['search_data']),
                     fields=['search_data']
                 )
