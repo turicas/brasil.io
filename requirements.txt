@@ -9,11 +9,12 @@ git+https://github.com/turicas/rows.git@develop#egg=rows
 gunicorn
 ipython
 markdown
+networkx==2.1
 openpyxl
 psycopg2-binary
+py2neo==3.1.2
+pytest-django==3.2.1
+requests
 sendgrid-django
 tqdm
 whitenoise
-py2neo==3.1.2
-networkx==2.1
-pytest-django==3.2.1
