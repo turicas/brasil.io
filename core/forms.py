@@ -74,7 +74,10 @@ class CompanyGroupsForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        company = _get_obj('', cleaned_data['identifier'], 'pessoa-juridica')
+        identifier = cleaned_data['identifier']
+        for char in './-':
+            identifier = identifier.replace(char, '')
+        company = _get_obj('', identifier, 'pessoa-juridica')
         if not company:
             self.add_error('identifier', 'Document not found')
         else:
