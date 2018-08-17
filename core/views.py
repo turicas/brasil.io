@@ -74,7 +74,11 @@ def dataset_detail(request, slug, tablename=''):
 
     version = dataset.version_set.order_by('-order').first()
     fields = table.fields
-    all_data = table.get_model().objects
+    fieldnames_to_show = [field.name
+                          for field in fields
+                          if field.show_on_frontend]
+    # TODO: may move this logic to model
+    all_data = table.get_model().objects.values(*fieldnames_to_show)
     querystring = request.GET.copy()
     page_number = querystring.pop('page', ['1'])[0].strip() or '1'
     search_query = querystring.pop('search', [''])[0]
