@@ -11,6 +11,9 @@
 {% endblock %}
 
 {% block content %}{% localize off %}{% with client_export_csv=True %}
+
+{% include 'contas-gratuitas.html' %}
+
 <div class="section">
   <h4>{{ obj.name }}</h4>
 
