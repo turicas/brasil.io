@@ -146,7 +146,12 @@ Após fazer o download do arquivo basta executar o seguinte comando:
 python manage.py import_data --no-input balneabilidade-bahia balneabilidade balneabilidade-bahia.csv.xz
 ```
 
-> Nota: você pode baixar um arquivo grande e importar somente parte dele para
+> Nota 1: caso queira importar diversos datasets, crie um diretório `data`,
+> coloque lá os diretórios de dados existentes no Google Drive e execute o
+> arquivo [scripts/import-datasets.sh](scripts/import-datasets.sh), que
+> executará todos os `import_data`.
+
+> Nota 2: você pode baixar um arquivo grande e importar somente parte dele para
 > que o processo não demore muito. Para isso, basta descompactar o CSV e
 > criar um novo arquivo com menos linhas, exemplo:
 > `xzcat socios.csv.xz | head -10000 | xz -z > socios-10k.csv.xz`. Essa dica é
