@@ -18,6 +18,7 @@ urlpatterns = [
     path('datasets/sugira', views.dataset_suggestion, name='dataset-suggestion'),
     path('manifesto', views.manifesto, name='manifesto'),
     path('colabore', views.collaborate, name='collaborate'),
+    path('doe', views.donate, name='donate'),
 
     # Dataset-specific pages (specials)
     path('especiais', login_required(views_special.index, login_url=sign_up_url), name='specials'),

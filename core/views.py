@@ -42,6 +42,10 @@ def index(request):
     return redirect(reverse('core:home'))
 
 
+def donate(request):
+    return redirect('https://apoia.se/brasilio')
+
+
 def home(request):
     context = {
         'datasets': Dataset.objects.filter(show=True).order_by('?')[:6],
