@@ -79,7 +79,6 @@ def dataset_detail(request, slug, tablename=''):
                           for field in fields
                           if field.show_on_frontend]
     # TODO: may move this logic to model
-    all_data = table.get_model().objects.values(*fieldnames_to_show)
     querystring = request.GET.copy()
     page_number = querystring.pop('page', ['1'])[0].strip() or '1'
     search_query = querystring.pop('search', [''])[0]
@@ -87,6 +86,10 @@ def dataset_detail(request, slug, tablename=''):
     order_by = [field.strip().lower()
                 for field in order_by[0].split(',')
                 if field.strip()]
+    download_csv = querystring.get('format', '') == 'csv'
+    all_data = table.get_model().objects
+    if not download_csv:
+        all_data = all_data.values(*fieldnames_to_show)
 
     if search_query:
         all_data = all_data.search(search_query)
@@ -96,8 +99,7 @@ def dataset_detail(request, slug, tablename=''):
         )
 
     all_data = all_data.apply_ordering(order_by)
-    if (querystring.get('format', '') == 'csv' and
-        0 < all_data.count() <= max_export_rows):
+    if download_csv and 0 < all_data.count() <= max_export_rows:
         filename = '{}-{}.csv'.format(slug, uuid.uuid4().hex)
         pseudo_buffer = Echo()
         writer = csv.writer(pseudo_buffer, dialect=csv.excel)
