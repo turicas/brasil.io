@@ -73,58 +73,47 @@ def dataset_detail(request, slug, tablename=''):
     except Table.DoesNotExist:
         return HttpResponseBadRequest(f'Table does not exist.', status=404)
 
-    version = dataset.version_set.order_by('-order').first()
-    fields = table.fields
-    fieldnames_to_show = [field.name
-                          for field in fields
-                          if field.show_on_frontend]
-    # TODO: may move this logic to model
     querystring = request.GET.copy()
     page_number = querystring.pop('page', ['1'])[0].strip() or '1'
-    search_query = querystring.pop('search', [''])[0]
-    order_by = querystring.pop('order-by', [''])
-    order_by = [field.strip().lower()
-                for field in order_by[0].split(',')
-                if field.strip()]
-    download_csv = querystring.get('format', '') == 'csv'
-    all_data = table.get_model().objects
-    if not download_csv:
-        all_data = all_data.values(*fieldnames_to_show)
-
-    if search_query:
-        all_data = all_data.search(search_query)
-    if querystring:
-        all_data = all_data.apply_filters(
-            {key: value for key, value in querystring.items() if value}
-        )
-
-    all_data = all_data.apply_ordering(order_by)
-    if download_csv and 0 < all_data.count() <= max_export_rows:
-        filename = '{}-{}.csv'.format(slug, uuid.uuid4().hex)
-        pseudo_buffer = Echo()
-        writer = csv.writer(pseudo_buffer, dialect=csv.excel)
-        csv_rows = queryset_to_csv(all_data, fields)
-        response = StreamingHttpResponse(
-            (writer.writerow(row) for row in csv_rows),
-            content_type='text/csv;charset=UTF-8',
-        )
-        response['Content-Disposition'] = ('attachment; filename="{}"'
-                                           .format(filename))
-        response.encoding = 'UTF-8'
-        return response
-
-
-    paginator = Paginator(all_data, 20)
+    download_csv = querystring.pop('format', ['']) == ['csv']
     try:
         page = int(page_number)
     except ValueError:
-        raise HttpResponseBadRequest
+        return HttpResponseBadRequest('Invalid page number.', status=404)
+
+    version = dataset.version_set.order_by('-order').first()
+    fields = table.fields
+
+    all_data = table.get_model().objects.filter_by_querystring(querystring)
+
+    if not download_csv:
+        fieldnames_to_show = [field.name
+                              for field in fields
+                              if field.show_on_frontend]
+        all_data = all_data.values(*fieldnames_to_show)
+    else:
+        if all_data.count() <= max_export_rows:
+            filename = '{}-{}.csv'.format(slug, uuid.uuid4().hex)
+            pseudo_buffer = Echo()
+            writer = csv.writer(pseudo_buffer, dialect=csv.excel)
+            csv_rows = queryset_to_csv(all_data, fields)
+            response = StreamingHttpResponse(
+                (writer.writerow(row) for row in csv_rows),
+                content_type='text/csv;charset=UTF-8',
+            )
+            response['Content-Disposition'] = ('attachment; filename="{}"'
+                                            .format(filename))
+            response.encoding = 'UTF-8'
+            return response
+        else:
+            return HttpResponseBadRequest('Max rows exceeded.', status=404)
+
+    paginator = Paginator(all_data, 20)
     data = paginator.get_page(page)
 
-    if order_by:
-        querystring['order-by'] = ','.join(order_by)
-    if search_query:
-        querystring['search'] = search_query
+    for key, value in list(querystring.items()):
+        if not value:
+            del querystring[key]
     context = {
         'data': data,
         'dataset': dataset,
@@ -133,7 +122,6 @@ def dataset_detail(request, slug, tablename=''):
         'max_export_rows': max_export_rows,
         'query_dict': querystring,
         'querystring': querystring.urlencode(),
-        'search_query': search_query,
         'slug': slug,
         'table': table,
         'total_count': all_data.count(),

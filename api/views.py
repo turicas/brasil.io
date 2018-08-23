@@ -43,17 +43,9 @@ class DatasetDataListView(ListAPIView):
         for pagination_key in ('limit', 'offset'):
             if pagination_key in querystring:
                 del querystring[pagination_key]
-        order_by = querystring.pop('order-by', [''])
+
         Model = self.get_model_class()
-        queryset = Model.objects.all()
-
-        if querystring:
-            queryset = queryset.apply_filters(querystring)
-
-        order_by = [field.strip().lower()
-                    for field in order_by[0].split(',')
-                    if field.strip()]
-        queryset = queryset.apply_ordering(order_by)
+        queryset = Model.objects.filter_by_querystring(querystring)
 
         return queryset
 

@@ -62,7 +62,7 @@
 
               <div class="input-field col s6">
                 <label class="active" for="search">Busca</label>
-                <input type="text" id="search" name="search" value="{{ search_query|default:'' }}">
+                <input type="text" id="search" name="search" value="{{ query_dict.search|default:'' }}">
               </div>
 
               {% for field in fields %}

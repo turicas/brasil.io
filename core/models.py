@@ -210,6 +210,22 @@ class DynamicModelQuerySet(models.QuerySet):
 
         return qs
 
+    def filter_by_querystring(self, querystring):
+        queryset = self
+        query = querystring.copy()
+        order_by = query.pop('order-by', [''])
+        order_by = [field.strip().lower()
+                    for field in order_by[0].split(',')
+                    if field.strip()]
+        search_query = query.pop('search', [''])[0]
+        query = {key: value for key, value in query.items() if value}
+        if search_query:
+            queryset = queryset.search(search_query)
+        if query:
+            queryset = queryset.apply_filters(query)
+        queryset = queryset.apply_ordering(order_by)
+
+        return queryset
 
     def count(self):
         if getattr(self, '_count', None) is not None:
