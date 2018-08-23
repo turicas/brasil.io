@@ -33,10 +33,12 @@ class DatasetDataListView(ListAPIView):
 
     pagination_class = paginators.LargeTablePageNumberPagination
 
-    def get_model_class(self):
+    def get_table(self):
         dataset = get_object_or_404(Dataset, slug=self.kwargs['slug'])
-        table = get_object_or_404(Table, dataset=dataset, name=self.kwargs['tablename'])
-        return table.get_model()
+        return get_object_or_404(Table, dataset=dataset, name=self.kwargs['tablename'])
+
+    def get_model_class(self):
+        return self.get_table().get_model()
 
     def get_queryset(self):
         querystring = self.request.query_params.copy()
@@ -50,9 +52,10 @@ class DatasetDataListView(ListAPIView):
         return queryset
 
     def get_serializer_class(self):
-        Model = self.get_model_class()
-        fields = sorted([field.name for field in Model._meta.fields
-                         if field.name != 'search_data'])
+        table = self.get_table()
+        Model = table.get_model()
+        fields = sorted([field.name for field in table.fields
+                         if field.name != 'search_data' and field.show])
 
         # TODO: move this monkey patch to a metaclass
         GenericSerializer.Meta.model = Model
