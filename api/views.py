@@ -1,3 +1,4 @@
+from collections import Sequence
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, viewsets
 from rest_framework.generics import ListAPIView
@@ -5,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from core.models import Dataset, Table, Link
+from core.templatetags.utils import obfuscate
 from api.serializers import (DatasetDetailSerializer,
                              DatasetSerializer,
                              GenericSerializer)
@@ -54,13 +56,30 @@ class DatasetDataListView(ListAPIView):
     def get_serializer_class(self):
         table = self.get_table()
         Model = table.get_model()
-        fields = sorted([field.name for field in table.fields
+        fields = sorted([field.name
+                         for field in table.fields
                          if field.name != 'search_data' and field.show])
 
         # TODO: move this monkey patch to a metaclass
         GenericSerializer.Meta.model = Model
         GenericSerializer.Meta.fields = fields
         return GenericSerializer
+
+    def get_serializer(self, *args, **kwargs):
+        Model = self.get_model_class()  # TODO: avoid to call it twice
+        obfuscate_fields = [field.name
+                            for field in self.get_table().fields
+                            if field.obfuscate and field.show]
+        if obfuscate_fields:
+            objects = args[0]
+            if not isinstance(objects, Sequence):
+                objects = [objects]
+            for obj in objects:
+                for field_name in obfuscate_fields:
+                    value = obfuscate(getattr(obj, field_name))
+                    setattr(obj, field_name, value)
+
+        return super().get_serializer(*args, **kwargs)
 
 dataset_list = DatasetViewSet.as_view({'get': 'list'})
 dataset_detail = DatasetViewSet.as_view({'get': 'retrieve'}, lookup_field='slug')
