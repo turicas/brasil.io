@@ -452,7 +452,7 @@ class Field(models.Model):
     choices = JSONField(null=True, blank=True)
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE,
                                 null=False, blank=False)
-    description = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     frontend_filter = models.BooleanField(null=False, blank=True, default=False)
     has_choices = models.BooleanField(null=False, blank=True, default=False)
     link_template = models.URLField(max_length=2000, null=True, blank=True)
