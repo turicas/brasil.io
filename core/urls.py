@@ -19,6 +19,7 @@ urlpatterns = [
     path('manifesto', views.manifesto, name='manifesto'),
     path('colabore', views.collaborate, name='collaborate'),
     path('doe', views.donate, name='donate'),
+    path('contribuidores', views.contribuidores, name='contribuidores'),
 
     # Dataset-specific pages (specials)
     path('especiais', views_special.index, name='specials'),

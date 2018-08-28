@@ -170,3 +170,6 @@ def manifesto(request):
 
 def collaborate(request):
     return render(request, 'collaborate.html', {})
+
+def contribuidores(request):
+    return render(request, 'contribuidores.html', {})

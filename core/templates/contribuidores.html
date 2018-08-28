@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Contribuidores - Brasil.IO{% endblock %}
+{% block content %}
+<div class="section">
+  <h4>Contribuidores</h4>
+  <div class="divider"></div>
+
+    <div class="row text-center m-t-5">
+
+      <div class="col s12 m3 m-t-5 m-b-10">
+        <span class="fa-stack fa-4x text-center">
+          <img class="circle responsive-img" src="{% static 'img/contributors/alvaro_justen.png' %}" alt="">
+        </span>
+        <h6> Álvaro Justen </h6>
+        <p class="contributor-description"> Fundador </p>
+        <span class="social-buttons-container text-center">
+           <ul class="social-buttons">
+            <li>
+              <a href="http://github.com/turicas" target="_blank">
+                <i class="fa fa-github" aria-hidden="true"></i>
+              </a>
+            </li>
+            <li>
+              <a href="https://twitter.com/turicas" target="_blank">
+                <i class="fa fa-twitter" aria-hidden="true"></i>
+              </a>
+            </li>
+          </ul>
+        </span>
+      </div>
+
+      <div class="col s12 m3 m-t-5 m-b-10">
+        <span class="fa-stack fa-4x text-center">
+          <img class="circle responsive-img" src="{% static 'img/contributors/julia_carmona.png' %}" alt="">
+        </span>
+        <h6> Júlia Carmona </h6>
+        <p class="contributor-description"> Desenvolvedora </p>
+        <span class="social-buttons-container text-center">
+           <ul class="social-buttons">
+            <li>
+              <a href="http://github.com/juhhcarmona/" target="_blank">
+                <i class="fa fa-github" aria-hidden="true"></i>
+              </a>
+            </li>
+            <li>
+              <a href="https://twitter.com/juhcarmona" target="_blank">
+                <i class="fa fa-twitter" aria-hidden="true"></i>
+              </a>
+            </li>
+          </ul>
+        </span>
+      </div>
+
+    </div>
+</div>
+{% endblock %}
