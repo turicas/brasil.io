@@ -2,35 +2,46 @@
 
 {% block content %}
 
-{% if form.errors %}
-<p>Senha inválida. Por favor tente novamente.</p>
-{% endif %}
+  <div class="row m-t-15">
+    <div class="col s12 m8 offset-m2">
+      {% if form.errors %}
+        <p class="red-text text-lighten-3">
+          Senha inválida. Por favor tente novamente.
+        </p>
+      {% endif %}
 
-{% if next %}
-    {% if user.is_authenticated %}
-    <p>Seu usuário não possui permissão para acessar esta página. Para seguir, por favor utilize algum usuário com permissão.</p>
-    {% else %}
-    <p>Faça o login para acessar a página.</p>
-    {% endif %}
-{% endif %}
+      {% if next %}
+          {% if user.is_authenticated %}
+            <p class="red-text text-lighten-3">
+              Seu usuário não possui permissão para acessar esta página.
+              Para seguir, por favor utilize algum usuário com permissão.
+            </p>
+          {% else %}
+            <p class="red-text text-lighten-3">
+              Faça o login para acessar a página.
+            </p>
+          {% endif %}
+      {% endif %}
 
-<form method="post" action="{% url 'brasilio_auth:login' %}">
-{% csrf_token %}
-<table>
-<tr>
-    <td>{{ form.username.label_tag }}</td>
-    <td>{{ form.username }}</td>
-</tr>
-<tr>
-    <td>{{ form.password.label_tag }}</td>
-    <td>{{ form.password }}</td>
-</tr>
-</table>
+      <form method="post" action="{% url 'brasilio_auth:login' %}">
+        {% csrf_token %}
+        {{ form.username.label_tag }}
+        {{ form.username }}
 
-<input class="btn" type="submit" value="login" />
-<input type="hidden" name="next" value="{{ next }}" />
-</form>
+        {{ form.password.label_tag }}
+        {{ form.password }}
 
-<p><a href="{% url 'brasilio_auth:password_reset' %}">Esqueci minha senha</a></p>
+        <div class="text-center">
+          <input class="btn" type="submit" value="login" />
+          <input type="hidden" name="next" value="{{ next }}" />
+          <p>
+            <a href="{% url 'brasilio_auth:password_reset' %}">
+              Esqueci minha senha
+            </a>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
 
 {% endblock %}
