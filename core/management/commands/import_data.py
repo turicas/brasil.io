@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.db.utils import ProgrammingError
 from django.utils import timezone
-from rows.utils import pgimport
+from rows.utils import pgimport, ProgressBar
 
 from core.models import Field, Table
 
@@ -62,24 +62,28 @@ class Command(BaseCommand):
             encoding = 'utf-8'  # TODO: receive as a parameter
             timeout = 0.1  # TODO: receive as a parameter
             start_time = time.time()
+            progress = ProgressBar(prefix='Importing data', unit='bytes')
             try:
-                rows_imported = pgimport(
+                import_meta = pgimport(
                     filename=filename,
                     encoding=encoding,
                     database_uri=database_uri,
                     table_name=table_name,
                     create_table=False,
                     timeout=timeout,
-                    progress=True,
+                    callback=progress.update,
                 )
             except RuntimeError as exception:
+                progress.close()
                 print('ERROR: {}'.format(exception.args[0]))
                 exit(1)
             else:
+                progress.close()
                 table.last_update = timezone.now()
                 table.save()
                 end_time = time.time()
                 duration = end_time - start_time
+                rows_imported = import_meta['rows_imported']
                 print('  done in {:7.3f}s ({} rows imported, {:.3f} rows/s).'
                       .format(duration, rows_imported, rows_imported / duration))
             Model = table.get_model(cache=False)
