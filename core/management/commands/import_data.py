@@ -67,6 +67,7 @@ class Command(BaseCommand):
                 import_meta = pgimport(
                     filename=filename,
                     encoding=encoding,
+                    dialect='excel',
                     database_uri=database_uri,
                     table_name=table_name,
                     create_table=False,
