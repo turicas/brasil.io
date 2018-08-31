@@ -1,8 +1,14 @@
+import re
+
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 
 from core.models import Dataset
 from core.util import get_company_by_document
+
+
+def numbers_only(value):
+    return re.compile('[^0-9]').sub('', value)
 
 
 def _resolve_field_by_type(person_type):
@@ -20,7 +26,7 @@ def _get_obj(field, identifier, person_type):
         return Socios.objects.filter(**{field: identifier}).first()
     elif person_type == 'pessoa-juridica':
         try:
-            return get_company_by_document(identifier)
+            return get_company_by_document(numbers_only(identifier))
         except ObjectDoesNotExist:
             return None
 
@@ -50,7 +56,6 @@ class TracePathForm(forms.Form):
         origin_identifier = cleaned_data.get('origin_identifier')
         destination_type = cleaned_data.get('destination_type')
         destination_identifier = cleaned_data.get('destination_identifier')
-
 
         origin_field = _resolve_field_by_type(origin_type)
         destination_field = _resolve_field_by_type(destination_type)
