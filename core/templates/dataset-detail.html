@@ -146,9 +146,10 @@
               <table>
                 <thead>
                   <tr>
-                    <th>Nome da Coluna</th>
-                    <th>Descrição</th>
+                    <th>Coluna</th>
                     <th>Tipo</th>
+                    <th>Título</th>
+                    <th>Descrição</th>
                   </tr>
                 </thead>
 
@@ -156,8 +157,9 @@
                   {% for field in table.fields %}
                   <tr>
                     <td> {{ field.name }} </td>
-                    <td> {{ field.title }} </td>
                     <td> {{ field.type }}{% if field.options_text %} ({{ field.options_text }}){% endif %}</td>
+                    <td> {{ field.title }} </td>
+                    <td> {{ field.description }} </td>
                   </tr>
                   {% endfor %}
                 </tbody>
