@@ -22,7 +22,7 @@
     {% if original_document %}
     O documento {{ original_document }} não foi encontrado!
     {% endif %}
-    Mostrando informações sobre todas as empresas (filial e matrizes) cujo CNPJ
+    Mostrando informações sobre todas as empresas (matriz e filiais) cujo CNPJ
     começa com {{ doc_prefix }}.
   </p>
   {% endif %}
@@ -37,7 +37,7 @@
   </dl>
 
   {% if branches.count %}
-  <h4>Filial/Matrizes</h4>
+  <h4>Matriz/Filiais</h4>
   {% with table_id='branches' data=branches fields=branches_fields caption='branches-'|add:obj.name  %}
     {% include 'data-table.html' %}
   {% endwith %}
