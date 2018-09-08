@@ -268,6 +268,10 @@ class Dataset(models.Model):
         version = self.get_last_version()
         return self.table_set.filter(version=version).order_by('name')
 
+    @property
+    def last_version(self):
+        return self.get_last_version()
+
     def get_table(self, tablename):
         return Table.objects.for_dataset(self).named(tablename)
 
