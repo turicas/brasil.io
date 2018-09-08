@@ -31,7 +31,7 @@ class TableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Table
-        fields = ('fields', 'name', 'data_url')
+        fields = ('fields', 'name', 'data_url', 'import_date')
 
 
 class DatasetSerializer(serializers.ModelSerializer):
