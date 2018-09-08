@@ -15,34 +15,4 @@ class Migration(migrations.Migration):
             old_name='last_update',
             new_name='import_date',
         ),
-        migrations.AlterField(
-            model_name='field',
-            name='frontend_filter',
-            field=models.BooleanField(blank=True, default=False),
-        ),
-        migrations.AlterField(
-            model_name='field',
-            name='has_choices',
-            field=models.BooleanField(blank=True, default=False),
-        ),
-        migrations.AlterField(
-            model_name='field',
-            name='null',
-            field=models.BooleanField(blank=True, default=True),
-        ),
-        migrations.AlterField(
-            model_name='field',
-            name='obfuscate',
-            field=models.BooleanField(blank=True, default=False),
-        ),
-        migrations.AlterField(
-            model_name='field',
-            name='show',
-            field=models.BooleanField(blank=True, default=True),
-        ),
-        migrations.AlterField(
-            model_name='field',
-            name='show_on_frontend',
-            field=models.BooleanField(blank=True, default=False),
-        ),
     ]
