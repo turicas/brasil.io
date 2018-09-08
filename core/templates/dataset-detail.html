@@ -93,7 +93,12 @@
       </div>
 
       <div class="row">
-        <p> Última atualização: {{ table.last_update }} </p>
+        <p>
+          Dados capturados em {{ version.collected_at }}.
+          {% if table.import_date %}
+            Importação dos dados feitas em {{ table.import_date }}
+          {% endif %}
+        </p>
 
         {% if total_count > 0 and total_count <= max_export_rows %}
         <div class="col s12 m7 left" style="padding-left: 0px;">
