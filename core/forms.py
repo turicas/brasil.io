@@ -1,7 +1,8 @@
 import re
 
 from django import forms
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 from core.models import Dataset
 from core.util import get_company_by_document
@@ -27,6 +28,11 @@ def _get_obj(field, identifier, person_type):
     elif person_type == 'pessoa-juridica':
         try:
             return get_company_by_document(numbers_only(identifier))
+        except ValueError:
+            raise ValidationError(
+                _('Invalid value: %(value)s'),
+                params={'value': identifier},
+            )
         except ObjectDoesNotExist:
             return None
 
