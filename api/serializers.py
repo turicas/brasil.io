@@ -31,7 +31,7 @@ class TableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Table
-        fields = ('fields', 'name', 'data_url')
+        fields = ('fields', 'name', 'data_url', 'import_date')
 
 
 class DatasetSerializer(serializers.ModelSerializer):
@@ -54,17 +54,21 @@ class DatasetDetailSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
     links = LinkSerializer(many=True, source='link_set')
     tables = TableSerializer(many=True)
+    collected_at = serializers.SerializerMethodField()
 
     def get_id(self, obj):
         return reverse('api:dataset-detail', kwargs={'slug': obj.slug},
                        request=self.context['request'])
+
+    def get_collected_at(self, obj):
+        return obj.last_version.collected_at
 
     class Meta:
         model = Dataset
         fields = (
             'author_name', 'author_url', 'code_url', 'description',
             'id', 'license_name', 'license_url', 'links', 'name', 'slug',
-            'source_name', 'source_url', 'tables'
+            'source_name', 'source_url', 'collected_at', 'tables',
         )
 
 
