@@ -1,12 +1,15 @@
 import csv
 import uuid
 
+from django.conf import settings
+from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.http import HttpResponseBadRequest, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from core.models import Dataset, Table
+from core.forms import ContactForm
 from core.templatetags.utils import obfuscate
 
 
@@ -18,7 +21,34 @@ class Echo:
 
 
 def contact(request):
-    return render(request, 'contact.html', {})
+    sent = request.GET.get('sent', '').lower() == 'true'
+
+    if request.method == 'GET':
+        data = {}
+        if request.user and not request.user.is_anonymous:
+            data['name'] = request.user.first_name or request.user.username
+            data['email'] = request.user.email
+        form = ContactForm(data=data)
+
+    elif request.method == 'POST':
+        form = ContactForm(data=request.POST)
+
+        if form.is_valid():
+            data = form.cleaned_data
+            email = EmailMessage(
+                subject='Contato no Brasil.IO',
+                body=data['message'],
+                from_email=f'{data["name"]} (via Brasil.IO) <{settings.DEFAULT_FROM_EMAIL}>',
+                to=[settings.DEFAULT_FROM_EMAIL],
+                reply_to=[f'{data["name"]} <{data["email"]}>'],
+            )
+            email.send()
+            return redirect(reverse('core:contact') + '?sent=true')
+
+    else:
+        return HttpResponseBadRequest(f'Invalid HTTP method.', status=404)
+
+    return render(request, 'contact.html', {'form': form, 'sent': sent})
 
 
 def queryset_to_csv(data, fields):

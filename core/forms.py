@@ -94,3 +94,12 @@ class CompanyGroupsForm(forms.Form):
         else:
             cleaned_data['company'] = company
         return cleaned_data
+
+
+class ContactForm(forms.Form):
+    name = forms.CharField(required=True, label='Nome')
+    email = forms.EmailField(required=True, label='E-mail')
+    message = forms.CharField(
+        required=True, label='Mensagem',
+        widget=forms.Textarea(attrs={'class': 'materialize-textarea'}),
+    )
