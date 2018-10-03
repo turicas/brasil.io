@@ -1,6 +1,7 @@
 version: '3.2'
 
 services:
+
     db:
         image: postgres:10.3
         container_name: brasilio_postgres
@@ -11,6 +12,7 @@ services:
             - ./docker/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
             - ./docker/postgresql/data:/var/lib/postgresql/data
         command: -c "config_file=/etc/postgresql/postgresql.conf"
+
     graph_db:
         image: neo4j:3.3
         container_name: brasilio_neo4j
@@ -24,3 +26,11 @@ services:
             - "39003:7687"
         volumes:
             - ./docker/neo4j/data/:/data/
+
+    mail:
+        image: mailhog/mailhog
+        container_name: brasilio_mailhog
+        env_file: .env
+        ports:
+            - "39004:1025"
+            - "39005:8025"

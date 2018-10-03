@@ -2,7 +2,6 @@ cryptography
 django-cors-headers
 django-environ
 django-extensions
-django-naomi
 django>=2.0
 djangorestframework
 git+https://github.com/turicas/rows.git@develop#egg=rows
