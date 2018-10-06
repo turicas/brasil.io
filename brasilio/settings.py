@@ -139,13 +139,14 @@ EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
 EMAIL_PORT = env('EMAIL_PORT', int, default=587)
 EMAIL_USE_TLS = env('EMAIL_USE_TLS', default='True').lower() == 'true'
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='contato@brasil.io')
-SENDGRID_API_KEY = env('SENDGRID_API_KEY')
 ADMINS = env('ADMINS').strip() or []
 if ADMINS:
     ADMINS = [[item.strip() for item in admin.split('|')]
               for admin in ADMINS.split(',')]
 if DEBUG:
     EMAIL_FILE_PATH = MEDIA_ROOT
+else:
+    SENDGRID_API_KEY = env('SENDGRID_API_KEY')
 
 
 # Neo4J db conf
