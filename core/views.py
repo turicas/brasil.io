@@ -101,7 +101,8 @@ def dataset_detail(request, slug, tablename=''):
     try:
         table = dataset.get_table(tablename)
     except Table.DoesNotExist:
-        return HttpResponseBadRequest(f'Table does not exist.', status=404)
+        return render(request, '404.html', {})
+        # return HttpResponseBadRequest(f'Table does not exist.', status=404)
 
     querystring = request.GET.copy()
     page_number = querystring.pop('page', ['1'])[0].strip() or '1'

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="section indigo-text text-center error-container">
+        <h1>404</h1>
+        <p><b>Oops! não encontramos o que você está procurando.</b></p>
+        <p>Caso você queira saber mais detalhes, 
+            entre em <a href="{% url 'core:contact' %}">contato.</a></p>
+    </div>
+</div>
+{% endblock %}
