@@ -12,7 +12,6 @@ from core.models import Dataset, Table
 from core.forms import ContactForm
 from core.templatetags.utils import obfuscate
 
-
 max_export_rows = 350000
 
 class Echo:
@@ -102,7 +101,6 @@ def dataset_detail(request, slug, tablename=''):
         table = dataset.get_table(tablename)
     except Table.DoesNotExist:
         return render(request, '404.html', {})
-        # return HttpResponseBadRequest(f'Table does not exist.', status=404)
 
     querystring = request.GET.copy()
     page_number = querystring.pop('page', ['1'])[0].strip() or '1'
