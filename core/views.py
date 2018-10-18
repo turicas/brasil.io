@@ -45,7 +45,10 @@ def contact(request):
             return redirect(reverse('core:contact') + '?sent=true')
 
     else:
-        return HttpResponseBadRequest(f'Invalid HTTP method.', status=404)
+        context = {
+            'message': 'Invalid HTTP method.'
+        }
+        return render(request, '404.html', context)
 
     return render(request, 'contact.html', {'form': form, 'sent': sent})
 
@@ -108,7 +111,10 @@ def dataset_detail(request, slug, tablename=''):
     try:
         page = int(page_number)
     except ValueError:
-        return HttpResponseBadRequest('Invalid page number.', status=404)
+        context = {
+            'message': 'Invalid page number.'
+        }
+        return render(request, '404.html', context)
 
     version = dataset.version_set.order_by('-order').first()
     fields = table.fields
@@ -135,7 +141,10 @@ def dataset_detail(request, slug, tablename=''):
             response.encoding = 'UTF-8'
             return response
         else:
-            return HttpResponseBadRequest('Max rows exceeded.', status=404)
+            context = {
+                'message': 'Max rows exceeded.'
+            }
+            return render(request, '404.html', context)
 
     paginator = Paginator(all_data, 20)
     data = paginator.get_page(page)
