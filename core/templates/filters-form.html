@@ -1,0 +1,48 @@
+{% load utils %}
+
+<ul class="collapsible">
+        <li {% if not query_dict %} class="active" {% endif %}>
+          <div class="collapsible-header" style="display:block">
+            <i class="material-icons">filter_list</i>
+            Filtros
+            <i class="material-icons right">keyboard_arrow_down</i>
+          </div>
+          <div class="collapsible-body">
+          
+            <form method="get">
+                <div class="row">
+                    <div class="input-field col s6">
+                        <label class="active" for="search">Busca</label>
+                        <input type="text" id="search" name="search" value="{{ query_dict.search|default:'' }}">
+                    </div>
+                    {% for field in fields %}
+                        {% if field.frontend_filter %}{% with value=query_dict|getplainattribute:field|default:'' %}
+                        <div class="input-field col s6">
+                            <label class="active" for="{{ field.name }}">{{ field.title }}</label>
+                            {% if field.has_choices %}
+                            <select name="{{ field.name }}">
+                                <option value="" {% if value == "" %} selected{% endif %}>Todos</option>
+                                {% for choice in field.choices.data %}
+                                <option value="{{ choice }}"{% if value == choice %} selected{% endif %}>{% if choice == 'None' %}(vazio){% else %}{{ choice }}{% endif %}</option>
+                                {% endfor %}
+                            </select>
+                            {% else %}
+                            <input type="text" name="{{ field.name }}" value="{{ value }}">
+                            {% endif %}
+                        </div>
+                    {% endwith %}{% endif %}
+                    {% endfor %}
+                </div>
+                <div class="row">
+                    <input class="btn" type="submit" value="Filtrar">
+                </div>
+            </form>
+          </div>
+        </li>
+      </ul>
+      
+<script>
+  $(document).ready(function(){
+    $('.collapsible').collapsible();
+  });
+</script>
