@@ -4,12 +4,13 @@ import uuid
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import HttpResponseBadRequest, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from core.models import Dataset, Table
-from core.forms import ContactForm
+from core.forms import ContactForm, DatasetSearchForm
 from core.templatetags.utils import obfuscate
 
 
@@ -85,8 +86,17 @@ def home(request):
 
 
 def dataset_list(request):
+    form = DatasetSearchForm(request.GET)
+    q = Q(show=True)
+    if form.is_valid():
+        search_str = form.cleaned_data['search']
+        for term in search_str.split(' '):
+            q &= Q(
+                Q(description__icontains=term) | Q(name__icontains=term)
+            )
     context = {
-        'datasets': Dataset.objects.filter(show=True).order_by('name'),
+        'datasets': Dataset.objects.filter(q).order_by('name'),
+        'form': form,
     }
     return render(request, 'dataset-list.html', context)
 
