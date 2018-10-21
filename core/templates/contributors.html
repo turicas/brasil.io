@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Contribuidores - Brasil.IO{% endblock %}
+{% block content %}
+<div class="section">
+  <h4>Contribuidores</h4>
+  <div class="divider"></div>
+
+    <div class="row text-center m-t-5">
+
+      {% for contributor in contributors %}
+      <div class="col s12 m3 m-t-5 m-b-10">
+        <span class="fa-stack fa-4x text-center">
+          <a href="http://github.com/{{ contributor.login }}" target="_blank">
+            <img class="circle responsive-img" src="{{ contributor.avatar_url }}" alt="">
+          </a>
+        </span>
+        <h6> <a href="{{  contributor.html_url }}">@{{ contributor.login }}</a> </h6>
+        <span class="social-buttons-container text-center">
+          <ul class="social-buttons">
+            <li>
+              <a href="http://github.com/{{ contributor.login }}" target="_blank">
+                <i class="fa fa-github" aria-hidden="true"></i>
+              </a>
+            </li>
+            {% if contributor.blog %}
+            <li>
+              <a href="{{ contributor.blog }}" target="_blank">
+                <i class="fa fa-link" aria-hidden="true"></i>
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </span>
+      </div>
+      {% endfor %}
+
+    </div>
+</div>
+{% endblock %}
