@@ -161,7 +161,7 @@ python manage.py import_data --no-input cursos-prouni cursos cursos-prouni.csv.x
 O comando `import_data` irá executar as seguintes operações:
 
 - Deletar a tabela que contém os dados
-  (`data_balneabilidadebahia_balneabilidade`), caso exista;
+  (`data_cursosprouni_cursos`), caso exista;
 - Criar uma nova tabela, usando os metadados sobre ela que estão em `Table` e
   `Field`;
 - Criar um gatilho no PostgreSQL para preenchimento automático do índice de
