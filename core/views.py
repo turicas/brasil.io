@@ -11,7 +11,6 @@ from django.urls import reverse
 
 from core.forms import ContactForm, DatasetSearchForm
 from core.models import Dataset, Table
-
 from core.templatetags.utils import obfuscate
 from core.util import github_repository_contributors
 
