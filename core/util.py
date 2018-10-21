@@ -1,9 +1,12 @@
 import csv
 import gc
+import json
 import gzip
 import io
 import lzma
 from textwrap import dedent
+from functools import lru_cache
+from urllib.request import urlopen, URLError
 
 import django.db.models.fields
 from django.db import connection, reset_queries, transaction
@@ -59,3 +62,23 @@ def get_company_by_document(document):
                 pass
 
     return obj
+
+
+@lru_cache()
+def github_repository_contributors(username, repository, timeout=1):
+    url = f"https://api.github.com/repos/{username}/{repository}/contributors"
+    try:
+        response = urlopen(url, timeout=timeout)
+    except URLError:
+        return []
+    else:
+        contributors = json.loads(response.read())
+        result = []
+        for contributor in contributors:
+            url = contributor["url"]
+            try:
+                response = urlopen(url, timeout=timeout)
+            except URLError:
+                continue
+            result.append(json.loads(response.read()))
+        return result

@@ -11,6 +11,8 @@ from django.urls import reverse
 from core.models import Dataset, Table
 from core.forms import ContactForm
 from core.templatetags.utils import obfuscate
+from core.util import github_repository_contributors
+
 
 
 max_export_rows = 350000
@@ -171,5 +173,9 @@ def manifesto(request):
 def collaborate(request):
     return render(request, 'collaborate.html', {})
 
-def contribuidores(request):
-    return render(request, 'contribuidores.html', {})
+def contributors(request):
+    return render(
+        request,
+        "contributors.html",
+        {"contributors": github_repository_contributors("turicas", "brasil.io")},
+    )
