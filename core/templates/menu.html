@@ -1,5 +1,3 @@
-
-
 {% if request.user.is_authenticated %}
 <li>Olá, {{ request.user.username }}</li>
 <li><a href="{% url 'brasilio_auth:logout' %}">Logout</a></li>
