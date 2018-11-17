@@ -2,7 +2,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
-from brasilio_auth.views import CreateUserView
+from brasilio_auth.views import CreateUserView, ProfileUpdate
 
 
 views_config = {
@@ -36,4 +36,5 @@ urlpatterns = (
     path('troca-senha/atualizada/', views_config['password_reset_complete'], name='password_reset_complete'),
     path('logout/', views_config['logout'], name='logout'),
     path('entrar/', CreateUserView.as_view(), name='sign_up'),
+    path('editar-perfil/<int:user_id>', ProfileUpdate.as_view(), name='profile_update_form')
 )
