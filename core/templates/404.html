@@ -2,17 +2,22 @@
 
 {% block content %}
 <div class="container">
-    <div class="section indigo-text text-center error-container">
-        <h1>404</h1>
-        <p>
-            {% if message %}
-            <b>{{ message }}</b>
-            {% else %}
-            <b>Oops! não encontramos o que você está procurando.</b>
-            {% endif %}
-        </p>
-        <p>Caso você queira saber mais detalhes,
-            entre em <a href="{% url 'core:contact' %}">contato.</a></p>
-    </div>
+  <div class="section indigo-text text-center error-container">
+    <h1>Oops! Não encontramos o que você está procurando :(</h1>
+    {% if message %}
+    <p>
+      <b>
+        {{ message }}
+      </b>
+    </p>
+    {% endif %}
+    <p>
+      Se você acredita que essa página deveria existir e que isso é um
+      problema, entre em <a href="{% url
+        'core:contact' %}">contato</a> ou <a
+        href="https://github.com/turicas/brasil.io/issues/new">crie uma issue
+        em nosso repositório</a>.
+    </p>
+  </div>
 </div>
 {% endblock %}
