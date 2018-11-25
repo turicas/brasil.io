@@ -164,3 +164,7 @@
 .pagination li i {
   font-size: 1.3rem;
 }
+
+.error-container p{
+  font-size: 1.4rem;
+}

@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.http import HttpResponseBadRequest, StreamingHttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from core.forms import ContactForm
@@ -48,7 +48,10 @@ def contact(request):
             return redirect(reverse("core:contact") + "?sent=true")
 
     else:
-        return HttpResponseBadRequest(f"Invalid HTTP method.", status=404)
+        context = {
+            'message': 'Invalid HTTP method.'
+        }
+        return render(request, '404.html', context, status=400)
 
     return render(request, "contact.html", {"form": form, "sent": sent})
 
@@ -90,7 +93,14 @@ def dataset_list(request):
 
 
 def dataset_detail(request, slug, tablename=""):
-    dataset = get_object_or_404(Dataset, slug=slug)
+    try:
+        dataset = Dataset.objects.get(slug=slug)
+    except Dataset.DoesNotExist:
+        context = {
+            'message': 'Dataset does not exist'
+        }
+        return render(request, '404.html', context, status=404)
+
     if not tablename:
         tablename = dataset.get_default_table().name
         return redirect(
@@ -103,7 +113,10 @@ def dataset_detail(request, slug, tablename=""):
     try:
         table = dataset.get_table(tablename)
     except Table.DoesNotExist:
-        return HttpResponseBadRequest(f"Table does not exist.", status=404)
+        context = {
+            'message': 'Table does not exist'
+        }
+        return render(request, '404.html', context, status=404)
 
     querystring = request.GET.copy()
     page_number = querystring.pop("page", ["1"])[0].strip() or "1"
@@ -111,7 +124,10 @@ def dataset_detail(request, slug, tablename=""):
     try:
         page = int(page_number)
     except ValueError:
-        return HttpResponseBadRequest("Invalid page number.", status=404)
+        context = {
+            'message': 'Invalid page number.'
+        }
+        return render(request, '404.html', context, status=404)
 
     version = dataset.version_set.order_by("-order").first()
     fields = table.fields
@@ -137,7 +153,10 @@ def dataset_detail(request, slug, tablename=""):
             response.encoding = "UTF-8"
             return response
         else:
-            return HttpResponseBadRequest("Max rows exceeded.", status=404)
+            context = {
+                'message': 'Max rows exceeded.'
+            }
+            return render(request, '404.html', context, status=400)
 
     paginator = Paginator(all_data, 20)
     data = paginator.get_page(page)

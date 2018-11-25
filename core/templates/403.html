@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+  <div class="section indigo-text text-center error-container">
+    <h1>500</h1>
+    <p>
+      <b>
+        Oops! Parece que você não tem permissão para acessar essa página.
+        não se preocupe que já fomos notificados e trabalharemos para corrigir.
+      </b>
+    </p>
+    <p>
+      Caso esse erro seja inesperado,
+      entre em <a href="{% url 'core:contact' %}">contato.</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
