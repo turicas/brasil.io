@@ -103,3 +103,6 @@ class ContactForm(forms.Form):
         required=True, label='Mensagem',
         widget=forms.Textarea(attrs={'class': 'materialize-textarea'}),
     )
+
+class DatasetSearchForm(forms.Form):
+    search = forms.CharField(label='Titulo ou Descrição')

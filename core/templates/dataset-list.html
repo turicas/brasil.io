@@ -3,8 +3,30 @@
 
 {% block content %}
 <div class="row">
-  <h4>Datasets</h4>
-  <div class="divider"></div>
+  <div class="col s12 m7">
+    <h4>Datasets</h4>
+  </div>
+  <div class="col s12 m5">
+    <form action="{% url 'core:dataset-list' %}" method='get'>
+      <div class="row">
+        <div class="col s12 m8">
+          {{ form.search.label_tag }}
+          {{ form.search }}
+        </div>
+        <div class="col m-t-15">
+          <button class="btn">Buscar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+  <div class="row">
+    <div class="col s12 m-b-15">
+      <div class="divider"></div>
+    </div>
+  </div>
+  <div class="row">
 
   {% for dataset in datasets %}
     {% include 'dataset-card.html' %}
