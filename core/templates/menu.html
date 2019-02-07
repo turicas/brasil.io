@@ -1,9 +1,15 @@
 {% if request.user.is_authenticated %}
-<li>Olá, {{ request.user.username }}</li>
-<li><a href="{% url 'brasilio_auth:logout' %}">Logout</a></li>
+<li><a class="dropdown-trigger" href="#!" data-target="{{id_prefix}}_authenticated-dropdown">
+  Olá, {{ request.user.username }}
+  <i class="material-icons right">arrow_drop_down</i>
+</a></li>
+<ul id="{{id_prefix}}_authenticated-dropdown" class="dropdown-content">
+  <li><a href="{% url 'brasilio_auth:logout' %}">Logout</a></li>
+</ul>
+
 {% else %}
 <li><a class="dropdown-trigger" href="#!" data-target="{{id_prefix}}_unauthenticated-dropdown">
-  Autenticação
+  Sua conta
   <i class="material-icons right">arrow_drop_down</i>
 </a></li>
 <ul id="{{id_prefix}}_unauthenticated-dropdown" class="dropdown-content">
