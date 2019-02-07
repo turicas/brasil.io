@@ -98,6 +98,7 @@ def dataset_list(request):
         'datasets': Dataset.objects.filter(q).order_by('name'),
         'form': form,
     }
+    return render(request, "dataset-list.html", context)
 
 
 def dataset_detail(request, slug, tablename=""):
