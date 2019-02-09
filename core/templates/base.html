@@ -43,13 +43,13 @@
           </a>
             <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             <ul class="right hide-on-med-and-down">
-              {% include 'menu.html' %}
+              {% include 'menu.html' with id_prefix='desktop' %}
             </ul>
         </div>
     </nav>
 
     <ul class="sidenav" id="mobile-demo">
-      {% include 'menu.html' %}
+      {% include 'menu.html' with id_prefix='mobile'%}
     </ul>
 
     {% block top %}{% endblock %}
@@ -102,8 +102,11 @@
             O <b>Brasil.IO</b> é mantido com muito carinho por
             <a href="https://twitter.com/turicas">Álvaro Justen</a> e
             <a href="{% url 'core:contributors' %}">contribuidores</a>.
-            <a href="https://github.com/turicas/brasil.io/issues">Colabore também</a>.
           </p>
+        </div>
+        <div class="container">
+            <a href="{% url 'core:contact' %}">Contato</a>
+            | <a href="{% url 'core:collaborate' %}">Colabore</a>
         </div>
       </div>
     </div>
