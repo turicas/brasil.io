@@ -31,8 +31,11 @@ class CreateUserView(CreateView):
 
 class ProfileUpdate(UpdateView):
     model = User
-    pk_url_kwarg = 'user_id'
     fields = ['first_name', 'last_name', 'username']
     template_name = 'brasilio_auth/profile_update_form.html'
+
+    def get_object(self, queryset=None):
+            return self.request.user
+
     def get_success_url(self):
-        return reverse('brasilio_auth:profile_update_form', args=[self.object.id])
+        return reverse('brasilio_auth:profile_update_form')

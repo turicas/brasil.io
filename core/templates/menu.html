@@ -1,5 +1,5 @@
 {% if request.user.is_authenticated %}
-<li><a href="{% url 'brasilio_auth:profile_update_form' request.user.id %}"> Olá, {{ request.user.username }}</a></li>
+<li><a href="{% url 'brasilio_auth:profile_update_form' %}"> Olá, {{ request.user.username }}</a></li>
 <li><a href="{% url 'brasilio_auth:logout' %}">Logout</a></li>
 {% else %}
 <li><a href="{% url 'brasilio_auth:sign_up' %}">Cadastre-se</a></li>
