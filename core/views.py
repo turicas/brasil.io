@@ -146,29 +146,24 @@ def dataset_detail(request, slug, tablename=""):
 
     all_data = table.get_model().objects.filter_by_querystring(querystring)
 
-    if not download_csv:
-        fieldnames_to_show = [field.name for field in fields if field.show_on_frontend]
-        all_data = all_data.values(*fieldnames_to_show)
-    else:
-        if all_data.count() <= max_export_rows:
-            filename = "{}-{}.csv".format(slug, uuid.uuid4().hex)
-            pseudo_buffer = Echo()
-            writer = csv.writer(pseudo_buffer, dialect=csv.excel)
-            csv_rows = queryset_to_csv(all_data, fields)
-            response = StreamingHttpResponse(
-                (writer.writerow(row) for row in csv_rows),
-                content_type="text/csv;charset=UTF-8",
-            )
-            response["Content-Disposition"] = 'attachment; filename="{}"'.format(
-                filename
-            )
-            response.encoding = "UTF-8"
-            return response
-        else:
-            context = {
-                'message': 'Max rows exceeded.'
-            }
+    if download_csv:
+        if all_data.count() > max_export_rows:
+            context = {"message": "Max rows exceeded."}
             return render(request, '404.html', context, status=400)
+
+        filename = "{}-{}.csv".format(slug, uuid.uuid4().hex)
+        pseudo_buffer = Echo()
+        writer = csv.writer(pseudo_buffer, dialect=csv.excel)
+        csv_rows = queryset_to_csv(all_data, fields)
+        response = StreamingHttpResponse(
+            (writer.writerow(row) for row in csv_rows),
+            content_type="text/csv;charset=UTF-8",
+        )
+        response["Content-Disposition"] = 'attachment; filename="{}"'.format(
+            filename
+        )
+        response.encoding = "UTF-8"
+        return response
 
     paginator = Paginator(all_data, 20)
     data = paginator.get_page(page)
