@@ -88,6 +88,7 @@ def dataset_list(request):
     context = {"datasets": Dataset.objects.filter(show=True).order_by("name")}
     return render(request, "dataset-list.html", context)
 
+
 def dataset_detail(request, slug, tablename=""):
     dataset = get_object_or_404(Dataset, slug=slug)
     if not tablename:
