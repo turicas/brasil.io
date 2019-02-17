@@ -15,10 +15,8 @@ class CreateUserView(CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_anonymous:
-            next = self.request.GET.get('next', None)
-            if next:
-                return redirect(next)
-            return redirect(reverse('core:home'))
+            next = self.request.GET.get('next', reverse('core:home'))
+            return redirect(next)
         return super().dispatch(request, *args, **kwargs)
 
 

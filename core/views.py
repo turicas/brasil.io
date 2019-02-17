@@ -2,7 +2,6 @@ import csv
 import uuid
 
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.http import HttpResponseBadRequest, StreamingHttpResponse
@@ -89,7 +88,6 @@ def dataset_list(request):
     context = {"datasets": Dataset.objects.filter(show=True).order_by("name")}
     return render(request, "dataset-list.html", context)
 
-@login_required
 def dataset_detail(request, slug, tablename=""):
     dataset = get_object_or_404(Dataset, slug=slug)
     if not tablename:
