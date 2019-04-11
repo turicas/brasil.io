@@ -14,60 +14,104 @@
 
 {% block content %}
 <div class="row">
-
   <section id="info">
     <div class="row">
-      <div class="col s12 m3">
+    <div class="col s12 m6 l6">
+      <div class="card">
+        <ul id="card content blog-collection" class="collection">
+            <li class="collection-item title">
+                <span class="card-title teal-text" style="font-size: 26px;">Blog</span>
+            </li>
+            <li class="collection-item recent-post">
+                <div class="row info">
+                    <div class="col s9">
+                      <a href="#" class="post-title" style="font-size: 18px; line-height: normal;">Título do artigo mais recente</a>
+                      <p class="author" style="font-size: 14px; line-height: normal;">por Fulana de Tal</p>
+                      <p class="date" style="font-size: 14px; line-height: normal;">há 4 horas</p>
+                    </div>
+                    <div class="col s3">
+                        <span class="new badge cyan"data-badge-caption="mídia"></span>
+                    </div>
+                </div>
+            </li>
+            <li class="collection-item recent-post">
+                <div class="row info">
+                    <div class="col s9">
+                      <a href="#" class="post-title" style="font-size: 18px; line-height: normal;">O título do artigo anterior</a>
+                      <p class="author" style="font-size: 14px; line-height: normal;">por Autora da Silva</p>
+                      <p class="date" style="font-size: 14px; line-height: normal;">3 dias atrás</p>
+                    </div>
+                    <div class="col s3">
+                        <span class="new badge orange" data-badge-caption="meta"></span>
+                    </div>
+                </div>
+            </li>
+            <li class="collection-item recent-post">
+                <div class="row info">
+                    <div class="col s9">
+                      <a href="#" class="post-title" style="font-size: 18px; line-height: normal;">Mais um título de artigo</a>
+                      <p class="author" style="font-size: 14px; line-height: normal;">por Quem Escreveu</p>
+                      <p class="date" style="font-size: 14px; line-height: normal;">há duas semanas</p>
+                    </div>
+                    <div class="col s3">
+                        <span class="new badge teal" data-badge-caption="datasets"></span>
+                    </div>
+                </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+      <div class="col s12 m6 l3">
         <div class="card">
           <div class="card-content teal-text">
             <span class="card-title">Manifesto</span>
           </div>
-          <div class="card-content card-body">
-            <p>Venha entender o que motivou a criação do <strong>Brasil.IO</strong> e quais são os objetivos do projeto!</p>
+          <div class="card-content card-body" style="padding-top: 0px;padding-bottom: 0px;height: 75px;">
+            <p>Entenda o que motivou a criação do <strong>Brasil.IO</strong> e os objetivos do projeto!</p>
           </div>
-          <div class="card-action">
+          <div class="card-action" style="padding-top: 10px;padding-bottom: 10px;margin-top: 15px;">
             <a href="{% url 'core:manifesto' %}">Ver mais</a>
           </div>
         </div>
       </div>
 
-      <div class="col s12 m3">
+      <div class="col s12 m6 l3">
         <div class="card">
           <div class="card-content teal-text">
             <span class="card-title">Datasets</span>
           </div>
-          <div class="card-content card-body">
+          <div class="card-content card-body" style="padding-top: 0px;padding-bottom: 0px;height: 75px;">
             <p>Confira a lista completa de todas as base de dados liberadas. </p>
           </div>
-          <div class="card-action">
+          <div class="card-action" style="padding-top: 10px;padding-bottom: 10px;margin-top: 15px;">
             <a href="{% url 'core:dataset-list' %}">Ver mais</a>
           </div>
         </div>
       </div>
 
-      <div class="col s12 m3">
+      <div class="col s12 m6 l3">
         <div class="card">
           <div class="card-content teal-text">
             <span class="card-title">Sugira um Dataset</span>
           </div>
-          <div class="card-content card-body">
-            <p>Conhece algum dataset bacana que gostaria de ver aqui? Sugira para nós! =)</p>
+          <div class="card-content card-body" style="padding-top: 0px;padding-bottom: 0px;height: 75px;">
+            <p>Conhece um dataset que gostaria de ver aqui? Sugira para nós! =)</p>
           </div>
-          <div class="card-action">
+          <div class="card-action" style="padding-top: 10px;padding-bottom: 10px;margin-top: 15px;">
             <a href="{% url 'core:dataset-suggestion' %}">Ver mais</a>
           </div>
         </div>
       </div>
 
-      <div class="col s12 m3">
+      <div class="col s12 m6 l3">
         <div class="card">
           <div class="card-content teal-text">
             <span class="card-title">Colabore</span>
           </div>
-          <div class="card-content card-body">
+          <div class="card-content card-body" style="padding-top: 0px;padding-bottom: 0px;height: 75px;">
             <p>Achou o projeto legal e quer contribuir? Veja aqui como. </p>
           </div>
-          <div class="card-action">
+          <div class="card-action" style="padding-top: 10px;padding-bottom: 10px;margin-top: 15px;">
             <a href="https://github.com/turicas/brasil.io/issues">Ver mais</a>
           </div>
         </div>
