@@ -29,11 +29,11 @@ class UserCreationViewTests(TestCase):
         self.assertTrue(bool(response.context['form'].errors))
 
     def test_create_and_login_with_user(self):
-        self.assertEquals(0, User.objects.count())
+        self.assertEqual(0, User.objects.count())
 
         response = self.client.post(self.url, data=self.data)
         user = User.objects.get(username='foo')
 
         self.assertRedirects(response, settings.LOGIN_REDIRECT_URL, fetch_redirect_response=False)
         self.assertTrue('_auth_user_id' in self.client.session)
-        self.assertEquals(str(user.pk), self.client.session['_auth_user_id'])
+        self.assertEqual(str(user.pk), self.client.session['_auth_user_id'])
