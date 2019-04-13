@@ -11,15 +11,15 @@ class UserCreationFormTests(TestCase):
         required_fields = ['username', 'email', 'password1', 'password2']
 
         form = UserCreationForm({})
-        assert form.is_valid() is False
+        self.assertFalse(form.is_valid())
 
         for required in required_fields:
-            assert required in form.errors
-        assert len(required_fields) == len(form.errors)
+            self.assertIn(required, form.errors)
+        self.assertEqual(len(required_fields), len(form.errors))
         assert issubclass(UserCreationForm, DjangoUserCreationForm)
 
     def test_create_user(self):
-        passwd = 'qweasdzxc'
+        passwd = 'qweasdzxc42'
         data = {
             'username': 'foo',
             'email': 'foo@bar.com',
@@ -28,13 +28,13 @@ class UserCreationFormTests(TestCase):
         }
 
         form = UserCreationForm(data)
-        assert form.is_valid() is True
+        self.assertTrue(form.is_valid())
         user = form.save()
 
-        assert data['username'] == user.username
-        assert data['email'] == user.email
-        assert user.check_password(passwd) is True
-        assert not NewsletterSubscriber.objects.filter(user=user).exists()
+        self.assertEqual(data['username'], user.username)
+        self.assertEqual(data['email'], user.email)
+        self.assertTrue(user.check_password(passwd))
+        self.assertFalse(NewsletterSubscriber.objects.filter(user=user).exists())
 
     def test_subscribe_to_newsleter(self):
         data = {
@@ -46,7 +46,7 @@ class UserCreationFormTests(TestCase):
         }
 
         form = UserCreationForm(data)
-        assert form.is_valid() is True
+        self.assertTrue(form.is_valid())
         user = form.save()
 
-        assert NewsletterSubscriber.objects.filter(user=user).exists()
+        self.assertTrue(NewsletterSubscriber.objects.filter(user=user).exists())
