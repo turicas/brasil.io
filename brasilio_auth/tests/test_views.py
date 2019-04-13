@@ -10,7 +10,7 @@ class UserCreationViewTests(TestCase):
 
     def setUp(self):
         self.url = reverse('brasilio_auth:sign_up')
-        passwd = 'qweasdzxc'
+        passwd = 'qweasdzxc42'
         self.data = {
             'username': 'foo',
             'email': 'foo@bar.com',
