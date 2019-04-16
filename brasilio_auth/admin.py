@@ -16,6 +16,7 @@ class Echo:
 
 
 class NewsletterSubscriberAdmin(admin.ModelAdmin):
+    change_list_template = 'brasilio_auth/newslettersubscribers_change_list.html'
     list_display = ['user']
 
     def get_urls(self):
