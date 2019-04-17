@@ -23,14 +23,14 @@ class TestSubscribersAsCSVRows(TestCase):
         rows = subscribers_as_csv_rows()
 
         assert len(rows) == len(self.subscribers) + 1
-        assert ('name', 'email') == rows[0]
+        assert ('username', 'email') == rows[0]
 
         for user in [s.user for s in self.subscribers]:
-            assert (user.get_full_name(), user.email) in rows
+            assert (user.username, user.email) in rows
 
     def test_get_csv_rows_without_header(self):
         rows = subscribers_as_csv_rows(include_header=False)
 
         assert len(rows) == len(self.subscribers)
         for user in [s.user for s in self.subscribers]:
-            assert (user.get_full_name(), user.email) in rows
+            assert (user.username, user.email) in rows
