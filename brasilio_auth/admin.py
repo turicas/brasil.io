@@ -26,21 +26,25 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
         ]
         return my_urls + urls
 
-    @staff_member_required
     def export_subscribers_csv_view(self, request):
-        rows = subscribers_as_csv_rows()
 
-        ### we can refactor this later
-        ### copied from core/views.py
-        pseudo_buffer = Echo()
-        writer = csv.writer(pseudo_buffer, dialect=csv.excel)
-        response = StreamingHttpResponse(
-            (writer.writerow(row) for row in rows),
-            content_type="text/csv;charset=UTF-8",
-        )
-        response["Content-Disposition"] = 'attachment; filename="newsletter_subscribers.csv"'
-        response.encoding = "UTF-8"
-        return response
+        @staff_member_required
+        def view(request):
+            rows = subscribers_as_csv_rows()
+
+            ### we can refactor this later
+            ### copied from core/views.py
+            pseudo_buffer = Echo()
+            writer = csv.writer(pseudo_buffer, dialect=csv.excel)
+            response = StreamingHttpResponse(
+                (writer.writerow(row) for row in rows),
+                content_type="text/csv;charset=UTF-8",
+            )
+            response["Content-Disposition"] = 'attachment; filename="newsletter_subscribers.csv"'
+            response.encoding = "UTF-8"
+            return response
+
+        return view(request)
 
 
 admin.site.register(NewsletterSubscriber, NewsletterSubscriberAdmin)
