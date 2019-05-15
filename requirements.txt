@@ -1,5 +1,6 @@
 click
 cryptography
+dataclasses
 django-cors-headers
 django-environ
 django-extensions
@@ -19,3 +20,5 @@ requests-cache
 sendgrid-django
 tqdm
 whitenoise
+xlrd
+xlwt

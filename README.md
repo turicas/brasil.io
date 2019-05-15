@@ -35,6 +35,7 @@ desenvolvedores.
 
 [![Entre em contato com o Brasil.IO por chat!](docs/chat-banner.png)](https://chat.brasil.io/)
 
+Veja [CONTRIBUTING.md](CONTRIBUTING.md) para mais detalhes sobre como montar seu pull request.
 
 Há duas formas de rodar o projeto em sua máquina, uma utilizando o PostgreSQL
 como um container Docker e outra utilizando o PostgreSQL rodando diretamente

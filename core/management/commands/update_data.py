@@ -153,5 +153,6 @@ class Command(BaseCommand):
             table = rows.import_from_xlsx(
                 io.BytesIO(data),
                 sheet_name=Model.__name__,
+                workbook_kwargs={"read_only": False},
             )
             self._update_data(Model, table, update_data_function)

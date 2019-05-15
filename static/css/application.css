@@ -55,7 +55,6 @@ body {
   padding: 10px;
 }
 
-
 .card .card-action a:not(.btn):not(.btn-large):not(.btn-small):not(.btn-large):not(.btn-floating) {
   color: #1A237E !important;
   margin-right: 10px;
@@ -95,12 +94,48 @@ body {
   font-size: 12px !important;
 }
 
-.parceiro-img {
-  max-height: 100px;
-  opacity: 0.6;
-  margin: 0 auto;
+span.social-buttons-container {
+  display: inline-block;
+  height: 2em;
+  margin: 0;
+}
+
+ul.social-buttons {
+  margin-bottom: 0;
+  margin-top: 0;
+  float: left;
+}
+
+.social-buttons li {
+  float: left;
+  margin: 0px 5px;
+  padding: 0;
+  border: 0;
+}
+
+ul.social-buttons li a {
   display: block;
-  filter: gray; /* IE6-9 */
-  -webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
-  filter: grayscale(1); /* Microsoft Edge and Firefox 35+ */
+  width: 40px;
+  height: 40px;
+  border-radius: 100%;
+  font-size: 25px;
+  line-height: 40px;
+  outline: 0;
+  color: #fff;
+  background-color: #222;
+  -webkit-transition: all .3s;
+  -moz-transition: all .3s;
+  transition: all .3s;
+}
+
+ul.social-buttons li a:hover,
+ul.social-buttons li a:focus,
+ul.social-buttons li a:active {
+  background-color: #3f51b5;
+  color:#fff;
+}
+
+p.contributor-description {
+  margin-top: 0;
+  margin-bottom: 10px;
 }

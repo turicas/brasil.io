@@ -1,9 +1,12 @@
 import csv
 import gc
+import json
 import gzip
 import io
 import lzma
 from textwrap import dedent
+from functools import lru_cache
+from urllib.request import urlopen, URLError
 
 import django.db.models.fields
 from django.db import connection, reset_queries, transaction
@@ -20,21 +23,22 @@ def create_object(Model, data):
     )
 
     for field in Model._meta.fields:
-        if (isinstance(field, special_fields) and
-            not (data.get(field.name) or '').strip()):
+        if (
+            isinstance(field, special_fields)
+            and not (data.get(field.name) or "").strip()
+        ):
             data[field.name] = None
 
     return Model(**data)
 
 
 def get_company_by_document(document):
-    Documents = Table.objects.for_dataset('documentos-brasil').named('documents').get_model()
-    doc_prefix = document[:8]
-    headquarter_prefix = doc_prefix + '0001'
-    branches = Documents.objects.filter(
-        docroot=doc_prefix,
-        document_type='CNPJ',
+    Documents = (
+        Table.objects.for_dataset("documentos-brasil").named("documents").get_model()
     )
+    doc_prefix = document[:8]
+    headquarter_prefix = doc_prefix + "0001"
+    branches = Documents.objects.filter(docroot=doc_prefix, document_type="CNPJ")
     if not branches.exists():
         # no document found with this prefix - we don't know this company
         raise Documents.DoesNotExist()
@@ -59,3 +63,23 @@ def get_company_by_document(document):
                 pass
 
     return obj
+
+
+@lru_cache()
+def github_repository_contributors(username, repository, timeout=1):
+    url = f"https://api.github.com/repos/{username}/{repository}/contributors"
+    try:
+        response = urlopen(url, timeout=timeout)
+    except URLError:
+        return []
+    else:
+        contributors = json.loads(response.read())
+        result = []
+        for contributor in contributors:
+            url = contributor["url"]
+            try:
+                response = urlopen(url, timeout=timeout)
+            except URLError:
+                continue
+            result.append(json.loads(response.read()))
+        return result

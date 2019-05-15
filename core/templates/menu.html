@@ -1,14 +1,45 @@
 {% if request.user.is_authenticated %}
-<li>Olá, {{ request.user.username }}</li>
-<li><a href="{% url 'brasilio_auth:logout' %}">Logout</a></li>
+<li><a class="dropdown-trigger" href="#!" data-target="{{id_prefix}}_authenticated-dropdown">
+  Olá, {{ request.user.username }}
+  <i class="material-icons right">arrow_drop_down</i>
+</a></li>
+<ul id="{{id_prefix}}_authenticated-dropdown" class="dropdown-content">
+  <li><a href="{% url 'brasilio_auth:logout' %}">Logout</a></li>
+</ul>
+
 {% else %}
-<li><a href="{% url 'brasilio_auth:sign_up' %}">Cadastre-se</a></li>
-<li><a href="{% url 'brasilio_auth:login' %}">Login</a></li>
+<li><a class="dropdown-trigger" href="#!" data-target="{{id_prefix}}_unauthenticated-dropdown">
+  Sua conta
+  <i class="material-icons right">arrow_drop_down</i>
+</a></li>
+<ul id="{{id_prefix}}_unauthenticated-dropdown" class="dropdown-content">
+  <li><a href="{% url 'brasilio_auth:sign_up' %}">Cadastre-se</a></li>
+  <li><a href="{% url 'brasilio_auth:login' %}">Login</a></li>
+</ul>
 {% endif %}
-<li><a href="{% url 'core:manifesto' %}">Manifesto</a></li>
-<li><a href="{% url 'core:dataset-list' %}">Datasets</a></li>
-<li><a href="{% url 'core:specials' %}">Especiais</a></li>
-<li><a href="{% url 'api:dataset-list' %}">API</a></li>
-<li><a href="{% url 'core:collaborate' %}">Colabore</a></li>
-<li><a href="{% url 'core:contact' %}">Contato</a></li>
+
+<li><a class="dropdown-trigger" href="#!" data-target="{{id_prefix}}-data-dropdown">
+  Dados
+  <i class="material-icons right">arrow_drop_down</i>
+</a></li>
+<ul id="{{id_prefix}}-data-dropdown" class="dropdown-content">
+  <li><a href="{% url 'core:dataset-list' %}">Datasets</a></li>
+  <li><a href="{% url 'core:specials' %}">Páginas Especiais</a></li>
+  <li><a href="{% url 'api:dataset-list' %}">API</a></li>
+</ul>
+
+<li><a class="dropdown-trigger" href="#!" data-target="{{id_prefix}}-about-dropdown">
+  Sobre
+  <i class="material-icons right">arrow_drop_down</i>
+</a></li>
+<ul id="{{id_prefix}}-about-dropdown" class="dropdown-content">
+  <li><a href="{% url 'core:manifesto' %}">Manifesto</a></li>
+  <li><a href="{% url 'core:collaborate' %}">Colabore</a></li>
+</ul>
+
+<li><a href="https://blog.brasil.io/">Blog</a></li>
 <li><a class="btn" href="{% url 'core:donate' %}">Doe</a></li>
+
+<script>
+  $(".dropdown-trigger").dropdown();
+</script>

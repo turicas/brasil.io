@@ -19,7 +19,8 @@ class UserCreationFormTests(TestCase):
         assert issubclass(UserCreationForm, DjangoUserCreationForm)
 
     def test_create_user(self):
-        passwd = 'qweasdzxc42'
+
+        passwd = 'someverygoodpassword'
         data = {
             'username': 'foo',
             'email': 'foo@bar.com',
