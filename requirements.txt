@@ -2,6 +2,7 @@ click
 cryptography
 dataclasses
 django-cors-headers
+django-naomi
 django-environ
 django-extensions
 django>=2.0
