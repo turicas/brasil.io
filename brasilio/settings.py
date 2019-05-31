@@ -107,6 +107,8 @@ USE_I18N = True
 USE_L10N = True
 USE_THOUSAND_SEPARATOR = True
 USE_TZ = True
+DATE_FORMAT = "d \\d\\e F \\d\\e Y"
+DATETIME_FORMAT = "d \\d\\e F \\d\\e Y \\à\\s H:i:s"
 
 
 # Static files (CSS, JavaScript, Images)
