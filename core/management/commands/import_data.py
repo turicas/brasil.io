@@ -80,7 +80,7 @@ class Command(BaseCommand):
                 exit(1)
             else:
                 progress.close()
-                table.last_update = timezone.now()
+                table.import_date = timezone.now()
                 table.save()
                 end_time = time.time()
                 duration = end_time - start_time
