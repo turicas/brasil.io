@@ -9,7 +9,7 @@
 **Query String Parameters:**
 
 | Nome          | Tipo          | Descrição                                                    |
-| ------------- |:-------------:| ------------------------------------------------------------:|
+| ------------- |:-------------:| ------------------------------------------------------------ |
 | document_type | string        | Tipo do documento (CPF ou CNPJ)                              |
 | document      | string        | Número do documento                                          |
 | name          | string        | Nome de pessoa física ou razão social de pessoa jurídica     |
@@ -26,7 +26,7 @@
 **Query String Parameters:**
 
 | Nome                 | Tipo          | Descrição                               |
-| ---------------------|:-------------:|----------------------------------------:|
+| ---------------------|:-------------:|---------------------------------------- |
 | uf_busca             | string        | UF                                      |
 | cidade_busca         | string        | Cidade                                  |
 | universidade_nome    | string        | Universidade                            |
@@ -60,7 +60,7 @@
 **Query String Parameters:**
 
 | Nome                  | Tipo            | Descrição                                 |
-| --------------------- | :-------------: | ----------------------------------------: |
+| --------------------- | :-------------: | ----------------------------------------- |
 | descricao_eleicao     | string          | Eleição                                   |
 | sigla_uf              | string          | UF                                        |
 | sq_candidato          | string          | Número Sequencial do Candidato            |
