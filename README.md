@@ -59,6 +59,9 @@ git clone git@github.com:turicas/brasil.io.git
 Siga os passos:
 
 ```bash
+# Instale o Python 3.6.4 usando o pyenv:
+pyenv install 3.6.4
+
 # Criar um virtualenv:
 pyenv virtualenv 3.6.4 brasil.io
 
@@ -106,6 +109,9 @@ fi
 e siga os passos:
 
 ```bash
+# Instale o Python 3.6.4 usando o pyenv:
+pyenv install 3.6.4
+
 # Criar um virtualenv:
 pyenv virtualenv 3.6.4 brasil.io
 
