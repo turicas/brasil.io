@@ -2,6 +2,9 @@ from django.conf import settings
 from django.contrib.auth import get_user_model, login
 from django.views.generic.edit import CreateView
 from django.shortcuts import redirect
+from django.views.generic.edit import UpdateView
+from django.contrib.auth.models import User
+from django.urls import reverse
 
 from brasilio_auth.forms import UserCreationForm
 
@@ -24,3 +27,15 @@ class CreateUserView(CreateView):
         login(self.request, self.object)
         url = self.request.POST.get('next', None) or self.success_url
         return redirect(url)
+
+
+class ProfileUpdate(UpdateView):
+    model = User
+    fields = ['first_name', 'last_name', 'username']
+    template_name = 'brasilio_auth/profile_update_form.html'
+
+    def get_object(self, queryset=None):
+            return self.request.user
+
+    def get_success_url(self):
+        return reverse('brasilio_auth:profile_update_form')

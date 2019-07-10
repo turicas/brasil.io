@@ -4,6 +4,7 @@
   <i class="material-icons right">arrow_drop_down</i>
 </a></li>
 <ul id="{{id_prefix}}_authenticated-dropdown" class="dropdown-content">
+  <li><a href="{% url 'brasilio_auth:profile_update_form' %}"> Editar perfil</a></li>
   <li><a href="{% url 'brasilio_auth:logout' %}">Logout</a></li>
 </ul>
 
