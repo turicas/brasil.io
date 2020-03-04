@@ -67,22 +67,23 @@ def get_company_by_document(document):
 
 
 @lru_cache()
-def github_repository_contributors(username, repository, timeout=1):
-    url = f"https://api.github.com/repos/{username}/{repository}/contributors"
-    try:
-        response = urlopen(url, timeout=timeout)
-    except URLError:
-        return []
-    except socket.timeout:
-        return []
-    else:
-        contributors = json.loads(response.read())
-        result = []
-        for contributor in contributors:
-            url = contributor["url"]
-            try:
-                response = urlopen(url, timeout=timeout)
-            except (URLError, socket.timeout):
-                continue
-            result.append(json.loads(response.read()))
-        return result
+def github_repository_contributors(repositories = [], timeout=1):
+    result = []
+    for username, repository in repositories:
+        url = f"https://api.github.com/repos/{username}/{repository}/contributors"
+        try:
+            response = urlopen(url, timeout=timeout)
+        except URLError:
+            return result
+        except socket.timeout:
+            return result
+        else:
+            contributors = json.loads(response.read())
+            for contributor in contributors:
+                url = contributor["url"]
+                try:
+                    response = urlopen(url, timeout=timeout)
+                except (URLError, socket.timeout):
+                    continue
+                result.append(json.loads(response.read()))
+            return result

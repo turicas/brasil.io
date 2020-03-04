@@ -200,8 +200,15 @@ def collaborate(request):
 
 
 def contributors(request):
+    repositories=(
+        ("turicas", "brasil.io"),
+        ("turicas", "blog.brasil.io"),
+        ("turicas", "socios-brasil"),
+        ("turicas", "eleicoes-brasil"),
+        ("turicas", "balneabilidade-brasil"),
+    )
     return render(
         request,
         "contributors.html",
-        {"contributors": github_repository_contributors("turicas", "brasil.io")},
+        {"contributors": github_repository_contributors(repositories)}
     )
