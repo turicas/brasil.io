@@ -7,6 +7,7 @@ import lzma
 from textwrap import dedent
 from functools import lru_cache
 from urllib.request import urlopen, URLError
+import socket
 
 import django.db.models.fields
 from django.db import connection, reset_queries, transaction
@@ -72,6 +73,8 @@ def github_repository_contributors(username, repository, timeout=1):
         response = urlopen(url, timeout=timeout)
     except URLError:
         return []
+    except socket.timeout:
+        return []
     else:
         contributors = json.loads(response.read())
         result = []
@@ -79,7 +82,7 @@ def github_repository_contributors(username, repository, timeout=1):
             url = contributor["url"]
             try:
                 response = urlopen(url, timeout=timeout)
-            except URLError:
+            except (URLError, socket.timeout):
                 continue
             result.append(json.loads(response.read()))
         return result
