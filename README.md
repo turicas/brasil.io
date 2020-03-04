@@ -72,9 +72,15 @@ source .activate
 # Instalar dependências
 pip install -r requirements.txt
 
+# Iniciar os containers (bancos de dados, e-mail)
+docker-compuse up
+
 # Criar schema e popular base de dados
 python manage.py migrate
 python manage.py update_data
+
+# Iniciar o servidor HTTP
+python manage.py runserver
 ```
 
 Caso você escolha não utilizar o docker, siga os seguintes passos:
