@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load l10n %}
+{% load static %}
+{% load utils %}
+
+{% block title %}Traçador de Caminhos - Brasil.IO{% endblock %}
+
+{% block content %}
+
+{% include 'contas-gratuitas.html' %}
+
+<div class="section">
+
+  <form method="get">
+    {{ form }}
+    <input type="submit" value="Traçar" class="btn">
+  </form>
+</div>
+
+<div class="section">
+  <div class="row">
+
+  {% if errors %}
+    <h4>Erros</h4>
+    {{ errors }}
+  {% elif nodes %}
+  <h4>Caminho entre {{ origin_name }} e {{ destination_name }}</h4>
+  {% for node in nodes %}
+    <div>
+      {% if node.tipo == 'PessoaJuridica' or node.tipo == 'EmpresaMae' %}
+      <a href="{% url 'core:special-document-detail' document=node.cnpj %}">{{ node.nome }}</a>
+      {% else %}
+      <a href="{% url 'core:dataset-table-detail' 'socios-brasil' 'socios' %}?nome_socio={{ node.nome }}">{{ node.nome }}</a>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% elif form.is_valid %}
+  Nenhum caminho encontrado.
+  {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{{ block.super }}
+<script type="text/javascript">
+$(document).ready(function() {
+  $('select').formSelect();
+});
+</script>
+{% endblock %}

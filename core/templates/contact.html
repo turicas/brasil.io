@@ -1,10 +1,40 @@
 {% extends 'base.html' %}
 {% block title %}Contato - Brasil.IO{% endblock %}
 {% block content %}
-<iframe
-  src="https://docs.google.com/forms/d/e/1FAIpQLSdwqEDhxqwNoqoSdFKWp4LSmXll9bgdMPUp3OUTQ1D_wbjELg/viewform?embedded=true"
-  width="100%" height="900" frameborder="0" marginheight="0"
-  marginwidth="0">
-Carregando formulário...
-</iframe>
+
+<h4>Contato</h4>
+
+{% if sent %}
+<h5>
+  Sua mensagem foi enviada com sucesso! Em breve responderemos. :)
+</h5>
+{% endif %}
+
+<div>
+
+  <p>
+    Preencha o formulário abaixo para entrar em contato conosco ou envie
+    diretamente um email a
+    <a href="mailto:contato@brasil.io">contato@brasil.io</a>.
+  </p>
+  <p>
+    Caso queira ter uma conversa mais longa e colaborar mais ativamente com o
+    desenvolvimento da plataforma <a href="https://chat.brasil.io/">acesse
+      nosso chat</a>!
+  </p>
+
+  <form action="" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn" type="submit">Enviar</button>
+  </form>
+
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#id_name').focus();
+  });
+</script>
+
 {% endblock %}

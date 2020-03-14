@@ -1,93 +1,201 @@
 {% extends 'base.html' %}
+{% load humanize %}
+{% load l10n %}
+{% load utils %}
 {% block title %}{{ dataset.name }} - Datasets - Brasil.IO{% endblock %}
-{% block content %}
+{% block content %}{% localize off %}
 <div class="section">
-  <h4>{{ dataset.name }}</h4>
-  <p>
-    {{ dataset.description }}
-  </p>
-</div>
-
-<div class="row">
-
-  <div class="col s12 m6">
-    <div class="card horizontal small">
-      <div class="card-stacked">
-        <div class="card-content">
-          <span class="card-title activator grey-text text-darken-4">
-            Dados
-          </span>
-          <p>
-            Estamos trabalhando para disponibilizar os dados nessa interface.
-            Por enquanto, você pode <a href="{{ version.download_url }}">baixar o dataset completo</a> ou
-            <a href="{% url 'api:dataset-data' dataset.slug %}">utilizar nossa API</a>.
-          </p>
-        </div>
-      </div>
-    </div>
+  <div id="dataset-detail">
+    <h4>{{ dataset.name }}</h4>
+    <p>
+      {{ dataset.description }}
+    </p>
+    <ul>
+      <li>
+        Fonte original: <a href="{{ dataset.source_url }}">{{ dataset.source_name }}</a>
+      </li>
+      <li>
+        Libertado por: <a href="{{ dataset.author_url }}">{{ dataset.author_name }}</a>
+      </li>
+      <li>
+        Código-fonte: <a href="{{ dataset.code_url }}">{{ dataset.code_url }}</a>
+      </li>
+      <li>
+        Licença: <a href="{{ dataset.license_url }}">{{ dataset.license_name }}</a>
+      </li>
+      {% if dataset.link_set.all %}
+      <li>
+        Links relacionados:
+        {% for link in dataset.link_set.all %}
+          <a href="{{ link.url }}" target="_blank">{{ link.title }}</a>{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </li>
+      {% endif %}
+    </ul>
   </div>
 
-  <div class="col s12 m6">
-    <div class="card horizontal">
-      <div class="card-stacked">
-        <div class="card-content">
+  <div class="row">
+    <div class="col s12">
+      Tabelas:
+      {% for dataset_table in dataset.tables %}
+        {% spaceless %}
+        {% if dataset_table == table %}
+        <strong>{{ dataset_table.name }}</strong>
+        {% else %}
+        <a href="{% url 'core:dataset-table-detail' dataset.slug dataset_table.name %}">{{ dataset_table.name }}</a>
+        {% endif %}
+        {% endspaceless %}{% if not forloop.last %}, {% else %}.{% endif %}
+      {% endfor %}
 
-          <span class="card-title activator grey-text text-darken-4">
-            Mais Informações
-          </span>
-          <ul>
-            <li>
-              Fonte original: <a href="{{ dataset.source_url }}">{{ dataset.source_name }}</a>.
-            </li>
-            <li>
-              Libertado por: <a href="{{ dataset.author_url }}">{{ dataset.author_name }}</a>.
-            </li>
-            <li>
-              Código-fonte: <a href="{{ dataset.code_url }}">{{ dataset.code_url }}</a>.
-            </li>
-            <li>
-              Licença: <a href="{{ dataset.license_url }}">{{ dataset.license_name }}</a>.
-            </li>
-          </ul>
+      <ul class="tabs tabs-fixed-width" id="tabs">
+        <li class="tab col s3"><a class="active" href="#data">Dados</a></li>
+        <li class="tab col s3"><a href="#metadata">Metadados</a></li>
+      </ul>
+    </div>
+    <div id="data" class="col s12">
+      <div class="row">
+        <div class="col s12 m12">
+          <h5>Filtros</h5>
 
-          <span>Links:</span>
-          {% if dataset.link_set.all %}
-          <ul>
-            {% for link in dataset.link_set.all %}
-            <li><a href="{{ link.url }}" target="_blank">{{ link.title }}</a></li>
+          <form method="get">
+            <div class="row">
+
+              <div class="input-field col s6">
+                <label class="active" for="search">Busca</label>
+                <input type="text" id="search" name="search" value="{{ query_dict.search|default:'' }}">
+              </div>
+
+              {% for field in fields %}
+              {% if field.frontend_filter %}{% with value=query_dict|getplainattribute:field|default:'' %}
+              <div class="input-field col s6">
+                <label class="active" for="{{ field.name }}">{{ field.title }}</label>
+              {% if field.has_choices %}
+                <select name="{{ field.name }}">
+                  <option value="" {% if value == "" %} selected{% endif %}>Todos</option>
+                  {% for choice in field.choices.data %}
+                  <option value="{{ choice }}"{% if value == choice %} selected{% endif %}>{% if choice == 'None' %}(vazio){% else %}{{ choice }}{% endif %}</option>
+                  {% endfor %}
+                </select>
+                {% else %}
+                <input type="text" name="{{ field.name }}" value="{{ value }}">
+              {% endif %}
+              </div>
+            {% endwith %}{% endif %}
             {% endfor %}
-          </ul>
-          {% else %}
-          Esse dataset ainda não possui links! Conhece algum link que possui
-          informações interessantes sobre ele?
-          <a href="{% url 'core:contact' %}">Entre em contato</a>!
+
+            </div>
+            <div class="row">
+              <input class="btn" type="submit" value="Filtrar">
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <div class="row">
+        <p>
+          Dados capturados em {{ version.collected_at }}.
+          {% if table.import_date %}
+            Importação dos dados feita em {{ table.import_date }}.
           {% endif %}
-        </div>
-      </div>
-    </div>
-  </div>
+        </p>
 
-  <div class="col s12 m12">
-    <div class="card horizontal">
-      <div class="card-stacked">
-        <div class="card-content">
-          <span class="card-title activator grey-text text-darken-4">
-            Dicionário de Dados
-          </span>
-          <ul>
-            <li>
-              <b>Tabela {{ table.name }}:</b>
-              <ul>
-                {% for field in table.field_set.all %}
-                <li>{{ field.name }}: {{ field.type }}{% if field.options_text %} ({{ field.options_text }}){% endif %}</li>
-                {% endfor %}
-              </ul>
-            </li>
+        {% if total_count > 0 and total_count <= max_export_rows %}
+        <div class="col s12 m7 left" style="padding-left: 0px;">
+          <a class="btn" href="{% url 'core:dataset-table-detail' slug table.name %}?{% if querystring %}{{ querystring }}&amp;{% endif %}format=csv">
+          {% if querystring %}
+            Baixar resultado em CSV
+          {% else %}
+            Baixar dados em CSV
+          {% endif %}
+          </a>
+        </div>
+        {% endif %}
+
+        <div class="col s12 m5 right">
+          <ul class="pagination right">
+             <li> {{ data.start_index|localize }}-{{ data.end_index|localize }} de um total de {{ total_count|localize }}</li>
+            {% if data.has_previous %}
+            <li> <a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ data.previous_page_number }}"><i class="material-icons">chevron_left</i></a> </li>
+            {% endif %}
+
+            {% if data.has_next %}
+            <li> <a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ data.next_page_number }}"><i class="material-icons">chevron_right</i></a> </li>
+            {% endif %}
           </ul>
         </div>
-      </div>
-    </div>
-  </div>
 
+      </div>
+
+      <div class="row table-container" style="padding-left: 0px;">
+        {% with table_id=dataset.slug %}
+        {% include 'data-table.html' %}
+        {% endwith %}
+      </div>
+      <p>
+        Você também pode <a href="{{ version.download_url }}">baixar o dataset completo</a> ou
+        <a href="{% url 'api:dataset-detail' dataset.slug %}">utilizar nossa API</a>.
+      </p>
+
+    </div>
+    <div id="metadata" class="col s12">
+
+      <div class="row">
+        <div class="card horizontal">
+          <div class="card-stacked">
+            <div class="card-content">
+              <span class="card-title activator grey-text text-darken-4">
+                Dicionário de Dados - Tabela {{ table.name }}
+              </span>
+
+              <table>
+                <thead>
+                  <tr>
+                    <th>Coluna</th>
+                    <th>Tipo</th>
+                    <th>Título</th>
+                    <th>Descrição</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {% for field in table.fields %}
+                  <tr>
+                    <td> {{ field.name }} </td>
+                    <td> {{ field.type }}{% if field.options_text %} ({{ field.options_text }}){% endif %}</td>
+                    <td> {{ field.title }} </td>
+                    <td> {{ field.description }} </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+
+              </table>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
 </div>
+{% endlocalize %}{% endblock %}
+
+{% block script %}
+{{ block.super }}
+<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    M.Tabs.init(document.getElementById('tabs'));
+    $('select').formSelect();
+
+    $('.mdl-data-table').DataTable({
+        "paging":         false,
+        "searching":      false,
+        "ordering":       false,
+        "bInfo":          false,
+    });
+  });
+</script>
 {% endblock %}

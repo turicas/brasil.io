@@ -2,29 +2,24 @@
 <!DOCTYPE html>
 <html>
   <head>
+    {% block head %}
     <meta charset="utf-8">
     <!--Import Google Icon Font-->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/material_icons.css' %}" >
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/materialize-social.css' %}" >
+
     <!-- Compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/materialize.min.css' %}" >
+    <link rel="stylesheet" type="text/css" href="{% static 'css/dataTables.material.min.css' %}" >
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}" >
+    <link rel="stylesheet" type="text/css" href="{% static 'css/application.css' %}" >
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
     <title>{% block title %}Brasil.IO{% endblock %}</title>
-    <style>
-        .card .card-action a:not(.btn):not(.btn-large):not(.btn-small):not(.btn-large):not(.btn-floating) {
-            color: #1A237E !important;
-            margin-right: 24px;
-            -webkit-transition: color .3s ease;
-            transition: color .3s ease;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-        .wrap-container {
-            padding: 25px;
-        }
-    </style>
 
-    <!-- Global site tag (gtag.js) - Google Analytics -->
+    {% block script %}
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117698282-1"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -32,32 +27,29 @@
       gtag('js', new Date());
       gtag('config', 'UA-117698282-1');
     </script>
+    <script src="{% static 'js/jquery.js' %}"></script>
+    <script src="{% static 'js/materialize.min.js' %}"></script>
+    <script src="{% static 'js/application.js' %}"></script>
+    {% endblock %}
+    {% endblock %}
 
   </head>
 
   <body>
     <nav>
         <div class="nav-wrapper indigo">
-          <a href="/" class="brand-logo"><img src="{% static 'img/logo_br-io_fundo-escuro.png' %}" style="max-height:40px;margin-left: 20px; margin-top: 10px;"></a>
+          <a href="/" class="brand-logo">
+            <img src="{% static 'img/logo/logo_br-io_fundo-escuro.png' %}" style="max-height:40px;margin-left: 20px; margin-top: 10px;">
+          </a>
             <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             <ul class="right hide-on-med-and-down">
-              <li><a href="{% url 'core:manifesto' %}">Manifesto</a></li>
-              <li><a href="{% url 'core:dataset-list' %}">Datasets</a></li>
-              <li><a href="{% url 'core:dataset-suggestion' %}">Sugira um dataset</a></li>
-              <li><a href="{% url 'api:dataset-list' %}">API</a></li>
-              <li><a href="{% url 'core:contact' %}">Contato</a></li>
-              <li><a href="https://apoia.se/brasilio">Apoie</a></li>
+              {% include 'menu.html' with id_prefix='desktop' %}
             </ul>
         </div>
     </nav>
 
     <ul class="sidenav" id="mobile-demo">
-      <li><a href="{% url 'core:manifesto' %}">Manifesto</a></li>
-      <li><a href="{% url 'core:dataset-list' %}">Datasets</a></li>
-      <li><a href="{% url 'core:dataset-suggestion' %}">Sugira um dataset</a></li>
-      <li><a href="{% url 'api:dataset-list' %}">API</a></li>
-      <li><a href="{% url 'core:contact' %}">Contato</a></li>
-      <li><a href="https://apoia.se/brasilio">Apoie</a></li>
+      {% include 'menu.html' with id_prefix='mobile'%}
     </ul>
 
     {% block top %}{% endblock %}
@@ -66,27 +58,58 @@
       {% block content %}{% endblock %}
     </div>
     <div class="footer indigo darken-4">
+
       <div class="container">
-        <div class="section indigo-text text-lighten-5">
+        <section id="newsletter">
+          <!-- Begin MailChimp Signup Form -->
+          <div id="mc_embed_signup">
+            <form action="https://cafe.us18.list-manage.com/subscribe/post?u=80b85fdff0e6a974bff762825&amp;id=ef97ff9b61" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+
+              <div id="mc_embed_signup_scroll ">
+                <h6 class=" text-center white-text" >Receba nossas novidades! </h6>
+                <!-- <div class="indicates-required"><span class="asterisk">*</span> indicates required</div> -->
+                <div class="row">
+                  <div class="mc-field-group col m4" style="text-align: right;">
+                    <label for="mce-EMAIL">
+                      Digite seu Email <span class="asterisk">*</span> :
+                    </label>
+                  </div>
+                  <div class="mc-field-group col m4">
+                    <input type="email"  value="" name="EMAIL" class="required email white-text email-newsletter" id="mce-EMAIL" >
+                  </div>
+
+                  <div id="mce-responses" class="clear">
+                    <div class="response" id="mce-error-response" style="display:none"></div>
+                    <div class="response" id="mce-success-response" style="display:none"></div>
+                  </div>
+                  <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+                  <div style="position: absolute; left: -5000px;" aria-hidden="true">
+                    <input type="text" name="b_80b85fdff0e6a974bff762825_ef97ff9b61" tabindex="-1" value="">
+                  </div>
+                  <div class="clear col m4">
+                    <input type="submit" value="Inscrever" name="subscribe" id="mc-embedded-subscribe" class=" btn btn-dark-blue" style="float: left;">
+                  </div>
+                </div>
+              </div>
+
+            </form>
+          </div>
+          <!--End mc_embed_signup-->
+        </section>
+
+        <div class="section indigo-text text-lighten-5" style="padding-top: 0 !important;">
           <p>
             O <b>Brasil.IO</b> é mantido com muito carinho por
             <a href="https://twitter.com/turicas">Álvaro Justen</a> e
-            <a href="https://github.com/turicas/brasil.io/graphs/contributors">contribuidores</a>.
-            <a href="https://github.com/turicas/brasil.io/issues">Colabore também</a>.
+            <a href="{% url 'core:contributors' %}">contribuidores</a>.
           </p>
+        </div>
+        <div class="container">
+            <a href="{% url 'core:contact' %}">Contato</a>
+            | <a href="{% url 'core:collaborate' %}">Colabore</a>
         </div>
       </div>
     </div>
 
-    <!--JavaScript at end of body for optimized loading-->
-    <!-- JQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
-    <script>
-        $(document).ready(function(){
-            $('.sidenav').sidenav();
-        });
-    </script>
-    <!-- Compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
   </body>
 </html>

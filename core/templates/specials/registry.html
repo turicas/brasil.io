@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Registro Nacional - Busca - Brasil.IO{% endblock %}
+{% block content %}
+
+{% include 'contas-gratuitas.html' %}
+
+<div class="section">
+  <h4>Registro Nacional</h4>
+  <p>
+    <form method="get">
+      <div class="input-field col s6">
+        <label for="q">Busque por nome, CPF, razão social ou CNPJ</label>
+        <input autofocus type="text" id="q" name="q" value="{{ query|default:'' }}">
+        <input class="btn" type="submit" value="Buscar">
+      </div>
+    </form>
+  </p>
+</div>
+
+<div class="row">
+
+  {% if query %}
+
+    {% if not data.count %}
+    Nenhum resultado encontrado. :(
+    {% else %}
+    Total de <b>{{ data.count }}</b> registros encontrados (entre pessoas
+    físicas e jurídicas){% if data.count > 500 %}, mostrando os <b>500</b>
+    primeiros).{% else %}.{% endif %}
+
+    {% include 'data-table.html' %}
+
+    {% endif %}
+
+  {% endif %}
+
+</div>
+{% endblock %}

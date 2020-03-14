@@ -1,0 +1,26 @@
+<div class="col s12 m12">
+  <div class="card horizontal">
+    <div class="card-stacked">
+      <div class="card-content">
+        <div class="card-title">
+          <i class="material-icons">info</i>
+          Acesso a Páginas Especiais
+        </div>
+        <p>
+          As <a href="{% url 'core:specials' %}">páginas especiais</a> são restritas
+          a quem possui uma conta no <a
+            href="https://brasil.io/">Brasil.IO</a>. <b>Durante nossa fase BETA
+            as contas serão todas gratuitas</b> - após esse período será
+          necessária a assinatura do site para acessar todas as páginas
+          restritas.
+        </p>
+        <p>
+          O <a href="https://brasil.io/">Brasil.IO</a> é desenvolvido de
+          maneira colaborativa e voluntária. <b>Você pode contribuir</b> <a
+            href="{% url 'core:donate' %}">fazendo uma doação</a> ou <a
+            href="{% url 'core:collaborate' %}">de outras formas</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load l10n %}
+{% load static %}
+{% load utils %}
+
+{% block title %}{{ obj.name }} - {% if obj.document_type == 'CPF' %}Pessoa Física{% elif obj.document_type == 'CNPJ' %}Pessoa Jurídica{% endif %} - Brasil.IO{% endblock %}
+
+{% block head %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
+{% endblock %}
+
+{% block content %}{% localize off %}{% with client_export_csv=True %}
+
+{% include 'contas-gratuitas.html' %}
+
+<div class="section">
+  <h4>{{ obj.name }}</h4>
+
+  {% if branches.count %}
+  <p>
+    {% if original_document %}
+    O documento {{ original_document }} não foi encontrado!
+    {% endif %}
+    Mostrando informações sobre todas as empresas (matriz e filiais) cujo CNPJ
+    começa com {{ doc_prefix }}.
+  </p>
+  {% endif %}
+
+  <dl>
+    <dt> Documento: </dt>
+    <dd>{% if encrypted %}{{ obj.document|obfuscate }}{% else %}{{ obj.document }}{% endif %} ({{ obj.document_type|upper }})</b></dd>
+    {% if obj.state %}
+    <dt> Unidade federativa de registro: </dt>
+    <dd>{{ obj.state }}</b></dd>
+    {% endif %}
+  </dl>
+
+  {% if branches.count %}
+  <h4>Matriz/Filiais</h4>
+  {% with table_id='branches' data=branches fields=branches_fields caption='branches-'|add:obj.name  %}
+    {% include 'data-table.html' %}
+  {% endwith %}
+  {% endif %}
+</div>
+
+<div class="row">
+
+  {% if partners_data.count %}
+  <h4>Quadro Societário</h4>
+  <p>
+    Total de <b>{{ partners_data.count }}</b> sócios.
+  </p>
+  {% with table_id='partners' data=partners_data fields=partners_fields caption='quadro-societario-'|add:obj.name %}
+    {% include 'data-table.html' %}
+  {% endwith %}
+  {% endif %}
+
+  {% if filiations_data.count %}
+  <h4>Filiações</h4>
+  <p>
+    Foram identificadas <b>{{ filiations_data.count }}</b> filiações a partidos
+    políticos vinculadas a esse nome.
+    <br>
+    Nota: esses registros foram encontrados buscando pelo nome "{{ obj.name }}" e
+    podem aparecer homônimos nos resultados.
+  </p>
+  {% with table_id='filiations' data=filiations_data fields=filiations_fields caption='filiacoes-'|add:obj.name %}
+    {% include 'data-table.html' %}
+  {% endwith %}
+  {% endif %}
+
+  {% if applications_data.count %}
+  <h4>Candidaturas</h4>
+  <p>
+    Foram identificadas <b>{{ applications_data.count }}</b> candidaturas vinculadas
+    a esse CPF.
+  </p>
+  {% with table_id='applications' data=applications_data fields=applications_fields caption='candidaturas-'|add:obj.name  %}
+    {% include 'data-table.html' %}
+  {% endwith %}
+  {% endif %}
+
+  {% if companies_data.count %}
+  <h4>Sociedades</h4>
+  <p>
+    Foram identificadas <b>{{ companies_data.count }}</b> sociedades vinculadas
+    {% if obj.document_type == 'CNPJ' %}a esse CNPJ.
+    {% elif obj.document_type == 'CPF' %}a esse nome.{% endif %}
+    {% if obj.document_type == 'CPF' %}
+    <br>
+    Nota: esses registros foram encontrados buscando pelo nome "{{ obj.name }}" e
+    podem aparecer homônimos nos resultados.
+    {% endif %}
+  </p>
+  {% with table_id='companies' data=companies_data fields=companies_fields caption='sociedades-'|add:obj.name  %}
+    {% include 'data-table.html' %}
+  {% endwith %}
+  {% endif %}
+
+  <h4>Gastos da Cota Parlamentar (Câmara dos Deputados)</h4>
+  <p>
+    {% if camara_spending_data.count == 0 %}
+    Não foram identificados gastos para esse documento.
+    {% else %}
+    Foram identificadas <b>{{ camara_spending_data.count }}</b> notas.
+  </p>
+  {% with table_id='camara-spending' data=camara_spending_data fields=camara_spending_fields caption='gastos-deputados-'|add:obj.name  %}
+    {% include 'data-table.html' %}
+  {% endwith %}
+  {% endif %}
+
+  <h4>Gastos Diretos do Governo Federal</h4>
+  <p>
+    {% if federal_spending_data.count == 0 %}
+    Não foram identificados gastos para esse documento.
+    {% else %}
+    Foram identificadas <b>{{ federal_spending_data.count }}</b> notas.
+  </p>
+  {% with table_id='federal-spending' data=federal_spending_data fields=federal_spending_fields caption='gastos-diretos-'|add:obj.name  %}
+    {% include 'data-table.html' %}
+  {% endwith %}
+  {% endif %}
+
+</div>
+{% endwith %}{% endlocalize %}{% endblock %}
+
+{% block script %}
+{{ block.super }}
+<script type="text/javascript" language="javascript" src="{% static 'js/jquery.tabletocsv.js' %}"></script>
+<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+  $('.mdl-data-table').DataTable({
+      "scrollY":        "200px",
+      "scrollCollapse": true,
+      "paging":         false,
+      "searching":      false,
+      "bInfo":          false,
+  });
+});
+</script>
+{% endblock %}

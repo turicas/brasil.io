@@ -2,33 +2,149 @@
 {% block title %}Manifesto - Brasil.IO{% endblock %}
 {% block content %}
 <div class="section">
-  <h4>Brasil.IO: Manifesto</h4>
-  <div class="divider"></div>
-  <p>
-    Muitos dados públicos brasileiros estão disponíveis (principalmente depois
-    da criação da <a
-      href="http://www.planalto.gov.br/ccivil_03/_Ato2011-2014/2011/Lei/L12527.htm">Lei
-      de Acesso à Informação</a>), mas não necessariamente acessíveis. Mesmo
-    que a informação esteja disponível, nem sempre ela está disponível em um
-    formato legível por máquina, ou utilizando um formato aberto, ou possui
-    descrição (metadados) que facilitem a interpretação (manual ou automática)
-    desses dados. <b>O nível de acessibilidade de um dado é um filtro sobre
-    quem conseguirá utilizá-lo.  </b>
-  </p>
-  <p>
-    Além do problema relativo à acessibilidade, não existe um lugar comum em
-    que todos os dados disponíveis estejam organizados e catalogados,
-    dificultando ainda mais o acesso (ou a descoberta que esse tipo de
-    informação está disponível).
-  </p>
-  <p>
-    O objetivo do <b>Brasil.IO</b> não é concorrer com iniciativas correlatas
-    do Governo (como o <a href="https://dados.gov.br/">dados.gov.br</a>) e de
-    outras organizações – pelo contrário, gostaríamos de disponibilizar os
-    dados que essas organizações já disponibilizam, porém de forma integrada e
-    estruturada, permitindo a qualquer um acessar esses dados, independente do
-    conhecimento de computação (muitas bases são disponibilizadas de forma que
-    apenas programadores conseguem criar programas para ler os arquivos).
-  </p>
+    <h4>Manifesto</h4>
+    <div class="divider"></div>
+
+    <h5>O Problema</h5>
+    <p>
+        Após a criação da <a href="http://www.planalto.gov.br/ccivil_03/_Ato2011-2014/2011/Lei/L12527.htm">
+            Lei de Acesso à Informação</a>, todas as informações produzidas ou
+        custodiadas pelo poder público são públicas e portanto, disponíveis a todos
+        os cidadãos, exceto aquelas que são sigilosas por lei. Contudo, mesmo que a
+        informação esteja disponível não significa que ela está em um formato
+        acessível, ou seja, que ela possui um formato estruturado ou que possua
+        metadados que facilitem a extração manual ou automática desses dados. Se
+        você já precisou utilizar algum dado público provavelmente já passou por
+        algum desses problemas:
+    </p>
+
+    <ol>
+        <li>
+            Achar sites que disponibilizam tais informações, mas que não possibilitam
+            o download dos dados consolidados, fazendo com que seja necessário criar
+            um programa que acesse o site automaticamente.
+        </li>
+        <li>
+            Encontrar informações disponibilizadas em formato PDF (não estruturado)
+            em vez de em formato de planilha eletrônica.
+        </li>
+        <li>
+            Ter planilhas disponíveis em formatos fechados (XLS e XLSX) em vez de
+            abertos(CSV e ODS).
+        </li>
+        <li>
+            Acessar páginas que disponibilizam um grande número de arquivos (por
+            exemplo, um arquivo para cada unidade federativa) em vez de um único
+            arquivo consolidado, o que dificulta bastante as análises globais.
+        </li>
+    </ol>
+    <p>
+        <blockquote>
+            <b>
+                Restringir acesso a dados públicos é elitizar a democracia.
+            </b>
+            <a class="waves-effect waves-light btn-floating social" target="_blank" title="Publique essa frase no Twitter"
+                href="https://twitter.com/intent/tweet?text=Restringir%20acesso%20a%20dados%20p%C3%BAblicos%20%C3%A9%20elitizar%20a%20democracia%20-%20%40turicas%20em%20https%3A%2F%2Fbrasil.io%2Fmanifesto">
+                <i class="fa fa-twitter"></i></a>
+        </blockquote>
+    </p>
+    <p>
+        Nesse sentido, programadores possuem privilégios sobre outros cidadãos:
+        eles conseguem criar programas que acessam os dados que não estão em um
+        formato amigável. Muitos jornalistas, cientistas sociais, advogados, e
+        profissionais de diversas outras áreas precisam contratar desenvolvedores
+        para conseguir esses dados em um formato que eles consigam mexer ou
+        preferem <a href="http://journalismcourses.org/PJ1020.html"> aprender a
+            programar</a> para resolver esse problema, porém, acabam levando mais
+        tempo para atingir o objetivo principal: analisar os dados.
+    </p>
+    <p>
+        Além do problema relativo à acessibilidade, que torna tudo mais lento e
+        custoso, não existe um lugar comum em que todos os esses dados estejam
+        organizados, catalogados e linkados, o que dificulta ainda mais o acesso
+        (ou a descoberta desse tipo de informação).
+    </p>
+    <p>
+        O <a href="https://brasil.io">Brasil.IO</a> foi criado para resolver esses
+        problemas!
+    </p>
+
+    <h5>Os 4 Problemas de Acessibilidade</h5>
+    <p>
+        Quatro situações problemáticas costumam tornar dados menos acessíveis. São eles:
+        <ol>
+            <li><b>Formato</b> (qualidade técnica)</li>
+            <ul>
+                <li>Exemplo: Boletim de balneabilidade em PDF <a href="https://brasil.io/dataset/balneabilidade-bahia/balneabilidade">(INEMA/BA)</a></li>
+            </ul>
+            <li><b>Dispersão</b></li>
+            <ul>
+                <li>Exemplo: Filiações partidárias em 945 ZIPs com CSVs <a href="https://brasil.io/dataset/eleicoes-brasil/filiados">(TSE)</a></li>
+            </ul>
+            <li><b>Quantidade</b> de dados</li>
+            <ul>
+                <li>Exemplo: 18 milhões de sócios <a href="https://brasil.io/dataset/socios-brasil/socios">(Receita
+                        Federal)</a></li>
+            </ul>
+            <li><b>Domínio</b> da área</li>
+            <ul>
+                <li>Exemplo: o que é <i>unidade eleitoral</i>? <a href="https://brasil.io/dataset/eleicoes-brasil/votacoes">(TSE)</a></li>
+            </ul>
+        </ol>
+    </p>
+
+    <h5>Missão e Valores</h5>
+    <p>
+        Nossa missão é tornar acessíveis os dados brasileiros de interesse público
+        e temos como valores principais a transparência e colaboração. Dessa
+        maneira, tudo o que produzimos pode ser verificável, pois além de
+        disponibilizarmos os dados em formatos abertos, nosso
+        <a href="https://pt.wikipedia.org/wiki/Software_livre">software é livre</a>
+        e produzimos tudo isso de maneira colaborativa. Entre
+        <a href="https://chat.brasil.io/">em nosso chat</a> para saber como
+        colaborar ou em <a href="https://github.com/turicas/brasil.io">nosso
+            repositório de código no GitHub</a>.
+    </p>
+
+    <p>
+        <blockquote>
+            <b>
+                Chamamos de "libertação de dados" #dataliberation o processo de
+                capturar, converter, limpar e disponibilizar dados em formato
+                estruturado e aberto.
+            </b>
+            <a class="waves-effect waves-light btn-floating social" target="_blank" title="Publique essa frase no Twitter"
+                href="https://twitter.com/intent/tweet?text=Chamamos%20de%20%22liberta%C3%A7%C3%A3o%20de%20dados%22%20%23dataliberation%20o%20processo%20de%20capturar,%20converter,%20limpar%20e%20disponibilizar%20dados%20em%20formatos%20estruturados%20e%20abertos%20-%20%40turicas%20em%20https%3A%2F%2Fbrasil.io%2Fmanifesto">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </blockquote>
+    </p>
+
+    <h5>Aplicações</h5>
+    <p>
+        Diversas áreas podem se beneficiar dos dados mais acessíveis. Algumas
+        delas:
+        <ol>
+            <li>
+                O jornalismo guiado por dados: durante o processo de investigação,
+                citação de fontes e checagem de dados, que pode ser feita inclusive
+                pelos leitores.
+            </li>
+            <li>
+                Projetos de inovação cívica e controle social, como, por exemplo, a
+                <a href="https://serenata.ai/">Operação Serenata de Amor</a>.
+                A centralização dessas informações em um formato acessível torna viável
+                projetos que sofreriam muitas dificuldades técnicas sem esses dados
+                disponibilizados dessa maneira.
+            </li>
+            <li>
+                Gestão pública: gerando maneiras eficientes de utilização do orçamento
+                através do cruzamento de informações disponíveis em órgãos distintos -
+                as bases de dados muitas vezes não conversam entre si por falta de
+                padronização.
+            </li>
+        </ol>
+    </p>
+
 </div>
 {% endblock %}

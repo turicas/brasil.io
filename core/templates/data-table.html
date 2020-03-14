@@ -1,0 +1,46 @@
+{% load utils %}
+
+{% if client_export_csv %}
+<div class="row">
+  <a data-table-id="{{ table_id }}" class="btn download-button" href="#">Baixar dados em CSV</a>
+</div>
+{% endif %}
+
+<table id="{{ table_id }}"{% if caption %}data-filename="{{ caption }}"{% endif %} class="mdl-data-table table-custom">
+  <thead>
+  <tr>
+    {% for field in fields %}
+    {% if field.show_on_frontend %}
+    <th>{{ field.title }}</th>
+    {% endif %}
+    {% endfor %}
+  </tr>
+  </thead>
+
+  <tbody>
+  {% for row in data %}
+  <tr>
+    {% for field in fields %}{% if field.show_on_frontend %}{% with value=row|getattribute:field %}
+    {% if field.link_template and value %}
+    <td><a href="{{ field.link_template|render:row }}"> {{ value }} </a></td>
+    {% else %}
+    <td>{{ value|default:'' }}</td>
+    {% endif %}
+    {% endwith %}{% endif %}{% endfor %}
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<script type="text/javascript">
+  $(".download-button").off('click');
+  $(".download-button").click(function (event) {
+      event.preventDefault();
+
+      var $table = $('#' + $(this).attr('data-table-id'));
+      var options = {
+         fileName: $table.attr('data-filename'),
+      };
+      $table.tableToCsv(options);
+  });
+</script>

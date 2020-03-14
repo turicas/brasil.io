@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Home - Brasil.IO{% endblock %}
+{% block top %}
+<div class="top-container indigo darken-1">
+  <div class="container">
+    <div class="section indigo-text text-lighten-5">
+      <h3>O Brasil em dados libertos</h3>
+      <p class="flow-text">Repositório de dados públicos disponibilizados em formato acessível</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+
+  <section id="info">
+    <div class="row">
+      <div class="col s12 m3">
+        <div class="card">
+          <div class="card-content teal-text">
+            <span class="card-title">Manifesto</span>
+          </div>
+          <div class="card-content card-body">
+            <p>Venha entender o que motivou a criação do <strong>Brasil.IO</strong> e quais são os objetivos do projeto!</p>
+          </div>
+          <div class="card-action">
+            <a href="{% url 'core:manifesto' %}">Ver mais</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col s12 m3">
+        <div class="card">
+          <div class="card-content teal-text">
+            <span class="card-title">Datasets</span>
+          </div>
+          <div class="card-content card-body">
+            <p>Confira a lista completa de todas as base de dados liberadas. </p>
+          </div>
+          <div class="card-action">
+            <a href="{% url 'core:dataset-list' %}">Ver mais</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col s12 m3">
+        <div class="card">
+          <div class="card-content teal-text">
+            <span class="card-title">Sugira um Dataset</span>
+          </div>
+          <div class="card-content card-body">
+            <p>Conhece algum dataset bacana que gostaria de ver aqui? Sugira para nós! =)</p>
+          </div>
+          <div class="card-action">
+            <a href="{% url 'core:dataset-suggestion' %}">Ver mais</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col s12 m3">
+        <div class="card">
+          <div class="card-content teal-text">
+            <span class="card-title">Colabore</span>
+          </div>
+          <div class="card-content card-body">
+            <p>Achou o projeto legal e quer contribuir? Veja aqui como. </p>
+          </div>
+          <div class="card-action">
+            <a href="https://github.com/turicas/brasil.io/issues">Ver mais</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="datasets">
+    <div class="divider-new pt-3">
+      <h4 class="text-center m-15 dark-blue">Datasets</h4>
+    </div>
+
+    {% for dataset in datasets %}
+      {% include 'dataset-card.html' %}
+    {% endfor %}
+
+    <div class="row text-center">
+      <a class="btn btn-ptc btn-md waves-effect waves-light" href="{% url 'core:dataset-list' %}" role="button">
+        Ver Todos Datasets
+      </a>
+    <div>
+  </section>
+
+</div>
+
+
+
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  <div class="row m-t-15">
+    <div class="col s12 m8 offset-m2">
+      {% if next %}
+          {% include 'contas-gratuitas.html' %}
+      {% endif %}
+      <h4>Cadastre-se</h4>
+
+      <form method="post">
+        {% csrf_token %}
+
+        {{ form.username.errors }}
+        <label for="id_username"> Usuário: </label>
+        {{ form.username }}
+
+
+        {{ form.email.errors }}
+        <label for="id_email"> Email: </label>
+        {{ form.email }}
+
+
+        {{ form.password1.errors }}
+        <label for="id_password1"> Senha: </label>
+        {{ form.password1 }}
+
+
+        {{ form.password2.errors }}
+        <label for="id_password2"> Confirmação de senha: </label>
+        {{ form.password2 }}
+
+        <label>
+          {{ form.subscribe_newsletter }}
+          <span> Deseja assinar nossa newsletter? </span>
+        </label>
+
+          <div class="text-center m-t-10">
+            <input type="hidden" name="next" value="{{ next }}" />
+            <input class='btn' type="submit" value="Salvar" />
+          </div>
+
+      </form>
+    </div>
+  </div>
+
+{% endblock %}
