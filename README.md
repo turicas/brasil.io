@@ -73,7 +73,7 @@ source .activate
 pip install -r requirements.txt
 
 # Iniciar os containers (bancos de dados, e-mail)
-docker-compuse up
+docker-compose up
 
 # Criar schema e popular base de dados
 python manage.py migrate
