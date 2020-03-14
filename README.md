@@ -199,37 +199,9 @@ O comando `import_data` irá executar as seguintes operações:
 > importados completamente (esse valor é o do dado descompactado).
 
 
-## Deploying on Dokku
+## Deployment no Dokku
 
-Dokku is a very small plataform-as-a-service software, it works like Heroku
-and can be used to easily deploy apps in your own infrastructure.
-
-- On remote machine:
-  - Install dokku
-  - Install needed plugins:
-    - `dokku plugin:install https://github.com/dokku/dokku-postgres.git postgres`
-    - `dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git`
-  - Run `dokku apps:create brasilio-web`
-- On local machine:
-  - `git remote add dokku dokku@HOSTNAME:brasilio-web`
-  - `git push dokku master`
-- On remote machine:
-  - `dokku postgres:create brasilio-pgsql`
-  - `dokku postgres:expose brasilio-pgsql`
-  - `dokku postgres:link brasilio-pgsql brasilio-web`
-  - `dokku config:set brasilio-web DEBUG=False`
-  - `dokku ps:scale brasilio-web web=4`
-  - `dokku domains:add brasilio-web brasil.io`
-  - `dokku domains:add brasilio-web api.brasil.io`
-  - `dokku domains:add brasilio-web www.brasil.io`
-  - `dokku letsencrypt brasilio-web`
-  - Put `.csv.xz` files inside `/root/data` and run: `dokku storage:mount brasilio-web /root/data:/data`
-  - `dokku run brasilio-web /bin/bash`
-  - Inside container:
-    - `cd /app && python manage.py migrate`
-    - `cd /app && python manage.py createsuperuser`
-    - `cd /app && python manage.py update_data`
-    - `cd /app && python manage.py import_data <dataset-slug> <tablename> /data/<filename.csv.xz>`
+Veja [deploy-dokku.md](deploy-dokku.md).
 
 
 ### Licença
