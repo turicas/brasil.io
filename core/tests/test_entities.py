@@ -22,6 +22,23 @@ def test_Person():
     assert person.title == expected_title
 
 
+def test_Person_empty_name():
+    name = ""
+    document = "***456789**"
+    expected_object_id = "456789(UNKNOWN)"
+    expected_title = "Pessoa (UNKNOWN)"
+    data = {"nome": name, "cpf": document}
+
+    assert Person.base_url == EXPECTED_BASE_URL
+    person = Person(data)
+    assert person.entity_type == "person"
+    assert person.version == 1
+    assert person.name == name
+    assert person.object_id == expected_object_id
+    assert person.document == document
+    assert person.title == expected_title
+
+
 def test_Company():
     name = "BANCO DO BRASIL SA"
     legal_name = "BB AGENCIA X"

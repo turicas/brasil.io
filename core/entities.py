@@ -99,9 +99,14 @@ class Person(Entity):
 
     @property
     def object_id(self):
-        first_name = unaccent(self.name).split()[0].upper()
+        name = unaccent(self.name)
+        if name:
+            first_name = name.split()[0].upper()
+        else:
+            first_name = "(UNKNOWN)"
         return f"{self.document[3:9]}{first_name}"
 
     @property
     def title(self):
-        return f"Pessoa {self.name}"
+        name = self.name or "(UNKNOWN)"
+        return f"Pessoa {name}"
