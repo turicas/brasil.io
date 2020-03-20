@@ -1,5 +1,6 @@
 import uuid
 from unicodedata import normalize
+from urllib.parse import urljoin
 
 
 def unaccent(text):
@@ -8,14 +9,16 @@ def unaccent(text):
 
 class Entity:
 
+    base_url = None
     entity_type = None
-    version = None
     field_names = None
+    version = None
 
     def __init__(self, row):
+        assert self.base_url is not None
         assert self.entity_type is not None
-        assert self.version is not None
         assert self.field_names is not None
+        assert self.version is not None
         for field_name in self.field_names:
             if field_name not in row:
                 raise ValueError(f"Field '{field_name}' not found")
@@ -32,7 +35,9 @@ class Entity:
 
     @property
     def url(self):
-        return f"https://uuid.brasil.io/v{self.version}/{self.entity_type}/{self.object_id}"
+        return urljoin(
+            self.base_url, f"v{self.version}/{self.entity_type}/{self.object_id}"
+        )
 
     @property
     def uuid(self):
@@ -49,9 +54,10 @@ class Entity:
 
 
 class Company(Entity):
+    base_url = "https://uuid.brasil.io"
     entity_type = "company"
-    version = 1
     field_names = ("cnpj", "nome_fantasia", "razao_social")
+    version = 1
 
     @property
     def name(self):
@@ -78,9 +84,10 @@ class Company(Entity):
 
 
 class Person(Entity):
+    base_url = "https://uuid.brasil.io"
     entity_type = "person"
-    version = 1
     field_names = ("nome", "cpf")
+    version = 1
 
     @property
     def name(self):

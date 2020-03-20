@@ -1,6 +1,8 @@
-from core.entities import Person, Company
+from core.entities import Company, Person
 
 # TODO: test Entity
+
+EXPECTED_BASE_URL = "https://uuid.brasil.io"
 
 
 def test_Person():
@@ -10,6 +12,7 @@ def test_Person():
     expected_title = f"Pessoa {name}"
     data = {"nome": name, "cpf": document}
 
+    assert Person.base_url == EXPECTED_BASE_URL
     person = Person(data)
     assert person.entity_type == "person"
     assert person.version == 1
@@ -27,6 +30,7 @@ def test_Company():
     expected_title = f"Empresa {name} ({legal_name})"
     data = {"cnpj": document, "razao_social": legal_name, "nome_fantasia": name}
 
+    assert Company.base_url == EXPECTED_BASE_URL
     person = Company(data)
     assert person.entity_type == "company"
     assert person.version == 1
