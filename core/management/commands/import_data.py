@@ -73,7 +73,7 @@ class Command(BaseCommand):
                     create_table=False,
                     timeout=timeout,
                     callback=progress.update,
-                    schema=table.get_schema(),
+                    schema=table.schema,
                 )
             except RuntimeError as exception:
                 progress.close()
