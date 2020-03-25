@@ -1,5 +1,6 @@
 import os
 import time
+from datetime import date
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -22,6 +23,14 @@ class Command(BaseCommand):
         parser.add_argument('--no-vacuum', required=False, action='store_true')
         parser.add_argument('--no-create-filter-indexes', required=False, action='store_true')
         parser.add_argument('--no-fill-choices', required=False, action='store_true')
+        parser.add_argument('--collect-date', required=False, action='store', help='collect date in format YYYY-MM-DD')
+
+    def clean_collect_date(self, collect_date):
+        if not collect_date:
+            return None
+
+        year, month, day = [int(v) for v in collect_date.split('-')]
+        return date(year, month, day)
 
     def handle(self, *args, **kwargs):
         dataset_slug = kwargs['dataset_slug']
@@ -32,6 +41,7 @@ class Command(BaseCommand):
         vacuum = not kwargs['no_vacuum']
         create_filter_indexes = not kwargs['no_create_filter_indexes']
         fill_choices = not kwargs['no_fill_choices']
+        collect_date = self.clean_collect_date(kwargs['collect_date'])
 
         if ask_confirmation:
             print(
@@ -82,6 +92,9 @@ class Command(BaseCommand):
                 progress.close()
                 table.import_date = timezone.now()
                 table.save()
+                if collect_date:
+                    table.version.collected_at = collect_date
+                    table.version.save()
                 end_time = time.time()
                 duration = end_time - start_time
                 rows_imported = import_meta['rows_imported']
