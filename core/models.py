@@ -191,6 +191,10 @@ class DynamicModelQuerySet(models.QuerySet):
             for field_name in model_filtering:
                 value = filtering.get(field_name, None)
                 if value is not None:
+                    if value == 'false':
+                        value = False
+                    elif value == 'true':
+                        value = True
                     qs = qs.filter(**{field_name: value})
         return qs
 
