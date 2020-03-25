@@ -1,6 +1,8 @@
 import hashlib
+from rows import fields as rows_fields
 from textwrap import dedent
 from urllib.parse import urlparse
+from collections import OrderedDict
 
 import django.db.models.indexes as django_indexes
 from django.contrib.postgres.fields import ArrayField, JSONField
@@ -363,6 +365,26 @@ class Table(models.Model):
     @property
     def fields(self):
         return self.field_set.all()
+
+    @property
+    def schema(self):
+        db_fields_to_rows_fields = {
+            'binary': rows_fields.BinaryField,
+            'bool': rows_fields.BoolField,
+            'date': rows_fields.DateField,
+            'datetime': rows_fields.DatetimeField,
+            'decimal': rows_fields.DecimalField,
+            'email': rows_fields.EmailField,
+            'float': rows_fields.FloatField,
+            'integer': rows_fields.IntegerField,
+            'json': rows_fields.JSONField,
+            'string': rows_fields.TextField,
+            'text': rows_fields.TextField,
+        }
+        return OrderedDict([
+            (n, db_fields_to_rows_fields.get(t, rows_fields.Field))
+            for n, t in self.fields.values_list('name', 'type')
+        ])
 
     def get_model(self, cache=True):
         if cache and self.id in DYNAMIC_MODEL_REGISTRY:
