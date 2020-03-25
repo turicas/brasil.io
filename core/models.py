@@ -438,6 +438,9 @@ class Table(models.Model):
         Model = self.get_model()
         return model_to_code(Model)
 
+    def get_schema(self):
+        return dict(self.fields.values_list('name', 'type'))
+
 
 class FieldQuerySet(models.QuerySet):
 
