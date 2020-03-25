@@ -1,4 +1,4 @@
-from model_mommy import mommy
+from model_bakery import baker
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
@@ -12,12 +12,12 @@ User = get_user_model()
 class TestSubscribersAsCSVRows(TestCase):
 
     def setUp(self):
-        users = mommy.make(
+        users = baker.make(
             User,
             _quantity=5,
             _fill_optional=True
         )
-        self.subscribers = [mommy.make(NewsletterSubscriber, user=u) for u in users]
+        self.subscribers = [baker.make(NewsletterSubscriber, user=u) for u in users]
 
     def test_get_csv_rows(self):
         rows = subscribers_as_csv_rows()
