@@ -74,6 +74,7 @@ if __name__ == "__main__":
     list_template = TEMPLATE_PATH / "list.html"
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("list_type", choices=["dataset", "mirror"])
     parser.add_argument("dataset")
     parser.add_argument("capture_date")
     parser.add_argument("files_path")
@@ -102,6 +103,7 @@ if __name__ == "__main__":
     file_list.append(make_file_row("SHA512SUMS", files_path / "SHA512SUMS"))
 
     context = {
+        "list_type": args.list_type,
         "file_list": file_list,
         "dataset": args.dataset,
         "capture_date": args.capture_date,
