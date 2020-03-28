@@ -5,6 +5,7 @@ django-cors-headers
 django-naomi
 django-environ
 django-extensions
+django-recaptcha
 django>=2.0
 djangorestframework
 git+https://github.com/turicas/rows.git@develop#egg=rows
