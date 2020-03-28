@@ -83,23 +83,19 @@ if __name__ == "__main__":
 
     file_list = []
     progress = tqdm()
-    sum_file_exists = False
     for root, dirs, filenames in os.walk(files_path):
         for filename in filenames:
             full_path = Path(root) / filename
             relative_path = str(full_path.relative_to(files_path))
-            if relative_path == "_meta/list.html":
+            if relative_path in ("_meta/list.html", "SHA512SUMS"):
                 continue
-            if relative_path == "SHA512SUMS":
-                sum_file_exists = True
             file_list.append(make_file_row(relative_path, full_path))
             progress.update()
 
     file_list.sort(key=lambda row: row["filename"])
-    if not sum_file_exists:
-        with open(files_path / "SHA512SUMS", "w") as fobj:
-            for f in file_list:
-                fobj.write(f"{f['sha512sum']}  {f['filename']}\n")
+    with open(files_path / "SHA512SUMS", "w") as fobj:
+        for f in file_list:
+            fobj.write(f"{f['sha512sum']}  {f['filename']}\n")
     file_list.append(make_file_row("SHA512SUMS", files_path / "SHA512SUMS"))
 
     context = {
