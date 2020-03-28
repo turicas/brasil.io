@@ -173,7 +173,7 @@ def dataset_detail(request, slug, tablename=""):
         response.encoding = "UTF-8"
         return response
 
-    paginator = Paginator(all_data, 20)
+    paginator = Paginator(all_data, items_per_page)
     data = paginator.get_page(page)
 
     for key, value in list(querystring.items()):
