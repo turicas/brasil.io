@@ -148,6 +148,7 @@ def dataset_detail(request, slug, tablename=""):
             'message': 'Invalid items per page.'
         }
         return render(request, '404.html', context, status=404)
+    items_per_page = min(items_per_page, 1000)
 
     version = dataset.version_set.order_by("-order").first()
     fields = table.fields
