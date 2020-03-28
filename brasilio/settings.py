@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_extensions',
     'rest_framework',
+    'captcha',
 
     # Project apps
     'core',
@@ -171,3 +172,7 @@ NEO4J_BOLT_PORT = int(env('NEO4J_BOLT_PORT', default=39003))
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = reverse_lazy('brasilio_auth:login')
+
+RECAPTCHA_REQUIRED_SCORE = env('RECAPTCHA_REQUIRED_SCORE')
+RECAPTCHA_PUBLIC_KEY = env('RECAPTCHA_PUBLIC_KEY')
+RECAPTCHA_PRIVATE_KEY = env('RECAPTCHA_PRIVATE_KEY')
