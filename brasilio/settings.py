@@ -175,3 +175,5 @@ LOGIN_URL = reverse_lazy('brasilio_auth:login')
 
 RECAPTCHA_PUBLIC_KEY = env('RECAPTCHA_PUBLIC_KEY')
 RECAPTCHA_PRIVATE_KEY = env('RECAPTCHA_PRIVATE_KEY')
+
+ROWS_PER_PAGE = env('ROWS_PER_PAGE', int, default=50)

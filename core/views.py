@@ -132,12 +132,20 @@ def dataset_detail(request, slug, tablename=""):
 
     querystring = request.GET.copy()
     page_number = querystring.pop("page", ["1"])[0].strip() or "1"
+    items_per_page = querystring.pop("items", [str(settings.ROWS_PER_PAGE)])[0].strip() or str(settings.ROWS_PER_PAGE)
     download_csv = querystring.pop("format", [""]) == ["csv"]
     try:
         page = int(page_number)
     except ValueError:
         context = {
             'message': 'Invalid page number.'
+        }
+        return render(request, '404.html', context, status=404)
+    try:
+        items_per_page = int(items_per_page)
+    except ValueError:
+        context = {
+            'message': 'Invalid items per page.'
         }
         return render(request, '404.html', context, status=404)
 
