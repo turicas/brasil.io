@@ -113,6 +113,8 @@ def brasilio_github_contributors():
     for account, repository in repositories:
         contributors = github_repository_contributors(account, repository)
         for contributor in contributors:
+            if contributor["user_data"] is None:
+                continue
             username = contributor["login"]
             if username not in contributor_data:
                 contributor_data[username] = contributor["user_data"]
