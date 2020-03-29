@@ -168,9 +168,12 @@ def dataset_detail(request, slug, tablename=""):
         if not value:
             del querystring[key]
 
-    import_date = TIMEZONE.localize(
-        table.import_date
-    )  # TODO: use Django's timezone system
+    import_date = table.import_date
+    # TODO: use Django's timezone system
+    if import_date.tzinfo is None:
+        import_date = TIMEZONE.localize(import_date)
+    else:
+        import_date = import_date.replace(tzinfo=TIMEZONE)
     context = {
         "collected_at": version.collected_at,
         "data": data,
