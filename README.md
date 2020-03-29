@@ -151,12 +151,12 @@ o dump
 
 Alguns arquivos demoram bastante para serem importados, pois são muito grandes.
 Um exemplo de arquivo menor é o dataset
-[balneabilidade-bahia](https://drive.google.com/file/d/1-Ctem8laBPl9MBlbkoxqzEZU1paZZTA8/view?usp=sharing).
+[cursos-prouni](https://drive.google.com/open?id=1mlqNGmUe7i8RC1rSPCBZAfBFD3SO6B70).
 
 Após fazer o download do arquivo basta executar o seguinte comando:
 
 ```bash
-python manage.py import_data --no-input balneabilidade-bahia balneabilidade balneabilidade-bahia.csv.xz
+python manage.py import_data --no-input cursos-prouni cursos cursos-prouni.csv.xz
 ```
 
 > Nota 1: caso queira importar diversos datasets, crie um diretório `data`,
@@ -174,7 +174,7 @@ python manage.py import_data --no-input balneabilidade-bahia balneabilidade baln
 O comando `import_data` irá executar as seguintes operações:
 
 - Deletar a tabela que contém os dados
-  (`data_balneabilidadebahia_balneabilidade`), caso exista;
+  (`data_cursosprouni_cursos`), caso exista;
 - Criar uma nova tabela, usando os metadados sobre ela que estão em `Table` e
   `Field`;
 - Criar um gatilho no PostgreSQL para preenchimento automático do índice de
