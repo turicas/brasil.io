@@ -89,3 +89,36 @@ def github_repository_contributors(username, repository, timeout=1):
         contributor["user_data"] = http_get_json(contributor["url"], timeout)
 
     return contributors
+
+
+@cached(cache=TTLCache(maxsize=1, ttl=24 * 3600))
+def brasilio_github_contributors():
+    repositories = (
+        ("turicas", "balneabilidade-brasil"),
+        ("turicas", "blog.brasil.io"),
+        ("turicas", "brasil"),
+        ("turicas", "brasil.io"),
+        ("turicas", "covid19-br"),
+        ("turicas", "cursos-prouni"),
+        ("turicas", "data-worker"),
+        ("turicas", "eleicoes-brasil"),
+        ("turicas", "gastos-deputados"),
+        ("turicas", "genero-nomes"),
+        ("turicas", "portaldatransparencia"),
+        ("turicas", "salarios-magistrados"),
+        ("turicas", "socios-brasil"),
+        ("turicas", "transparencia-gov-br"),
+    )
+    contributor_data = {}
+    for account, repository in repositories:
+        contributors = github_repository_contributors(account, repository)
+        for contributor in contributors:
+            username = contributor["login"]
+            if username not in contributor_data:
+                contributor_data[username] = contributor["user_data"]
+            if "contributions" not in contributor_data[username]:
+                contributor_data[username]["contributions"] = 0
+            contributor_data[username]["contributions"] += contributor["contributions"]
+    total_contributors = list(contributor_data.values())
+    total_contributors.sort(key=lambda row: row["contributions"], reverse=True)
+    return total_contributors
