@@ -1,6 +1,7 @@
 import csv
 import uuid
 
+import pytz
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
@@ -16,6 +17,7 @@ from core.util import brasilio_github_contributors
 
 
 max_export_rows = 350_000
+TIMEZONE = pytz.timezone("America/Sao_Paulo")
 
 
 class Echo:
@@ -165,15 +167,21 @@ def dataset_detail(request, slug, tablename=""):
     for key, value in list(querystring.items()):
         if not value:
             del querystring[key]
+
+    import_date = TIMEZONE.localize(
+        table.import_date
+    )  # TODO: use Django's timezone system
     context = {
+        "collected_at": version.collected_at,
         "data": data,
         "dataset": dataset,
-        "table": table,
         "fields": fields,
+        "import_date": import_date,
         "max_export_rows": max_export_rows,
         "query_dict": querystring,
         "querystring": querystring.urlencode(),
         "slug": slug,
+        "table": table,
         "table": table,
         "total_count": all_data.count(),
         "version": version,

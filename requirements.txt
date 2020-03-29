@@ -19,6 +19,7 @@ openpyxl
 psycopg2-binary
 py2neo==3.1.2
 pytest-django==3.2.1
+pytz
 requests
 requests-cache
 sendgrid-django
