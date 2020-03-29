@@ -12,7 +12,7 @@ from django.urls import reverse
 from core.forms import ContactForm, DatasetSearchForm
 from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
-from core.util import github_repository_contributors
+from core.util import brasilio_github_contributors
 
 
 max_export_rows = 350_000
@@ -49,10 +49,8 @@ def contact(request):
             return redirect(reverse("core:contact") + "?sent=true")
 
     else:
-        context = {
-            'message': 'Invalid HTTP method.'
-        }
-        return render(request, '404.html', context, status=400)
+        context = {"message": "Invalid HTTP method."}
+        return render(request, "404.html", context, status=400)
 
     return render(request, "contact.html", {"form": form, "sent": sent})
 
@@ -92,15 +90,10 @@ def dataset_list(request):
     form = DatasetSearchForm(request.GET)
     q = Q(show=True)
     if form.is_valid():
-        search_str = form.cleaned_data['search']
-        for term in search_str.split(' '):
-            q &= Q(
-                Q(description__icontains=term) | Q(name__icontains=term)
-            )
-    context = {
-        'datasets': Dataset.objects.filter(q).order_by('name'),
-        'form': form,
-    }
+        search_str = form.cleaned_data["search"]
+        for term in search_str.split(" "):
+            q &= Q(Q(description__icontains=term) | Q(name__icontains=term))
+    context = {"datasets": Dataset.objects.filter(q).order_by("name"), "form": form}
     return render(request, "dataset-list.html", context)
 
 
@@ -108,10 +101,8 @@ def dataset_detail(request, slug, tablename=""):
     try:
         dataset = Dataset.objects.get(slug=slug)
     except Dataset.DoesNotExist:
-        context = {
-            'message': 'Dataset does not exist'
-        }
-        return render(request, '404.html', context, status=404)
+        context = {"message": "Dataset does not exist"}
+        return render(request, "404.html", context, status=404)
 
     if not tablename:
         tablename = dataset.get_default_table().name
@@ -125,29 +116,25 @@ def dataset_detail(request, slug, tablename=""):
     try:
         table = dataset.get_table(tablename)
     except Table.DoesNotExist:
-        context = {
-            'message': 'Table does not exist'
-        }
-        return render(request, '404.html', context, status=404)
+        context = {"message": "Table does not exist"}
+        return render(request, "404.html", context, status=404)
 
     querystring = request.GET.copy()
     page_number = querystring.pop("page", ["1"])[0].strip() or "1"
-    items_per_page = querystring.pop("items", [str(settings.ROWS_PER_PAGE)])[0].strip() or str(settings.ROWS_PER_PAGE)
+    items_per_page = querystring.pop("items", [str(settings.ROWS_PER_PAGE)])[
+        0
+    ].strip() or str(settings.ROWS_PER_PAGE)
     download_csv = querystring.pop("format", [""]) == ["csv"]
     try:
         page = int(page_number)
     except ValueError:
-        context = {
-            'message': 'Invalid page number.'
-        }
-        return render(request, '404.html', context, status=404)
+        context = {"message": "Invalid page number."}
+        return render(request, "404.html", context, status=404)
     try:
         items_per_page = int(items_per_page)
     except ValueError:
-        context = {
-            'message': 'Invalid items per page.'
-        }
-        return render(request, '404.html', context, status=404)
+        context = {"message": "Invalid items per page."}
+        return render(request, "404.html", context, status=404)
     items_per_page = min(items_per_page, 1000)
 
     version = dataset.version_set.order_by("-order").first()
@@ -158,7 +145,7 @@ def dataset_detail(request, slug, tablename=""):
     if download_csv:
         if all_data.count() > max_export_rows:
             context = {"message": "Max rows exceeded."}
-            return render(request, '404.html', context, status=400)
+            return render(request, "404.html", context, status=400)
 
         filename = "{}-{}.csv".format(slug, uuid.uuid4().hex)
         pseudo_buffer = Echo()
@@ -168,9 +155,7 @@ def dataset_detail(request, slug, tablename=""):
             (writer.writerow(row) for row in csv_rows),
             content_type="text/csv;charset=UTF-8",
         )
-        response["Content-Disposition"] = 'attachment; filename="{}"'.format(
-            filename
-        )
+        response["Content-Disposition"] = 'attachment; filename="{}"'.format(filename)
         response.encoding = "UTF-8"
         return response
 
@@ -210,7 +195,5 @@ def collaborate(request):
 
 def contributors(request):
     return render(
-        request,
-        "contributors.html",
-        {"contributors": github_repository_contributors("turicas", "brasil.io")},
+        request, "contributors.html", {"contributors": brasilio_github_contributors()}
     )
