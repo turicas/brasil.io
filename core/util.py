@@ -5,7 +5,6 @@ import gzip
 import io
 import lzma
 from textwrap import dedent
-from functools import lru_cache
 from urllib.request import urlopen, URLError
 import socket
 
@@ -13,6 +12,9 @@ import django.db.models.fields
 from django.db import connection, reset_queries, transaction
 from django.db.utils import ProgrammingError
 from rows.plugins.utils import ipartition
+from cachetools import cached, TTLCache
+
+
 from core.models import Table
 
 
@@ -66,24 +68,24 @@ def get_company_by_document(document):
     return obj
 
 
-@lru_cache()
-def github_repository_contributors(repositories = [], timeout=1):
-    result = []
-    for username, repository in repositories:
-        url = f"https://api.github.com/repos/{username}/{repository}/contributors"
-        try:
-            response = urlopen(url, timeout=timeout)
-        except URLError:
-            return result
-        except socket.timeout:
-            return result
-        else:
-            contributors = json.loads(response.read())
-            for contributor in contributors:
-                url = contributor["url"]
-                try:
-                    response = urlopen(url, timeout=timeout)
-                except (URLError, socket.timeout):
-                    continue
-                result.append(json.loads(response.read()))
-            return result
+def http_get_json(url, timeout):
+    try:
+        response = urlopen(url, timeout=timeout)
+    except (URLError, socket.timeout):
+        return None
+    else:
+        return json.loads(response.read())
+
+
+@cached(cache=TTLCache(maxsize=100, ttl=24 * 3600))
+def github_repository_contributors(username, repository, timeout=1):
+    url = f"https://api.github.com/repos/{username}/{repository}/contributors"
+    contributors = http_get_json(url, timeout)
+    if contributors is None:
+        return []
+
+    for contributor in contributors:
+        url = contributor["url"]
+        contributor["user_data"] = http_get_json(contributor["url"], timeout)
+
+    return contributors
