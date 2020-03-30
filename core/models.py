@@ -190,12 +190,14 @@ class DynamicModelQuerySet(models.QuerySet):
         if model_filtering is not None:
             for field_name in model_filtering:
                 value = filtering.get(field_name, None)
-                if value is not None:
-                    if value == 'false':
-                        value = False
-                    elif value == 'true':
-                        value = True
-                    qs = qs.filter(**{field_name: value})
+                if value == 'false':
+                    value = False
+                elif value == 'true':
+                    value = True
+                elif value is None:
+                    value = True
+                    field_name += '__isnull'
+                qs = qs.filter(**{field_name: value})
         return qs
 
     def apply_ordering(self, query):
