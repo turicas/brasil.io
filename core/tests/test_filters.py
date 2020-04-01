@@ -10,9 +10,18 @@ class TestDynamicModelFilter(TestCase):
 
         self.assertEquals(filter_processor.filters, filtering)
 
-    def test_filter_not_allowed(self):
+    def test_remove_filter_not_allowed(self):
         filtering = {"foo": "bar", "fu": "bá"}
-        allowed_filters = ["foo",]
+        allowed_filters = ["foo"]
+
+        filter_processor = DynamicModelFilterProcessor(filtering, allowed_filters)
+
+        self.assertEquals(filter_processor.filters, {"foo": "bar"})
+
+
+    def test_remove_None_filter(self):
+        filtering = {"foo": "bar", "fu": None}
+        allowed_filters = ["foo", "fu"]
 
         filter_processor = DynamicModelFilterProcessor(filtering, allowed_filters)
 

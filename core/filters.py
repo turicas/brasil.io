@@ -5,4 +5,7 @@ class DynamicModelFilterProcessor:
 
     @property
     def filters(self):
-        return {k: self.filtering[k] for k in self.filtering if k in self.allowed_filters}
+        return {
+            k: self.filtering[k] for k in self.filtering
+            if k in self.allowed_filters and self.filtering[k] is not None
+        }
