@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'captcha',
+    'cachalot',
 
     # Project apps
     'core',
@@ -177,3 +178,15 @@ RECAPTCHA_PUBLIC_KEY = env('RECAPTCHA_PUBLIC_KEY')
 RECAPTCHA_PRIVATE_KEY = env('RECAPTCHA_PRIVATE_KEY')
 
 ROWS_PER_PAGE = env('ROWS_PER_PAGE', int, default=50)
+
+CACHALOT_ENABLED=True
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+        "KEY_PREFIX": "datacache"
+    }
+}
