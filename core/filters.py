@@ -1,10 +1,10 @@
 def clean_value(key, value):
-    if value == "false":
+    if value == 'false':
         return key, False
-    if value == "true":
+    if value == 'true':
         return key, True
-    if value == "None":
-        return f"{key}__isnull", True
+    if value == 'None':
+        return f'{key}__isnull', True
     return key, value
 
 class DynamicModelFilterProcessor:
