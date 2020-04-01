@@ -179,7 +179,7 @@ RECAPTCHA_PRIVATE_KEY = env('RECAPTCHA_PRIVATE_KEY')
 
 ROWS_PER_PAGE = env('ROWS_PER_PAGE', int, default=50)
 
-CACHALOT_ENABLED = True
+CACHALOT_ENABLED = env('CACHE_ENABLED', bool, default=True)
 CACHALOT_UNCACHABLE_TABLES = frozenset(
     (
         "auth_group",
@@ -202,9 +202,9 @@ CACHALOT_UNCACHABLE_TABLES = frozenset(
 )
 CACHES = {
     "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
-        "KEY_PREFIX": "datacache",
+        "BACKEND": env('CACHE_BACKEND', default="django_redis.cache.RedisCache"),
+        "LOCATION": env('CACHE_LOCATION', default="redis://127.0.0.1:39006"),
+        "OPTIONS": {"CLIENT_CLASS": env('CACHE_CLIENT_CLASS', default="django_redis.client.DefaultClient")},
+        "KEY_PREFIX": env("CACHE_KEY_PREFIX", default="datacache"),
     }
 }
