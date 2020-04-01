@@ -26,3 +26,11 @@ class TestDynamicModelFilter(TestCase):
         filter_processor = DynamicModelFilterProcessor(filtering, allowed_filters)
 
         self.assertEquals(filter_processor.filters, {"foo": "bar"})
+
+    def test_clean_bool_lowercase_values(self):
+        filtering = {"foo": "true", "fu": "false"}
+        allowed_filters = ["foo", "fu"]
+
+        filter_processor = DynamicModelFilterProcessor(filtering, allowed_filters)
+
+        self.assertEquals(filter_processor.filters, {"foo": True, "fu": False})
