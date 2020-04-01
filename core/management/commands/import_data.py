@@ -121,6 +121,7 @@ class Command(BaseCommand):
                     )
                 )
             Model = table.get_model(cache=False)
+            table.invalidate_cache()
 
         if vacuum:
             print("Running VACUUM ANALYSE...", end="", flush=True)
