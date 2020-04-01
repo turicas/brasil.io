@@ -1,6 +1,7 @@
 from django.test import TestCase
 from core.filters import DynamicModelFilterProcessor
 
+
 class TestDynamicModelFilter(TestCase):
     def test_filter_with_all_keys_allowed(self):
         filtering = {"foo": "bar", "fu": "bá"}
@@ -34,11 +35,3 @@ class TestDynamicModelFilter(TestCase):
         filter_processor = DynamicModelFilterProcessor(filtering, allowed_filters)
 
         self.assertEquals(filter_processor.filters, {"foo": True, "fu": False})
-
-    def test_accept_empty_string(self):
-        filtering = {"foo": "bar", "fu": "bá", "zen": ""}
-        allowed_filters = ["foo", "fu", "zen"]
-
-        filter_processor = DynamicModelFilterProcessor(filtering, allowed_filters)
-
-        self.assertEquals(filter_processor.filters, {"foo": "bar", "fu": "bá", "zen": ""})
