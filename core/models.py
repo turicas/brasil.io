@@ -11,6 +11,8 @@ from django.contrib.postgres.search import (SearchQuery, SearchVector,
                                             SearchVectorField)
 from django.db import connection, models
 
+from core.filters import DynamicModelFilterProcessor
+
 
 DYNAMIC_MODEL_REGISTRY = {}
 FIELD_TYPES = {
@@ -187,16 +189,9 @@ class DynamicModelQuerySet(models.QuerySet):
         return qs
 
     def apply_filters(self, filtering):
-        qs = self
-        # TODO: for bool fields, accept 'true/false' also (only accepts 'True'
-        # and 'False'). More at: https://github.com/turicas/brasil.io/issues/189
         model_filtering = self.model.extra['filtering']
-        if model_filtering is not None:
-            for field_name in model_filtering:
-                value = filtering.get(field_name, None)
-                if value is not None:
-                    qs = qs.filter(**{field_name: value})
-        return qs
+        processor = DynamicModelFilterProcessor(filtering, model_filtering)
+        return self.filter(**processor.filters)
 
     def apply_ordering(self, query):
         qs = self
