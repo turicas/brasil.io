@@ -5,4 +5,4 @@ class DynamicModelFilterProcessor:
 
     @property
     def filters(self):
-        return self.filtering
+        return {k: self.filtering[k] for k in self.filtering if k in self.allowed_filters}
