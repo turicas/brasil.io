@@ -31,10 +31,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Third-party apps
+    'cachalot',
+    'captcha',
     'corsheaders',
     'django_extensions',
     'rest_framework',
-    'captcha',
 
     # Project apps
     'core',
@@ -177,3 +178,14 @@ RECAPTCHA_PUBLIC_KEY = env('RECAPTCHA_PUBLIC_KEY')
 RECAPTCHA_PRIVATE_KEY = env('RECAPTCHA_PRIVATE_KEY')
 
 ROWS_PER_PAGE = env('ROWS_PER_PAGE', int, default=50)
+
+CACHALOT_ENABLED = env('CACHE_ENABLED', bool, default=True)
+CACHALOT_CACHE = "default"
+CACHES = {
+    "default": {
+        "BACKEND": env('CACHE_BACKEND'),
+        "LOCATION": env('CACHE_LOCATION'),
+        "OPTIONS": {"CLIENT_CLASS": env('CACHE_CLIENT_CLASS')},
+        "KEY_PREFIX": env("CACHE_KEY_PREFIX"),
+    }
+}
