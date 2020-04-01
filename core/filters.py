@@ -1,9 +1,11 @@
-def clean_value(value):
+def clean_value(key, value):
     if value == "false":
-        return False
+        return key, False
     if value == "true":
-        return True
-    return value
+        return key, True
+    if value == "None":
+        return f"{key}__isnull", True
+    return key, value
 
 class DynamicModelFilterProcessor:
     def __init__(self, filtering: dict, allowed_filters: list):
@@ -12,7 +14,7 @@ class DynamicModelFilterProcessor:
 
     @property
     def filters(self):
-        return {
-            k: clean_value(self.filtering[k]) for k in self.filtering
+        return dict(
+            clean_value(k, self.filtering[k]) for k in self.filtering
             if k in self.allowed_filters and self.filtering[k] is not None
-        }
+        )
