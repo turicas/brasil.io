@@ -11,7 +11,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.6]
+        python-version: [3.7]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -21,7 +21,6 @@ jobs:
     - name: Setup Docker
       run: |
         source "$ENV_FILE"
-        docker-compose -p $PROJECT_NAME -f $DOCKER_COMPOSE_FILE up -d
         docker-compose up -d
       env:
         ENV_FILE: .env
@@ -34,7 +33,6 @@ jobs:
     - name: Migrate and Update Data
       run: |
         python manage.py migrate
-        python manage.py update_data
     - name: Run Tests
       run: |
         python manage.py test
