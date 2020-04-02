@@ -202,9 +202,9 @@ CACHALOT_UNCACHABLE_TABLES = frozenset(
 )
 CACHES = {
     "default": {
-        "BACKEND": env('CACHE_BACKEND', default="django_redis.cache.RedisCache"),
-        "LOCATION": env('CACHE_LOCATION', default="redis://127.0.0.1:39006"),
-        "OPTIONS": {"CLIENT_CLASS": env('CACHE_CLIENT_CLASS', default="django_redis.client.DefaultClient")},
-        "KEY_PREFIX": env("CACHE_KEY_PREFIX", default="datacache"),
+        "BACKEND": env('CACHE_BACKEND'),
+        "LOCATION": env('CACHE_LOCATION'),
+        "OPTIONS": {"CLIENT_CLASS": env('CACHE_CLIENT_CLASS')},
+        "KEY_PREFIX": env("CACHE_KEY_PREFIX"),
     }
 }
