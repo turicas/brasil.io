@@ -10,6 +10,7 @@ import django.contrib.postgres.indexes as pg_indexes
 from django.contrib.postgres.search import (SearchQuery, SearchVector,
                                             SearchVectorField)
 from django.db import connection, models
+from cachalot.api import invalidate
 
 from core.filters import DynamicModelFilterProcessor
 
@@ -456,6 +457,9 @@ class Table(models.Model):
     def get_model_declaration(self):
         Model = self.get_model()
         return model_to_code(Model)
+
+    def invalidate_cache(self):
+        invalidate(self.db_table)
 
 
 class FieldQuerySet(models.QuerySet):

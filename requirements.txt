@@ -2,11 +2,13 @@ cachetools
 click
 cryptography
 dataclasses
+django-cachalot
 django-cors-headers
 django-environ
 django-extensions
 django-naomi
 django-recaptcha
+django-redis
 django>=2.0
 djangorestframework
 git+https://github.com/turicas/rows.git@develop#egg=rows
@@ -23,6 +25,7 @@ pytz
 requests
 requests-cache
 sendgrid-django
+six>=1.13
 tqdm
 whitenoise
 xlrd
