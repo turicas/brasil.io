@@ -25,6 +25,7 @@ pytz
 requests
 requests-cache
 sendgrid-django
+six>=1.13
 tqdm
 whitenoise
 xlrd
