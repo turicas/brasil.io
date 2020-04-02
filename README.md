@@ -1,5 +1,7 @@
 # Brasil.IO - Dados abertos para um Brasil mais ligado
 
+![Django CI](https://github.com/turicas/brasil.io/workflows/Django%20CI/badge.svg)
+
 ### O Problema
 
 Muitos dados públicos brasileiros estão disponíveis (principalmente depois da
