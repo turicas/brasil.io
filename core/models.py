@@ -457,7 +457,7 @@ class Table(models.Model):
     def get_model_declaration(self):
         Model = self.get_model()
         return model_to_code(Model)
-    
+
     def invalidate_cache(self):
         invalidate(self.db_table)
 
