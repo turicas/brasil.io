@@ -22,3 +22,4 @@ docker/neo4j
 docker/postgres/data
 public/
 reg_settings.py
+.vscode/
