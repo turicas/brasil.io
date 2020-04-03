@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load cache %}
 {% load humanize %}
 {% load l10n %}
 {% load markdown %}
@@ -48,6 +49,7 @@
         {% endspaceless %}{% if not forloop.last %}, {% else %}.{% endif %}
       {% endfor %}
 
+    {% cache 3600 table_description table.description %}
     {% if table.description %}
     <div class="row">
       <div class="col s12">
@@ -60,6 +62,7 @@
       </div>
     </div>
     {% endif %}
+    {% endcache %}
 
       <ul class="tabs tabs-fixed-width" id="tabs">
         <li class="tab col s3"><a class="active" href="#data">Dados</a></li>
