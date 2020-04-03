@@ -1,3 +1,5 @@
+{% load cache %}
+{% cache 600 user_menu request.user.username id_prefix %}
 {% if request.user.is_authenticated %}
 <li><a class="dropdown-trigger" href="#!" data-target="{{id_prefix}}_authenticated-dropdown">
   Olá, {{ request.user.username }}
@@ -43,3 +45,4 @@
 <script>
   $(".dropdown-trigger").dropdown();
 </script>
+{% endcache %}

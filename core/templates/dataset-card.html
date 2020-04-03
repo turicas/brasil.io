@@ -1,3 +1,5 @@
+{% load cache %}
+{% cache 600 dataset-card dataset.name table.name %}
 <div class="col m4">
   <div class="card horizontal small">
     <div class="card-stacked">
@@ -29,3 +31,4 @@
     </div>
   </div>
 </div>
+{% endcache %}
