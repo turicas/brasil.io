@@ -12,6 +12,8 @@ from django.contrib.postgres.search import (SearchQuery, SearchVector,
 from django.db import connection, models
 from cachalot.api import invalidate
 
+from markdownx.models import MarkdownxField
+
 from core.filters import DynamicModelFilterProcessor
 
 
@@ -348,6 +350,7 @@ class Table(models.Model):
     version = models.ForeignKey(Version, on_delete=models.CASCADE,
                                 null=False, blank=False)
     import_date = models.DateTimeField(null=True, blank=True)
+    description = MarkdownxField(null=True, blank=True)
 
     def __str__(self):
         return ('{}.{}.{}'.
