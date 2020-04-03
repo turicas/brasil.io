@@ -1,4 +1,5 @@
 from django.contrib import admin
+from markdownx.admin import MarkdownxModelAdmin
 
 from core import models
 
@@ -20,7 +21,7 @@ class VersionAdmin(admin.ModelAdmin):
 admin.site.register(models.Version, VersionAdmin)
 
 
-class TableAdmin(admin.ModelAdmin):
+class TableAdmin(MarkdownxModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request)\

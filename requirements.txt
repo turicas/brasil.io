@@ -9,6 +9,7 @@ django-extensions
 django-naomi
 django-recaptcha
 django-redis
+django-markdownx
 django>=2.0
 djangorestframework
 git+https://github.com/turicas/rows.git@develop#egg=rows
