@@ -1,19 +1,9 @@
-import csv
-import gc
 import json
-import gzip
-import io
-import lzma
-from textwrap import dedent
 from urllib.request import urlopen, URLError
 import socket
 
 import django.db.models.fields
-from django.db import connection, reset_queries, transaction
-from django.db.utils import ProgrammingError
-from rows.plugins.utils import ipartition
 from cachetools import cached, TTLCache
-
 
 from core.models import Table
 
@@ -68,6 +58,7 @@ def get_company_by_document(document):
     return obj
 
 
+@cached(cache=TTLCache(maxsize=100, ttl=24 * 3600))
 def http_get_json(url, timeout):
     try:
         response = urlopen(url, timeout=timeout)
@@ -77,21 +68,21 @@ def http_get_json(url, timeout):
         return json.loads(response.read())
 
 
-@cached(cache=TTLCache(maxsize=100, ttl=24 * 3600))
 def github_repository_contributors(username, repository, timeout=1):
     url = f"https://api.github.com/repos/{username}/{repository}/contributors"
     contributors = http_get_json(url, timeout)
     if contributors is None:
+        print(f"ERROR downloading {url}")
         return []
 
     for contributor in contributors:
         url = contributor["url"]
         contributor["user_data"] = http_get_json(contributor["url"], timeout)
+        print(f"ERROR downloading {url}")
 
     return contributors
 
 
-@cached(cache=TTLCache(maxsize=1, ttl=24 * 3600))
 def brasilio_github_contributors():
     repositories = (
         ("turicas", "balneabilidade-brasil"),
@@ -114,6 +105,7 @@ def brasilio_github_contributors():
         contributors = github_repository_contributors(account, repository)
         for contributor in contributors:
             if contributor["user_data"] is None:
+                print(f"ERROR getting data for {contributor['login']}")
                 continue
             username = contributor["login"]
             if username not in contributor_data:

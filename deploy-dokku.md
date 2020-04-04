@@ -71,3 +71,22 @@ No servidor, novamente:
 
 > Nota: os metadados do dataset precisam estar atualizados na planilha que o
 `update_data` baixa.
+
+
+## Atualizando lista de contribuidores
+
+A lista de contribuidores que aparece no site é lida de um JSON que fica
+hospedado em https://data.brasil.io/meta/contribuidores.json - esse arquivo
+deve ser gerado e atualizado de tempos em tempos através dos comandos:
+
+```shell
+python manage.py collect_contributors data/contribuidores.json
+s3cmd put data/contribuidores.json s3://meta/contribuidores.json
+```
+
+O *management command* `collect_contributors` acessará a API pública do GitHub
+para criar o JSON e então o s3cmd irá enviá-lo para nosso servidor de arquivos
+estáticos.
+
+> **ATENÇÃO**: não atualize o arquivo (`s3cmd put`) caso o primeiro comando
+> imprima erros.
