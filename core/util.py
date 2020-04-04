@@ -89,6 +89,7 @@ def brasilio_github_contributors():
         ("turicas", "blog.brasil.io"),
         ("turicas", "brasil"),
         ("turicas", "brasil.io"),
+        ("turicas", "censo-ibge"),
         ("turicas", "covid19-br"),
         ("turicas", "cursos-prouni"),
         ("turicas", "data-worker"),
