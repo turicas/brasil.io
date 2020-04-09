@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from core.models import Dataset
 from core.util import get_company_by_document
 
+from captcha.fields import ReCaptchaField
 
 def numbers_only(value):
     return re.compile('[^0-9]').sub('', value)
@@ -103,6 +104,7 @@ class ContactForm(forms.Form):
         required=True, label='Mensagem',
         widget=forms.Textarea(attrs={'class': 'materialize-textarea'}),
     )
+    captcha = ReCaptchaField()
 
 class DatasetSearchForm(forms.Form):
     search = forms.CharField(label='Titulo ou Descrição')

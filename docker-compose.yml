@@ -12,6 +12,10 @@ services:
             - ./docker/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
             - ./docker/postgresql/data:/var/lib/postgresql/data
         command: -c "config_file=/etc/postgresql/postgresql.conf"
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 30s
+            retries: 3
 
     graph_db:
         image: neo4j:3.3
@@ -34,3 +38,11 @@ services:
         ports:
             - "39004:1025"
             - "39005:8025"
+    
+    redis:
+        image: redis:alpine
+        hostname: brasilio_redis
+        ports:
+            - "39006:6379"
+        volumes:
+            - "./docker/redis/:/data/"

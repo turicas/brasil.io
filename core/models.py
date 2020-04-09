@@ -1,6 +1,8 @@
 import hashlib
+from rows import fields as rows_fields
 from textwrap import dedent
 from urllib.parse import urlparse
+from collections import OrderedDict
 
 import django.db.models.indexes as django_indexes
 from django.contrib.postgres.fields import ArrayField, JSONField
@@ -8,6 +10,11 @@ import django.contrib.postgres.indexes as pg_indexes
 from django.contrib.postgres.search import (SearchQuery, SearchVector,
                                             SearchVectorField)
 from django.db import connection, models
+from cachalot.api import invalidate
+
+from markdownx.models import MarkdownxField
+
+from core.filters import DynamicModelFilterProcessor
 
 
 DYNAMIC_MODEL_REGISTRY = {}
@@ -185,14 +192,9 @@ class DynamicModelQuerySet(models.QuerySet):
         return qs
 
     def apply_filters(self, filtering):
-        qs = self
         model_filtering = self.model.extra['filtering']
-        if model_filtering is not None:
-            for field_name in model_filtering:
-                value = filtering.get(field_name, None)
-                if value is not None:
-                    qs = qs.filter(**{field_name: value})
-        return qs
+        processor = DynamicModelFilterProcessor(filtering, model_filtering)
+        return self.filter(**processor.filters)
 
     def apply_ordering(self, query):
         qs = self
@@ -348,6 +350,7 @@ class Table(models.Model):
     version = models.ForeignKey(Version, on_delete=models.CASCADE,
                                 null=False, blank=False)
     import_date = models.DateTimeField(null=True, blank=True)
+    description = MarkdownxField(null=True, blank=True)
 
     def __str__(self):
         return ('{}.{}.{}'.
@@ -363,6 +366,26 @@ class Table(models.Model):
     @property
     def fields(self):
         return self.field_set.all()
+
+    @property
+    def schema(self):
+        db_fields_to_rows_fields = {
+            'binary': rows_fields.BinaryField,
+            'bool': rows_fields.BoolField,
+            'date': rows_fields.DateField,
+            'datetime': rows_fields.DatetimeField,
+            'decimal': rows_fields.DecimalField,
+            'email': rows_fields.EmailField,
+            'float': rows_fields.FloatField,
+            'integer': rows_fields.IntegerField,
+            'json': rows_fields.JSONField,
+            'string': rows_fields.TextField,
+            'text': rows_fields.TextField,
+        }
+        return OrderedDict([
+            (n, db_fields_to_rows_fields.get(t, rows_fields.Field))
+            for n, t in self.fields.values_list('name', 'type')
+        ])
 
     def get_model(self, cache=True):
         if cache and self.id in DYNAMIC_MODEL_REGISTRY:
@@ -437,6 +460,9 @@ class Table(models.Model):
     def get_model_declaration(self):
         Model = self.get_model()
         return model_to_code(Model)
+
+    def invalidate_cache(self):
+        invalidate(self.db_table)
 
 
 class FieldQuerySet(models.QuerySet):
