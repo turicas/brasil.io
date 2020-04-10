@@ -18,6 +18,8 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Copy env file
+      run: cp env.example .env
     - name: Setup Docker
       run: |
         source "$ENV_FILE"
