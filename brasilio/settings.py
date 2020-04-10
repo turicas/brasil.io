@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "core",
     "graphs",
     "brasilio_auth",
+    "covid19",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -110,12 +111,27 @@ DATETIME_FORMAT = "d \\d\\e F \\d\\e Y \\à\\s H:i:s"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 public_root = root.path("public/")
-MEDIA_ROOT = str(public_root.path("media/"))
+MEDIA_ROOT = env("MEDIA_ROOT", default=str(public_root.path("media/")))
 MEDIA_URL = "/media/"
 STATIC_ROOT = str(public_root.path("static/"))
 STATIC_URL = "/static/"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 STATICFILES_DIRS = [str(root.path("static"))]
+
+DEFAULT_FILE_STORAGE = env("DEFAULT_FILE_STORAGE")
+
+# django-storage configurations for AWS file upload
+AWS_ACCESS_KEY_ID=env("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY=env("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME=env("AWS_STORAGE_BUCKET_NAME")
+AWS_DEFAULT_ACL=env("AWS_DEFAULT_ACL")
+AWS_BUCKET_ACL=env("AWS_BUCKET_ACL")
+AWS_AUTO_CREATE_BUCKET=env("AWS_AUTO_CREATE_BUCKET")
+AWS_S3_ENDPOINT_URL=env("AWS_S3_ENDPOINT_URL")
+AWS_S3_CUSTOM_DOMAIN=env("AWS_S3_CUSTOM_DOMAIN")
+AWS_IS_GZIPPED=env("AWS_IS_GZIPPED")
+GZIP_CONTENT_TYPES=env("GZIP_CONTENT_TYPES")
+
 
 # Data-related settings
 DATA_URL = env("DATA_URL")
