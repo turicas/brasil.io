@@ -31,3 +31,4 @@ tqdm
 whitenoise
 xlrd
 xlwt
+django-localflavor==3.0.1
