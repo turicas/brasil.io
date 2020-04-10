@@ -32,3 +32,5 @@ whitenoise
 xlrd
 xlwt
 django-localflavor==3.0.1
+boto3==1.12.39
+django-storages==1.9.1
