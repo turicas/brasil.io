@@ -1,3 +1,4 @@
+from pathlib import Path
 from localflavor.br.br_states import STATE_CHOICES
 
 from django.contrib.auth import get_user_model
@@ -5,16 +6,16 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField, JSONField
 
 
-def user_spreadsheets_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/covid19/user_<id>/<state>/<date>/<filename>
+def format_spreadsheet_name(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/{uf}/casos-{uf}-{date}-{username}-{file_no}.{extension}"
+    # where {file_no} is the number of uploaded files from that user for the same pair of state and date
     # this is necessary to avoid other users from overwriting already uploaded spreadsheets
-    return 'covid19/{0}/{1}/{2}/{3}'.format(
-        instance.user.id,
-        instance.state,
-        instance.date.isoformat(),
-        filename
-    )
-    return 'user_{0}/{1}'.format(instance.user.id, filename)
+    uf = instance.state
+    date = instance.date.isoformat()
+    user = instance.user.username
+    file_no = 1
+    suffix = Path(filename).suffix
+    return f'{uf}/casos-{uf}-{date}-{user}-{file_no}{suffix}'
 
 
 class StateSpreadsheet(models.Model):
@@ -28,7 +29,7 @@ class StateSpreadsheet(models.Model):
     user = models.ForeignKey(get_user_model(), null=False, blank=False, on_delete=models.PROTECT)
     date = models.DateField(null=False, blank=False)
     state = models.CharField(max_length=2, null=False, blank=False, choices=STATE_CHOICES)
-    file = models.FileField(upload_to=user_spreadsheets_directory_path)
+    file = models.FileField(upload_to=format_spreadsheet_name)
 
     # lista de URLs que o voluntário deverá preencher do(s) boletim(ns) que ele
     # acessou para criar a planilha:
@@ -36,7 +37,7 @@ class StateSpreadsheet(models.Model):
 
     # observações no boletim, como: "depois de publicar o boletim, secretaria
     # postou no twitter que teve mais uma morte"
-    boletim_notes = models.CharField(max_length=1023, default='')
+    boletim_notes = models.CharField(max_length=1023, default='', blank=True)
 
     # status da planilha: só aceitaremos planilhas sem erros, então quando ela
     # é subida, inicia-se um processo em background de checá-la conforme outra
