@@ -46,13 +46,14 @@ class StateSpreadsheet(models.Model):
     state = models.CharField(max_length=2, null=False, blank=False, choices=STATE_CHOICES)
     file = models.FileField(upload_to=format_spreadsheet_name)
 
-    # lista de URLs que o voluntário deverá preencher do(s) boletim(ns) que ele
-    # acessou para criar a planilha:
-    boletim_urls = ArrayField(models.TextField(), null=False, blank=False)
-
-    # observações no boletim, como: "depois de publicar o boletim, secretaria
-    # postou no twitter que teve mais uma morte"
-    boletim_notes = models.CharField(max_length=1023, default='', blank=True)
+    boletim_urls = ArrayField(
+        models.TextField(), null=False,
+        blank=False, help_text="Lista de URLs do(s) boletim(s) separada por vírgula"
+    )
+    boletim_notes = models.CharField(
+        max_length=1023, default='', blank=True,
+        help_text='Observações no boletim como "depois de publicar o boletim a secretaria postou no Twitter que teve mais uma morte".'  # noqa
+    )
 
     # status da planilha: só aceitaremos planilhas sem erros, então quando ela
     # é subida, inicia-se um processo em background de checá-la conforme outra
