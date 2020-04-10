@@ -67,6 +67,9 @@ pyenv install 3.6.4
 # Criar um virtualenv:
 pyenv virtualenv 3.6.4 brasil.io
 
+# Copie o arquivo de env de exemplo e edite o .env de acordo com suas preferências
+cp env.example .env
+
 # Criar containers e ativar o virtualenv
 cd brasil.io
 source .activate
