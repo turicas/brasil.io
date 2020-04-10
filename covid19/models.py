@@ -13,9 +13,19 @@ def format_spreadsheet_name(instance, filename):
     uf = instance.state
     date = instance.date.isoformat()
     user = instance.user.username
-    file_no = 1
+    file_no = StateSpreadsheet.objects.filter_older_versions(instance).count() + 1
     suffix = Path(filename).suffix
     return f'{uf}/casos-{uf}-{date}-{user}-{file_no}{suffix}'
+
+
+class StateSpreadsheetQuerySet(models.QuerySet):
+
+    def filter_older_versions(self, spreadsheet):
+        return self.filter(
+            state=spreadsheet.state,
+            user=spreadsheet.user,
+            date=spreadsheet.date
+        )
 
 
 class StateSpreadsheet(models.Model):
@@ -24,6 +34,8 @@ class StateSpreadsheet(models.Model):
         (2, "check-failed"),
         (3, "deployed"),
     )
+
+    objects = StateSpreadsheetQuerySet.as_manager()
 
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(get_user_model(), null=False, blank=False, on_delete=models.PROTECT)
