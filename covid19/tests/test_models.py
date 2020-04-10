@@ -70,3 +70,16 @@ class StateSpreadsheetTests(TestCase):
         expected = f'{settings.MEDIA_ROOT}/covid19/rj/casos-rj-{today.isoformat()}-foo-5.txt'
 
         assert expected == spreadsheet.file.path
+
+    def test_filter_older_versions_exclude_the_object_if_id(self):
+        kwargs = {
+            'date': date.today(), 'user': baker.make(settings.AUTH_USER_MODEL), 'state': 'rj',
+        }
+        baker.make(StateSpreadsheet, _quantity=3, **kwargs)
+
+        spreadsheet = baker.prepare(StateSpreadsheet, **kwargs)
+        assert 3 == StateSpreadsheet.objects.filter_older_versions(spreadsheet).count()
+
+        spreadsheet.save()
+        spreadsheet.refresh_from_db()
+        assert 3 == StateSpreadsheet.objects.filter_older_versions(spreadsheet).count()
