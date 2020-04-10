@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "core",
     "graphs",
     "brasilio_auth",
+    "covid19",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
