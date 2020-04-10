@@ -201,3 +201,7 @@ CACHES = {
         "KEY_PREFIX": env("CACHE_KEY_PREFIX"),
     }
 }
+
+
+# Covid19 import settings
+COVID_IMPORT_PERMISSION_PREFIX = 'can_import_covid_state_'
