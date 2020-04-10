@@ -111,7 +111,7 @@ DATETIME_FORMAT = "d \\d\\e F \\d\\e Y \\à\\s H:i:s"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 public_root = root.path("public/")
-MEDIA_ROOT = str(public_root.path("media/"))
+MEDIA_ROOT = env("MEDIA_ROOT", default=str(public_root.path("media/")))
 MEDIA_URL = "/media/"
 STATIC_ROOT = str(public_root.path("static/"))
 STATIC_URL = "/static/"
