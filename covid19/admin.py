@@ -1,3 +1,10 @@
 from django.contrib import admin
 
-# Register your models here.
+from covid19.models import StateSpreadsheet
+
+
+class StateSpreadsheetModelAdmin(admin.ModelAdmin):
+    pass
+
+
+admin.site.register(StateSpreadsheet, StateSpreadsheetModelAdmin)
