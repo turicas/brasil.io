@@ -1,6 +1,7 @@
 import shutil
 from datetime import date, timedelta
 from model_bakery import baker
+from pathlib import Path
 
 from django.conf import settings
 from django.test import TestCase
@@ -11,7 +12,8 @@ from covid19.models import StateSpreadsheet
 class StateSpreadsheetTests(TestCase):
 
     def tearDown(self):
-        shutil.rmtree(settings.MEDIA_ROOT)
+        if Path(settings.MEDIA_ROOT).exists():
+            shutil.rmtree(settings.MEDIA_ROOT)
 
     def test_format_filename_to_add_uf_date_username(self):
         today = date.today()
