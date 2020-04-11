@@ -104,3 +104,11 @@ class StateSpreadsheetFormTests(TestCase):
 
         assert not form.is_valid()
         assert 'state' in form.errors
+
+    def test_invalidate_form_if_any_invalid_url(self):
+        self.data['boletim_urls'] = 'xpto'
+
+        form = StateSpreadsheetForm(self.data, self.file_data)
+
+        assert not form.is_valid()
+        assert 'boletim_urls' in form.errors

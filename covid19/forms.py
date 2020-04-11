@@ -1,6 +1,7 @@
 from localflavor.br.br_states import STATE_CHOICES
 
 from django import forms
+from django.core.validators import URLValidator
 
 from covid19.models import StateSpreadsheet
 from covid19.permissions import user_has_state_permission
@@ -36,3 +37,10 @@ class StateSpreadsheetForm(forms.ModelForm):
         if commit:
             spreadsheet.save()
         return spreadsheet
+
+    def clean_boletim_urls(self):
+        urls = self.cleaned_data['boletim_urls']
+        url_validator = URLValidator(message="Uma ou mais das URLs não são válidas.")
+        for url in urls:
+            url_validator(url)
+        return urls
