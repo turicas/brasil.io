@@ -56,4 +56,8 @@ class StateSpreadsheetForm(forms.ModelForm):
             msg = f"Formato de planilha inválida. O arquivo precisa estar formatado como {valid}."
             raise forms.ValidationError(msg)
 
+        # Acredito que vale muito a pena deixar toda a lógica de validação desse arquivo numa função seprarada
+        # TODO: https://github.com/turicas/brasil.io/issues/209
+        # TODO: https://github.com/turicas/brasil.io/issues/210
+        # TODO: https://github.com/turicas/brasil.io/issues/217
         return file
