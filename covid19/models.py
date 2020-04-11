@@ -34,6 +34,9 @@ class StateSpreadsheetQuerySet(models.QuerySet):
     def from_state(self, state):
         return self.filter(state__iexact=state)
 
+    def cancel_older_versions(self, spreadsheet):
+        return self.filter_older_versions(spreadsheet).update(cancelled=True)
+
 
 class StateSpreadsheet(models.Model):
     UPLOADED, CHECK_FAILED, DEPLOYED = 1, 2, 3
