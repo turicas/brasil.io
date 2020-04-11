@@ -21,6 +21,8 @@ class StateFilter(admin.SimpleListFilter):
 class StateSpreadsheetModelAdmin(admin.ModelAdmin):
     list_display = ['created_at', 'state', 'date', 'status', 'user', 'cancelled']
     list_filter = [StateFilter, 'status', 'cancelled']
+    readonly_fields = ['created_at', 'status', 'cancelled']
+    exclude = ['data']
 
     def get_queryset(self, request):
         qs = super().get_queryset(request).select_related('user')
