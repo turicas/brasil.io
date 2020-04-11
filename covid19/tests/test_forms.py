@@ -112,3 +112,15 @@ class StateSpreadsheetFormTests(TestCase):
 
         assert not form.is_valid()
         assert 'boletim_urls' in form.errors
+
+    def test_invalidate_if_wrong_file_format(self):
+        valid_formats = ['csv', 'xls', 'xlsx', 'ods']
+        for format in valid_formats:
+            self.file_data['file'] = self.gen_file(f'sample.{format}', 'col1,col2')
+
+            form = StateSpreadsheetForm(self.data, self.file_data)
+            assert form.is_valid()
+
+        self.file_data['file'] = self.gen_file(f'sample.txt', 'col1,col2')
+        form = StateSpreadsheetForm(self.data, self.file_data)
+        assert 'file' in form.errors

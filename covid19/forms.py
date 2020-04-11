@@ -1,4 +1,5 @@
 from localflavor.br.br_states import STATE_CHOICES
+from pathlib import Path
 
 from django import forms
 from django.core.validators import URLValidator
@@ -20,6 +21,7 @@ def state_choices_for_user(user):
 
 
 class StateSpreadsheetForm(forms.ModelForm):
+    valid_file_suffixes = ['.csv', '.xls', '.xlsx', '.ods']
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
@@ -44,3 +46,14 @@ class StateSpreadsheetForm(forms.ModelForm):
         for url in urls:
             url_validator(url)
         return urls
+
+    def clean_file(self):
+        file = self.cleaned_data['file']
+        valid = self.valid_file_suffixes
+        path = Path(file.name)
+
+        if not path.suffix.lower() in valid:
+            msg = f"Formato de planilha inválida. O arquivo precisa estar formatado como {valid}."
+            raise forms.ValidationError(msg)
+
+        return file
