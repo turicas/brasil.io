@@ -26,7 +26,7 @@ def create_covid19_state_groups(apps, schema_editor):
 
 def delete_covid19_state_groups(apps, schema_editor):
     Group = apps.get_model('auth', 'Group')
-    Group.object.filter(name__startswith='Covid-19 Import State').delete()
+    Group.objects.filter(name__startswith='Covid-19 Import State').delete()
 
 
 class Migration(migrations.Migration):
