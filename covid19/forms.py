@@ -22,11 +22,9 @@ class StateSpreadsheetForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
-        if not self.user:
-            raise TypeError("Required named argument 'user' not found.")
-
         super().__init__(*args, **kwargs)
-        self.fields['state'].choices = state_choices_for_user(self.user)
+        if self.user:
+            self.fields['state'].choices = state_choices_for_user(self.user)
 
     class Meta:
         model = StateSpreadsheet

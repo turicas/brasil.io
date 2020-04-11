@@ -1,4 +1,3 @@
-import pytest
 import shutil
 from datetime import date
 from localflavor.br.br_states import STATE_CHOICES
@@ -71,10 +70,6 @@ class StateSpreadsheetFormTests(TestCase):
     def tearDown(self):
         if Path(settings.MEDIA_ROOT).exists():
             shutil.rmtree(settings.MEDIA_ROOT)
-
-    def test_form_requires_user_on_init(self):
-        with pytest.raises(TypeError):
-            StateSpreadsheetForm({})
 
     def test_required_fields(self):
         required_fields = ['date', 'state', 'file', 'boletim_urls']
