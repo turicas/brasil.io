@@ -4,6 +4,7 @@ from covid19.models import StateSpreadsheet
 
 
 class StateSpreadsheetModelAdmin(admin.ModelAdmin):
+    list_display = ['created_at', 'state', 'date', 'status', 'user', 'cancelled']
 
     def get_queryset(self, request):
         qs = super().get_queryset(request).select_related('user')
