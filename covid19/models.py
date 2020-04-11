@@ -36,10 +36,11 @@ class StateSpreadsheetQuerySet(models.QuerySet):
 
 
 class StateSpreadsheet(models.Model):
+    UPLOADED, CHECK_FAILED, DEPLOYED = 1, 2, 3
     STATUS_CHOICES = (
-        (1, "uploaded"),
-        (2, "check-failed"),
-        (3, "deployed"),
+        (UPLOADED, "uploaded"),
+        (CHECK_FAILED, "check-failed"),
+        (DEPLOYED, "deployed"),
     )
 
     objects = StateSpreadsheetQuerySet.as_manager()
@@ -64,7 +65,7 @@ class StateSpreadsheet(models.Model):
     # planilha pro mesmo estado pra mesma data - esse worker é quem mudará o
     # status, o padrao qnd sobe a planilha e não tem erros é uploaded
     # (configurar celery ou rq)
-    status = models.SmallIntegerField(choices=STATUS_CHOICES, default=1)
+    status = models.SmallIntegerField(choices=STATUS_CHOICES, default=UPLOADED)
 
     # dados da planilha depois de parseada no form, já em JSON, pro worker não
     # precisar ler o arquivo (o validador da planilha no form vai ter que fazer
