@@ -21,14 +21,16 @@ def format_spreadsheet_name(instance, filename):
 class StateSpreadsheetQuerySet(models.QuerySet):
 
     def filter_older_versions(self, spreadsheet):
-        qs = self.filter(
+        qs = self.from_user(spreadsheet.user).filter(
             state=spreadsheet.state,
-            user=spreadsheet.user,
             date=spreadsheet.date,
         )
         if spreadsheet.id:
             qs = qs.exclude(id=spreadsheet.id)
         return qs
+
+    def from_user(self, user):
+        return self.filter(user=user)
 
 
 class StateSpreadsheet(models.Model):
