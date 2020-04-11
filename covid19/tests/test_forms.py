@@ -101,3 +101,11 @@ class StateSpreadsheetFormTests(TestCase):
         assert 'notes' == spreadsheet.boletim_notes
         assert StateSpreadsheet.UPLOADED == spreadsheet.status
         assert spreadsheet.cancelled is False
+
+    def test_invalidate_form_if_user_does_not_have_permission_to_the_state(self):
+        self.data['state'] = 'SP'
+
+        form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
+
+        assert not form.is_valid()
+        assert 'state' in form.errors
