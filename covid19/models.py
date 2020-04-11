@@ -72,3 +72,6 @@ class StateSpreadsheet(models.Model):
     # pro mesmo estado pra mesma data (ele cancela o upload anterior pra essa
     # data/estado automaticamente caso suba uma atualizacao)
     cancelled = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'Planilha {self.state} - {self.date} por {self.user}'
