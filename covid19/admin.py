@@ -24,6 +24,12 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
     readonly_fields = ['created_at', 'status', 'cancelled']
     form = StateSpreadsheetForm
 
+    def get_readonly_fields(self, request, obj=None):
+        fields = ['created_at', 'status', 'cancelled']
+        if obj:
+            fields.extend(StateSpreadsheetForm.Meta.fields)
+        return fields
+
     def formfield_for_choice_field(self, db_field, request, **kwargs):
         if db_field.name == "state":
             kwargs['choices'] = state_choices_for_user(request.user)
