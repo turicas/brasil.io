@@ -56,7 +56,7 @@ class StateSpreadsheet(models.Model):
 
     boletim_urls = ArrayField(
         models.TextField(), null=False,
-        blank=False, help_text="Lista de URLs do(s) boletim(s) separada por vírgula"
+        blank=False, help_text="Lista de URLs do(s) boletim(s)"
     )
     boletim_notes = models.CharField(
         max_length=1023, default='', blank=True,
