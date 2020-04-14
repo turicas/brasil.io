@@ -64,17 +64,17 @@ body {
   font-weight: bold;
 }
 
-.card.small {
-  height: 350px;
+.card .card-content {
+  padding: 0 0.5em 0.5em 0.5em;
 }
 
 .card .card-title {
-  font-size: 20px;
+  font-size: 1.5em;
   font-weight: 300;
 }
 
 .card .card-content.card-body {
-  height: 150px;
+  height: 100px;
 }
 
 .card.small .card-description {
@@ -138,4 +138,31 @@ ul.social-buttons li a:active {
 p.contributor-description {
   margin-top: 0;
   margin-bottom: 10px;
+}
+
+.card > .card-content.card-body.number{
+  font-weight: bold;
+  font-size: 1.5em;
+  height: 2em;
+  text-align: center;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0.5rem 0 0.5rem 0;
+}
+
+.container {
+  margin: 0 auto;
+  width: 90%;
+  max-width: 100%;
+}
+@media only screen and (min-width: 601px) {
+  .container {
+    width: 90%;
+  }
+}
+@media only screen and (min-width: 993px) {
+  .container {
+    width: 90%;
+  }
 }
