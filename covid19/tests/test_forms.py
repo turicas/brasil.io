@@ -53,7 +53,7 @@ class StateSpreadsheetFormTests(TestCase):
         self.data = {
             'date': date.today(),
             'state': 'RJ',
-            'boletim_urls': 'http://google.com,http://brasil.io',
+            'boletim_urls': 'http://google.com\nhttp://brasil.io',
             'boletim_notes': 'notes',
         }
         self.file_data = {
@@ -119,7 +119,7 @@ class StateSpreadsheetFormTests(TestCase):
             self.file_data['file'] = self.gen_file(f'sample.{format}', 'col1,col2')
 
             form = StateSpreadsheetForm(self.data, self.file_data)
-            assert form.is_valid()
+            assert form.is_valid(), form.errors
 
         self.file_data['file'] = self.gen_file(f'sample.txt', 'col1,col2')
         form = StateSpreadsheetForm(self.data, self.file_data)

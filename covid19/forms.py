@@ -22,6 +22,10 @@ def state_choices_for_user(user):
 
 class StateSpreadsheetForm(forms.ModelForm):
     valid_file_suffixes = ['.csv', '.xls', '.xlsx', '.ods']
+    boletim_urls = forms.CharField(
+        widget=forms.Textarea,
+        help_text="Lista de URLs do(s) boletim(s) com uma entrada por linha"
+    )
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
@@ -41,7 +45,7 @@ class StateSpreadsheetForm(forms.ModelForm):
         return spreadsheet
 
     def clean_boletim_urls(self):
-        urls = self.cleaned_data['boletim_urls']
+        urls = self.cleaned_data['boletim_urls'].strip().split('\n')
         url_validator = URLValidator(message="Uma ou mais das URLs não são válidas.")
         for url in urls:
             url_validator(url)
@@ -56,7 +60,7 @@ class StateSpreadsheetForm(forms.ModelForm):
             msg = f"Formato de planilha inválida. O arquivo precisa estar formatado como {valid}."
             raise forms.ValidationError(msg)
 
-        # Acredito que vale muito a pena deixar toda a lógica de validação desse arquivo numa função seprarada
+        # Acredito que vale muito a pena deixar toda a lógica de validação desse arquivo numa função seprarada  # noqa
         # TODO: https://github.com/turicas/brasil.io/issues/209
         # TODO: https://github.com/turicas/brasil.io/issues/210
         # TODO: https://github.com/turicas/brasil.io/issues/217
