@@ -13,7 +13,7 @@ from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict
 SAMPLE_SPREADSHEETS_DATA_DIR = Path(settings.BASE_DIR).joinpath('covid19', 'tests', 'data')
 
 
-class FormatSpreadsheetRowsAsDict(TestCase):
+class FormatSpreadsheetRowsAsDictTests(TestCase):
 
     def setUp(self):
         sample = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR.csv'
@@ -78,6 +78,18 @@ class FormatSpreadsheetRowsAsDict(TestCase):
 
     def test_raise_exception_if_city_column_is_missing(self):
         self.content = self.content.replace('municipio', 'xpto')
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(ValidationError):
+            format_spreadsheet_rows_as_dict(file_rows)
+
+    def test_raise_exception_line_with_total_is_missing(self):
+        self.content = self.content.replace('TOTAL NO ESTADO', 'TOTAL')
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(ValidationError):
+            format_spreadsheet_rows_as_dict(file_rows)
+
+    def test_raise_exception_line_with_undefinitions_is_missing(self):
+        self.content = self.content.replace('Importados', '')
         file_rows = rows.import_from_csv(self.file_from_content)
         with pytest.raises(ValidationError):
             format_spreadsheet_rows_as_dict(file_rows)
