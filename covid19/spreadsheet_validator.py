@@ -1,3 +1,6 @@
+from django.forms import ValidationError
+
+
 def format_spreadsheet_rows_as_dict(rows):
     """
     Receives rows as a rows.Table object and return a dict in the following format:
@@ -21,8 +24,21 @@ def format_spreadsheet_rows_as_dict(rows):
         'cidades': {},
     }
 
+    confirmed_field_name = _get_field_name(rows, ['confirmados', 'confirmado', 'casos_confirmados'])
+    if confirmed_field_name is None:
+        raise ValidationError('A colunda "Confirmados" está faltando na planilha')
+    deaths_field_name = _get_field_name(rows, ['obitos', 'obito', 'morte', 'mortes'])
+    if deaths_field_name is None:
+        raise ValidationError('A colunda "Mortes" está faltando na planilha')
+
     for entry in rows:
-        city, confirmed, deaths = entry.municipio, entry.confirmados, entry.mortes
+        try:
+            city = entry.municipio
+        except AttributeError:
+            raise ValidationError('A colunda "Município" está faltando na planilha')
+
+        confirmed = getattr(entry, confirmed_field_name)
+        deaths = getattr(entry, deaths_field_name)
         data = {'confirmados': confirmed, 'mortes': deaths}
 
         if city == 'TOTAL NO ESTADO':
@@ -33,3 +49,10 @@ def format_spreadsheet_rows_as_dict(rows):
             result['cidades'][city] = data
 
     return result
+
+
+def _get_field_name(rows, valid_names):
+    try:
+        return [n for n in valid_names if n in rows.field_names][0]
+    except IndexError:
+        return None

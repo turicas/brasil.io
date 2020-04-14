@@ -1,8 +1,10 @@
+import pytest
 import rows
 from io import BytesIO
 from pathlib import Path
 
 from django.conf import settings
+from django.forms import ValidationError
 from django.test import TestCase
 
 from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict
@@ -39,3 +41,43 @@ class FormatSpreadsheetRowsAsDict(TestCase):
         }
 
         assert data == expected
+
+    def test_alternative_columns_names_for_confirmed_cases(self):
+        alternatives = ['casos confirmados', 'confirmado']
+        original_content = self.content
+
+        for alt in alternatives:
+            self.content = original_content.replace('confirmados', alt)
+            file_rows = rows.import_from_csv(self.file_from_content)
+            data = format_spreadsheet_rows_as_dict(file_rows)
+
+            assert data['total']['confirmados'] == 100
+
+    def test_raise_exception_if_confirmed_cases_column_is_missing(self):
+        self.content = self.content.replace('confirmados', 'xpto')
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(ValidationError):
+            format_spreadsheet_rows_as_dict(file_rows)
+
+    def test_alternative_columns_names_for_deaths(self):
+        alternatives = ['óbitos', 'óbito', 'obito', 'morte']
+        original_content = self.content
+
+        for alt in alternatives:
+            self.content = original_content.replace('mortes', alt)
+            file_rows = rows.import_from_csv(self.file_from_content)
+            data = format_spreadsheet_rows_as_dict(file_rows)
+
+            assert data['total']['mortes'] == 30
+
+    def test_raise_exception_if_deaths_column_is_missing(self):
+        self.content = self.content.replace('mortes', 'xpto')
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(ValidationError):
+            format_spreadsheet_rows_as_dict(file_rows)
+
+    def test_raise_exception_if_city_column_is_missing(self):
+        self.content = self.content.replace('municipio', 'xpto')
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(ValidationError):
+            format_spreadsheet_rows_as_dict(file_rows)
