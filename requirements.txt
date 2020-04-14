@@ -13,6 +13,7 @@ django-markdownx
 django>=2.0
 djangorestframework
 git+https://github.com/turicas/rows.git@develop#egg=rows
+git+https://github.com/turicas/rows.git@develop#egg=rows[ods]
 gunicorn
 ipython
 jinja2
