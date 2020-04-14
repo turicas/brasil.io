@@ -1,5 +1,3 @@
-import os
-
 import environ
 
 from urllib.parse import urlparse
