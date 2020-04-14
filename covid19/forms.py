@@ -1,3 +1,4 @@
+import rows
 from localflavor.br.br_states import STATE_CHOICES
 from pathlib import Path
 
@@ -6,6 +7,7 @@ from django.core.validators import URLValidator
 
 from covid19.models import StateSpreadsheet
 from covid19.permissions import user_has_state_permission
+from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict
 
 
 def state_choices_for_user(user):
@@ -21,7 +23,6 @@ def state_choices_for_user(user):
 
 
 class StateSpreadsheetForm(forms.ModelForm):
-    valid_file_suffixes = ['.csv', '.xls', '.xlsx', '.ods']
     boletim_urls = forms.CharField(
         widget=forms.Textarea,
         help_text="Lista de URLs do(s) boletim(s) com uma entrada por linha"
@@ -32,6 +33,7 @@ class StateSpreadsheetForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.user:
             self.fields['state'].choices = state_choices_for_user(self.user)
+        self.file_data_as_json = {}
 
     class Meta:
         model = StateSpreadsheet
@@ -40,6 +42,7 @@ class StateSpreadsheetForm(forms.ModelForm):
     def save(self, commit=True):
         spreadsheet = super().save(commit=False)
         spreadsheet.user = self.user
+        spreadsheet.data = self.file_data_as_json
         if commit:
             spreadsheet.save()
         return spreadsheet
@@ -53,15 +56,21 @@ class StateSpreadsheetForm(forms.ModelForm):
 
     def clean_file(self):
         file = self.cleaned_data['file']
-        valid = self.valid_file_suffixes
         path = Path(file.name)
+        import_func_per_suffix = {
+            '.csv': rows.import_from_csv,
+            '.xls': rows.import_from_xls,
+            '.xlsx': rows.import_from_xlsx,
+            '.ods': rows.import_from_ods,
+        }
 
-        if not path.suffix.lower() in valid:
+        import_func = import_func_per_suffix.get(path.suffix.lower())
+        if not import_func:
+            valid = import_func_per_suffix.keys()
             msg = f"Formato de planilha inválida. O arquivo precisa estar formatado como {valid}."
             raise forms.ValidationError(msg)
 
-        # Acredito que vale muito a pena deixar toda a lógica de validação desse arquivo numa função seprarada  # noqa
-        # TODO: https://github.com/turicas/brasil.io/issues/209
-        # TODO: https://github.com/turicas/brasil.io/issues/210
-        # TODO: https://github.com/turicas/brasil.io/issues/217
+        file_rows = import_func(file)
+        self.file_data_as_json = format_spreadsheet_rows_as_dict(file_rows)
+
         return file

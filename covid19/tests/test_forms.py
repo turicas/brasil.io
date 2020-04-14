@@ -1,8 +1,10 @@
+import pytest
 import shutil
 from datetime import date
 from localflavor.br.br_states import STATE_CHOICES
 from model_bakery import baker
 from pathlib import Path
+from unittest.mock import patch, Mock
 
 from django.conf import settings
 from django.contrib.auth.models import Permission, Group
@@ -12,6 +14,9 @@ from django.test import TestCase
 
 from covid19.forms import state_choices_for_user, StateSpreadsheetForm
 from covid19.models import StateSpreadsheet
+
+
+SAMPLE_SPREADSHEETS_DATA_DIR = Path(settings.BASE_DIR).joinpath('covid19', 'tests', 'data')
 
 
 class AvailableStatesForUserTests(TestCase):
@@ -61,6 +66,7 @@ class StateSpreadsheetFormTests(TestCase):
         }
         self.user = baker.make(settings.AUTH_USER_MODEL)
         self.user.groups.add(Group.objects.get(name__endswith='Rio de Janeiro'))
+        self.user.groups.add(Group.objects.get(name__endswith='Paraná'))
 
     def gen_file(self, name, content):
         if isinstance(content, str):
@@ -113,6 +119,10 @@ class StateSpreadsheetFormTests(TestCase):
         assert not form.is_valid()
         assert 'boletim_urls' in form.errors
 
+    @patch('covid19.forms.rows.import_from_csv', Mock(return_value={}))
+    @patch('covid19.forms.rows.import_from_xls', Mock(return_value={}))
+    @patch('covid19.forms.rows.import_from_xlsx', Mock(return_value={}))
+    @patch('covid19.forms.rows.import_from_ods', Mock(return_value={}))
     def test_invalidate_if_wrong_file_format(self):
         valid_formats = ['csv', 'xls', 'xlsx', 'ods']
         for format in valid_formats:
@@ -124,3 +134,29 @@ class StateSpreadsheetFormTests(TestCase):
         self.file_data['file'] = self.gen_file(f'sample.txt', 'col1,col2')
         form = StateSpreadsheetForm(self.data, self.file_data)
         assert 'file' in form.errors
+
+    def test_populate_object_data_with_valid_sample(self):
+        valid_csv = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR.csv'
+        assert valid_csv.exists()
+        self.file_data['file'] = self.gen_file(f'sample.csv', valid_csv.read_bytes())
+        self.data['state'] = 'PR'
+
+        form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
+        assert form.is_valid(), form.errors
+        expected = {
+            'total': {'confirmados': 100, 'mortes': 30},
+            'importados_indefinidos': {'confirmados': 2, 'mortes': 1},
+            'cidades': {
+                'Abatiá': {'confirmados': 9, 'mortes': 1},
+                'Adrianópolis': {'confirmados': 11, 'mortes': 2},
+                'Agudos do Sul': {'confirmados': 12, 'mortes': 3},
+                'Almirante Tamandaré': {'confirmados': 8, 'mortes': 4},
+                'Altamira do Paraná': {'confirmados': 13, 'mortes': 5},
+                'Alto Paraíso': {'confirmados': 47, 'mortes': 15},
+            }
+        }
+
+        spreadsheet = form.save()
+        spreadsheet.refresh_from_db()
+
+        assert expected == spreadsheet.data
