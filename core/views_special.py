@@ -1,4 +1,5 @@
 import datetime
+import json
 from collections import defaultdict
 from functools import lru_cache
 from unicodedata import normalize
@@ -6,6 +7,7 @@ from unicodedata import normalize
 from cryptography.fernet import Fernet, InvalidToken
 from django.conf import settings
 from django.contrib.postgres.search import SearchQuery
+from django.db.models import Max, Sum
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -303,17 +305,78 @@ def company_groups(request):
 
 def covid19(request):
     datasets = get_datasets()
+    Boletim = datasets["covid19"]["boletim"].get_model()
     Caso = datasets["covid19"]["caso"].get_model()
-    table = []
-    for row in Caso.objects.filter(is_last=True, place_type="city"):
+
+    city_cases = Caso.objects.filter(is_last=True, place_type="city")
+    state_cases = Caso.objects.filter(is_last=True, place_type="state")
+    assert state_cases.count() == 27
+
+    state_totals = state_cases.aggregate(
+        total_confirmed=Sum("confirmed"),
+        total_deaths=Sum("deaths"),
+        total_population=Sum("estimated_population_2019"),
+    )
+    city_totals = city_cases.aggregate(
+        max_confirmed=Max("confirmed"),
+        max_confirmed_per_100k_inhabitants=Max("confirmed_per_100k_inhabitants"),
+        max_death_rate=Max("death_rate"),
+        max_deaths=Max("deaths"),
+        total_population=Sum("estimated_population_2019")
+    )
+    affected_cities = city_cases.count()
+    affected_population = city_totals["total_population"]
+    percent_population = 100 * (affected_population / state_totals["total_population"])
+    total_reports = Boletim.objects.count()
+    total_confirmed = state_totals["total_confirmed"]
+    cities_max = {
+        "confirmed": city_totals["max_confirmed"],
+        "confirmed_per_100k_inhabitants": city_totals["max_confirmed_per_100k_inhabitants"],
+        "death_rate": city_totals["max_death_rate"],
+        "deaths": city_totals["max_deaths"],
+    }
+    aggregate = [
+        {"title": "Boletins", "value": total_reports, "size": "s2"},
+        {
+            "title": "Casos confirmados",
+            "value": total_confirmed,
+            "size": "s2",
+        },
+        {"title": "Óbitos", "value": state_totals["total_deaths"], "size": "s2"},
+        {
+            "title": "Municípios atingidos",
+            "value": affected_cities,
+            "value_percent": 100 * (affected_cities / 5570),
+            "size": "s2",
+        },
+        {
+            "title": "População nos municípios atingidos",
+            "value": affected_population,
+            "value_percent": percent_population,
+            "size": "s3",
+        },
+    ]
+
+    value_keys = ("confirmed", "deaths", "death_rate", "confirmed_per_100k_inhabitants")
+    city_values = {key: {} for key in value_keys}
+    city_data = []
+    for row in city_cases:
         row = row.__dict__
-        for key in ("confirmed", "deaths", "death_rate", "confirmed_per_100k_inhabitants"):
+        if row["city_ibge_code"] is None:  # TODO: what to do here?
+            continue
+        for key in value_keys:
             row[key] = row[key] or 0
+            city_values[key][row["city_ibge_code"]] = row[key]
         row["death_rate"] *= 100
         row["date_str"] = str(row["date"])
         row["city_str"] = slugify(row["city"])
         year, month, day = row["date_str"].split("-")
         row["date"] = datetime.date(int(year), int(month), int(day))
-        table.append(row)
+        city_data.append(row)
+    max_values = {key: max(city_values[key].values()) for key in value_keys}
 
-    return render(request, "specials/covid19.html", {"table": table})
+    return render(
+        request,
+        "specials/covid19.html",
+        {"city_data": city_data, "aggregate": aggregate, "city_values_json": json.dumps(city_values), "max_values_json": json.dumps(max_values)},
+    )
