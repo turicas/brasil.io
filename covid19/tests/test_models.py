@@ -2,6 +2,7 @@ import shutil
 from datetime import date, timedelta
 from model_bakery import baker
 from pathlib import Path
+from unittest.mock import patch
 
 from django.conf import settings
 from django.test import TestCase
@@ -100,3 +101,11 @@ class StateSpreadsheetTests(TestCase):
         for prev in previous:
             prev.refresh_from_db()
             assert prev.cancelled
+
+    @patch('covid19.signals.process_new_spreadsheet_task', autospec=True)
+    def test_enqueue_new_spreadsheet_to_async_process(self, mocked_process_new_spreadsheet):
+        spreadsheet = baker.make(StateSpreadsheet)  # create
+        spreadsheet.state = 'RJ'
+        spreadsheet.save()  # save to ensure only process the spreadsheet once
+
+        mocked_process_new_spreadsheet.delay.assert_called_once_with(spreadsheet_pk=spreadsheet.pk)
