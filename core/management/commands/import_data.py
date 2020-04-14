@@ -3,6 +3,7 @@ import time
 from collections import OrderedDict
 from datetime import date
 
+from django.core.cache import cache
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.db.utils import ProgrammingError
@@ -22,6 +23,7 @@ class Command(BaseCommand):
         parser.add_argument("--no-input", required=False, action="store_true")
         parser.add_argument("--no-import-data", required=False, action="store_true")
         parser.add_argument("--no-vacuum", required=False, action="store_true")
+        parser.add_argument("--no-clear-view-cache", required=False, action="store_true")
         parser.add_argument(
             "--no-create-filter-indexes", required=False, action="store_true"
         )
@@ -47,6 +49,7 @@ class Command(BaseCommand):
         ask_confirmation = not kwargs["no_input"]
         import_data = not kwargs["no_import_data"]
         vacuum = not kwargs["no_vacuum"]
+        clear_view_cache = not kwargs["no_clear_view_cache"]
         create_filter_indexes = not kwargs["no_create_filter_indexes"]
         fill_choices = not kwargs["no_fill_choices"]
         collect_date = self.clean_collect_date(kwargs["collect_date"])
@@ -151,3 +154,7 @@ class Command(BaseCommand):
                 print(" - done in {:.3f}s.".format(end_field - start_field))
             end = time.time()
             print("  done in {:.3f}s.".format(end - start))
+
+        if clear_view_cache:
+            print("Clearing view cache...")
+            cache.clear()
