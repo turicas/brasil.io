@@ -8,3 +8,7 @@ urlpatterns = [
     path('', include('core.urls', namespace='core')),
     path('markdownx/', include('markdownx.urls')),
 ]
+
+urlpatterns += [
+    path('django-rq/', include('django_rq.urls'))
+]
