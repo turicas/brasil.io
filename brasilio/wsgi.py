@@ -22,7 +22,6 @@ def setup_postgres(connection, **kwargs):
     if connection.vendor != 'postgresql':
         return
 
-    # Timeout statements after 30 seconds.
     timeout = settings.DB_STATEMENT_TIMEOUT
     with connection.cursor() as cursor:
         cursor.execute(f"SET statement_timeout TO {timeout};")
