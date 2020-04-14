@@ -1,4 +1,5 @@
 import rows
+from io import BytesIO
 from pathlib import Path
 
 from django.conf import settings
@@ -12,9 +13,16 @@ SAMPLE_SPREADSHEETS_DATA_DIR = Path(settings.BASE_DIR).joinpath('covid19', 'test
 
 class FormatSpreadsheetRowsAsDict(TestCase):
 
+    def setUp(self):
+        sample = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR.csv'
+        self.content = sample.read_text()
+
+    @property
+    def file_from_content(self):
+        return BytesIO(str.encode(self.content))
+
     def test_format_valid_list_of_rows(self):
-        valid_csv = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR.csv'
-        file_rows = rows.import_from_csv(valid_csv)
+        file_rows = rows.import_from_csv(self.file_from_content)
 
         data = format_spreadsheet_rows_as_dict(file_rows)
         expected = {
