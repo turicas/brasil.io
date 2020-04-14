@@ -82,4 +82,5 @@ class StateSpreadsheet(models.Model):
     cancelled = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'Planilha {self.state} - {self.date} por {self.user}'
+        active = 'Ativa' if not self.cancelled else 'Cancelada'
+        return f'Planilha {active}: {self.state} - {self.date} por {self.user}'
