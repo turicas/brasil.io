@@ -53,3 +53,7 @@ class TestCovid19ContributorContextProcessor(TestCase):
         output = is_covid19_contributor(self.request)
 
         assert {'is_covid19_contributor': True} == output
+
+    def test_settings_is_correctly_configured(self):
+        path = 'covid19.context_processors.is_covid19_contributor'
+        assert path in settings.TEMPLATES[0]['OPTIONS']['context_processors']
