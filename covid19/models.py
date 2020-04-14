@@ -21,21 +21,32 @@ def format_spreadsheet_name(instance, filename):
 class StateSpreadsheetQuerySet(models.QuerySet):
 
     def filter_older_versions(self, spreadsheet):
-        qs = self.filter(
-            state=spreadsheet.state,
-            user=spreadsheet.user,
+        qs = self.from_user(spreadsheet.user).from_state(spreadsheet.state).filter(
             date=spreadsheet.date,
         )
         if spreadsheet.id:
             qs = qs.exclude(id=spreadsheet.id)
         return qs
 
+    def from_user(self, user):
+        return self.filter(user=user)
+
+    def from_state(self, state):
+        return self.filter(state__iexact=state)
+
+    def cancel_older_versions(self, spreadsheet):
+        return self.filter_older_versions(spreadsheet).update(cancelled=True)
+
+    def filter_active(self):
+        return self.filter(cancelled=False)
+
 
 class StateSpreadsheet(models.Model):
+    UPLOADED, CHECK_FAILED, DEPLOYED = 1, 2, 3
     STATUS_CHOICES = (
-        (1, "uploaded"),
-        (2, "check-failed"),
-        (3, "deployed"),
+        (UPLOADED, "uploaded"),
+        (CHECK_FAILED, "check-failed"),
+        (DEPLOYED, "deployed"),
     )
 
     objects = StateSpreadsheetQuerySet.as_manager()
@@ -48,7 +59,7 @@ class StateSpreadsheet(models.Model):
 
     boletim_urls = ArrayField(
         models.TextField(), null=False,
-        blank=False, help_text="Lista de URLs do(s) boletim(s) separada por vírgula"
+        blank=False, help_text="Lista de URLs do(s) boletim(s)"
     )
     boletim_notes = models.CharField(
         max_length=1023, default='', blank=True,
@@ -60,7 +71,7 @@ class StateSpreadsheet(models.Model):
     # planilha pro mesmo estado pra mesma data - esse worker é quem mudará o
     # status, o padrao qnd sobe a planilha e não tem erros é uploaded
     # (configurar celery ou rq)
-    status = models.SmallIntegerField(choices=STATUS_CHOICES, default=1)
+    status = models.SmallIntegerField(choices=STATUS_CHOICES, default=UPLOADED)
 
     # dados da planilha depois de parseada no form, já em JSON, pro worker não
     # precisar ler o arquivo (o validador da planilha no form vai ter que fazer
@@ -72,3 +83,7 @@ class StateSpreadsheet(models.Model):
     # pro mesmo estado pra mesma data (ele cancela o upload anterior pra essa
     # data/estado automaticamente caso suba uma atualizacao)
     cancelled = models.BooleanField(default=False)
+
+    def __str__(self):
+        active = 'Ativa' if not self.cancelled else 'Cancelada'
+        return f'Planilha {active}: {self.state} - {self.date} por {self.user}'

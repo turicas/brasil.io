@@ -2,6 +2,7 @@ import shutil
 from datetime import date, timedelta
 from model_bakery import baker
 from pathlib import Path
+from unittest.mock import patch
 
 from django.conf import settings
 from django.test import TestCase
@@ -83,3 +84,28 @@ class StateSpreadsheetTests(TestCase):
         spreadsheet.save()
         spreadsheet.refresh_from_db()
         assert 3 == StateSpreadsheet.objects.filter_older_versions(spreadsheet).count()
+
+    def test_cancel_previous_imports_from_user_for_same_state_and_data(self):
+        # implemented via post_save in covid19.signals.process_new_spreadsheet
+        kwargs = {
+            'date': date.today(), 'user': baker.make(settings.AUTH_USER_MODEL), 'state': 'RJ',
+        }
+
+        previous = baker.make(StateSpreadsheet, _quantity=3, **kwargs)
+        assert all([not p.cancelled for p in previous])
+
+        spreadsheet = baker.make(StateSpreadsheet, **kwargs)
+        spreadsheet.refresh_from_db()
+        assert not spreadsheet.cancelled
+
+        for prev in previous:
+            prev.refresh_from_db()
+            assert prev.cancelled
+
+    @patch('covid19.signals.process_new_spreadsheet_task', autospec=True)
+    def test_enqueue_new_spreadsheet_to_async_process(self, mocked_process_new_spreadsheet):
+        spreadsheet = baker.make(StateSpreadsheet)  # create
+        spreadsheet.state = 'RJ'
+        spreadsheet.save()  # save to ensure only process the spreadsheet once
+
+        mocked_process_new_spreadsheet.delay.assert_called_once_with(spreadsheet_pk=spreadsheet.pk)

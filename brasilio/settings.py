@@ -36,12 +36,13 @@ INSTALLED_APPS = [
     "django_extensions",
     "rest_framework",
     'markdownx',
+    "django_rq",
 
     # Project apps
     "core",
     "graphs",
     "brasilio_auth",
-    "covid19",
+    "covid19.apps.Covid19Config",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -188,6 +189,7 @@ RECAPTCHA_PRIVATE_KEY = env("RECAPTCHA_PRIVATE_KEY")
 
 ROWS_PER_PAGE = env("ROWS_PER_PAGE", int, default=50)
 
+REDIS_URL = env("REDIS_URL")
 CACHALOT_ENABLED = env("CACHE_ENABLED", bool, default=True)
 CACHE_MIDDLEWARE_ALIAS = 'default'
 CACHE_MIDDLEWARE_SECONDS = 600  # 10 minutes
@@ -196,9 +198,18 @@ CACHALOT_CACHE = "default"
 CACHES = {
     "default": {
         "BACKEND": env("CACHE_BACKEND"),
-        "LOCATION": env("REDIS_URL"),
+        "LOCATION": REDIS_URL,
         "OPTIONS": {"CLIENT_CLASS": env("CACHE_CLIENT_CLASS")},
         "KEY_PREFIX": env("CACHE_KEY_PREFIX"),
+    }
+}
+
+
+# django-rq config
+RQ_QUEUES = {
+    'default': {
+        'URL': REDIS_URL,
+        'DEFAULT_TIMEOUT': 500,
     }
 }
 
