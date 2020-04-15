@@ -25,29 +25,24 @@ def format_spreadsheet_rows_as_dict(rows_table):
         'importados_indefinidos': {},
         'cidades': {},
     }
+    field_names = rows_table.field_names
 
-    confirmed_field_name = _get_field_name(rows_table, ['confirmados', 'confirmado', 'casos_confirmados'])
-    if confirmed_field_name is None:
-        raise ValidationError('A coluna "Confirmados" está faltando na planilha')
-    deaths_field_name = _get_field_name(rows_table, ['obitos', 'obito', 'morte', 'mortes'])
-    if deaths_field_name is None:
-        raise ValidationError('A coluna "Mortes" está faltando na planilha')
-    city_field_name = _get_field_name(rows_table, ['municipio', 'cidade'])
-    if city_field_name is None:
-        raise ValidationError('A coluna "Município" está faltando na planilha')
+    confirmed_attr = _get_column_name(field_names, ['confirmados', 'confirmado', 'casos_confirmados'])
+    deaths_attr = _get_column_name(field_names, ['obitos', 'obito', 'morte', 'mortes'])
+    city_attr = _get_column_name(field_names, ['municipio', 'cidade'])
 
-    if not rows_table.fields[confirmed_field_name] == IntegerField:
+    if not rows_table.fields[confirmed_attr] == IntegerField:
         raise ValidationError('A coluna "Confirmados" precisa ter somente números inteiros"')
-    if not rows_table.fields[deaths_field_name] == IntegerField:
+    if not rows_table.fields[deaths_attr] == IntegerField:
         raise ValidationError('A coluna "Mortes" precisa ter somente números inteiros"')
 
 
     TOTAL_LINE_DISPLAY = 'TOTAL NO ESTADO'
     UNDEFINED_DISPLAY = 'Importados/Indefinidos'
     for i, entry in enumerate(rows_table):
-        city = getattr(entry, city_field_name, None)
-        confirmed = getattr(entry, confirmed_field_name, None)
-        deaths = getattr(entry, deaths_field_name, None)
+        city = getattr(entry, city_attr, None)
+        confirmed = getattr(entry, confirmed_attr, None)
+        deaths = getattr(entry, deaths_attr, None)
 
         if confirmed is None:
             raise ValidationError(f'Valor nulo para casos confirmados na linha {i + 1} da planilha')
@@ -70,8 +65,11 @@ def format_spreadsheet_rows_as_dict(rows_table):
     return result
 
 
-def _get_field_name(rows, valid_names):
-    try:
-        return [n for n in valid_names if n in rows.field_names][0]
-    except IndexError:
-        return None
+def _get_column_name(field_names, options):
+    # XXX: this function expects all keys already in lowercase and slugified by `rows` library
+    valid_columns = [key for key in field_names if key in options]
+    if not valid_columns:
+        raise ValidationError(f"Column '{options[0]}' not found")
+    elif len(valid_columns) > 1:
+        raise ValidationError(f"Found more than one '{options[0]}' column")
+    return valid_columns[0]
