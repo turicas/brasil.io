@@ -1,7 +1,5 @@
 from rows.fields import IntegerField
 
-from django.forms import ValidationError
-
 from brazil_data.cities import get_city_info, get_state_info
 
 
