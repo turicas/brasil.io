@@ -9,7 +9,7 @@ from django.core.validators import URLValidator
 
 from covid19.models import StateSpreadsheet
 from covid19.permissions import user_has_state_permission
-from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict
+from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict, SpreadsheetValidationErrors
 
 
 def state_choices_for_user(user):
@@ -100,6 +100,11 @@ class StateSpreadsheetForm(forms.ModelForm):
                 file_rows = import_func(file)
             except Exception as e:
                 raise forms.ValidationError(e)
-            self.file_data_as_json = format_spreadsheet_rows_as_dict(
-                file_rows, spreadsheet_date, state
-            )
+
+            try:
+                self.file_data_as_json = format_spreadsheet_rows_as_dict(
+                    file_rows, spreadsheet_date, state
+                )
+            except SpreadsheetValidationErrors as exception:
+                for error in exception.error_messages:
+                    self.add_error(None, error)

@@ -12,6 +12,7 @@ from django.db.models import Q
 from django.test import TestCase
 
 from covid19.forms import state_choices_for_user, StateSpreadsheetForm
+from covid19.spreadsheet_validator import SpreadsheetValidationErrors
 from covid19.models import StateSpreadsheet
 
 
@@ -153,6 +154,20 @@ class StateSpreadsheetFormTests(TestCase):
         spreadsheet.refresh_from_db()
 
         assert expected == spreadsheet.data
+
+    @patch('covid19.forms.format_spreadsheet_rows_as_dict')
+    def test_list_all_errors_fom_the_import_process(self, mocked_format):
+        exception = SpreadsheetValidationErrors()
+        exception.new_error('Error 1')
+        exception.new_error('Error 2')
+        mocked_format.side_effect = exception
+
+        form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
+        assert not form.is_valid()
+
+        assert 2 == len(form.errors['__all__'])
+        assert 'Error 1' in form.errors['__all__']
+        assert 'Error 2' in form.errors['__all__']
 
     def test_import_data_from_xls_with_sucess(self):
         valid_xls = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR.xls'
