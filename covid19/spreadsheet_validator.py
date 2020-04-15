@@ -2,23 +2,22 @@ from rows.fields import IntegerField
 
 from django.forms import ValidationError
 
-from brazil_data.cities import get_city_info
+from brazil_data.cities import get_city_info, get_state_info
 
 
-def format_spreadsheet_rows_as_dict(rows_table, date, uf):
+TOTAL_LINE_DISPLAY = 'TOTAL NO ESTADO'
+UNDEFINED_DISPLAY = 'Importados/Indefinidos'
+INVALID_CITY_CODE = -1
+
+
+def format_spreadsheet_rows_as_dict(rows_table, date, state):
     """
     Receives rows.Table object, a date and a brazilan UF, validates the data
     and returns a dict in the formatted data:
 
     This is an auxiliary method used by covid19.forms.StateSpreadsheetForm with the uploaded file
     """
-    # TODO: https://github.com/turicas/brasil.io/issues/209
     # TODO: https://github.com/turicas/brasil.io/issues/210
-    result = {
-        'total': {},
-        'importados_indefinidos': {},
-        'cidades': {},
-    }
     field_names = rows_table.field_names
 
     confirmed_attr = _get_column_name(
@@ -32,9 +31,9 @@ def format_spreadsheet_rows_as_dict(rows_table, date, uf):
     if not rows_table.fields[deaths_attr] == IntegerField:
         raise ValidationError('A coluna "Mortes" precisa ter somente números inteiros"')
 
+    results = []
     bad_cities = []
-    TOTAL_LINE_DISPLAY = 'TOTAL NO ESTADO'
-    UNDEFINED_DISPLAY = 'Importados/Indefinidos'
+    has_total, has_undefined = False, False
     for i, entry in enumerate(rows_table):
         city = getattr(entry, city_attr, None)
         confirmed = getattr(entry, confirmed_attr, None)
@@ -48,27 +47,47 @@ def format_spreadsheet_rows_as_dict(rows_table, date, uf):
             raise ValidationError(
                 f'Valor de óbitos maior que casos confirmados na linha {i + 1} da planilha'
             )
-        city_info = get_city_info(city, uf)
 
-        data = {'confirmados': confirmed, 'mortes': deaths}
-        if city == TOTAL_LINE_DISPLAY:
-            result['total'] = data
-        elif city == UNDEFINED_DISPLAY:
-            result['importados_indefinidos'] = data
-        elif not city_info:
+        result = _parse_city_data(city, confirmed, deaths, date, state)
+        if result['city_ibge_code'] == INVALID_CITY_CODE:
             bad_cities.append(city)
-        else:
-            result['cidades'][city] = data
+        elif not has_total and result['city'] == TOTAL_LINE_DISPLAY:
+            has_total = True
+        elif not has_undefined and result['city'] == UNDEFINED_DISPLAY:
+            has_undefined = True
+        results.append(result)
 
-    if not result['total']:
+    if not has_total:
         raise ValidationError(f'A linha "{TOTAL_LINE_DISPLAY}" está faltando na planilha')
-    if not result['importados_indefinidos']:
+    if not has_undefined:
         raise ValidationError(f'A linha "{UNDEFINED_DISPLAY}" está faltando na planilha')
     if bad_cities:
         bad_cities = ', '.join(bad_cities)
-        raise ValidationError(f'As seguintes cidades não pertencem a UF {uf}: {bad_cities}')
+        raise ValidationError(f'As seguintes cidades não pertencem a UF {state}: {bad_cities}')
 
-    return result
+    return results
+
+
+def _parse_city_data(city, confirmed, deaths, date, state):
+    data = {
+        "city": city,
+        "confirmed": confirmed,
+        "date": date.isoformat(),
+        "deaths": deaths,
+        "place_type": "city",
+        "state": state,
+    }
+
+    if city == TOTAL_LINE_DISPLAY:
+        data['city_ibge_code'] = get_state_info(state).state_ibge_code
+        data['place_type'] = 'state'
+    elif city == UNDEFINED_DISPLAY:
+        data['city_ibge_code'] = None
+    else:
+        city_info = get_city_info(city, state)
+        data['city_ibge_code'] = getattr(city_info, 'city_ibge_code', INVALID_CITY_CODE)
+
+    return data
 
 
 def _get_column_name(field_names, options):
