@@ -59,11 +59,7 @@ class StateSpreadsheetForm(forms.ModelForm):
     def save(self, commit=True):
         spreadsheet = super().save(commit=False)
         spreadsheet.user = self.user
-        spreadsheet.data = {
-            "table": self.file_data_as_json,
-            "errors": [],
-            "warnings": [],
-        }
+        spreadsheet.table_data = self.file_data_as_json
         if commit:
             spreadsheet.save()
         return spreadsheet

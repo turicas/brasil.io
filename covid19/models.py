@@ -1,3 +1,4 @@
+from copy import deepcopy
 from pathlib import Path
 from localflavor.br.br_states import STATE_CHOICES
 
@@ -95,3 +96,27 @@ class StateSpreadsheet(models.Model):
     def __str__(self):
         active = 'Ativa' if not self.cancelled else 'Cancelada'
         return f'Planilha {active}: {self.state} - {self.date} por {self.user}'
+
+    @property
+    def table_data(self):
+        return deepcopy(self.data['table'])
+
+    @table_data.setter
+    def table_data(self, data):
+        self.data['table'] = deepcopy(data)
+
+    @property
+    def warnings(self):
+        return deepcopy(self.data['warnings'])
+
+    @warnings.setter
+    def warnings(self, data):
+        self.data['warnings'] = data
+
+    @property
+    def errors(self):
+        return deepcopy(self.data['errors'])
+
+    @errors.setter
+    def errors(self, data):
+        self.data['errors'] = data
