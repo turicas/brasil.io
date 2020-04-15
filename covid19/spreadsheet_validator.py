@@ -32,6 +32,7 @@ def format_spreadsheet_rows_as_dict(rows_table, date, uf):
     if not rows_table.fields[deaths_attr] == IntegerField:
         raise ValidationError('A coluna "Mortes" precisa ter somente números inteiros"')
 
+    bad_cities = []
     TOTAL_LINE_DISPLAY = 'TOTAL NO ESTADO'
     UNDEFINED_DISPLAY = 'Importados/Indefinidos'
     for i, entry in enumerate(rows_table):
@@ -55,14 +56,17 @@ def format_spreadsheet_rows_as_dict(rows_table, date, uf):
         elif city == UNDEFINED_DISPLAY:
             result['importados_indefinidos'] = data
         elif not city_info:
-            raise ValidationError(f'{city} não é uma cidade da UF {uf}')
+            bad_cities.append(city)
         else:
             result['cidades'][city] = data
 
     if not result['total']:
         raise ValidationError(f'A linha "{TOTAL_LINE_DISPLAY}" está faltando na planilha')
-    elif not result['importados_indefinidos']:
+    if not result['importados_indefinidos']:
         raise ValidationError(f'A linha "{UNDEFINED_DISPLAY}" está faltando na planilha')
+    if bad_cities:
+        bad_cities = ', '.join(bad_cities)
+        raise ValidationError(f'As seguintes cidades não pertencem a UF {uf}: {bad_cities}')
 
     return result
 

@@ -149,5 +149,9 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
     def test_validate_if_all_cities_exists_are_in_the_state(self):
         file_rows = rows.import_from_csv(self.file_from_content)
 
-        with pytest.raises(ValidationError):
+        with pytest.raises(ValidationError) as execinfo:
             format_spreadsheet_rows_as_dict(file_rows, self.date, 'SP')
+
+        error_msg = str(execinfo.value)
+        assert "Abatiá" in error_msg
+        assert "Adrianópolis" in error_msg
