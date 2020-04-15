@@ -77,6 +77,10 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
             validation_errors.new_error(
                 f'Valor de óbitos maior que casos confirmados na linha {city} da planilha'
             )
+        elif deaths < 0 or confirmed < 0:
+            validation_errors.new_error(
+                f'Valores negativos na linha {city} da planilha'
+            )
 
         result = _parse_city_data(city, confirmed, deaths, date, state)
         if result['city_ibge_code'] == INVALID_CITY_CODE:

@@ -203,3 +203,10 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         exception = execinfo.value
         assert "Abatiá não pertence à UF SP" in exception.error_messages
         assert "Adrianópolis não pertence à UF SP" in exception.error_messages
+
+    def test_can_not_have_negative_values(self):
+        self.content = self.content.replace('Abatiá,9,1', 'Abatiá,-1,-9')
+        file_rows = rows.import_from_csv(self.file_from_content)
+
+        with pytest.raises(SpreadsheetValidationErrors):
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
