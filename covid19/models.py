@@ -41,6 +41,14 @@ class StateSpreadsheetQuerySet(models.QuerySet):
         return self.filter(cancelled=False)
 
 
+def default_data_json():
+    return {
+        "table": [],
+        "errors": [],
+        "warnings": [],
+    }
+
+
 class StateSpreadsheet(models.Model):
     UPLOADED, CHECK_FAILED, DEPLOYED = 1, 2, 3
     STATUS_CHOICES = (
@@ -77,7 +85,7 @@ class StateSpreadsheet(models.Model):
     # precisar ler o arquivo (o validador da planilha no form vai ter que fazer
     # essa leitura, então ele faz, se estiver tudo ok já salva nesse campo pro
     # worker já trabalhar com os dados limpos e normalizados)
-    data = JSONField(default=dict)
+    data = JSONField(default=default_data_json)
 
     # por padrao é False, mas vira True se um mesmo usuário subir uma planilha
     # pro mesmo estado pra mesma data (ele cancela o upload anterior pra essa
