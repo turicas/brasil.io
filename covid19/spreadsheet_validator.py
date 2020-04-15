@@ -2,6 +2,8 @@ from rows.fields import IntegerField
 
 from django.forms import ValidationError
 
+from brazil_data.cities import get_city_info
+
 
 def format_spreadsheet_rows_as_dict(rows_table, date, uf):
     """
@@ -45,12 +47,15 @@ def format_spreadsheet_rows_as_dict(rows_table, date, uf):
             raise ValidationError(
                 f'Valor de óbitos maior que casos confirmados na linha {i + 1} da planilha'
             )
+        city_info = get_city_info(city, uf)
 
         data = {'confirmados': confirmed, 'mortes': deaths}
         if city == TOTAL_LINE_DISPLAY:
             result['total'] = data
         elif city == UNDEFINED_DISPLAY:
             result['importados_indefinidos'] = data
+        elif not city_info:
+            raise ValidationError(f'{city} não é uma cidade da UF {uf}')
         else:
             result['cidades'][city] = data
 
