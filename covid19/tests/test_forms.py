@@ -180,3 +180,12 @@ class StateSpreadsheetFormTests(TestCase):
         form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
 
         assert form.is_valid(), form.errors
+
+    def test_import_data_from_ods_with_sucess(self):
+        valid_ods = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR.ods'
+        assert valid_ods.exists()
+
+        self.file_data['file'] = self.gen_file(f'sample.ods', valid_ods.read_bytes())
+        form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
+
+        assert form.is_valid(), form.errors
