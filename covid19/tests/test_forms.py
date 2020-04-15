@@ -136,7 +136,7 @@ class StateSpreadsheetFormTests(TestCase):
 
         self.file_data['file'] = self.gen_file(f'sample.txt', 'col1,col2')
         form = StateSpreadsheetForm(self.data, self.file_data)
-        assert 'file' in form.errors
+        assert '__all__' in form.errors
 
     def test_populate_object_data_with_valid_sample(self):
         form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)

@@ -58,23 +58,28 @@ class StateSpreadsheetForm(forms.ModelForm):
             url_validator(url)
         return urls
 
-    def clean_file(self):
-        file = self.cleaned_data['file']
-        path = Path(file.name)
-        import_func_per_suffix = {
-            '.csv': rows.import_from_csv,
-            '.xls': rows.import_from_xls,
-            '.xlsx': rows.import_from_xlsx,
-            '.ods': rows.import_from_ods,
-        }
+    def clean(self):
+        cleaned_data = super().clean()
+        file = cleaned_data.get('file')
+        spreadsheet_date = cleaned_data.get("date")
+        state = cleaned_data.get("state")
 
-        import_func = import_func_per_suffix.get(path.suffix.lower())
-        if not import_func:
-            valid = import_func_per_suffix.keys()
-            msg = f"Formato de planilha inválida. O arquivo precisa estar formatado como {valid}."
-            raise forms.ValidationError(msg)
+        if all([file, spreadsheet_date, state]):
+            path = Path(file.name)
+            import_func_per_suffix = {
+                '.csv': rows.import_from_csv,
+                '.xls': rows.import_from_xls,
+                '.xlsx': rows.import_from_xlsx,
+                '.ods': rows.import_from_ods,
+            }
 
-        file_rows = import_func(file)
-        self.file_data_as_json = format_spreadsheet_rows_as_dict(file_rows)
+            import_func = import_func_per_suffix.get(path.suffix.lower())
+            if not import_func:
+                valid = import_func_per_suffix.keys()
+                msg = f"Formato de planilha inválida. O arquivo precisa estar formatado como {valid}."  # noqa
+                raise forms.ValidationError(msg)
 
-        return file
+            file_rows = import_func(file)
+            self.file_data_as_json = format_spreadsheet_rows_as_dict(
+                file_rows, spreadsheet_date, state
+            )
