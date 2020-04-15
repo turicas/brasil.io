@@ -16,6 +16,34 @@
 <div class="row">
 
   <section id="info">
+
+    <div class="row">
+      <div class="col s12 m12 l12">
+        <div class="card">
+          <div class="card-content teal-text">
+            <span class="card-title">ESPECIAL COVID-19: DADOS POR MUNICÍPIO</span>
+          </div>
+          <div class="card-content card-body">
+            <p>
+              Graças a uma força-tarefa de 35 voluntários que, diariamente,
+              compilam boletins epidemiológicos das 27 Secretarias Estaduais de
+              Saúde, disponibilizamos uma base de dados com a série histórica
+              de casos e óbitos confirmados por município. Embora essenciais
+              para o planejamento de políticas de contenção do novo
+              coronavírus, os dados municipais não têm sido divulgados pelo
+              Ministério da Saúde. Ainda como parte desse esforço contínuo de
+              fornecer dados úteis relacionados à pandemia, disponibilizamos
+              outras bases estruturadas, como população dos municípios
+              afetados, óbitos suspeitos registrados em cartório etc.
+            </p>
+          </div>
+          <div class="card-action">
+            <a href="{% url 'core:dataset-table-detail' 'covid19' 'caso' %}">Ver mais</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="row">
       <div class="col s12 m3">
         <div class="card">
