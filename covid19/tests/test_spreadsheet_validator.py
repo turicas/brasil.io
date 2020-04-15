@@ -43,7 +43,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
             d['ibge'] = get_city_info(d['nome'], self.uf).city_ibge_code
         expected = [
             {
-                "city": "TOTAL NO ESTADO",
+                "city": None,
                 "city_ibge_code": 41,
                 "confirmed": 100,
                 "date": date,

@@ -85,7 +85,7 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
         result = _parse_city_data(city, confirmed, deaths, date, state)
         if result['city_ibge_code'] == INVALID_CITY_CODE:
             validation_errors.new_error(f'{city} não pertence à UF {state}')
-        elif not has_total and result['city'] == TOTAL_LINE_DISPLAY:
+        elif not has_total and result['city'] is None:
             has_total = True
         elif not has_undefined and result['city'] == UNDEFINED_DISPLAY:
             has_undefined = True
@@ -113,6 +113,7 @@ def _parse_city_data(city, confirmed, deaths, date, state):
     if city == TOTAL_LINE_DISPLAY:
         data['city_ibge_code'] = get_state_info(state).state_ibge_code
         data['place_type'] = 'state'
+        data['city'] = None
     elif city == UNDEFINED_DISPLAY:
         data['city_ibge_code'] = None
     else:
