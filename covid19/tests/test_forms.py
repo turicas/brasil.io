@@ -144,16 +144,20 @@ class StateSpreadsheetFormTests(TestCase):
         form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
         assert form.is_valid(), form.errors
         expected = {
-            'total': {'confirmados': 100, 'mortes': 30},
-            'importados_indefinidos': {'confirmados': 2, 'mortes': 1},
-            'cidades': {
-                'Abatiá': {'confirmados': 9, 'mortes': 1},
-                'Adrianópolis': {'confirmados': 11, 'mortes': 2},
-                'Agudos do Sul': {'confirmados': 12, 'mortes': 3},
-                'Almirante Tamandaré': {'confirmados': 8, 'mortes': 4},
-                'Altamira do Paraná': {'confirmados': 13, 'mortes': 5},
-                'Alto Paraíso': {'confirmados': 47, 'mortes': 15},
-            }
+            "table": {
+                'total': {'confirmados': 100, 'mortes': 30},
+                'importados_indefinidos': {'confirmados': 2, 'mortes': 1},
+                'cidades': {
+                    'Abatiá': {'confirmados': 9, 'mortes': 1},
+                    'Adrianópolis': {'confirmados': 11, 'mortes': 2},
+                    'Agudos do Sul': {'confirmados': 12, 'mortes': 3},
+                    'Almirante Tamandaré': {'confirmados': 8, 'mortes': 4},
+                    'Altamira do Paraná': {'confirmados': 13, 'mortes': 5},
+                    'Alto Paraíso': {'confirmados': 47, 'mortes': 15},
+                }
+            },
+            "errors": [],
+            "warnings": [],
         }
 
         spreadsheet = form.save()
