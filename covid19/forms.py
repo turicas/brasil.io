@@ -1,6 +1,8 @@
+import os
 import rows
 from localflavor.br.br_states import STATE_CHOICES
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 from django import forms
 from django.core.validators import URLValidator
@@ -20,6 +22,21 @@ def state_choices_for_user(user):
             choices.append((uf, name))
 
     return choices
+
+
+def import_xls(f_obj):
+    content = f_obj.read()
+    f_obj.seek(0)
+
+    temp_xls = NamedTemporaryFile(suffix='.xls', delete=False)
+    temp_xls.write(content)
+    temp_xls.close()
+
+    data = rows.import_from_xls(temp_xls)
+    temp_file = Path(temp_xls.name)
+    os.remove(temp_file)
+
+    return data
 
 
 class StateSpreadsheetForm(forms.ModelForm):
@@ -68,7 +85,7 @@ class StateSpreadsheetForm(forms.ModelForm):
             path = Path(file.name)
             import_func_per_suffix = {
                 '.csv': rows.import_from_csv,
-                '.xls': rows.import_from_xls,
+                '.xls': import_xls,
                 '.xlsx': rows.import_from_xlsx,
                 '.ods': rows.import_from_ods,
             }

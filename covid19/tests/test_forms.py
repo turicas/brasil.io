@@ -162,3 +162,12 @@ class StateSpreadsheetFormTests(TestCase):
         spreadsheet.refresh_from_db()
 
         assert expected == spreadsheet.data
+
+    def test_import_data_from_xls_with_sucess(self):
+        valid_xls = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR.xls'
+        assert valid_xls.exists()
+
+        self.file_data['file'] = self.gen_file(f'sample.xls', valid_xls.read_bytes())
+        form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
+
+        assert form.is_valid(), form.errors
