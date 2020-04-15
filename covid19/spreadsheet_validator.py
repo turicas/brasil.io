@@ -35,7 +35,6 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
 
     This is an auxiliary method used by covid19.forms.StateSpreadsheetForm with the uploaded file
     """
-    # TODO: https://github.com/turicas/brasil.io/issues/210
     validation_errors = SpreadsheetValidationErrors()
     field_names = rows_table.field_names
 
@@ -133,3 +132,13 @@ def _get_column_name(field_names, options):
     elif len(valid_columns) > 1:
         raise ValueError(f"Foi encontrada mais de uma coluna possível para '{options[0]}'")
     return valid_columns[0]
+
+
+def validate_historical_data(spreadsheet):
+    """
+    Validate the spreadsheet against historical data in the database.
+    If any invalid data, it'll raise a SpreadsheetValidationErrors
+    If valid data, returns a list with eventual warning messages
+    """
+    # TODO: https://github.com/turicas/brasil.io/issues/210
+    return []
