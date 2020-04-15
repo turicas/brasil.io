@@ -105,11 +105,11 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
     if not has_undefined:
         validation_errors.new_error(f'A linha "{UNDEFINED_DISPLAY}" está faltando na planilha')
 
-    if sum_cases != total_cases:
+    if sum_cases and sum_cases != total_cases:
         validation_errors.new_error(
             f'A soma de casos ({sum_cases}) difere da entrada total ({total_cases}).'
         )
-    if sum_deaths != total_deaths:
+    if sum_deaths and sum_deaths != total_deaths:
         validation_errors.new_error(
             f'A soma de mortes ({sum_deaths}) difere da entrada total ({total_deaths}).'
         )

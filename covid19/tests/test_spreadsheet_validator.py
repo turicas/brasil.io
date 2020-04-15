@@ -249,6 +249,16 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         with pytest.raises(SpreadsheetValidationErrors):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
+    def test_do_not_check_for_totals_if_only_total_lines_data(self):
+        sample = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR-no-cities-data.csv'
+        assert sample.exists()
+        self.content = sample.read_text()
+
+        file_rows = rows.import_from_csv(self.file_from_content)
+        data = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        assert data[0]['deaths'] == 50
+
 
 class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
 
