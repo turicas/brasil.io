@@ -39,10 +39,11 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
         confirmed = getattr(entry, confirmed_attr, None)
         deaths = getattr(entry, deaths_attr, None)
 
-        if confirmed is None:
-            raise ValidationError(f'Valor nulo para casos confirmados na linha {city} da planilha')
-        if deaths is None:
-            raise ValidationError(f'Valor nulo para óbitos na linha {city} da planilha')
+        if not confirmed and deaths or not deaths and confirmed:
+            raise ValidationError(f'Dados de casos ou óbitos incompletos na linha {city}')
+
+        confirmed = confirmed or 0
+        deaths = deaths or 0
         if deaths > confirmed:
             raise ValidationError(
                 f'Valor de óbitos maior que casos confirmados na linha {city} da planilha'

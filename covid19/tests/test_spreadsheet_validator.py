@@ -140,6 +140,23 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         with pytest.raises(ValidationError):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
+    def test_line_can_have_none_for_all_values_if_city_has_no_cases_yet(self):
+        self.content = self.content.replace('Abatiá,9,1', 'Abatiá,,')
+        file_rows = rows.import_from_csv(self.file_from_content)
+
+        expected = {
+            "city": 'Abatiá',
+            "city_ibge_code": get_city_info('Abatiá', 'PR').city_ibge_code,
+            "confirmed": 0,
+            "date": self.date.isoformat(),
+            "deaths": 0,
+            "place_type": "city",
+            "state": 'PR',
+        }
+        results = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        assert expected in results
+
     def test_both_confirmed_cases_and_deaths_columns_must_be_filled(self):
         original_content = self.content
 
