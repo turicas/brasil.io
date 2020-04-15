@@ -1,7 +1,8 @@
 from django.contrib import admin
 
-from covid19.models import StateSpreadsheet
 from covid19.forms import state_choices_for_user, StateSpreadsheetForm
+from covid19.models import StateSpreadsheet
+from covid19.signals import new_spreadsheet_imported_signal
 
 
 class StateFilter(admin.SimpleListFilter):
@@ -38,6 +39,7 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         obj.user = request.user
         super().save_model(request, obj, form, change)
+        new_spreadsheet_imported_signal.send(sender=self, spreadsheet=obj)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request).select_related('user')
