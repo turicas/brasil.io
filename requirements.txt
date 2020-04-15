@@ -1,4 +1,5 @@
 cachetools
+cached_property
 click
 cryptography
 dataclasses

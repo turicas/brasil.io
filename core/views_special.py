@@ -4,6 +4,7 @@ from collections import defaultdict
 from functools import lru_cache
 from unicodedata import normalize
 
+from cached_property import cached_property
 from cryptography.fernet import Fernet, InvalidToken
 from django.conf import settings
 from django.contrib.postgres.search import SearchQuery
@@ -303,67 +304,113 @@ def company_groups(request):
     return render(request, "specials/company-groups.html", context)
 
 
+class Covid19Stats:
+
+    def __init__(self):
+        datasets = get_datasets()
+        self.Boletim = datasets["covid19"]["boletim"].get_model()
+        self.Caso = datasets["covid19"]["caso"].get_model()
+
+    @cached_property
+    def city_cases(self):
+        return self.Caso.objects.filter(is_last=True, place_type="city")
+
+    @cached_property
+    def state_cases(self):
+        return self.Caso.objects.filter(is_last=True, place_type="state")
+
+    @property
+    def total_reports(self):
+        return self.Boletim.objects.count()
+
+    @property
+    def affected_cities(self):
+        return self.city_cases.count()
+
+    @property
+    def cities_with_deaths(self):
+        return self.city_cases.filter(deaths__gt=0).count()
+
+    @property
+    def state_totals(self):
+        return self.state_cases.aggregate(
+            total_confirmed=Sum("confirmed"),
+            total_deaths=Sum("deaths"),
+            total_population=Sum("estimated_population_2019"),
+        )
+
+    @property
+    def total_confirmed(self):
+        return self.state_totals["total_confirmed"]
+
+    @property
+    def total_deaths(self):
+        return self.state_totals["total_deaths"]
+
+    @property
+    def total_population(self):
+        return self.state_totals["total_population"]
+
+    @property
+    def city_totals(self):
+        return self.city_cases.aggregate(
+            max_confirmed=Max("confirmed"),
+            max_confirmed_per_100k_inhabitants=Max("confirmed_per_100k_inhabitants"),
+            max_death_rate=Max("death_rate"),
+            max_deaths=Max("deaths"),
+            total_population=Sum("estimated_population_2019")
+        )
+
+    @property
+    def affected_population(self):
+        return self.city_totals["total_population"]
+
+
 def covid19(request):
-    datasets = get_datasets()
-    Boletim = datasets["covid19"]["boletim"].get_model()
-    Caso = datasets["covid19"]["caso"].get_model()
+    stats = Covid19Stats()
+    affected_cities = stats.affected_cities
+    affected_population = stats.affected_population
+    cities_with_deaths = stats.cities_with_deaths
+    total_confirmed = stats.total_confirmed
+    total_deaths = stats.total_deaths
+    total_population = stats.total_population
 
-    city_cases = Caso.objects.filter(is_last=True, place_type="city")
-    state_cases = Caso.objects.filter(is_last=True, place_type="state")
-    assert state_cases.count() == 27
-
-    state_totals = state_cases.aggregate(
-        total_confirmed=Sum("confirmed"),
-        total_deaths=Sum("deaths"),
-        total_population=Sum("estimated_population_2019"),
-    )
-    city_totals = city_cases.aggregate(
-        max_confirmed=Max("confirmed"),
-        max_confirmed_per_100k_inhabitants=Max("confirmed_per_100k_inhabitants"),
-        max_death_rate=Max("death_rate"),
-        max_deaths=Max("deaths"),
-        total_population=Sum("estimated_population_2019")
-    )
-    affected_cities = city_cases.count()
-    affected_population = city_totals["total_population"]
-    percent_population = 100 * (affected_population / state_totals["total_population"])
-    total_reports = Boletim.objects.count()
-    total_confirmed = state_totals["total_confirmed"]
-    cities_max = {
-        "confirmed": city_totals["max_confirmed"],
-        "confirmed_per_100k_inhabitants": city_totals["max_confirmed_per_100k_inhabitants"],
-        "death_rate": city_totals["max_death_rate"],
-        "deaths": city_totals["max_deaths"],
-    }
     aggregate = [
-        {"title": "Boletins", "value": total_reports, "size": "s2"},
+        {
+            "title": "Boletins",
+            "value": stats.total_reports,
+        },
         {
             "title": "Casos confirmados",
             "value": total_confirmed,
-            "size": "s2",
         },
-        {"title": "Óbitos", "value": state_totals["total_deaths"], "size": "s2"},
+        {
+            "title": "Óbitos",
+            "value": total_deaths,
+        },
         {
             "title": "Municípios atingidos",
             "value": affected_cities,
             "value_percent": 100 * (affected_cities / 5570),
-            "size": "s2",
+        },
+        {
+            "title": "Municípios com óbitos",
+            "value": cities_with_deaths,
+            "value_percent": 100 * (cities_with_deaths / affected_cities),
         },
         {
             "title": "População nos municípios atingidos",
             "value": affected_population,
-            "value_percent": percent_population,
-            "size": "s3",
+            "value_percent": 100 * (affected_population / total_population),
         },
     ]
 
     value_keys = ("confirmed", "deaths", "death_rate", "confirmed_per_100k_inhabitants")
     city_values = {key: {} for key in value_keys}
     city_data = []
-    for row in city_cases:
+    # TODO: what should we do about "Importados/Indefinidos"?
+    for row in stats.city_cases.filter(city_ibge_code__isnull=False):
         row = row.__dict__
-        if row["city_ibge_code"] is None:  # TODO: what to do here?
-            continue
         for key in value_keys:
             row[key] = row[key] or 0
             city_values[key][row["city_ibge_code"]] = row[key]
