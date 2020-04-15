@@ -1,4 +1,3 @@
-import pytest
 import shutil
 from datetime import date
 from localflavor.br.br_states import STATE_CHOICES
@@ -55,14 +54,17 @@ class AvailableStatesForUserTests(TestCase):
 class StateSpreadsheetFormTests(TestCase):
 
     def setUp(self):
+        valid_csv = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR.csv'
+        assert valid_csv.exists()
+
         self.data = {
             'date': date.today(),
-            'state': 'RJ',
+            'state': 'PR',
             'boletim_urls': 'http://google.com\nhttp://brasil.io',
             'boletim_notes': 'notes',
         }
         self.file_data = {
-            'file': self.gen_file('sample.csv', 'col1,col2'),
+            'file': self.gen_file(f'sample.csv', valid_csv.read_bytes())
         }
         self.user = baker.make(settings.AUTH_USER_MODEL)
         self.user.groups.add(Group.objects.get(name__endswith='Rio de Janeiro'))
@@ -96,7 +98,7 @@ class StateSpreadsheetFormTests(TestCase):
 
         assert self.user == spreadsheet.user
         assert date.today() == spreadsheet.date
-        assert 'RJ' == spreadsheet.state
+        assert 'PR' == spreadsheet.state
         assert spreadsheet.file
         assert ['http://google.com', 'http://brasil.io'] == spreadsheet.boletim_urls
         assert 'notes' == spreadsheet.boletim_notes
@@ -123,6 +125,7 @@ class StateSpreadsheetFormTests(TestCase):
     @patch('covid19.forms.rows.import_from_xls', Mock(return_value={}))
     @patch('covid19.forms.rows.import_from_xlsx', Mock(return_value={}))
     @patch('covid19.forms.rows.import_from_ods', Mock(return_value={}))
+    @patch('covid19.forms.format_spreadsheet_rows_as_dict', Mock())
     def test_invalidate_if_wrong_file_format(self):
         valid_formats = ['csv', 'xls', 'xlsx', 'ods']
         for format in valid_formats:
@@ -136,11 +139,6 @@ class StateSpreadsheetFormTests(TestCase):
         assert 'file' in form.errors
 
     def test_populate_object_data_with_valid_sample(self):
-        valid_csv = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR.csv'
-        assert valid_csv.exists()
-        self.file_data['file'] = self.gen_file(f'sample.csv', valid_csv.read_bytes())
-        self.data['state'] = 'PR'
-
         form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
         assert form.is_valid(), form.errors
         expected = {
