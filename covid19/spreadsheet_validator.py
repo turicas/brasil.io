@@ -2,6 +2,8 @@ from rows.fields import IntegerField
 
 from brazil_data.cities import get_city_info, get_state_info
 
+from covid19.db import get_most_recent_city_entries_for_state
+
 
 TOTAL_LINE_DISPLAY = 'TOTAL NO ESTADO'
 UNDEFINED_DISPLAY = 'Importados/Indefinidos'
@@ -158,5 +160,21 @@ def validate_historical_data(spreadsheet):
     If any invalid data, it'll raise a SpreadsheetValidationErrors
     If valid data, returns a list with eventual warning messages
     """
-    # TODO: https://github.com/turicas/brasil.io/issues/210
-    return []
+    warnings = []
+    validation_errors = SpreadsheetValidationErrors()
+    city_entries = get_most_recent_city_entries_for_state(spreadsheet.state)
+
+    for entry in city_entries:
+        city_data = spreadsheet.get_data_from_city(entry.city_ibge_code)
+        if not city_data:
+            validation_errors.new_error(
+                f"{entry.city} possui dados históricos e não está presente na planilha"
+            )
+            continue
+        if city_data['confirmed'] < entry.confirmed or city_data['deaths'] < entry.deaths:
+            warnings.append(
+                f"Números de confirmados ou óbitos em {entry.city} é menor que o anterior."
+            )
+
+    validation_errors.raise_if_errors()
+    return warnings

@@ -121,3 +121,10 @@ class StateSpreadsheet(models.Model):
     def errors(self, data):
         self.data['errors'] = data
         self.status = StateSpreadsheet.CHECK_FAILED
+
+    def get_data_from_city(self, ibge_code):
+        ibge_code = int(ibge_code or 0)
+        try:
+            return [d for d in self.table_data if d['city_ibge_code'] == ibge_code][0]
+        except IndexError:
+            return None
