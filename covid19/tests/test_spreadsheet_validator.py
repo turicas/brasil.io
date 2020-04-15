@@ -32,7 +32,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         data = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
         expected = {
             'total': {'confirmados': 100, 'mortes': 30},
-            'importados_indefinidos': {'confirmados': 2, 'mortes': 1},
+            'importados_indefinidos': {'confirmados': 2, 'mortes': 2},
             'cidades': {
                 'Abatiá': {'confirmados': 9, 'mortes': 1},
                 'Adrianópolis': {'confirmados': 11, 'mortes': 2},
@@ -134,6 +134,14 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
         # deaths as float
         self.content = original_content.replace('Abatiá,9,1', 'Abatiá,9,1.10')
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(ValidationError):
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+    def test_confirmed_cases_must_be_equal_or_greater_than_deaths(self):
+        original_content = self.content
+
+        self.content = original_content.replace('Abatiá,9,1', 'Abatiá,9,20')
         file_rows = rows.import_from_csv(self.file_from_content)
         with pytest.raises(ValidationError):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)

@@ -41,6 +41,10 @@ def format_spreadsheet_rows_as_dict(rows_table, date, uf):
             raise ValidationError(f'Valor nulo para casos confirmados na linha {i + 1} da planilha')
         if deaths is None:
             raise ValidationError(f'Valor nulo para óbitos na linha {i + 1} da planilha')
+        if deaths > confirmed:
+            raise ValidationError(
+                f'Valor de óbitos maior que casos confirmados na linha {i + 1} da planilha'
+            )
 
         data = {'confirmados': confirmed, 'mortes': deaths}
         if city == TOTAL_LINE_DISPLAY:

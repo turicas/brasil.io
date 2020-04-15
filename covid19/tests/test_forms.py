@@ -144,7 +144,7 @@ class StateSpreadsheetFormTests(TestCase):
         expected = {
             "table": {
                 'total': {'confirmados': 100, 'mortes': 30},
-                'importados_indefinidos': {'confirmados': 2, 'mortes': 1},
+                'importados_indefinidos': {'confirmados': 2, 'mortes': 2},
                 'cidades': {
                     'Abatiá': {'confirmados': 9, 'mortes': 1},
                     'Adrianópolis': {'confirmados': 11, 'mortes': 2},
