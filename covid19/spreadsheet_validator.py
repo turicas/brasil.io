@@ -119,6 +119,7 @@ def _parse_city_data(city, confirmed, deaths, date, state):
     else:
         city_info = get_city_info(city, state)
         data['city_ibge_code'] = getattr(city_info, 'city_ibge_code', INVALID_CITY_CODE)
+        data['city'] = getattr(city_info, 'city', INVALID_CITY_CODE)
 
     return data
 

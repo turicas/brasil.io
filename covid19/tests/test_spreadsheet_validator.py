@@ -156,6 +156,23 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
         assert expected in results
 
+    def test_always_use_ibge_data_to_format_the_city_name(self):
+        self.content = self.content.replace('Abatiá,9,1', 'abatiá,9,1')
+        file_rows = rows.import_from_csv(self.file_from_content)
+
+        expected = {
+            "city": 'Abatiá',
+            "city_ibge_code": get_city_info('Abatiá', 'PR').city_ibge_code,
+            "confirmed": 9,
+            "date": self.date.isoformat(),
+            "deaths": 1,
+            "place_type": "city",
+            "state": 'PR',
+        }
+        results = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        assert expected in results
+
     def test_both_confirmed_cases_and_deaths_columns_must_be_filled(self):
         original_content = self.content
 
