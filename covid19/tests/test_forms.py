@@ -104,6 +104,7 @@ class StateSpreadsheetFormTests(TestCase):
         assert 'notes' == spreadsheet.boletim_notes
         assert StateSpreadsheet.UPLOADED == spreadsheet.status
         assert spreadsheet.cancelled is False
+        assert len(spreadsheet.data) > 0
 
     def test_invalidate_form_if_user_does_not_have_permission_to_the_state(self):
         self.data['state'] = 'SP'
@@ -138,22 +139,12 @@ class StateSpreadsheetFormTests(TestCase):
         form = StateSpreadsheetForm(self.data, self.file_data)
         assert '__all__' in form.errors
 
+    @patch('covid19.forms.format_spreadsheet_rows_as_dict', Mock(return_value=['data', 'list']))
     def test_populate_object_data_with_valid_sample(self):
         form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
         assert form.is_valid(), form.errors
         expected = {
-            "table": {
-                'total': {'confirmados': 100, 'mortes': 30},
-                'importados_indefinidos': {'confirmados': 2, 'mortes': 2},
-                'cidades': {
-                    'Abatiá': {'confirmados': 9, 'mortes': 1},
-                    'Adrianópolis': {'confirmados': 11, 'mortes': 2},
-                    'Agudos do Sul': {'confirmados': 12, 'mortes': 3},
-                    'Almirante Tamandaré': {'confirmados': 8, 'mortes': 4},
-                    'Altamira do Paraná': {'confirmados': 13, 'mortes': 5},
-                    'Alto Paraíso': {'confirmados': 47, 'mortes': 15},
-                }
-            },
+            "table": ['data', 'list'],
             "errors": [],
             "warnings": [],
         }
