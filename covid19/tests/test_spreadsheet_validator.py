@@ -10,7 +10,10 @@ from django.test import TestCase
 
 from brazil_data.cities import get_city_info
 from core.models import Table
-from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict, SpreadsheetValidationErrors
+from covid19.spreadsheet_validator import (
+    format_spreadsheet_rows_as_dict,
+    SpreadsheetValidationErrors,
+)
 from covid19.tests.utils import Covid19DatasetTestCase
 
 
@@ -48,9 +51,9 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
             {
                 "city": None,
                 "city_ibge_code": 41,
-                "confirmed": 100,
+                "confirmed": 102,
                 "date": date,
-                "deaths": 30,
+                "deaths": 32,
                 "place_type": "state",
                 "state": 'PR',
             },
@@ -88,7 +91,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
             file_rows = rows.import_from_csv(self.file_from_content)
             data = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
-            assert data[0]['confirmed'] == 100
+            assert data[0]['confirmed'] == 102
 
     def test_raise_exception_if_confirmed_cases_column_is_missing(self):
         self.content = self.content.replace('confirmados', 'xpto')
@@ -105,7 +108,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
             file_rows = rows.import_from_csv(self.file_from_content)
             data = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
-            assert data[0]['deaths'] == 30
+            assert data[0]['deaths'] == 32
 
     def test_raise_exception_if_deaths_column_is_missing(self):
         self.content = self.content.replace('mortes', 'xpto')
@@ -122,7 +125,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
             file_rows = rows.import_from_csv(self.file_from_content)
             data = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
-            assert data[0]['confirmed'] == 100
+            assert data[0]['confirmed'] == 102
 
     def test_raise_exception_if_city_column_is_missing(self):
         self.content = self.content.replace('municipio', 'xpto')
@@ -144,6 +147,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
     def test_line_can_have_none_for_all_values_if_city_has_no_cases_yet(self):
         self.content = self.content.replace('Abatiá,9,1', 'Abatiá,,')
+        self.content = self.content.replace('TOTAL NO ESTADO,102,32', 'TOTAL NO ESTADO,93,31')
         file_rows = rows.import_from_csv(self.file_from_content)
 
         expected = {
@@ -226,6 +230,20 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
     def test_can_not_have_negative_values(self):
         self.content = self.content.replace('Abatiá,9,1', 'Abatiá,-1,-9')
+        file_rows = rows.import_from_csv(self.file_from_content)
+
+        with pytest.raises(SpreadsheetValidationErrors):
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+    def test_not_valid_if_sum_of_cases_does_not_matches_with_total(self):
+        self.content = self.content.replace('TOTAL NO ESTADO,102,32', 'TOTAL NO ESTADO,1000,32')
+        file_rows = rows.import_from_csv(self.file_from_content)
+
+        with pytest.raises(SpreadsheetValidationErrors):
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+    def test_not_valid_if_sum_of_deaths_does_not_matches_with_total(self):
+        self.content = self.content.replace('TOTAL NO ESTADO,102,32', 'TOTAL NO ESTADO,102,50')
         file_rows = rows.import_from_csv(self.file_from_content)
 
         with pytest.raises(SpreadsheetValidationErrors):

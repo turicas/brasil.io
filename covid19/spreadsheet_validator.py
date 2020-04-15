@@ -63,6 +63,8 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
 
     results = []
     has_total, has_undefined = False, False
+    total_cases, total_deaths = 0, 0
+    sum_cases, sum_deaths = 0, 0
     for entry in rows_table:
         city = getattr(entry, city_attr, None)
         confirmed = getattr(entry, confirmed_attr, None)
@@ -85,16 +87,32 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
         result = _parse_city_data(city, confirmed, deaths, date, state)
         if result['city_ibge_code'] == INVALID_CITY_CODE:
             validation_errors.new_error(f'{city} não pertence à UF {state}')
-        elif not has_total and result['city'] is None:
+            continue
+
+        if result['city'] is None:
             has_total = True
-        elif not has_undefined and result['city'] == UNDEFINED_DISPLAY:
-            has_undefined = True
+            total_cases, total_deaths = confirmed, deaths
+        else:
+            sum_cases += confirmed
+            sum_deaths += deaths
+            if result['city'] == UNDEFINED_DISPLAY:
+                has_undefined = True
+
         results.append(result)
 
     if not has_total:
         validation_errors.new_error(f'A linha "{TOTAL_LINE_DISPLAY}" está faltando na planilha')
     if not has_undefined:
         validation_errors.new_error(f'A linha "{UNDEFINED_DISPLAY}" está faltando na planilha')
+
+    if sum_cases != total_cases:
+        validation_errors.new_error(
+            f'A soma de casos ({sum_cases}) difere da entrada total ({total_cases}).'
+        )
+    if sum_deaths != total_deaths:
+        validation_errors.new_error(
+            f'A soma de mortes ({sum_deaths}) difere da entrada total ({total_deaths}).'
+        )
 
     validation_errors.raise_if_errors()
     return results
