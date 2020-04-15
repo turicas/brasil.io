@@ -38,11 +38,23 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
     validation_errors = SpreadsheetValidationErrors()
     field_names = rows_table.field_names
 
-    confirmed_attr = _get_column_name(
-        field_names, ['confirmados', 'confirmado', 'casos_confirmados']
-    )
-    deaths_attr = _get_column_name(field_names, ['obitos', 'obito', 'morte', 'mortes'])
-    city_attr = _get_column_name(field_names, ['municipio', 'cidade'])
+    try:
+        confirmed_attr = _get_column_name(
+            field_names, ['confirmados', 'confirmado', 'casos_confirmados']
+        )
+    except ValueError as e:
+        validation_errors.new_error(str(e))
+    try:
+        deaths_attr = _get_column_name(field_names, ['obitos', 'obito', 'morte', 'mortes'])
+    except ValueError as e:
+        validation_errors.new_error(str(e))
+    try:
+        city_attr = _get_column_name(field_names, ['municipio', 'cidade'])
+    except ValueError as e:
+        validation_errors.new_error(str(e))
+
+    # can't check on field types if any invalid column
+    validation_errors.raise_if_errors()
 
     if not rows_table.fields[confirmed_attr] == IntegerField:
         validation_errors.new_error('A coluna "Confirmados" precisa ter somente números inteiros"')
@@ -110,7 +122,7 @@ def _get_column_name(field_names, options):
     # XXX: this function expects all keys already in lowercase and slugified by `rows` library
     valid_columns = [key for key in field_names if key in options]
     if not valid_columns:
-        raise ValidationError(f"Column '{options[0]}' not found")
+        raise ValueError(f"A coluna '{options[0]}' não existe")
     elif len(valid_columns) > 1:
-        raise ValidationError(f"Found more than one '{options[0]}' column")
+        raise ValueError(f"Foi encontrada mais de uma coluna possível para '{options[0]}'")
     return valid_columns[0]

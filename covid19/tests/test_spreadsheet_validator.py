@@ -5,7 +5,6 @@ from io import BytesIO
 from pathlib import Path
 
 from django.conf import settings
-from django.forms import ValidationError
 from django.test import TestCase
 
 from brazil_data.cities import get_city_info
@@ -91,7 +90,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
     def test_raise_exception_if_confirmed_cases_column_is_missing(self):
         self.content = self.content.replace('confirmados', 'xpto')
         file_rows = rows.import_from_csv(self.file_from_content)
-        with pytest.raises(ValidationError):
+        with pytest.raises(SpreadsheetValidationErrors):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
     def test_alternative_columns_names_for_deaths(self):
@@ -108,7 +107,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
     def test_raise_exception_if_deaths_column_is_missing(self):
         self.content = self.content.replace('mortes', 'xpto')
         file_rows = rows.import_from_csv(self.file_from_content)
-        with pytest.raises(ValidationError):
+        with pytest.raises(SpreadsheetValidationErrors):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
     def test_alternative_columns_names_for_city(self):
@@ -125,7 +124,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
     def test_raise_exception_if_city_column_is_missing(self):
         self.content = self.content.replace('municipio', 'xpto')
         file_rows = rows.import_from_csv(self.file_from_content)
-        with pytest.raises(ValidationError):
+        with pytest.raises(SpreadsheetValidationErrors):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
     def test_raise_exception_line_with_total_is_missing(self):
