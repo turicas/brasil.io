@@ -93,3 +93,33 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         file_rows = rows.import_from_csv(self.file_from_content)
         with pytest.raises(ValidationError):
             format_spreadsheet_rows_as_dict(file_rows)
+
+    def test_both_confirmed_cases_and_deaths_columns_must_be_filled(self):
+        original_content = self.content
+
+        # missing confirmed cases
+        self.content = original_content.replace('Abatiá,9,1', 'Abatiá,,1')
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(ValidationError):
+            format_spreadsheet_rows_as_dict(file_rows)
+
+        # missing deaths
+        self.content = original_content.replace('Abatiá,9,1', 'Abatiá,9,')
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(ValidationError):
+            format_spreadsheet_rows_as_dict(file_rows)
+
+    def test_both_confirmed_cases_and_deaths_columns_must_be_integers(self):
+        original_content = self.content
+
+        # confirmed cases as float
+        self.content = original_content.replace('Abatiá,9,1', 'Abatiá,9.10,1')
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(ValidationError):
+            format_spreadsheet_rows_as_dict(file_rows)
+
+        # deaths as float
+        self.content = original_content.replace('Abatiá,9,1', 'Abatiá,9,1.10')
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(ValidationError):
+            format_spreadsheet_rows_as_dict(file_rows)

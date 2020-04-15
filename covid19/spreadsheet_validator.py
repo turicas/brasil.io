@@ -1,3 +1,5 @@
+from rows.fields import IntegerField
+
 from django.forms import ValidationError
 
 
@@ -31,18 +33,28 @@ def format_spreadsheet_rows_as_dict(rows):
     if deaths_field_name is None:
         raise ValidationError('A coluna "Mortes" está faltando na planilha')
 
+    if not rows[confirmed_field_name] == IntegerField:
+        raise ValidationError('A coluna "Confirmados" precisa ter somente números inteiros"')
+    if not rows[deaths_field_name] == IntegerField:
+        raise ValidationError('A coluna "Mortes" precisa ter somente números inteiros"')
+
+
     TOTAL_LINE_DISPLAY = 'TOTAL NO ESTADO'
     UNDEFINED_DISPLAY = 'Importados/Indefinidos'
-    for entry in rows:
+    for i, entry in enumerate(rows):
         try:
             city = entry.municipio
         except AttributeError:
             raise ValidationError('A coluna "Município" está faltando na planilha')
+        confirmed = getattr(entry, confirmed_field_name, None)
+        deaths = getattr(entry, deaths_field_name, None)
 
-        confirmed = getattr(entry, confirmed_field_name)
-        deaths = getattr(entry, deaths_field_name)
+        if confirmed is None:
+            raise ValidationError(f'Valor nulo para casos confirmados na linha {i + 1} da planilha')
+        if deaths is None:
+            raise ValidationError(f'Valor nulo para óbitos na linha {i + 1} da planilha')
+
         data = {'confirmados': confirmed, 'mortes': deaths}
-
         if city == TOTAL_LINE_DISPLAY:
             result['total'] = data
         elif city == UNDEFINED_DISPLAY:
