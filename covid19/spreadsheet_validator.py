@@ -32,6 +32,9 @@ def format_spreadsheet_rows_as_dict(rows_table):
     deaths_field_name = _get_field_name(rows_table, ['obitos', 'obito', 'morte', 'mortes'])
     if deaths_field_name is None:
         raise ValidationError('A coluna "Mortes" está faltando na planilha')
+    city_field_name = _get_field_name(rows_table, ['municipio', 'cidade'])
+    if city_field_name is None:
+        raise ValidationError('A coluna "Município" está faltando na planilha')
 
     if not rows_table.fields[confirmed_field_name] == IntegerField:
         raise ValidationError('A coluna "Confirmados" precisa ter somente números inteiros"')
@@ -42,10 +45,7 @@ def format_spreadsheet_rows_as_dict(rows_table):
     TOTAL_LINE_DISPLAY = 'TOTAL NO ESTADO'
     UNDEFINED_DISPLAY = 'Importados/Indefinidos'
     for i, entry in enumerate(rows_table):
-        try:
-            city = entry.municipio
-        except AttributeError:
-            raise ValidationError('A coluna "Município" está faltando na planilha')
+        city = getattr(entry, city_field_name, None)
         confirmed = getattr(entry, confirmed_field_name, None)
         deaths = getattr(entry, deaths_field_name, None)
 

@@ -43,7 +43,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         assert data == expected
 
     def test_alternative_columns_names_for_confirmed_cases(self):
-        alternatives = ['casos confirmados', 'confirmado']
+        alternatives = ['casos confirmados', 'confirmado', 'confirmados']
         original_content = self.content
 
         for alt in alternatives:
@@ -75,6 +75,17 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         file_rows = rows.import_from_csv(self.file_from_content)
         with pytest.raises(ValidationError):
             format_spreadsheet_rows_as_dict(file_rows)
+
+    def test_alternative_columns_names_for_city(self):
+        alternatives = ['município', 'cidade']
+        original_content = self.content
+
+        for alt in alternatives:
+            self.content = original_content.replace('municipio', alt)
+            file_rows = rows.import_from_csv(self.file_from_content)
+            data = format_spreadsheet_rows_as_dict(file_rows)
+
+            assert data['total']['confirmados'] == 100
 
     def test_raise_exception_if_city_column_is_missing(self):
         self.content = self.content.replace('municipio', 'xpto')
