@@ -40,3 +40,14 @@ def brazilian_cities_per_state(
         state: [city.city for city in state_cities]
         for state, state_cities in data.items()
     }
+
+
+def get_city_info(
+        city, state, schema_filename="schema-population.csv", population_filename="population.csv"
+):
+    data = ibge_data_per_state(schema_filename, population_filename)
+    try:
+        cities = data[state.upper()]
+        return [c for c in cities if c.city.lower() == city.lower()][0]
+    except (KeyError, IndexError):
+        return None
