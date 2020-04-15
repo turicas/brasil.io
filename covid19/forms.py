@@ -96,7 +96,10 @@ class StateSpreadsheetForm(forms.ModelForm):
                 msg = f"Formato de planilha inválida. O arquivo precisa estar formatado como {valid}."  # noqa
                 raise forms.ValidationError(msg)
 
-            file_rows = import_func(file)
+            try:
+                file_rows = import_func(file)
+            except Exception as e:
+                raise forms.ValidationError(e)
             self.file_data_as_json = format_spreadsheet_rows_as_dict(
                 file_rows, spreadsheet_date, state
             )

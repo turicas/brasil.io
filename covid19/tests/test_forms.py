@@ -189,3 +189,14 @@ class StateSpreadsheetFormTests(TestCase):
         form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
 
         assert form.is_valid(), form.errors
+
+    def test_raise_validation_error_if_any_error_with_rows_import_functions(self):
+        valid_xls = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR.xls'
+        assert valid_xls.exists()
+
+        # wrong file extension
+        self.file_data['file'] = self.gen_file(f'sample.csv', valid_xls.read_bytes())
+        form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
+
+        assert not form.is_valid()
+        assert '__all__' in form.errors
