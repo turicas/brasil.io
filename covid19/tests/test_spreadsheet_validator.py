@@ -9,7 +9,7 @@ from django.forms import ValidationError
 from django.test import TestCase
 
 from brazil_data.cities import get_city_info
-from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict
+from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict, SpreadsheetValidationErrors
 
 
 SAMPLE_SPREADSHEETS_DATA_DIR = Path(settings.BASE_DIR).joinpath('covid19', 'tests', 'data')
@@ -131,13 +131,13 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
     def test_raise_exception_line_with_total_is_missing(self):
         self.content = self.content.replace('TOTAL NO ESTADO', 'TOTAL')
         file_rows = rows.import_from_csv(self.file_from_content)
-        with pytest.raises(ValidationError):
+        with pytest.raises(SpreadsheetValidationErrors):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
     def test_raise_exception_line_with_undefinitions_is_missing(self):
         self.content = self.content.replace('Importados', '')
         file_rows = rows.import_from_csv(self.file_from_content)
-        with pytest.raises(ValidationError):
+        with pytest.raises(SpreadsheetValidationErrors):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
     def test_line_can_have_none_for_all_values_if_city_has_no_cases_yet(self):
@@ -163,13 +163,13 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         # missing confirmed cases
         self.content = original_content.replace('Abatiá,9,1', 'Abatiá,,1')
         file_rows = rows.import_from_csv(self.file_from_content)
-        with pytest.raises(ValidationError):
+        with pytest.raises(SpreadsheetValidationErrors):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
         # missing deaths
         self.content = original_content.replace('Abatiá,9,1', 'Abatiá,9,')
         file_rows = rows.import_from_csv(self.file_from_content)
-        with pytest.raises(ValidationError):
+        with pytest.raises(SpreadsheetValidationErrors):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
     def test_both_confirmed_cases_and_deaths_columns_must_be_integers(self):
@@ -178,13 +178,13 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         # confirmed cases as float
         self.content = original_content.replace('Abatiá,9,1', 'Abatiá,9.10,1')
         file_rows = rows.import_from_csv(self.file_from_content)
-        with pytest.raises(ValidationError):
+        with pytest.raises(SpreadsheetValidationErrors):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
         # deaths as float
         self.content = original_content.replace('Abatiá,9,1', 'Abatiá,9,1.10')
         file_rows = rows.import_from_csv(self.file_from_content)
-        with pytest.raises(ValidationError):
+        with pytest.raises(SpreadsheetValidationErrors):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
     def test_confirmed_cases_must_be_equal_or_greater_than_deaths(self):
@@ -192,15 +192,15 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
         self.content = original_content.replace('Abatiá,9,1', 'Abatiá,9,20')
         file_rows = rows.import_from_csv(self.file_from_content)
-        with pytest.raises(ValidationError):
+        with pytest.raises(SpreadsheetValidationErrors):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
     def test_validate_if_all_cities_exists_are_in_the_state(self):
         file_rows = rows.import_from_csv(self.file_from_content)
 
-        with pytest.raises(ValidationError) as execinfo:
+        with pytest.raises(SpreadsheetValidationErrors) as execinfo:
             format_spreadsheet_rows_as_dict(file_rows, self.date, 'SP')
 
-        error_msg = str(execinfo.value)
-        assert "Abatiá" in error_msg
-        assert "Adrianópolis" in error_msg
+        exception = execinfo.value
+        assert "Abatiá não pertence à UF SP" in exception.error_messages
+        assert "Adrianópolis não pertence à UF SP" in exception.error_messages

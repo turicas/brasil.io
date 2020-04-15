@@ -10,6 +10,23 @@ UNDEFINED_DISPLAY = 'Importados/Indefinidos'
 INVALID_CITY_CODE = -1
 
 
+class SpreadsheetValidationErrors(Exception):
+    """
+    Custom exception to hold all error messages raised during the validation process
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.error_messages = []
+
+    def new_error(self, msg):
+        self.error_messages.append(msg)
+
+    def raise_if_errors(self):
+        if self.error_messages:
+            raise self
+
+
 def format_spreadsheet_rows_as_dict(rows_table, date, state):
     """
     Receives rows.Table object, a date and a brazilan UF, validates the data
@@ -18,6 +35,7 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
     This is an auxiliary method used by covid19.forms.StateSpreadsheetForm with the uploaded file
     """
     # TODO: https://github.com/turicas/brasil.io/issues/210
+    validation_errors = SpreadsheetValidationErrors()
     field_names = rows_table.field_names
 
     confirmed_attr = _get_column_name(
@@ -27,12 +45,11 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
     city_attr = _get_column_name(field_names, ['municipio', 'cidade'])
 
     if not rows_table.fields[confirmed_attr] == IntegerField:
-        raise ValidationError('A coluna "Confirmados" precisa ter somente números inteiros"')
+        validation_errors.new_error('A coluna "Confirmados" precisa ter somente números inteiros"')
     if not rows_table.fields[deaths_attr] == IntegerField:
-        raise ValidationError('A coluna "Mortes" precisa ter somente números inteiros"')
+        validation_errors.new_error('A coluna "Mortes" precisa ter somente números inteiros"')
 
     results = []
-    bad_cities = []
     has_total, has_undefined = False, False
     for entry in rows_table:
         city = getattr(entry, city_attr, None)
@@ -40,18 +57,18 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
         deaths = getattr(entry, deaths_attr, None)
 
         if not confirmed and deaths or not deaths and confirmed:
-            raise ValidationError(f'Dados de casos ou óbitos incompletos na linha {city}')
+            validation_errors.new_error(f'Dados de casos ou óbitos incompletos na linha {city}')
 
         confirmed = confirmed or 0
         deaths = deaths or 0
         if deaths > confirmed:
-            raise ValidationError(
+            validation_errors.new_error(
                 f'Valor de óbitos maior que casos confirmados na linha {city} da planilha'
             )
 
         result = _parse_city_data(city, confirmed, deaths, date, state)
         if result['city_ibge_code'] == INVALID_CITY_CODE:
-            bad_cities.append(city)
+            validation_errors.new_error(f'{city} não pertence à UF {state}')
         elif not has_total and result['city'] == TOTAL_LINE_DISPLAY:
             has_total = True
         elif not has_undefined and result['city'] == UNDEFINED_DISPLAY:
@@ -59,13 +76,11 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
         results.append(result)
 
     if not has_total:
-        raise ValidationError(f'A linha "{TOTAL_LINE_DISPLAY}" está faltando na planilha')
+        validation_errors.new_error(f'A linha "{TOTAL_LINE_DISPLAY}" está faltando na planilha')
     if not has_undefined:
-        raise ValidationError(f'A linha "{UNDEFINED_DISPLAY}" está faltando na planilha')
-    if bad_cities:
-        bad_cities = ', '.join(bad_cities)
-        raise ValidationError(f'As seguintes cidades não pertencem a UF {state}: {bad_cities}')
+        validation_errors.new_error(f'A linha "{UNDEFINED_DISPLAY}" está faltando na planilha')
 
+    validation_errors.raise_if_errors()
     return results
 
 
