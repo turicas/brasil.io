@@ -34,18 +34,18 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
     results = []
     bad_cities = []
     has_total, has_undefined = False, False
-    for i, entry in enumerate(rows_table):
+    for entry in rows_table:
         city = getattr(entry, city_attr, None)
         confirmed = getattr(entry, confirmed_attr, None)
         deaths = getattr(entry, deaths_attr, None)
 
         if confirmed is None:
-            raise ValidationError(f'Valor nulo para casos confirmados na linha {i + 1} da planilha')
+            raise ValidationError(f'Valor nulo para casos confirmados na linha {city} da planilha')
         if deaths is None:
-            raise ValidationError(f'Valor nulo para óbitos na linha {i + 1} da planilha')
+            raise ValidationError(f'Valor nulo para óbitos na linha {city} da planilha')
         if deaths > confirmed:
             raise ValidationError(
-                f'Valor de óbitos maior que casos confirmados na linha {i + 1} da planilha'
+                f'Valor de óbitos maior que casos confirmados na linha {city} da planilha'
             )
 
         result = _parse_city_data(city, confirmed, deaths, date, state)
