@@ -18,6 +18,7 @@ class ProcessNewSpreadsheetTaskTests(TestCase):
         mock_validate_historical_data.return_value = ['Warning 1', 'Warning 2']
 
         spreadsheet = baker.make(StateSpreadsheet)
+        process_new_spreadsheet_task(spreadsheet.pk)
         assert [] == spreadsheet.warnings
         spreadsheet.refresh_from_db()
 
@@ -34,6 +35,7 @@ class ProcessNewSpreadsheetTaskTests(TestCase):
         mock_validate_historical_data.side_effect = exception
 
         spreadsheet = baker.make(StateSpreadsheet)
+        process_new_spreadsheet_task(spreadsheet.pk)
         assert [] == spreadsheet.errors
         spreadsheet.refresh_from_db()
 
@@ -44,4 +46,5 @@ class ProcessNewSpreadsheetTaskTests(TestCase):
     @patch('covid19.tasks.validate_historical_data')
     def test_do_not_process_spreadsheet_if_for_some_reason_it_is_cancelled(self, mock_validate):
         spreadsheet = baker.make(StateSpreadsheet, cancelled=True)
+        process_new_spreadsheet_task(spreadsheet.pk)
         assert not mock_validate.called
