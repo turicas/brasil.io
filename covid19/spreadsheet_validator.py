@@ -24,6 +24,9 @@ class SpreadsheetValidationErrors(Exception):
         if self.error_messages:
             raise self
 
+    def __str__(self):
+        return ' - '.join(self.error_messages)
+
 
 def format_spreadsheet_rows_as_dict(rows_table, date, state):
     """
