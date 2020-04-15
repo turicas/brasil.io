@@ -1,5 +1,6 @@
 import pytest
 import rows
+from datetime import date
 from io import BytesIO
 from pathlib import Path
 
@@ -18,6 +19,8 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
     def setUp(self):
         sample = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR.csv'
         self.content = sample.read_text()
+        self.date = date.today()
+        self.uf = 'PR'
 
     @property
     def file_from_content(self):
@@ -26,7 +29,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
     def test_format_valid_list_of_rows(self):
         file_rows = rows.import_from_csv(self.file_from_content)
 
-        data = format_spreadsheet_rows_as_dict(file_rows)
+        data = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
         expected = {
             'total': {'confirmados': 100, 'mortes': 30},
             'importados_indefinidos': {'confirmados': 2, 'mortes': 1},
@@ -49,7 +52,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         for alt in alternatives:
             self.content = original_content.replace('confirmados', alt)
             file_rows = rows.import_from_csv(self.file_from_content)
-            data = format_spreadsheet_rows_as_dict(file_rows)
+            data = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
             assert data['total']['confirmados'] == 100
 
@@ -57,7 +60,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         self.content = self.content.replace('confirmados', 'xpto')
         file_rows = rows.import_from_csv(self.file_from_content)
         with pytest.raises(ValidationError):
-            format_spreadsheet_rows_as_dict(file_rows)
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
     def test_alternative_columns_names_for_deaths(self):
         alternatives = ['óbitos', 'óbito', 'obito', 'morte']
@@ -66,7 +69,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         for alt in alternatives:
             self.content = original_content.replace('mortes', alt)
             file_rows = rows.import_from_csv(self.file_from_content)
-            data = format_spreadsheet_rows_as_dict(file_rows)
+            data = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
             assert data['total']['mortes'] == 30
 
@@ -74,7 +77,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         self.content = self.content.replace('mortes', 'xpto')
         file_rows = rows.import_from_csv(self.file_from_content)
         with pytest.raises(ValidationError):
-            format_spreadsheet_rows_as_dict(file_rows)
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
     def test_alternative_columns_names_for_city(self):
         alternatives = ['município', 'cidade']
@@ -83,7 +86,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         for alt in alternatives:
             self.content = original_content.replace('municipio', alt)
             file_rows = rows.import_from_csv(self.file_from_content)
-            data = format_spreadsheet_rows_as_dict(file_rows)
+            data = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
             assert data['total']['confirmados'] == 100
 
@@ -91,19 +94,19 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         self.content = self.content.replace('municipio', 'xpto')
         file_rows = rows.import_from_csv(self.file_from_content)
         with pytest.raises(ValidationError):
-            format_spreadsheet_rows_as_dict(file_rows)
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
     def test_raise_exception_line_with_total_is_missing(self):
         self.content = self.content.replace('TOTAL NO ESTADO', 'TOTAL')
         file_rows = rows.import_from_csv(self.file_from_content)
         with pytest.raises(ValidationError):
-            format_spreadsheet_rows_as_dict(file_rows)
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
     def test_raise_exception_line_with_undefinitions_is_missing(self):
         self.content = self.content.replace('Importados', '')
         file_rows = rows.import_from_csv(self.file_from_content)
         with pytest.raises(ValidationError):
-            format_spreadsheet_rows_as_dict(file_rows)
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
     def test_both_confirmed_cases_and_deaths_columns_must_be_filled(self):
         original_content = self.content
@@ -112,13 +115,13 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         self.content = original_content.replace('Abatiá,9,1', 'Abatiá,,1')
         file_rows = rows.import_from_csv(self.file_from_content)
         with pytest.raises(ValidationError):
-            format_spreadsheet_rows_as_dict(file_rows)
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
         # missing deaths
         self.content = original_content.replace('Abatiá,9,1', 'Abatiá,9,')
         file_rows = rows.import_from_csv(self.file_from_content)
         with pytest.raises(ValidationError):
-            format_spreadsheet_rows_as_dict(file_rows)
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
     def test_both_confirmed_cases_and_deaths_columns_must_be_integers(self):
         original_content = self.content
@@ -127,10 +130,10 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         self.content = original_content.replace('Abatiá,9,1', 'Abatiá,9.10,1')
         file_rows = rows.import_from_csv(self.file_from_content)
         with pytest.raises(ValidationError):
-            format_spreadsheet_rows_as_dict(file_rows)
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
         # deaths as float
         self.content = original_content.replace('Abatiá,9,1', 'Abatiá,9,1.10')
         file_rows = rows.import_from_csv(self.file_from_content)
         with pytest.raises(ValidationError):
-            format_spreadsheet_rows_as_dict(file_rows)
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)

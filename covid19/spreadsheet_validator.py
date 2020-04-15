@@ -3,18 +3,10 @@ from rows.fields import IntegerField
 from django.forms import ValidationError
 
 
-def format_spreadsheet_rows_as_dict(rows_table):
+def format_spreadsheet_rows_as_dict(rows_table, date, uf):
     """
-    Receives rows as a rows.Table object and return a dict in the following format:
-
-    {
-    'total': {'confirmados': 100, 'mortes': 30},
-    'importados_indefinidos': {'confirmados': 2, 'mortes': 1},
-    'cidades': {
-        'Cidade1': {'confirmados': 9, 'mortes': 1},
-        'Cidade2': {'confirmados': 11, 'mortes': 2},
-        ...
-    }
+    Receives rows.Table object, a date and a brazilan UF, validates the data
+    and returns a dict in the formatted data:
 
     This is an auxiliary method used by covid19.forms.StateSpreadsheetForm with the uploaded file
     """
@@ -27,7 +19,9 @@ def format_spreadsheet_rows_as_dict(rows_table):
     }
     field_names = rows_table.field_names
 
-    confirmed_attr = _get_column_name(field_names, ['confirmados', 'confirmado', 'casos_confirmados'])
+    confirmed_attr = _get_column_name(
+        field_names, ['confirmados', 'confirmado', 'casos_confirmados']
+    )
     deaths_attr = _get_column_name(field_names, ['obitos', 'obito', 'morte', 'mortes'])
     city_attr = _get_column_name(field_names, ['municipio', 'cidade'])
 
@@ -35,7 +29,6 @@ def format_spreadsheet_rows_as_dict(rows_table):
         raise ValidationError('A coluna "Confirmados" precisa ter somente números inteiros"')
     if not rows_table.fields[deaths_attr] == IntegerField:
         raise ValidationError('A coluna "Mortes" precisa ter somente números inteiros"')
-
 
     TOTAL_LINE_DISPLAY = 'TOTAL NO ESTADO'
     UNDEFINED_DISPLAY = 'Importados/Indefinidos'
