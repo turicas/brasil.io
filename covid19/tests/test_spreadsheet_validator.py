@@ -3,12 +3,15 @@ import rows
 from datetime import date
 from io import BytesIO
 from pathlib import Path
+from model_bakery import baker
 
 from django.conf import settings
 from django.test import TestCase
 
 from brazil_data.cities import get_city_info
+from core.models import Table
 from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict, SpreadsheetValidationErrors
+from covid19.tests.utils import Covid19DatasetTestCase
 
 
 SAMPLE_SPREADSHEETS_DATA_DIR = Path(settings.BASE_DIR).joinpath('covid19', 'tests', 'data')
@@ -227,3 +230,20 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
         with pytest.raises(SpreadsheetValidationErrors):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+
+class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
+
+    def test_can_create_covid_19_cases_entries(self):
+        table = Table.objects.for_dataset('covid19').named('caso')
+        assert table == self.cases_table
+        Covid19Cases = self.Covid19Cases
+
+        assert 0 == len(Covid19Cases.objects.all())
+        cases_entry = baker.make(Covid19Cases, _fill_optional=['city'])
+        assert 1 == len(Covid19Cases.objects.all())
+
+        cases_entry.refresh_from_db()
+        assert cases_entry.date
+        assert cases_entry.state
+        assert cases_entry.city
