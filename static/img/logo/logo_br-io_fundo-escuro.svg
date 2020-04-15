@@ -9,13 +9,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="252.92102mm"
-   height="48.833263mm"
+   width="237.11346mm"
+   height="45.781185mm"
    id="svg3031"
    version="1.1"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="logo_br-io_fundo-escuro.svg"
-   inkscape:export-filename="/home/letuche/Workspace/brasil.io/frontend/first-release/img/logo_br-io_fundo-escuro.png"
+   inkscape:export-filename="/home/turicas/projects/brasil.io/static/img/logo/logo_br-io_fundo-escuro.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -28,8 +28,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.0824912"
-     inkscape:cx="398.52298"
-     inkscape:cy="38.593435"
+     inkscape:cx="427.62252"
+     inkscape:cy="27.05802"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -46,7 +46,7 @@
      showguides="true"
      inkscape:guide-bbox="true">
     <sodipodi:guide
-       position="150.11382,27.750679"
+       position="150.11382,16.215264"
        orientation="0,1"
        id="guide3349"
        inkscape:locked="false" />
@@ -59,7 +59,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -69,16 +69,16 @@
      id="layer1"
      transform="translate(-276.13389,166.27317)">
     <path
-       style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:Sans;-inkscape-font-specification:Sans;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;baseline-shift:baseline;text-anchor:start;display:inline;overflow:visible;visibility:visible;fill:#44aa00;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:5;marker:none;enable-background:accumulate"
-       d="m 535.66454,-166.27312 -2.58759,0.0937 -12.4338,0.53125 -47.80592,2 -10e-4,25.15625 35.99301,-1.53125 -8.5432,120.46875 -27.36472,0.15625 0.0259,25.0937501 40.45025,-0.28125 0.0313,0 8.24589,-0.0625 2.15625,0 0.13939,-2.15625 0.59046,-8.125 10.38859,-146.0937501 0.87747,-12.3125 0.019,-0.1875 -0.0103,-0.15625 -0.17064,-2.59375 z"
+       style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:Sans;-inkscape-font-specification:Sans;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;baseline-shift:baseline;text-anchor:start;display:inline;overflow:visible;visibility:visible;fill:#44aa00;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:5;marker:none;enable-background:accumulate"
+       d="m 535.66454,-166.27312 -2.58759,0.0937 -12.4338,0.53125 -47.80592,2 -10e-4,25.15625 35.99301,-1.53125 -8.5432,120.46875 -27.36472,0.15625 0.0259,25.0937501 40.45025,-0.28125 h 0.0313 l 8.24589,-0.0625 h 2.15625 l 0.13939,-2.15625 0.59046,-8.125 10.38859,-146.0937501 0.87747,-12.3125 0.019,-0.1875 -0.0103,-0.15625 -0.17064,-2.59375 z"
        id="path3917"
        inkscape:connector-curvature="0"
        inkscape:export-filename="/home/karlisson/brasil.png"
        inkscape:export-xdpi="26.356861"
        inkscape:export-ydpi="26.356861" />
     <path
-       style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:Sans;-inkscape-font-specification:Sans;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;baseline-shift:baseline;text-anchor:start;display:inline;overflow:visible;visibility:visible;fill:#44aa00;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:5;marker:none;enable-background:accumulate"
-       d="m 331.97764,-157.49187 -43.71875,1.84375 -9.59375,0.40625 -2.53125,0.0937 0.125,2.53125 0.46875,9.65625 7,137.3125001 0.53125,10.03125 0.125,2.375 2.40625,0 9.96875,-0.0625 0.0313,0 46.25,-0.28125 -1.6875,-25.0312501 -33.25,0.21875 -5.75,-112.75 31.3125,-1.3125 -1.68755,-25.0312 z"
+       style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:Sans;-inkscape-font-specification:Sans;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;baseline-shift:baseline;text-anchor:start;display:inline;overflow:visible;visibility:visible;fill:#44aa00;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:5;marker:none;enable-background:accumulate"
+       d="m 331.97764,-157.49187 -43.71875,1.84375 -9.59375,0.40625 -2.53125,0.0937 0.125,2.53125 0.46875,9.65625 7,137.3125001 0.53125,10.03125 0.125,2.375 h 2.40625 l 9.96875,-0.0625 h 0.0313 l 46.25,-0.28125 -1.6875,-25.0312501 -33.25,0.21875 -5.75,-112.75 31.3125,-1.3125 z"
        id="path3909"
        inkscape:export-filename="/home/karlisson/brasil.png"
        inkscape:export-xdpi="26.356861"
@@ -160,32 +160,5 @@
            y="282.30588"
            style="fill:#ffffff" /></flowRegion><flowPara
          id="flowPara3365"
-         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:90px;line-height:1.25;font-family:Ubuntu;-inkscape-font-specification:'Ubuntu Medium';fill:#ffffff">Brasil.io</flowPara></flowRoot>    <g
-       id="g4557"
-       transform="matrix(1.317203,0.15869625,-0.15869625,1.317203,170.21896,-324.31431)"
-       inkscape:export-xdpi="26.356861"
-       inkscape:export-ydpi="26.356861">
-      <rect
-         transform="matrix(0.92869612,-0.37084163,0.38665937,0.9222226,0,0)"
-         ry="16.252081"
-         y="366.54733"
-         x="578.3725"
-         height="82.073006"
-         width="176.94724"
-         id="rect12"
-         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#f70000;stroke-width:9.36475468;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <text
-         transform="rotate(-22.252907)"
-         id="text4528"
-         y="433.57764"
-         x="587.0321"
-         style="font-style:normal;font-weight:normal;font-size:58.21033096px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:1.45525825"
-         xml:space="preserve"><tspan
-           style="font-weight:bold;fill:#ff0000;stroke-width:1.45525825"
-           y="433.57764"
-           x="587.0321"
-           id="tspan4526"
-           sodipodi:role="line">BETA</tspan></text>
-    </g>
-  </g>
+         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:90px;line-height:1.25;font-family:Ubuntu;-inkscape-font-specification:'Ubuntu Medium';fill:#ffffff">Brasil.io</flowPara></flowRoot>  </g>
 </svg>
