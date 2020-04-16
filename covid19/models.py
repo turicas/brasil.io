@@ -123,7 +123,7 @@ class StateSpreadsheet(models.Model):
         self.status = StateSpreadsheet.CHECK_FAILED
 
     def get_data_from_city(self, ibge_code):
-        if ibge_code:
+        if ibge_code:  # ibge_code = None match for undefined data
             ibge_code = int(ibge_code)
         try:
             return [d for d in self.table_data if d['city_ibge_code'] == ibge_code][0]
