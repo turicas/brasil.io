@@ -10,5 +10,4 @@ def get_most_recent_city_entries_for_state(state):
     return Covid19Cases.objects.order_by('-date').filter(
         state=state,
         place_type='city',
-        city_ibge_code__isnull=False,
     ).annotate(last_date=Max('date')).filter(date=F('last_date'))

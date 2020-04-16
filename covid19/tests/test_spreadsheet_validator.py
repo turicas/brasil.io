@@ -393,7 +393,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             msg = f"Números de confirmados ou óbitos em {city_name} é menor que o anterior."
             assert msg in warnings
 
-    def test_make_sure_previous_total_and_undefined_entries_are_ignored(self):
+    def test_make_sure_previous_undefined_entries_return_warnings(self):
         Covid19Cases = self.Covid19Cases
         self.spreadsheet.table_data = [self.total_data.copy(), self.undefined_data.copy()]
         self.total_data['date'] = self.today - timedelta(days=1)
@@ -402,6 +402,8 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         baker.make(Covid19Cases, **self.undefined_data)
 
         Covid19Cases.objects.all().update(deaths=200)
+        city_name = self.undefined_data['city']
+        expected = [f"Números de confirmados ou óbitos em {city_name} é menor que o anterior."]
         warnings = validate_historical_data(self.spreadsheet)
 
-        assert [] == warnings
+        assert expected == warnings
