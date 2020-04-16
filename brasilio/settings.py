@@ -34,11 +34,13 @@ INSTALLED_APPS = [
     "django_extensions",
     "rest_framework",
     'markdownx',
+    "django_rq",
 
     # Project apps
     "core",
     "graphs",
     "brasilio_auth",
+    "covid19.apps.Covid19Config",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -69,6 +71,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "covid19.context_processors.is_covid19_contributor",
             ]
         },
     }
@@ -109,12 +112,27 @@ DATETIME_FORMAT = "d \\d\\e F \\d\\e Y \\à\\s H:i:s"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 public_root = root.path("public/")
-MEDIA_ROOT = str(public_root.path("media/"))
+MEDIA_ROOT = env("MEDIA_ROOT", default=str(public_root.path("media/")))
 MEDIA_URL = "/media/"
 STATIC_ROOT = str(public_root.path("static/"))
 STATIC_URL = "/static/"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 STATICFILES_DIRS = [str(root.path("static"))]
+
+DEFAULT_FILE_STORAGE = env("DEFAULT_FILE_STORAGE")
+
+# django-storage configurations for AWS file upload
+AWS_ACCESS_KEY_ID=env("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY=env("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME=env("AWS_STORAGE_BUCKET_NAME")
+AWS_DEFAULT_ACL=env("AWS_DEFAULT_ACL")
+AWS_BUCKET_ACL=env("AWS_BUCKET_ACL")
+AWS_AUTO_CREATE_BUCKET=env("AWS_AUTO_CREATE_BUCKET")
+AWS_S3_ENDPOINT_URL=env("AWS_S3_ENDPOINT_URL")
+AWS_S3_CUSTOM_DOMAIN=env("AWS_S3_CUSTOM_DOMAIN")
+AWS_IS_GZIPPED=env("AWS_IS_GZIPPED")
+GZIP_CONTENT_TYPES=env("GZIP_CONTENT_TYPES")
+
 
 # Data-related settings
 DATA_URL = env("DATA_URL")
@@ -171,6 +189,7 @@ RECAPTCHA_PRIVATE_KEY = env("RECAPTCHA_PRIVATE_KEY")
 
 ROWS_PER_PAGE = env("ROWS_PER_PAGE", int, default=50)
 
+REDIS_URL = env("REDIS_URL")
 CACHALOT_ENABLED = env("CACHE_ENABLED", bool, default=True)
 CACHE_MIDDLEWARE_ALIAS = 'default'
 CACHE_MIDDLEWARE_SECONDS = 600  # 10 minutes
@@ -179,8 +198,21 @@ CACHALOT_CACHE = "default"
 CACHES = {
     "default": {
         "BACKEND": env("CACHE_BACKEND"),
-        "LOCATION": env("REDIS_URL"),
+        "LOCATION": REDIS_URL,
         "OPTIONS": {"CLIENT_CLASS": env("CACHE_CLIENT_CLASS")},
         "KEY_PREFIX": env("CACHE_KEY_PREFIX"),
     }
 }
+
+
+# django-rq config
+RQ_QUEUES = {
+    'default': {
+        'URL': REDIS_URL,
+        'DEFAULT_TIMEOUT': 500,
+    }
+}
+
+
+# Covid19 import settings
+COVID_IMPORT_PERMISSION_PREFIX = 'can_import_covid_state_'
