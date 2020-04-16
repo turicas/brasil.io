@@ -1,5 +1,6 @@
 import os
 import rows
+from datetime import date
 from localflavor.br.br_states import STATE_CHOICES
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -63,6 +64,12 @@ class StateSpreadsheetForm(forms.ModelForm):
         if commit:
             spreadsheet.save()
         return spreadsheet
+
+    def clean_date(self):
+        report_date = self.cleaned_data['date']
+        if report_date > date.today():
+            raise forms.ValidationError('Campo não aceita datas futuras.')
+        return report_date
 
     def clean_boletim_urls(self):
         urls = self.cleaned_data['boletim_urls'].strip().split('\n')

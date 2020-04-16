@@ -1,5 +1,5 @@
 import shutil
-from datetime import date
+from datetime import date, timedelta
 from localflavor.br.br_states import STATE_CHOICES
 from model_bakery import baker
 from pathlib import Path
@@ -114,6 +114,14 @@ class StateSpreadsheetFormTests(TestCase):
 
         assert not form.is_valid()
         assert 'state' in form.errors
+
+    def test_invalidate_if_future_date(self):
+        self.data['date'] = date.today() + timedelta(days=1)
+
+        form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
+
+        assert not form.is_valid()
+        assert 'date' in form.errors
 
     def test_invalidate_form_if_any_invalid_url(self):
         self.data['boletim_urls'] = 'xpto'
