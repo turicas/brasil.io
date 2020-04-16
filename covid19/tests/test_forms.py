@@ -12,8 +12,9 @@ from django.db.models import Q
 from django.test import TestCase
 
 from covid19.forms import state_choices_for_user, StateSpreadsheetForm
-from covid19.spreadsheet_validator import SpreadsheetValidationErrors
 from covid19.models import StateSpreadsheet
+from covid19.spreadsheet_validator import SpreadsheetValidationErrors
+from covid19.tests.utils import Covid19DatasetTestCase
 
 
 SAMPLE_SPREADSHEETS_DATA_DIR = Path(settings.BASE_DIR).joinpath('covid19', 'tests', 'data')
@@ -52,7 +53,7 @@ class AvailableStatesForUserTests(TestCase):
         assert ('SP', 'São Paulo') in choices
 
 
-class StateSpreadsheetFormTests(TestCase):
+class StateSpreadsheetFormTests(Covid19DatasetTestCase):
 
     def setUp(self):
         valid_csv = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR.csv'
@@ -106,6 +107,7 @@ class StateSpreadsheetFormTests(TestCase):
         assert StateSpreadsheet.UPLOADED == spreadsheet.status
         assert spreadsheet.cancelled is False
         assert len(spreadsheet.data) > 0
+        assert len(spreadsheet.table_data) == 8  # total, undefined + 6 cities
 
     def test_invalidate_form_if_user_does_not_have_permission_to_the_state(self):
         self.data['state'] = 'SP'
@@ -135,7 +137,7 @@ class StateSpreadsheetFormTests(TestCase):
     @patch('covid19.forms.rows.import_from_xls', Mock(return_value={}))
     @patch('covid19.forms.rows.import_from_xlsx', Mock(return_value={}))
     @patch('covid19.forms.rows.import_from_ods', Mock(return_value={}))
-    @patch('covid19.forms.format_spreadsheet_rows_as_dict', Mock())
+    @patch('covid19.forms.format_spreadsheet_rows_as_dict', Mock(return_value=([], [])))
     def test_invalidate_if_wrong_file_format(self):
         valid_formats = ['csv', 'xls', 'xlsx', 'ods']
         for format in valid_formats:
@@ -148,14 +150,18 @@ class StateSpreadsheetFormTests(TestCase):
         form = StateSpreadsheetForm(self.data, self.file_data)
         assert '__all__' in form.errors
 
-    @patch('covid19.forms.format_spreadsheet_rows_as_dict', Mock(return_value=['data', 'list']))
-    def test_populate_object_data_with_valid_sample(self):
+    @patch('covid19.forms.format_spreadsheet_rows_as_dict')
+    def test_populate_object_data_with_valid_sample(self, mocked_format):
+        mocked_format.return_value = (
+            ['results', 'list'],
+            ['warnings', 'list']
+        )
         form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
         assert form.is_valid(), form.errors
         expected = {
-            "table": ['data', 'list'],
+            "table": ['results', 'list'],
             "errors": [],
-            "warnings": [],
+            "warnings": ['warnings', 'list'],
         }
 
         spreadsheet = form.save()

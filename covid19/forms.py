@@ -51,7 +51,8 @@ class StateSpreadsheetForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.user:
             self.fields['state'].choices = state_choices_for_user(self.user)
-        self.file_data_as_json = {}
+        self.file_data_as_json = []
+        self.data_warnings = []
 
     class Meta:
         model = StateSpreadsheet
@@ -61,6 +62,7 @@ class StateSpreadsheetForm(forms.ModelForm):
         spreadsheet = super().save(commit=False)
         spreadsheet.user = self.user
         spreadsheet.table_data = self.file_data_as_json
+        spreadsheet.warnings = self.data_warnings
         if commit:
             spreadsheet.save()
         return spreadsheet
@@ -105,7 +107,7 @@ class StateSpreadsheetForm(forms.ModelForm):
                 raise forms.ValidationError(e)
 
             try:
-                self.file_data_as_json = format_spreadsheet_rows_as_dict(
+                self.file_data_as_json, self.data_warnings = format_spreadsheet_rows_as_dict(
                     file_rows, spreadsheet_date, state
                 )
             except SpreadsheetValidationErrors as exception:
