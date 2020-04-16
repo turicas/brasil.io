@@ -4,6 +4,7 @@ from datetime import date, timedelta
 from io import BytesIO
 from pathlib import Path
 from model_bakery import baker
+from unittest.mock import patch, Mock
 
 from django.conf import settings
 from django.test import TestCase
@@ -34,11 +35,12 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
     def file_from_content(self):
         return BytesIO(str.encode(self.content))
 
+    @patch('covid19.spreadsheet_validator.validate_historical_data', Mock(return_value=['warning']))
     def test_format_valid_list_of_rows(self):
         file_rows = rows.import_from_csv(self.file_from_content)
         date = self.date.isoformat()
 
-        data = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+        data, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
         cities_data = [
             {'nome': 'Abatiá', 'confirmados': 9, 'mortes': 1},
             {'nome': 'Adrianópolis', 'confirmados': 11, 'mortes': 2},
@@ -83,7 +85,9 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         ])
 
         assert data == expected
+        assert ['warning'] == warnings
 
+    @patch('covid19.spreadsheet_validator.validate_historical_data', Mock(return_value=[]))
     def test_alternative_columns_names_for_confirmed_cases(self):
         alternatives = ['casos confirmados', 'confirmado', 'confirmados']
         original_content = self.content
@@ -91,7 +95,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         for alt in alternatives:
             self.content = original_content.replace('confirmados', alt)
             file_rows = rows.import_from_csv(self.file_from_content)
-            data = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+            data, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
             assert data[0]['confirmed'] == 102
 
@@ -101,6 +105,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         with pytest.raises(SpreadsheetValidationErrors):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
+    @patch('covid19.spreadsheet_validator.validate_historical_data', Mock(return_value=[]))
     def test_alternative_columns_names_for_deaths(self):
         alternatives = ['óbitos', 'óbito', 'obito', 'morte']
         original_content = self.content
@@ -108,7 +113,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         for alt in alternatives:
             self.content = original_content.replace('mortes', alt)
             file_rows = rows.import_from_csv(self.file_from_content)
-            data = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+            data, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
             assert data[0]['deaths'] == 32
 
@@ -118,6 +123,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         with pytest.raises(SpreadsheetValidationErrors):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
+    @patch('covid19.spreadsheet_validator.validate_historical_data', Mock(return_value=[]))
     def test_alternative_columns_names_for_city(self):
         alternatives = ['município', 'cidade']
         original_content = self.content
@@ -125,7 +131,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         for alt in alternatives:
             self.content = original_content.replace('municipio', alt)
             file_rows = rows.import_from_csv(self.file_from_content)
-            data = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+            data, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
             assert data[0]['confirmed'] == 102
 
@@ -147,6 +153,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         with pytest.raises(SpreadsheetValidationErrors):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
+    @patch('covid19.spreadsheet_validator.validate_historical_data', Mock(return_value=[]))
     def test_line_can_have_none_for_all_values_if_city_has_no_cases_yet(self):
         self.content = self.content.replace('Abatiá,9,1', 'Abatiá,,')
         self.content = self.content.replace('TOTAL NO ESTADO,102,32', 'TOTAL NO ESTADO,93,31')
@@ -161,10 +168,11 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
             "place_type": "city",
             "state": 'PR',
         }
-        results = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+        results, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
         assert expected in results
 
+    @patch('covid19.spreadsheet_validator.validate_historical_data', Mock(return_value=[]))
     def test_always_use_ibge_data_to_format_the_city_name(self):
         self.content = self.content.replace('Abatiá,9,1', 'abatiá,9,1')
         file_rows = rows.import_from_csv(self.file_from_content)
@@ -178,7 +186,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
             "place_type": "city",
             "state": 'PR',
         }
-        results = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+        results, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
         assert expected in results
 
@@ -251,15 +259,32 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         with pytest.raises(SpreadsheetValidationErrors):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
+    @patch('covid19.spreadsheet_validator.validate_historical_data', Mock(return_value=[]))
     def test_do_not_check_for_totals_if_only_total_lines_data(self):
         sample = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR-no-cities-data.csv'
         assert sample.exists()
         self.content = sample.read_text()
 
         file_rows = rows.import_from_csv(self.file_from_content)
-        data = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+        data, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
         assert data[0]['deaths'] == 50
+
+    @patch('covid19.spreadsheet_validator.validate_historical_data')
+    def test_validate_historical_data_as_the_final_validation(self, mock_validate_historical_data):
+        mock_validate_historical_data.return_value = ['warning 1', 'warning 2']
+
+        file_rows = rows.import_from_csv(self.file_from_content)
+        results, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        assert results
+        assert ['warning 1', 'warning 2'] == warnings
+        assert 1 == mock_validate_historical_data.call_count
+        on_going_spreadsheet = mock_validate_historical_data.call_args[0][0]
+        assert isinstance(on_going_spreadsheet, StateSpreadsheet)
+        assert on_going_spreadsheet.table_data == results
+        assert on_going_spreadsheet.state == self.uf
+        assert on_going_spreadsheet.date == self.date
 
 
 class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):

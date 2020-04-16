@@ -2,6 +2,7 @@ from rows.fields import IntegerField
 
 from brazil_data.cities import get_city_info, get_state_info
 
+from covid19.models import StateSpreadsheet
 from covid19.db import get_most_recent_city_entries_for_state, get_most_recent_state_entry
 
 
@@ -33,7 +34,9 @@ class SpreadsheetValidationErrors(Exception):
 def format_spreadsheet_rows_as_dict(rows_table, date, state):
     """
     Receives rows.Table object, a date and a brazilan UF, validates the data
-    and returns a dict in the formatted data:
+    and returns tuble with 2 lists:
+        - valid and formated results data
+        - warnings about the data
 
     This is an auxiliary method used by covid19.forms.StateSpreadsheetForm with the uploaded file
     """
@@ -117,7 +120,11 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
         )
 
     validation_errors.raise_if_errors()
-    return results
+
+    # this is hacky, I know, but I wanted to centralize all kind of validations inside this function
+    on_going_spreadsheet = StateSpreadsheet(state=state, date=date)
+    on_going_spreadsheet.table_data = results
+    return results, validate_historical_data(on_going_spreadsheet)
 
 
 def _parse_city_data(city, confirmed, deaths, date, state):
