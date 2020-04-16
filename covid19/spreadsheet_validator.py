@@ -2,7 +2,7 @@ from rows.fields import IntegerField
 
 from brazil_data.cities import get_city_info, get_state_info
 
-from covid19.db import get_most_recent_city_entries_for_state
+from covid19.db import get_most_recent_city_entries_for_state, get_most_recent_state_entry
 
 
 TOTAL_LINE_DISPLAY = 'TOTAL NO ESTADO'
@@ -160,9 +160,15 @@ def validate_historical_data(spreadsheet):
     If any invalid data, it'll raise a SpreadsheetValidationErrors
     If valid data, returns a list with eventual warning messages
     """
+    def lower_numbers(previous, data):
+        if not previous:
+            return False
+        return data['confirmed'] < previous.confirmed or data['deaths'] < previous.deaths
+
     warnings = []
     validation_errors = SpreadsheetValidationErrors()
     city_entries = get_most_recent_city_entries_for_state(spreadsheet.state, spreadsheet.date)
+    state_entry = get_most_recent_state_entry(spreadsheet.state, spreadsheet.date)
 
     for entry in city_entries:
         city_data = spreadsheet.get_data_from_city(entry.city_ibge_code)
@@ -171,10 +177,16 @@ def validate_historical_data(spreadsheet):
                 f"{entry.city} possui dados históricos e não está presente na planilha"
             )
             continue
-        if city_data['confirmed'] < entry.confirmed or city_data['deaths'] < entry.deaths:
+        if lower_numbers(entry, city_data):
             warnings.append(
                 f"Números de confirmados ou óbitos em {entry.city} é menor que o anterior."
             )
+
+    total_data = spreadsheet.get_total_data()
+    if lower_numbers(state_entry, total_data):
+        warnings.append(
+            f"Números de confirmados ou óbitos totais é menor que o total anterior."
+        )
 
     validation_errors.raise_if_errors()
     return warnings

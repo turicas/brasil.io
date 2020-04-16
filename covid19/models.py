@@ -129,3 +129,9 @@ class StateSpreadsheet(models.Model):
             return [d for d in self.table_data if d['city_ibge_code'] == ibge_code][0]
         except IndexError:
             return None
+
+    def get_total_data(self):
+        try:
+            return [d for d in self.table_data if d['place_type'] == 'state'][0]
+        except IndexError:
+            return None
