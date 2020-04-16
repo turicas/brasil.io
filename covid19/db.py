@@ -1,13 +1,34 @@
-from django.db.models import Max, F
+from itertools import groupby
 
 from core.models import Table
+
 
 def get_covid19_cases_dataset():
     return Table.objects.for_dataset('covid19').named('caso').get_model()
 
-def get_most_recent_city_entries_for_state(state):
+
+def get_most_recent_city_entries_for_state(state, date):
+    return _get_latest_cases(state, date, "city")
+
+
+def _get_latest_cases(state, date, place_type):
     Covid19Cases = get_covid19_cases_dataset()
-    return Covid19Cases.objects.order_by('-date').filter(
+    cases = Covid19Cases.objects.filter(
         state=state,
-        place_type='city',
-    ).annotate(last_date=Max('date')).filter(date=F('last_date'))
+        date__lt=date,
+        place_type=place_type,
+    ).iterator()
+
+    place_key_func = lambda row: (row.place_type, row.state, row.city)  # noqa
+    order_func = lambda row: row.order_for_place  # noqa
+    cases = sorted(cases, key=place_key_func)
+    result = []
+    for place_key, entries in groupby(cases, key=place_key_func):
+        entries = sorted(entries, key=order_func, reverse=True)
+        result.append(entries[0])
+
+    if place_type == "state":
+        assert len(result) == 1
+        result = result[0]
+
+    return result

@@ -162,7 +162,7 @@ def validate_historical_data(spreadsheet):
     """
     warnings = []
     validation_errors = SpreadsheetValidationErrors()
-    city_entries = get_most_recent_city_entries_for_state(spreadsheet.state)
+    city_entries = get_most_recent_city_entries_for_state(spreadsheet.state, spreadsheet.date)
 
     for entry in city_entries:
         city_data = spreadsheet.get_data_from_city(entry.city_ibge_code)

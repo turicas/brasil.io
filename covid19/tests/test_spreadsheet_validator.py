@@ -267,12 +267,12 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
     def setUp(self):
         self.uf = 'PR'
         self.cities_cases = [
-            {'state': 'PR', 'city': 'Abatiá', 'confirmed': 9, 'deaths': 1},
-            {'state': 'PR', 'city': 'Adrianópolis', 'confirmed': 11, 'deaths': 2},
-            {'state': 'PR', 'city': 'Agudos do Sul', 'confirmed': 12, 'deaths': 3},
-            {'state': 'PR', 'city': 'Almirante Tamandaré', 'confirmed': 8, 'deaths': 4},
-            {'state': 'PR', 'city': 'Altamira do Paraná', 'confirmed': 13, 'deaths': 5},
-            {'state': 'PR', 'city': 'Alto Paraíso', 'confirmed': 47, 'deaths': 15},
+            {'city': 'Abatiá', 'confirmed': 9, 'deaths': 1},
+            {'city': 'Adrianópolis', 'confirmed': 11, 'deaths': 2},
+            {'city': 'Agudos do Sul', 'confirmed': 12, 'deaths': 3},
+            {'city': 'Almirante Tamandaré', 'confirmed': 8, 'deaths': 4},
+            {'city': 'Altamira do Paraná', 'confirmed': 13, 'deaths': 5},
+            {'city': 'Alto Paraíso', 'confirmed': 47, 'deaths': 15},
         ]
         self.today = date.today()
         self.undefined_data = {
@@ -282,7 +282,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             "date": self.today.isoformat(),
             "deaths": 2,
             "place_type": "city",
-            "state": 'PR',
+            "state": self.uf,
         }
         self.total_data = {
             "city": None,
@@ -291,7 +291,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             "date": self.today.isoformat(),
             "deaths": 32,
             "place_type": "state",
-            "state": 'PR',
+            "state": self.uf,
         }
         self.cities_data = [
             {
@@ -301,18 +301,11 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
                 "date": self.today.isoformat(),
                 "deaths": c['deaths'],
                 "place_type": "city",
-                "state": c['state'],
+                "state": self.uf,
             }
             for c in self.cities_cases
         ]
-        self._spreadsheet = None
-
-    # this has to be a property due to conflicts between setUp and setUpTestData
-    @property
-    def spreadsheet(self):
-        if not self._spreadsheet:
-            self._spreadsheet = baker.make(StateSpreadsheet, state='PR', date=self.today)
-        return self._spreadsheet
+        self.spreadsheet = baker.make(StateSpreadsheet, state=self.uf, date=self.today)
 
     def test_can_create_covid_19_cases_entries(self):
         table = Table.objects.for_dataset('covid19').named('caso')
@@ -336,7 +329,26 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             baker.make(Covid19Cases, **cases_data)
 
         # older city from the same state is not considered
-        baker.make(Covid19Cases, date=self.today - timedelta(days=8), state='RR', place_type='city')
+        baker.make(
+            Covid19Cases,
+            date=self.today - timedelta(days=8),
+            state=self.uf,
+            place_type='city',
+            confirmed=1000,
+            deaths=1000,
+            city='bar',
+        )
+
+        # report with date greater than the spreadsheet's one shouldn't be considered
+        baker.make(
+            Covid19Cases,
+            date=self.today + timedelta(days=8),
+            state=self.uf,
+            place_type='city',
+            confirmed=1000,
+            deaths=1000,
+            city='foo',
+        )
 
         # a more recent report, but from other state
         baker.make(Covid19Cases, date=self.today, state='RR', place_type='city')
