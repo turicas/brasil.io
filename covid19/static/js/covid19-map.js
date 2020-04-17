@@ -1,11 +1,12 @@
-var cityData, cityGeoJSON, cityLayer, colors, map, selectedVar, stateGeoJSON, stateLayer;
-selectedVar = "confirmed";
+var cityData, cityGeoJSON, cityLayer, colors, legendBins, map, selectedVar, stateGeoJSON, stateLayer;
 colors = {
   "confirmed": "#00F",
   "confirmed_per_100k_inhabitants": "#80F",
   "deaths": "#F00",
   "death_rate": "#F08",
 };
+legendBins = 5;
+selectedVar = "confirmed";
 zeroText = {
   "confirmed": "Nenhum",
   "confirmed_per_100k_inhabitants": "Nenhum",
@@ -91,7 +92,7 @@ function updateMap() {
       var maxValue = maxValues[selectedVar];
       var color = colors[selectedVar];
       var zeroDisplay = zeroText[selectedVar];
-      for (var opacity = 0; opacity <= 1; opacity += 0.25) {
+      for (var opacity = 0; opacity <= 1; opacity += 1.0 / legendBins) {
         var value = valueFromOpacity(opacity, maxValue);
         if (lastValue === undefined) {
           displayValue = zeroDisplay;
