@@ -74,9 +74,9 @@ class Covid19Stats:
 
     @property
     def city_data(self):
+        # XXX: what should we do about "Importados/Indefinidos"?
         value_keys = ("confirmed", "deaths", "death_rate_percent", "confirmed_per_100k_inhabitants")
         result = {}
-        # TODO: what should we do about "Importados/Indefinidos"?
         for city_case in self.city_cases.filter(city_ibge_code__isnull=False):
             row = {
                 "city": city_case.city,
@@ -96,7 +96,8 @@ class Covid19Stats:
             row["city_str"] = slugify(row["city"]).replace("-", " ")
             year, month, day = row["date_str"].split("-")
             row["date"] = datetime.date(int(year), int(month), int(day))
-            result[int(row["city_ibge_code"])] = row
+            if (row["confirmed"], row["deaths"]) != (0, 0):
+                result[int(row["city_ibge_code"])] = row
         max_values = {
             key: max(row[key] for row in result.values())
             for key in value_keys
