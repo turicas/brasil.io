@@ -39,5 +39,4 @@ urlpatterns = [
         login_required(views_special.company_groups, login_url=sign_up_url),
         name="special-company-groups",
     ),
-    path("covid19", views_special.covid19, name="special-covid19"),
 ]
