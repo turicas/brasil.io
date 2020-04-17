@@ -94,7 +94,7 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
             validation_errors.new_error(f'{city} não pertence à UF {state}')
             continue
 
-        if result['city'] is None:
+        if result['place_type'] == 'state':
             has_total = True
             total_cases, total_deaths = confirmed, deaths
         else:
