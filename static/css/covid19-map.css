@@ -3,6 +3,10 @@
   min-height: 800px;
 }
 
+.card {
+  height: 10em;
+}
+
 .info {
   padding: 6px 8px;
   font: 14px/16px sans-serif;

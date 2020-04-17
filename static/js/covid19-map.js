@@ -1,6 +1,6 @@
 var dt, map, statesGeoJSON, citiesGeoJSON;
 var cityLayer, stateLayer;
-var selectedVar = "deaths";
+var selectedVar = "confirmed";
 var colors = {
 	"confirmed": "#5500FF",
 	"deaths": "#FF0000",

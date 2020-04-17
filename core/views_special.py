@@ -377,31 +377,34 @@ def covid19(request):
 
     aggregate = [
         {
-            "title": "Boletins",
+            "title": "Boletins coletados",
             "value": stats.total_reports,
+            "tooltip": "Total de boletins das Secretarias Estaduais de Saúde coletados pelos voluntários",
         },
         {
             "title": "Casos confirmados",
             "value": total_confirmed,
+            "tooltip": "Total de casos confirmados",
         },
         {
-            "title": "Óbitos",
+            "title": "Óbitos confirmados",
             "value": total_deaths,
+            "tooltip": "Total de óbitos confirmados",
         },
         {
             "title": "Municípios atingidos",
-            "value": affected_cities,
-            "value_percent": 100 * (affected_cities / 5570),
+            "value": f"{affected_cities} ({100 * affected_cities / 5570:.0f}%)",
+            "tooltip": "Total de municípios com casos confirmados",
         },
         {
-            "title": "Municípios com óbitos",
-            "value": cities_with_deaths,
-            "value_percent": 100 * (cities_with_deaths / affected_cities),
+            "title": "População desses municípios",
+            "value": f"{affected_population / 1_000_000:.0f}M ({100 * (affected_population / total_population):.0f}%)",
+            "tooltip": "População dos municípios com casos confirmados, segundo estimativa IBGE 2019",
         },
         {
-            "title": "População nos municípios atingidos",
-            "value": affected_population,
-            "value_percent": 100 * (affected_population / total_population),
+            "title": "Municípios c/ óbitos",
+            "value": f"{cities_with_deaths} ({100 * cities_with_deaths / affected_cities:.0f}%)",
+            "tooltip": "Total de municípios com óbitos confirmados (o percentual é em relação ao total de municípios com casos confirmados)",
         },
     ]
 
@@ -414,7 +417,7 @@ def covid19(request):
         for key in value_keys:
             row[key] = row[key] or 0
             city_values[key][row["city_ibge_code"]] = row[key]
-        row["death_rate"] *= 100
+        row["death_rate_percent"] = row.pop("death_rate") * 100
         row["date_str"] = str(row["date"])
         row["city_str"] = slugify(row["city"])
         year, month, day = row["date_str"].split("-")
