@@ -156,4 +156,16 @@ function retrieveData() {
 jQuery(document).ready(function() {
   createMap();
   retrieveData();
+
+  jQuery(window).resize(function() {
+    if (jQuery(window).width() > 1840) {
+      jQuery("#table-col").removeClass("xl12").addClass("xl6");
+      jQuery("#map-col").removeClass("xl12").addClass("xl6");
+    }
+    else {
+      jQuery("#table-col").removeClass("xl6").addClass("xl12");
+      jQuery("#map-col").removeClass("xl6").addClass("xl12");
+    }
+  });
+  window.dispatchEvent(new Event("resize"));
 });
