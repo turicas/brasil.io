@@ -3,8 +3,8 @@ import json
 import uuid
 from urllib.request import urlopen
 
+from cache_memoize import cache_memoize
 from django.conf import settings
-from django.core.cache import cache
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -196,12 +196,13 @@ def collaborate(request):
     return render(request, "collaborate.html", {})
 
 
+@cache_memoize(24 * 3600)
+def get_contributors():
+    url = "https://data.brasil.io/meta/contribuidores.json"
+    response = urlopen(url)
+    data = json.loads(response.read())
+    return data
+
+
 def contributors(request):
-    cache_key = "meta:data:contributors"
-    data = cache.get(cache_key, None)
-    if data is None:
-        url = "https://data.brasil.io/meta/contribuidores.json"
-        response = urlopen(url)
-        data = json.loads(response.read())
-        cache.set(cache_key, data)
-    return render(request, "contributors.html", {"contributors": data})
+    return render(request, "contributors.html", {"contributors": get_contributors()})

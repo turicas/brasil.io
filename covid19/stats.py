@@ -1,20 +1,18 @@
-import datetime
-
 from cached_property import cached_property
-
 from django.db.models import Max, Sum
-from django.utils.text import slugify
 
 from core.models import get_table_model
+
+from .serializers import CityCaseSerializer
 
 
 class Covid19Stats:
 
-    @property
+    @cached_property
     def Boletim(self):
         return get_table_model("covid19", "boletim")
 
-    @property
+    @cached_property
     def Caso(self):
         return get_table_model("covid19", "caso")
 
@@ -75,31 +73,15 @@ class Covid19Stats:
     @property
     def city_data(self):
         # XXX: what should we do about "Importados/Indefinidos"?
-        value_keys = ("confirmed", "deaths", "death_rate_percent", "confirmed_per_100k_inhabitants")
-        result = {}
-        for city_case in self.city_cases.filter(city_ibge_code__isnull=False):
-            row = {
-                "city": city_case.city,
-                "city_ibge_code": city_case.city_ibge_code,
-                "confirmed": city_case.confirmed,
-                "confirmed_per_100k_inhabitants": city_case.confirmed_per_100k_inhabitants,
-                "date": city_case.date,
-                "death_rate": city_case.death_rate,
-                "deaths": city_case.deaths,
-                "estimated_population_2019": city_case.estimated_population_2019,
-                "state": city_case.state,
-            }
-            row["death_rate_percent"] = (row.pop("death_rate") or 0) * 100
-            for key in value_keys:
-                row[key] = row[key] or 0
-            row["date_str"] = str(row["date"])
-            row["city_str"] = slugify(row["city"]).replace("-", " ")
-            year, month, day = row["date_str"].split("-")
-            row["date"] = datetime.date(int(year), int(month), int(day))
-            if (row["confirmed"], row["deaths"]) != (0, 0):
-                result[int(row["city_ibge_code"])] = row
-        max_values = {
-            key: max(row[key] for row in result.values())
-            for key in value_keys
+        city_cases = self.city_cases.filter(city_ibge_code__isnull=False)
+        serializer = CityCaseSerializer(instance=city_cases, many=True)
+        cities = {
+            row["city_ibge_code"]: row
+            for row in serializer.data
+            if (row["confirmed"], row["deaths"]) != (0, 0)
         }
-        return {"cities": result, "max": max_values}
+        max_values = {
+            key: max(row[key] for row in cities.values())
+            for key in ("confirmed", "confirmed_per_100k_inhabitants", "deaths", "death_rate_percent")
+        }
+        return {"cities": cities, "max": max_values}

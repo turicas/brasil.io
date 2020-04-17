@@ -534,9 +534,7 @@ class Field(models.Model):
 
 @lru_cache(maxsize=128)
 def get_table(dataset_slug, tablename):
-    dataset = Dataset.objects.get(slug=dataset_slug)
-    table = dataset.get_table(tablename)
-    return table
+    return Table.objects.for_dataset(dataset_slug).named(tablename)
 
 
 @lru_cache(maxsize=128)

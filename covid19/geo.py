@@ -4,7 +4,7 @@ from itertools import groupby
 from pathlib import Path
 from urllib.request import Request, urlopen
 
-from django.core.cache import cache
+from cache_memoize import cache_memoize
 
 
 def http_get_compressed(url):
@@ -28,12 +28,8 @@ def download_city_geojson():
     return data
 
 
+@cache_memoize(timeout=None)
 def city_geojson():
-    cache_key = "geojson:BR:city"
-    data = cache.get(cache_key, None)
-    if data is not None:
-        return data
-
     geojson = download_city_geojson()
     feature_id_func = lambda feature: feature["properties"]["CD_GEOCMU"]
     geojson["features"].sort(key=feature_id_func)
@@ -44,6 +40,4 @@ def city_geojson():
             feature["properties"] = {}
         if len(features) > 1:
             raise RuntimeError(f"Duplicate feature id {feature_id}")
-
-    cache.set(cache_key, geojson)
     return geojson

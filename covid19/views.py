@@ -13,7 +13,7 @@ def cities(request):
 
 
 def cities_geojson(request):
-    city_ids = set(item for item in stats.city_data["cities"].keys())
+    city_ids = set(stats.city_data["cities"].keys())
     data = city_geojson()
     data["features"] = [
         feature
