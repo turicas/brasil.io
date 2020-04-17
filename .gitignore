@@ -24,3 +24,5 @@ docker/postgres/data
 public/
 reg_settings.py
 .vscode/
+population.csv
+schema-population.csv

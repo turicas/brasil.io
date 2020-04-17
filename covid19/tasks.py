@@ -10,6 +10,5 @@ def process_new_spreadsheet_task(spreadsheet_pk):
     except StateSpreadsheet.DoesNotExist:
         return None
 
-    print(f"Processing {spreadsheet}...")
-
+    print(f'Async process {spreadsheet}...')
     # TODO https://github.com/turicas/brasil.io/issues/212

@@ -1,12 +1,12 @@
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.dispatch import receiver, Signal
 
 from covid19.models import StateSpreadsheet
 from covid19.tasks import process_new_spreadsheet_task
 
+new_spreadsheet_imported_signal = Signal(providing_args=["spreadsheet"])
 
-@receiver(post_save, sender=StateSpreadsheet)
-def process_new_spreadsheet_receiver(sender, instance, created, **kwargs):
-    if created:
-        StateSpreadsheet.objects.cancel_older_versions(instance)
-        process_new_spreadsheet_task.delay(spreadsheet_pk=instance.pk)
+
+@receiver(new_spreadsheet_imported_signal, dispatch_uid="new_import")
+def process_new_spreadsheet_receiver(sender, spreadsheet, **kwargs):
+    StateSpreadsheet.objects.cancel_older_versions(spreadsheet)
+    process_new_spreadsheet_task.delay(spreadsheet_pk=spreadsheet.pk)

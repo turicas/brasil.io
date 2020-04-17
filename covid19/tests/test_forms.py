@@ -1,8 +1,9 @@
 import shutil
-from datetime import date
+from datetime import date, timedelta
 from localflavor.br.br_states import STATE_CHOICES
 from model_bakery import baker
 from pathlib import Path
+from unittest.mock import patch, Mock
 
 from django.conf import settings
 from django.contrib.auth.models import Permission, Group
@@ -12,6 +13,11 @@ from django.test import TestCase
 
 from covid19.forms import state_choices_for_user, StateSpreadsheetForm
 from covid19.models import StateSpreadsheet
+from covid19.spreadsheet_validator import SpreadsheetValidationErrors
+from covid19.tests.utils import Covid19DatasetTestCase
+
+
+SAMPLE_SPREADSHEETS_DATA_DIR = Path(settings.BASE_DIR).joinpath('covid19', 'tests', 'data')
 
 
 class AvailableStatesForUserTests(TestCase):
@@ -47,20 +53,24 @@ class AvailableStatesForUserTests(TestCase):
         assert ('SP', 'São Paulo') in choices
 
 
-class StateSpreadsheetFormTests(TestCase):
+class StateSpreadsheetFormTests(Covid19DatasetTestCase):
 
     def setUp(self):
+        valid_csv = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR.csv'
+        assert valid_csv.exists()
+
         self.data = {
             'date': date.today(),
-            'state': 'RJ',
+            'state': 'PR',
             'boletim_urls': 'http://google.com\nhttp://brasil.io',
             'boletim_notes': 'notes',
         }
         self.file_data = {
-            'file': self.gen_file('sample.csv', 'col1,col2'),
+            'file': self.gen_file(f'sample.csv', valid_csv.read_bytes())
         }
         self.user = baker.make(settings.AUTH_USER_MODEL)
         self.user.groups.add(Group.objects.get(name__endswith='Rio de Janeiro'))
+        self.user.groups.add(Group.objects.get(name__endswith='Paraná'))
 
     def gen_file(self, name, content):
         if isinstance(content, str):
@@ -90,12 +100,14 @@ class StateSpreadsheetFormTests(TestCase):
 
         assert self.user == spreadsheet.user
         assert date.today() == spreadsheet.date
-        assert 'RJ' == spreadsheet.state
+        assert 'PR' == spreadsheet.state
         assert spreadsheet.file
         assert ['http://google.com', 'http://brasil.io'] == spreadsheet.boletim_urls
         assert 'notes' == spreadsheet.boletim_notes
         assert StateSpreadsheet.UPLOADED == spreadsheet.status
         assert spreadsheet.cancelled is False
+        assert len(spreadsheet.data) > 0
+        assert len(spreadsheet.table_data) == 8  # total, undefined + 6 cities
 
     def test_invalidate_form_if_user_does_not_have_permission_to_the_state(self):
         self.data['state'] = 'SP'
@@ -105,6 +117,14 @@ class StateSpreadsheetFormTests(TestCase):
         assert not form.is_valid()
         assert 'state' in form.errors
 
+    def test_invalidate_if_future_date(self):
+        self.data['date'] = date.today() + timedelta(days=1)
+
+        form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
+
+        assert not form.is_valid()
+        assert 'date' in form.errors
+
     def test_invalidate_form_if_any_invalid_url(self):
         self.data['boletim_urls'] = 'xpto'
 
@@ -113,6 +133,11 @@ class StateSpreadsheetFormTests(TestCase):
         assert not form.is_valid()
         assert 'boletim_urls' in form.errors
 
+    @patch('covid19.forms.rows.import_from_csv', Mock(return_value={}))
+    @patch('covid19.forms.rows.import_from_xls', Mock(return_value={}))
+    @patch('covid19.forms.rows.import_from_xlsx', Mock(return_value={}))
+    @patch('covid19.forms.rows.import_from_ods', Mock(return_value={}))
+    @patch('covid19.forms.format_spreadsheet_rows_as_dict', Mock(return_value=([], [])))
     def test_invalidate_if_wrong_file_format(self):
         valid_formats = ['csv', 'xls', 'xlsx', 'ods']
         for format in valid_formats:
@@ -123,4 +148,75 @@ class StateSpreadsheetFormTests(TestCase):
 
         self.file_data['file'] = self.gen_file(f'sample.txt', 'col1,col2')
         form = StateSpreadsheetForm(self.data, self.file_data)
-        assert 'file' in form.errors
+        assert '__all__' in form.errors
+
+    @patch('covid19.forms.format_spreadsheet_rows_as_dict')
+    def test_populate_object_data_with_valid_sample(self, mocked_format):
+        mocked_format.return_value = (
+            ['results', 'list'],
+            ['warnings', 'list']
+        )
+        form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
+        assert form.is_valid(), form.errors
+        expected = {
+            "table": ['results', 'list'],
+            "errors": [],
+            "warnings": ['warnings', 'list'],
+        }
+
+        spreadsheet = form.save()
+        spreadsheet.refresh_from_db()
+
+        assert expected == spreadsheet.data
+
+    @patch('covid19.forms.format_spreadsheet_rows_as_dict')
+    def test_list_all_errors_fom_the_import_process(self, mocked_format):
+        exception = SpreadsheetValidationErrors()
+        exception.new_error('Error 1')
+        exception.new_error('Error 2')
+        mocked_format.side_effect = exception
+
+        form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
+        assert not form.is_valid()
+
+        assert 2 == len(form.errors['__all__'])
+        assert 'Error 1' in form.errors['__all__']
+        assert 'Error 2' in form.errors['__all__']
+
+    def test_import_data_from_xls_with_sucess(self):
+        valid_xls = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR.xls'
+        assert valid_xls.exists()
+
+        self.file_data['file'] = self.gen_file(f'sample.xls', valid_xls.read_bytes())
+        form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
+
+        assert form.is_valid(), form.errors
+
+    def test_import_data_from_xlsx_with_sucess(self):
+        valid_xlsx = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR.xlsx'
+        assert valid_xlsx.exists()
+
+        self.file_data['file'] = self.gen_file(f'sample.xlsx', valid_xlsx.read_bytes())
+        form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
+
+        assert form.is_valid(), form.errors
+
+    def test_import_data_from_ods_with_sucess(self):
+        valid_ods = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR.ods'
+        assert valid_ods.exists()
+
+        self.file_data['file'] = self.gen_file(f'sample.ods', valid_ods.read_bytes())
+        form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
+
+        assert form.is_valid(), form.errors
+
+    def test_raise_validation_error_if_any_error_with_rows_import_functions(self):
+        valid_xls = SAMPLE_SPREADSHEETS_DATA_DIR / 'sample-PR.xls'
+        assert valid_xls.exists()
+
+        # wrong file extension
+        self.file_data['file'] = self.gen_file(f'sample.csv', valid_xls.read_bytes())
+        form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
+
+        assert not form.is_valid()
+        assert '__all__' in form.errors
