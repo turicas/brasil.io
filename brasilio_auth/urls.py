@@ -26,6 +26,7 @@ password_reset_complete = auth_views.PasswordResetCompleteView.as_view(
 
 app_name = "brasilio_auth"
 urlpatterns = (
+    path("entrar/", CreateUserView.as_view(), name="sign_up"),
     path("login/", login, name="login"),
     path("logout/", logout, name="logout"),
     path("troca-senha/", password_reset, name="password_reset"),
@@ -40,6 +41,4 @@ urlpatterns = (
         password_reset_complete,
         name="password_reset_complete",
     ),
-    path("logout/", logout, name="logout"),
-    path("entrar/", CreateUserView.as_view(), name="sign_up"),
 )

@@ -92,7 +92,7 @@ class Covid19Stats:
             row["city_str"] = slugify(row["city"]).replace("-", " ")
             year, month, day = row["date_str"].split("-")
             row["date"] = datetime.date(int(year), int(month), int(day))
-            result[row["city_ibge_code"]] = row
+            result[int(row["city_ibge_code"])] = row
         max_values = {
             key: max(row[key] for row in result.values())
             for key in value_keys
