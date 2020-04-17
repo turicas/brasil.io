@@ -1,10 +1,13 @@
-import datetime
-import json
-
+from django.http import JsonResponse
 from django.shortcuts import render
-from django.utils.text import slugify
 
 from covid19.stats import Covid19Stats
+
+
+def cities(request):
+    stats = Covid19Stats()
+    city_data = stats.city_data
+    return JsonResponse(city_data)
 
 
 def dashboard(request):
@@ -48,26 +51,13 @@ def dashboard(request):
             "tooltip": "Total de municípios com óbitos confirmados (o percentual é em relação ao total de municípios com casos confirmados)",
         },
     ]
-
-    value_keys = ("confirmed", "deaths", "death_rate", "confirmed_per_100k_inhabitants")
-    city_values = {key: {} for key in value_keys}
-    city_data = []
-    # TODO: what should we do about "Importados/Indefinidos"?
-    for row in stats.city_cases.filter(city_ibge_code__isnull=False):
-        row = row.__dict__
-        for key in value_keys:
-            row[key] = row[key] or 0
-            city_values[key][row["city_ibge_code"]] = row[key]
-        row["death_rate_percent"] = row.pop("death_rate") * 100
-        row["date_str"] = str(row["date"])
-        row["city_str"] = slugify(row["city"])
-        year, month, day = row["date_str"].split("-")
-        row["date"] = datetime.date(int(year), int(month), int(day))
-        city_data.append(row)
-    max_values = {key: max(city_values[key].values()) for key in value_keys}
+    city_data = stats.city_data
 
     return render(
         request,
         "dashboard.html",
-        {"city_data": city_data, "aggregate": aggregate, "city_values_json": json.dumps(city_values), "max_values_json": json.dumps(max_values)},
+        {
+            "city_data": city_data["cities"].values(),
+            "aggregate": aggregate,
+        },
     )

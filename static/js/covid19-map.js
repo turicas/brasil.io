@@ -1,10 +1,12 @@
-var dt, map, statesGeoJSON, citiesGeoJSON;
-var cityLayer, stateLayer;
-var selectedVar = "confirmed";
-var colors = {
-	"confirmed": "#5500FF",
-	"deaths": "#FF0000",
+var cityData, cityGeoJSON, cityLayer, colors, map, selectedVar, stateGeoJSON, stateLayer;
+selectedVar = "confirmed";
+colors = {
+	"confirmed": "#00F",
+	"confirmed_per_100k_inhabitants": "#80F",
+	"deaths": "#F00",
+	"death_rate": "#F08",
 };
+
 function defineOpacity(value, maxValue) {
 	if (value == 0) {
 		return 0;
@@ -16,9 +18,9 @@ function defineOpacity(value, maxValue) {
 		return Math.log2(value + 1) / Math.log2(maxValue + 1);
 	}
 }
-
 function cityStyle(feature) {
-	var value = cityValues[selectedVar][parseInt(feature.properties.CD_GEOCMU)] || 0;
+	var ibgeCode = parseInt(feature.properties.CD_GEOCMU);
+	var value = cityData[ibgeCode][selectedVar] || 0;
 	var maxValue = maxValues[selectedVar];
 	var opacity = defineOpacity(value, maxValue);
 	return {
@@ -38,43 +40,73 @@ function stateStyle(feature) {
 		weight: 0.5
 	};
 }
-jQuery(document).ready(function() {
+
+function createMap() {
 	map = L.map("map", {
 		zoomSnap: 0.25,
 		zoomDelta: 0.25,
-		minZoom: 4.75,
+		minZoom: 4,
 		maxZoom: 9,
 		attributionControl: false
 	});
 	map.setView([-15, -54], 4.75);
-	jQuery.getJSON(
-		"https://data.brasil.io/dataset/shapefiles-brasil/0.05/BR-UF.geojson",
-		function (data) {
-			statesGeoJSON = data;
-			stateLayer = L.geoJSON(data, {style: stateStyle}).addTo(map);
+}
+function updateMap() {
+	if (stateGeoJSON !== undefined && stateLayer === undefined) {
+		stateLayer = L.geoJSON(stateGeoJSON, {style: stateStyle}).addTo(map);
+	}
 
-			jQuery.getJSON(
-				"https://data.brasil.io/dataset/shapefiles-brasil/0.01/BR-municipios.geojson",
-				function (data) {
-					citiesGeoJSON = data;
-					data.features = data.features.filter(function (item) {
-						return cityValues[selectedVar][parseInt(item.properties.CD_GEOCMU)] !== undefined;
-					});
-					cityLayer = L.geoJSON(data, {style: cityStyle}).addTo(map);
-				}
-			);
+	if (stateLayer !== undefined && cityGeoJSON !== undefined && cityLayer === undefined) {
+		cityGeoJSON.features = cityGeoJSON.features.filter(function (item) {
+			var ibgeCode = parseInt(item.properties.CD_GEOCMU);
+			var city = cityData[ibgeCode];
+			return city !== undefined;
+		});
+		cityLayer = L.geoJSON(cityGeoJSON, {style: cityStyle}).addTo(map);
+	}
+
+	if (stateLayer !== undefined && cityLayer !== undefined) {
+		var legend = L.control({position: "bottomright"});
+		legend.onAdd = function (map) {
+			var div = L.DomUtil.create("div", "info legend");
+			var lastValue = 0;
+			for (var i = 0; i <= 1; i += 0.1) {
+				value = parseInt(2 ** (i * Math.log2(maxValues[selectedVar] + 1)) - 1);
+				div.innerHTML += '<i style="background: ' + colors[selectedVar] + '; opacity: ' + i + '"></i> ' + lastValue + '&mdash;' + value + '<br>';
+				lastValue = value;
+			}
+			return div;
+		};
+		legend.addTo(map);
+	}
+}
+
+function retrieveData() {
+	jQuery.getJSON(
+		dataURL.cities,
+		function (data) {
+			cityData = data.cities;
+			maxValues = data.max;
+			updateMap();
 		}
 	);
-	var legend = L.control({position: "bottomright"});
-	legend.onAdd = function (map) {
-		var div = L.DomUtil.create("div", "info legend");
-		var lastValue = 0;
-		for (var i = 0; i <= 1; i += 0.1) {
-			value = parseInt(2 ** (i * Math.log2(maxValues[selectedVar] + 1)) - 1);
-			div.innerHTML += '<i style="background: ' + colors[selectedVar] + '; opacity: ' + i + '"></i> ' + lastValue + '&mdash;' + value + '<br>';
-			lastValue = value;
+	jQuery.getJSON(
+		dataURL.stateGeoJSON,
+		function (data) {
+			stateGeoJSON = data;
+			updateMap();
 		}
-		return div;
-	};
-	legend.addTo(map);
+	);
+	jQuery.getJSON(
+		dataURL.cityGeoJSON,
+		function (data) {
+			cityGeoJSON = data;
+			updateMap();
+		}
+	);
+}
+
+jQuery(document).ready(function() {
+	createMap();
+	retrieveData();
 });

@@ -112,11 +112,13 @@
 {% block script %}
 {{ block.super }}
 <script type="text/javascript">
-  // TODO: make AJAX requests to backend instead of writing these vars to template
-var cityValues = {{ city_values_json|safe }};
-var maxValues = {{ max_values_json|safe }};
+var dataURL = {
+  cities: "{% url 'covid19:cities' %}",
+  stateGeoJSON: "https://data.brasil.io/dataset/shapefiles-brasil/0.05/BR-UF.geojson",
+  cityGeoJSON: "https://data.brasil.io/dataset/shapefiles-brasil/0.01/BR-municipios.geojson"
+}
 $(document).ready(function(){
-    $('.tooltipped').tooltip();
-    });
-  </script>
-  {% endblock %}
+  $('.tooltipped').tooltip();
+});
+</script>
+{% endblock %}
