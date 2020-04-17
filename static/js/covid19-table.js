@@ -1,4 +1,4 @@
-$(document).ready(function() {
+jQuery(document).ready(function() {
 	dt = $('.mdl-data-table').DataTable({
 		"scrollY":        "600px",
 		"scrollCollapse": true,

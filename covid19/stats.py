@@ -89,7 +89,7 @@ class Covid19Stats:
             for key in value_keys:
                 row[key] = row[key] or 0
             row["date_str"] = str(row["date"])
-            row["city_str"] = slugify(row["city"])
+            row["city_str"] = slugify(row["city"]).replace("-", " ")
             year, month, day = row["date_str"].split("-")
             row["date"] = datetime.date(int(year), int(month), int(day))
             result[row["city_ibge_code"]] = row
