@@ -12,7 +12,7 @@ function defineOpacity(value, maxValue) {
 		return 0;
 	}
 	else if (value == maxValue) {
-		return 10;
+		return 1;
 	}
 	else {
 		return Math.log2(value + 1) / Math.log2(maxValue + 1);

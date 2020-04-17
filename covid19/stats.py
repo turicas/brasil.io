@@ -10,9 +10,13 @@ from core.models import get_table_model
 
 class Covid19Stats:
 
-    def __init__(self):
-        self.Boletim = get_table_model("covid19", "boletim")
-        self.Caso = get_table_model("covid19", "caso")
+    @property
+    def Boletim(self):
+        return get_table_model("covid19", "boletim")
+
+    @property
+    def Caso(self):
+        return get_table_model("covid19", "caso")
 
     @cached_property
     def city_cases(self):
