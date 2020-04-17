@@ -6,22 +6,23 @@ colors = {
 	"deaths": "#F00",
 	"death_rate": "#F08",
 };
+zeroText = {
+	"confirmed": "Nenhum",
+	"confirmed_per_100k_inhabitants": "Nenhum",
+	"deaths": "Nenhuma",
+	"death_rate": "Nenhuma",
+};
 
-function defineOpacity(value, maxValue) {
-	if (value == 0) {
-		return 0;
-	}
-	else if (value == maxValue) {
-		return 1;
-	}
-	else {
-		return Math.log2(value + 1) / Math.log2(maxValue + 1);
-	}
+function opacityFromValue(value, maxValue) {
+	return Math.log2(value + 1) / Math.log2(maxValue + 1);
+}
+function valueFromOpacity(opacity, maxValue) {
+	return parseInt(2 ** (opacity * Math.log2(maxValue + 1)) - 1);
 }
 function cityStyle(feature) {
 	var value = cityData[feature.id][selectedVar] || 0;
 	var maxValue = maxValues[selectedVar];
-	var opacity = defineOpacity(value, maxValue);
+	var opacity = opacityFromValue(value, maxValue);
 	return {
 		color: "#000",
 		fillColor: colors[selectedVar],
@@ -82,10 +83,19 @@ function updateMap() {
 		var legend = L.control({position: "bottomright"});
 		legend.onAdd = function (map) {
 			var div = L.DomUtil.create("div", "info legend");
-			var lastValue = 0;
-			for (var i = 0; i <= 1; i += 0.1) {
-				value = parseInt(2 ** (i * Math.log2(maxValues[selectedVar] + 1)) - 1);
-				div.innerHTML += '<i style="background: ' + colors[selectedVar] + '; opacity: ' + i + '"></i> ' + lastValue + '&mdash;' + value + '<br>';
+			var lastValue, displayValue;
+			var maxValue = maxValues[selectedVar];
+			var color = colors[selectedVar];
+			var zeroDisplay = zeroText[selectedVar];
+			for (var opacity = 0; opacity <= 1; opacity += 0.25) {
+				var value = valueFromOpacity(opacity, maxValue);
+				if (lastValue === undefined) {
+					displayValue = zeroDisplay;
+				}
+				else {
+					displayValue = `${lastValue} &mdash; ${value}`;
+				}
+				div.innerHTML += `<i style="background: ${color}; opacity: ${opacity}"></i> ${displayValue} <br>`;
 				lastValue = value;
 			}
 			return div;
