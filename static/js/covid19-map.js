@@ -19,8 +19,7 @@ function defineOpacity(value, maxValue) {
 	}
 }
 function cityStyle(feature) {
-	var ibgeCode = parseInt(feature.properties.CD_GEOCMU);
-	var value = cityData[ibgeCode][selectedVar] || 0;
+	var value = cityData[feature.id][selectedVar] || 0;
 	var maxValue = maxValues[selectedVar];
 	var opacity = defineOpacity(value, maxValue);
 	return {
@@ -45,8 +44,8 @@ function createMap() {
 	map = L.map("map", {
 		zoomSnap: 0.25,
 		zoomDelta: 0.25,
-		minZoom: 4,
-		maxZoom: 9,
+		minZoom: 4.5,
+		maxZoom: 7,
 		attributionControl: false
 	});
 	map.setView([-15, -54], 4.75);
@@ -58,8 +57,7 @@ function updateMap() {
 
 	if (stateLayer !== undefined && cityGeoJSON !== undefined && cityLayer === undefined) {
 		cityGeoJSON.features = cityGeoJSON.features.filter(function (item) {
-			var ibgeCode = parseInt(item.properties.CD_GEOCMU);
-			var city = cityData[ibgeCode];
+			var city = cityData[item.id];
 			return city !== undefined;
 		});
 		cityLayer = L.geoJSON(cityGeoJSON, {style: cityStyle}).addTo(map);

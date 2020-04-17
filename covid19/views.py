@@ -1,17 +1,30 @@
 from django.http import JsonResponse
 from django.shortcuts import render
 
-from covid19.stats import Covid19Stats
+from .geo import city_geojson
+from .stats import Covid19Stats
 
+
+stats = Covid19Stats()
 
 def cities(request):
-    stats = Covid19Stats()
     city_data = stats.city_data
     return JsonResponse(city_data)
 
 
+def cities_geojson(request):
+    city_ids = set(int(item) for item in stats.city_data["cities"].keys())
+    data = city_geojson()
+    data["features"] = [
+        feature
+        for feature in data["features"]
+        if feature["id"] in city_ids
+    ]
+    # TODO: return GeoJSONResponse
+    return JsonResponse(data)
+
+
 def dashboard(request):
-    stats = Covid19Stats()
     affected_cities = stats.affected_cities
     affected_population = stats.affected_population
     cities_with_deaths = stats.cities_with_deaths
