@@ -1,8 +1,9 @@
 import hashlib
+from collections import OrderedDict
+from functools import lru_cache
 from rows import fields as rows_fields
 from textwrap import dedent
 from urllib.parse import urlparse
-from collections import OrderedDict
 
 import django.db.models.indexes as django_indexes
 from django.contrib.postgres.fields import ArrayField, JSONField
@@ -234,7 +235,7 @@ class DynamicModelQuerySet(models.QuerySet):
             return self._count
 
         query = self.query
-        if not query.where:
+        if not query.where:  # TODO: check groupby etc.
             try:
                 with connection.cursor() as cursor:
                     cursor.execute(
@@ -529,3 +530,18 @@ class Field(models.Model):
                                .distinct(self.name)\
                                .values_list(self.name, flat=True)
         self.choices = {'data': [str(value) for value in choices]}
+
+
+@lru_cache(maxsize=128)
+def get_table(dataset_slug, tablename):
+    dataset = Dataset.objects.get(slug=dataset_slug)
+    table = dataset.get_table(tablename)
+    return table
+
+
+@lru_cache(maxsize=128)
+def get_table_model(dataset_slug, tablename):
+    table = get_table(dataset_slug, tablename)
+    ModelClass = table.get_model()
+
+    return ModelClass

@@ -1,7 +1,6 @@
 import datetime
 import json
 from collections import defaultdict
-from functools import lru_cache
 from unicodedata import normalize
 
 from cached_property import cached_property
@@ -15,37 +14,12 @@ from django.urls import reverse
 from django.utils.text import slugify
 
 from core.forms import TracePathForm, CompanyGroupsForm
-from core.models import Dataset
+from core.models import get_table, get_table_model
 from core.util import get_company_by_document
 from graphs.serializers import PathSerializer, CNPJCompanyGroupsSerializer
 
 
 cipher_suite = Fernet(settings.FERNET_KEY)
-
-
-@lru_cache()
-def get_datasets():
-    # TODO: support all datasets here
-    slugs = (
-        "covid19:boletim",
-        "covid19:caso",
-        "covid19:obito_cartorio",
-        "documentos-brasil:documents",
-        "eleicoes-brasil:candidatos",
-        "eleicoes-brasil:filiados",
-        "gastos-deputados:cota_parlamentar",
-        "gastos-diretos:gastos",
-        "socios-brasil:empresas",
-        "socios-brasil:holdings",
-        "socios-brasil:socios",
-    )
-    datasets = defaultdict(dict)
-    for slug in slugs:
-        dataset_slug, tablename = slug.split(":")
-        dataset = Dataset.objects.get(slug=dataset_slug)
-        datasets[dataset_slug][tablename] = dataset.get_table(tablename)
-
-    return datasets
 
 
 def index(request):
@@ -72,15 +46,14 @@ def redirect_company(from_document, to_document, warn):
 
 
 def document_detail(request, document):
-    datasets = get_datasets()
-    Candidatos = datasets["eleicoes-brasil"]["candidatos"].get_model()
-    Documents = datasets["documentos-brasil"]["documents"].get_model()
-    Empresas = datasets["socios-brasil"]["empresas"].get_model()
-    Holdings = datasets["socios-brasil"]["holdings"].get_model()
-    Socios = datasets["socios-brasil"]["socios"].get_model()
-    FiliadosPartidos = datasets["eleicoes-brasil"]["filiados"].get_model()
-    GastosDeputados = datasets["gastos-deputados"]["cota_parlamentar"].get_model()
-    GastosDiretos = datasets["gastos-diretos"]["gastos"].get_model()
+    Candidatos = get_table_model("eleicoes-brasil", "candidatos")
+    Documents = get_table_model("documentos-brasil", "documents")
+    Empresas = get_table_model("socios-brasil", "empresas")
+    Holdings = get_table_model("socios-brasil", "holdings")
+    Socios = get_table_model("socios-brasil", "socios")
+    FiliadosPartidos = get_table_model("eleicoes-brasil", "filiados")
+    GastosDeputados = get_table_model("gastos-deputados", "cota_parlamentar")
+    GastosDiretos = get_table_model("gastos-diretos", "gastos")
 
     encrypted = False
     if len(document) not in (11, 14):  # encrypted
@@ -126,26 +99,26 @@ def document_detail(request, document):
     applications_data = Candidatos.objects.none()
     filiations_data = FiliadosPartidos.objects.none()
     applications_fields = _get_fields(
-        datasets["eleicoes-brasil"]["candidatos"],
+        get_table("eleicoes-brasil", "candidatos"),
         remove=["cpf_candidato", "nome_candidato"],
     )
     companies_fields = _get_fields(
-        datasets["socios-brasil"]["socios"], remove=["cpf_cnpj_socio", "nome_socio"]
+        get_table("socios-brasil", "socios"), remove=["cpf_cnpj_socio", "nome_socio"]
     )
     camara_spending_fields = _get_fields(
-        datasets["gastos-deputados"]["cota_parlamentar"],
+        get_table("gastos-deputados", "cota_parlamentar"),
         remove=["txtcnpjcpf", "txtfornecedor"],
     )
     federal_spending_fields = _get_fields(
-        datasets["gastos-diretos"]["gastos"],
+        get_table("gastos-diretos", "gastos"),
         remove=["codigo_favorecido", "nome_favorecido"],
     )
     partners_fields = _get_fields(
-        datasets["socios-brasil"]["socios"], remove=["cnpj", "razao_social"]
+        get_table("socios-brasil", "socios"), remove=["cnpj", "razao_social"]
     )
-    filiations_fields = _get_fields(datasets["eleicoes-brasil"]["filiados"], remove=[])
+    filiations_fields = _get_fields(get_table("eleicoes-brasil", "filiados"), remove=[])
     branches_fields = _get_fields(
-        datasets["documentos-brasil"]["documents"],
+        get_table("documentos-brasil", "documents"),
         remove=["document_type", "sources", "text"],
     )
 
@@ -159,7 +132,7 @@ def document_detail(request, document):
             cnpj_socia__in=branches_cnpjs
         ).order_by("razao_social")
         companies_fields = _get_fields(
-            datasets["socios-brasil"]["holdings"], remove=["cnpj_socia"]
+            get_table("socios-brasil", "holdings"), remove=["cnpj_socia"]
         )
 
         # all appearances of 'obj.document'
@@ -235,8 +208,7 @@ def _get_path(origin, destination):
 def fix_nodes(nodes):
     """Add `cnpj` to company nodes"""
 
-    datasets = get_datasets()
-    Documents = datasets["documentos-brasil"]["documents"].get_model()
+    Documents = get_table_model("documentos-brasil", "documents")
 
     result = []
     for node in nodes:
@@ -307,9 +279,8 @@ def company_groups(request):
 class Covid19Stats:
 
     def __init__(self):
-        datasets = get_datasets()
-        self.Boletim = datasets["covid19"]["boletim"].get_model()
-        self.Caso = datasets["covid19"]["caso"].get_model()
+        self.Boletim = get_table_model("covid19", "boletim")
+        self.Caso = get_table_model("covid19", "caso")
 
     @cached_property
     def city_cases(self):
