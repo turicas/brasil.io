@@ -1,3 +1,4 @@
+from copy import deepcopy
 from pathlib import Path
 from localflavor.br.br_states import STATE_CHOICES
 
@@ -41,6 +42,14 @@ class StateSpreadsheetQuerySet(models.QuerySet):
         return self.filter(cancelled=False)
 
 
+def default_data_json():
+    return {
+        "table": [],
+        "errors": [],
+        "warnings": [],
+    }
+
+
 class StateSpreadsheet(models.Model):
     UPLOADED, CHECK_FAILED, DEPLOYED = 1, 2, 3
     STATUS_CHOICES = (
@@ -77,7 +86,7 @@ class StateSpreadsheet(models.Model):
     # precisar ler o arquivo (o validador da planilha no form vai ter que fazer
     # essa leitura, então ele faz, se estiver tudo ok já salva nesse campo pro
     # worker já trabalhar com os dados limpos e normalizados)
-    data = JSONField(default=dict)
+    data = JSONField(default=default_data_json)
 
     # por padrao é False, mas vira True se um mesmo usuário subir uma planilha
     # pro mesmo estado pra mesma data (ele cancela o upload anterior pra essa
@@ -87,3 +96,42 @@ class StateSpreadsheet(models.Model):
     def __str__(self):
         active = 'Ativa' if not self.cancelled else 'Cancelada'
         return f'Planilha {active}: {self.state} - {self.date} por {self.user}'
+
+    @property
+    def table_data(self):
+        return deepcopy(self.data['table'])
+
+    @table_data.setter
+    def table_data(self, data):
+        self.data['table'] = deepcopy(data)
+
+    @property
+    def warnings(self):
+        return deepcopy(self.data['warnings'])
+
+    @warnings.setter
+    def warnings(self, data):
+        self.data['warnings'] = data
+
+    @property
+    def errors(self):
+        return deepcopy(self.data['errors'])
+
+    @errors.setter
+    def errors(self, data):
+        self.data['errors'] = data
+        self.status = StateSpreadsheet.CHECK_FAILED
+
+    def get_data_from_city(self, ibge_code):
+        if ibge_code:  # ibge_code = None match for undefined data
+            ibge_code = int(ibge_code)
+        try:
+            return [d for d in self.table_data if d['city_ibge_code'] == ibge_code][0]
+        except IndexError:
+            return None
+
+    def get_total_data(self):
+        try:
+            return [d for d in self.table_data if d['place_type'] == 'state'][0]
+        except IndexError:
+            return None

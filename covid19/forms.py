@@ -1,11 +1,16 @@
+import os
+import rows
+from datetime import date
 from localflavor.br.br_states import STATE_CHOICES
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 from django import forms
 from django.core.validators import URLValidator
 
 from covid19.models import StateSpreadsheet
 from covid19.permissions import user_has_state_permission
+from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict, SpreadsheetValidationErrors
 
 
 def state_choices_for_user(user):
@@ -20,8 +25,22 @@ def state_choices_for_user(user):
     return choices
 
 
+def import_xls(f_obj):
+    content = f_obj.read()
+    f_obj.seek(0)
+
+    temp_xls = NamedTemporaryFile(suffix='.xls', delete=False)
+    temp_xls.write(content)
+    temp_xls.close()
+
+    data = rows.import_from_xls(temp_xls)
+    temp_file = Path(temp_xls.name)
+    os.remove(temp_file)
+
+    return data
+
+
 class StateSpreadsheetForm(forms.ModelForm):
-    valid_file_suffixes = ['.csv', '.xls', '.xlsx', '.ods']
     boletim_urls = forms.CharField(
         widget=forms.Textarea,
         help_text="Lista de URLs do(s) boletim(s) com uma entrada por linha"
@@ -32,6 +51,8 @@ class StateSpreadsheetForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.user:
             self.fields['state'].choices = state_choices_for_user(self.user)
+        self.file_data_as_json = []
+        self.data_warnings = []
 
     class Meta:
         model = StateSpreadsheet
@@ -40,9 +61,17 @@ class StateSpreadsheetForm(forms.ModelForm):
     def save(self, commit=True):
         spreadsheet = super().save(commit=False)
         spreadsheet.user = self.user
+        spreadsheet.table_data = self.file_data_as_json
+        spreadsheet.warnings = self.data_warnings
         if commit:
             spreadsheet.save()
         return spreadsheet
+
+    def clean_date(self):
+        report_date = self.cleaned_data['date']
+        if report_date > date.today():
+            raise forms.ValidationError('Campo não aceita datas futuras.')
+        return report_date
 
     def clean_boletim_urls(self):
         urls = self.cleaned_data['boletim_urls'].strip().split('\n')
@@ -51,17 +80,36 @@ class StateSpreadsheetForm(forms.ModelForm):
             url_validator(url)
         return urls
 
-    def clean_file(self):
-        file = self.cleaned_data['file']
-        valid = self.valid_file_suffixes
-        path = Path(file.name)
+    def clean(self):
+        cleaned_data = super().clean()
+        file = cleaned_data.get('file')
+        spreadsheet_date = cleaned_data.get("date")
+        state = cleaned_data.get("state")
 
-        if not path.suffix.lower() in valid:
-            msg = f"Formato de planilha inválida. O arquivo precisa estar formatado como {valid}."
-            raise forms.ValidationError(msg)
+        if all([file, spreadsheet_date, state]):
+            path = Path(file.name)
+            import_func_per_suffix = {
+                '.csv': rows.import_from_csv,
+                '.xls': import_xls,
+                '.xlsx': rows.import_from_xlsx,
+                '.ods': rows.import_from_ods,
+            }
 
-        # Acredito que vale muito a pena deixar toda a lógica de validação desse arquivo numa função seprarada  # noqa
-        # TODO: https://github.com/turicas/brasil.io/issues/209
-        # TODO: https://github.com/turicas/brasil.io/issues/210
-        # TODO: https://github.com/turicas/brasil.io/issues/217
-        return file
+            import_func = import_func_per_suffix.get(path.suffix.lower())
+            if not import_func:
+                valid = import_func_per_suffix.keys()
+                msg = f"Formato de planilha inválida. O arquivo precisa estar formatado como {valid}."  # noqa
+                raise forms.ValidationError(msg)
+
+            try:
+                file_rows = import_func(file)
+            except Exception as e:
+                raise forms.ValidationError(e)
+
+            try:
+                self.file_data_as_json, self.data_warnings = format_spreadsheet_rows_as_dict(
+                    file_rows, spreadsheet_date, state
+                )
+            except SpreadsheetValidationErrors as exception:
+                for error in exception.error_messages:
+                    self.add_error(None, error)
