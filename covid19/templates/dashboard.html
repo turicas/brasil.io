@@ -60,18 +60,20 @@
 
 <div class="row">
 
-  <div class="col l12 m12 s12">
+  <div class="col xl6 l12 m12 s12">
+    <div id="loading">
+      <span class="center-align valign-wrapper">
+        <img src="{% static 'img/loading.gif' %}" alt="Carregando" />
+        &nbsp;
+        Carregando mapa...
+      </span>
+    </div>
     <div id="map"></div>
     Nota: casos de municípios importados/indeterminados não estão
     representados no mapa.
   </div>
 
-  <div class="col l12 m12 s12">
-    <p>
-      <a class="btn" href="{% url 'core:dataset-table-detail' 'covid19' 'caso' %}?is_last=True&amp;place_type=city&amp;format=csv">
-        Baixar dados em CSV
-      </a>
-    </p>
+  <div class="col xl6 l12 m12 s12">
     <table class="table mdl-data-table" style="height: 600px">
       <thead>
         <tr>
@@ -99,6 +101,11 @@
         {% endfor %}
       </tbody>
     </table>
+    <p class="right-align">
+      <a class="btn" href="{% url 'core:dataset-table-detail' 'covid19' 'caso' %}?is_last=True&amp;place_type=city&amp;format=csv">
+        Baixar dados em CSV
+      </a>
+    </p>
   </div>
 
   <!-- TODO: fix footer so we don't need this -->

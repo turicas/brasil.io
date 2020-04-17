@@ -1,9 +1,15 @@
-var cityData, cityGeoJSON, cityLayer, colors, legendBins, map, selectedVar, stateGeoJSON, stateLayer;
+var cityData, cityGeoJSON, cityLayer, colors, displayText, legendBins, map, selectedVar, stateGeoJSON, stateLayer;
 colors = {
   "confirmed": "#00F",
   "confirmed_per_100k_inhabitants": "#80F",
   "deaths": "#F00",
   "death_rate": "#F08",
+};
+displayText = {
+  "confirmed": "Casos confirmados",
+  "confirmed_per_100k_inhabitants": "Confirmados/100k hab.",
+  "deaths": "Óbitos confirmados",
+  "death_rate": "Letalitdade (óbitos/confirmados)",
 };
 legendBins = 5;
 selectedVar = "confirmed";
@@ -49,21 +55,29 @@ function createMap() {
     zoomSnap: 0.25,
     zoomDelta: 0.25,
     minZoom: 4.5,
-    maxZoom: 7,
+    maxZoom: 9,
     attributionControl: false
   });
   map.setView([-15, -54], 4.75);
 }
+function hasToAddStateLayer() {
+  return stateGeoJSON !== undefined && stateLayer === undefined;
+}
+function hasToAddCityLayer() {
+  return stateLayer !== undefined && cityGeoJSON !== undefined && cityLayer === undefined;
+}
+function hasToAddLegendLayer() {
+  return stateLayer !== undefined && cityLayer !== undefined;
+}
+function mapHasLoaded() {
+  return stateLayer !== undefined && cityLayer !== undefined;
+}
 function updateMap() {
-  var hasToAddStateLayer = stateGeoJSON !== undefined && stateLayer === undefined;
-  var hasToAddCityLayer = (stateLayer !== undefined || hasToAddStateLayer) && cityGeoJSON !== undefined && cityLayer === undefined;
-  var hasToAddLegendLayer = (stateLayer !== undefined || hasToAddStateLayer) && (cityLayer !== undefined || hasToAddCityLayer);
-
-  if (hasToAddStateLayer) {
+  if (hasToAddStateLayer()) {
     stateLayer = L.geoJSON(stateGeoJSON, {style: stateStyle}).addTo(map);
   }
 
-  if (hasToAddCityLayer) {
+  if (hasToAddCityLayer()) {
     cityGeoJSON.features = cityGeoJSON.features.filter(function (item) {
       var city = cityData[item.id];
       return city !== undefined;
@@ -84,7 +98,7 @@ function updateMap() {
     ).addTo(map);
   }
 
-  if (hasToAddLegendLayer) {
+  if (hasToAddLegendLayer()) {
     var legend = L.control({position: "bottomright"});
     legend.onAdd = function (map) {
       var div = L.DomUtil.create("div", "info legend");
@@ -92,21 +106,26 @@ function updateMap() {
       var maxValue = maxValues[selectedVar];
       var color = colors[selectedVar];
       var zeroDisplay = zeroText[selectedVar];
+      var labels = [`<b>${displayText[selectedVar]}</b>`, ""];
       for (var opacity = 0; opacity <= 1; opacity += 1.0 / legendBins) {
         var value = valueFromOpacity(opacity, maxValue);
-        if (lastValue === undefined) {
-          displayValue = zeroDisplay;
-        }
-        else {
-          displayValue = `${lastValue} &mdash; ${value}`;
-        }
-        div.innerHTML += `<i style="background: ${color}; opacity: ${opacity}"></i> ${displayValue} <br>`;
-        lastValue = value;
+        displayValue = lastValue === undefined ? zeroDisplay : `${lastValue} &mdash; ${value}`;
+        labels.push(`<i style="background: ${color}; opacity: ${opacity}"></i> ${displayValue}`);
+        lastValue = value + 1;
       }
+      div.innerHTML += labels.join("<br>");
       return div;
     };
     legend.addTo(map);
   }
+
+  if (mapHasLoaded()) {
+    mapLoaded();
+  }
+}
+
+function mapLoaded() {
+  jQuery("#loading").css("z-index", -999);
 }
 
 function retrieveData() {

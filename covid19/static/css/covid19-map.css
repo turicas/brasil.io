@@ -29,5 +29,27 @@
   height: 18px;
   float: left;
   margin-right: 8px;
-  opacity: 0.7;
+  clear: both;
+}
+
+#loading {
+  position: relative;
+  z-index: 999;
+  margin-bottom: -50px;
+  margin-left: 50px;
+}
+#loading > span > img {
+  width: 20px;
+  height: 20px;
+}
+
+.dataTables_filter label {
+  float: left;
+  font-size: 1.5em;
+  text-align: left;
+  width: 100%;
+}
+.dataTables_wrapper .dataTables_filter input[type=search] {
+  float: right;
+  width: calc(100% - 7rem);
 }
