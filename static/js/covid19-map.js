@@ -23,18 +23,20 @@ function cityStyle(feature) {
 	var maxValue = maxValues[selectedVar];
 	var opacity = defineOpacity(value, maxValue);
 	return {
-		lineJoin: "round",
-		weight: 0.25,
-		opacity: 0,
+		color: "#000",
+		fillColor: colors[selectedVar],
 		fillOpacity: opacity,
-		color: colors[selectedVar],
+		lineJoin: "round",
+		opacity: 0,
+		weight: 1,
 	}
 }
 function stateStyle(feature) {
 	return {
-		color: "#000000",
-		fillColor: "#FFFFFF",
+		color: "#000",
+		fillColor: "#FFF",
 		fillOpacity: 0.1,
+		lineJoin: "round",
 		opacity: 1,
 		weight: 0.5
 	};
@@ -60,7 +62,20 @@ function updateMap() {
 			var city = cityData[item.id];
 			return city !== undefined;
 		});
-		cityLayer = L.geoJSON(cityGeoJSON, {style: cityStyle}).addTo(map);
+		cityLayer = L.geoJSON(
+			cityGeoJSON,
+			{
+				style: cityStyle,
+				onEachFeature: function (feature, layer) {
+					layer.on("mouseover", function () {
+						this.setStyle({opacity: 1});
+					});
+					layer.on("mouseout", function () {
+						this.setStyle({opacity: 0});
+					});
+				}
+			}
+		).addTo(map);
 	}
 
 	if (stateLayer !== undefined && cityLayer !== undefined) {
