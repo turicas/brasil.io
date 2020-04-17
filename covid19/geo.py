@@ -31,17 +31,19 @@ def download_city_geojson():
 def city_geojson():
     cache_key = "geojson:BR:city"
     data = cache.get(cache_key, None)
-    if data is None:
-        data = download_city_geojson()
-        cache.set(cache_key, data)
+    if data is not None:
+        return data
 
+    geojson = download_city_geojson()
     feature_id_func = lambda feature: feature["properties"]["CD_GEOCMU"]
-    data["features"].sort(key=feature_id_func)
-    for feature_id, features in groupby(data["features"], key=feature_id_func):
+    geojson["features"].sort(key=feature_id_func)
+    for feature_id, features in groupby(geojson["features"], key=feature_id_func):
         features = list(features)
         for feature in features:
             feature["id"] = int(feature_id)
             feature["properties"] = {}
         if len(features) > 1:
             raise RuntimeError(f"Duplicate feature id {feature_id}")
-    return data
+
+    cache.set(cache_key, geojson)
+    return geojson
