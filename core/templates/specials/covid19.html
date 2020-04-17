@@ -16,21 +16,29 @@
 
 {% block content %}{% localize on %}
 <div>
-  <h1> COVID19 no Brasil </h1>
+  <h1> ESPECIAL COVID-19 </h1>
+  <h2> Dados por Município </h2>
   <p>
-    O projeto Brasil.IO COVID19 é um esforço de mais de 35 voluntários,
-    coletando diariamente dados dos boletins epidemiológicos das 27 Secretarias
-    Estaduais de Saúde do país.
-    <div class="center">
-      <a class="btn"
-        href="https://blog.brasil.io/2020/03/23/dados-coronavirus-por-municipio-mais-atualizados/">Saiba
-        mais sobre o projeto</a>
-
-      <a class="btn" href="{% url 'core:dataset-detail' 'covid19' %}">Acesse os dados
-        completos</a>
-      <a class="btn" href="{% url 'core:collaborate' %}">Colabore com o Brasil.IO</a>
-    </div>
+    Graças a uma força-tarefa de 35 voluntários que, diariamente, compilam
+    boletins epidemiológicos das 27 Secretarias Estaduais de Saúde,
+    disponibilizamos uma base de dados com a série histórica de casos e óbitos
+    confirmados por município. Embora essenciais para o planejamento de
+    políticas de contenção do novo coronavírus, os dados municipais não têm
+    sido divulgados pelo Ministério da Saúde. Ainda como parte desse esforço
+    contínuo de fornecer dados úteis relacionados à pandemia, disponibilizamos
+    outras bases estruturadas, como população dos municípios afetados, óbitos
+    suspeitos registrados em cartório etc.
   </p>
+  <div class="center">
+    <a class="btn"
+      href="https://blog.brasil.io/2020/03/23/dados-coronavirus-por-municipio-mais-atualizados/">Saiba
+      mais sobre o projeto</a>
+
+    <a class="btn" href="{% url 'core:dataset-detail' 'covid19' %}">Acesse os dados
+      completos</a>
+    <a class="btn" href="{% url 'core:donate' %}">Apoie o projeto</a>
+  </div>
+</p>
 
   <div class="row">
     {% for row in aggregate %}
