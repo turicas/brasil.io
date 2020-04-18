@@ -16,23 +16,29 @@
 
 {% block content %}{% localize on %}
 <div>
-  <h1> ESPECIAL COVID-19 </h1>
-  <h2> Dados por Município </h2>
+  <h1> ESPECIAL COVID-19 - Dados por Município </h1>
   {% include 'covid19-text.html' %}
   <div class="center">
     <a class="btn"
-      href="https://blog.brasil.io/2020/03/23/dados-coronavirus-por-municipio-mais-atualizados/">Saiba
-      mais sobre o projeto</a>
-
-    <a class="btn" href="{% url 'core:dataset-detail' 'covid19' %}">Acesse os dados
-      completos</a>
+      href="https://blog.brasil.io/2020/03/23/dados-coronavirus-por-municipio-mais-atualizados/">
+      Sobre o projeto
+    </a>
+    <a class="btn" href="{% url 'core:dataset-detail' 'covid19' %}">
+      Dados completos
+    </a>
+    <a class="btn" href="https://github.com/turicas/covid19-br/tree/master/api.md">
+      Documentação da API
+    </a>
+    <a class="btn" href="https://github.com/turicas/covid19-br/tree/master/clipping.md">
+      Quem está usando
+    </a>
     <a class="btn" href="{% url 'core:donate' %}">Apoie o projeto</a>
   </div>
 </p>
 
 <div class="row">
   {% for row in aggregate %}
-  <div class="col s2">
+  <div class="col s12 m6 l4 xl2">
     <div class="card">
       <div class="card-content teal-text card-title">
         <span class="tooltipped" data-position="bottom" data-tooltip="{{ row.tooltip }}">

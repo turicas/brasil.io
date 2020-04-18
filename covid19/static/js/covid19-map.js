@@ -254,6 +254,7 @@ jQuery(document).ready(function() {
       jQuery("#table-col").removeClass("xl6").addClass("xl12");
       jQuery("#map-col").removeClass("xl6").addClass("xl12");
     }
+    dt.columns.adjust();
   });
   window.dispatchEvent(new Event("resize"));
 });

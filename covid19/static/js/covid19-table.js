@@ -2,6 +2,16 @@ var dt;
 
 jQuery(document).ready(function() {
   dt = jQuery('.mdl-data-table').DataTable({
+    "autoWidth": false,
+    "columns": [
+      { "width": "20%" },
+      { "width": "20%" },
+      { "width": "16%" },
+      { "width": "11%" },
+      { "width": "11%" },
+      { "width": "11%" },
+      { "width": "11%" }
+    ],
     "scrollY":        "600px",
     "scrollCollapse": true,
     "paging":         false,
