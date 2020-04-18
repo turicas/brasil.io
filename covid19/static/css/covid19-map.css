@@ -1,0 +1,55 @@
+#map {
+  min-width: 400px;
+  min-height: 800px;
+}
+
+.card {
+  height: 10em;
+}
+
+.info {
+  padding: 6px 8px;
+  font: 14px/16px sans-serif;
+  background: white;
+  background: rgba(255,255,255,0.8);
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  border-radius: 5px;
+}
+.info h4 {
+  margin: 0 0 5px;
+  color: #777;
+}
+
+.legend {
+  line-height: 18px;
+  color: #555;
+}
+.legend i {
+  width: 18px;
+  height: 18px;
+  float: left;
+  margin-right: 8px;
+  clear: both;
+}
+
+#loading {
+  position: relative;
+  z-index: 999;
+  margin-bottom: -50px;
+  margin-left: 50px;
+}
+#loading > span > img {
+  width: 20px;
+  height: 20px;
+}
+
+.dataTables_filter label {
+  float: left;
+  font-size: 1.5em;
+  text-align: left;
+  width: 100%;
+}
+.dataTables_wrapper .dataTables_filter input[type=search] {
+  float: right;
+  width: calc(100% - 7rem);
+}

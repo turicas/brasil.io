@@ -60,6 +60,7 @@ if DEBUG:
     INSTALLED_APPS += ("naomi",)
 
 ROOT_URLCONF = "brasilio.urls"
+APPEND_SLASH = True
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",

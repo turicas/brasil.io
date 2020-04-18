@@ -1,10 +1,8 @@
 import csv
-import json
 import uuid
-from urllib.request import urlopen
 
+from cache_memoize import cache_memoize
 from django.conf import settings
-from django.core.cache import cache
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -15,6 +13,7 @@ from django.urls import reverse
 from core.forms import ContactForm, DatasetSearchForm
 from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
+from core.util import cached_http_get_json
 
 
 max_export_rows = 350_000
@@ -197,11 +196,6 @@ def collaborate(request):
 
 
 def contributors(request):
-    cache_key = "meta:data:contributors"
-    data = cache.get(cache_key, None)
-    if data is None:
-        url = "https://data.brasil.io/meta/contribuidores.json"
-        response = urlopen(url)
-        data = json.loads(response.read())
-        cache.set(cache_key, data)
+    url = "https://data.brasil.io/meta/contribuidores.json"
+    data = cached_http_get_json(url, 5)
     return render(request, "contributors.html", {"contributors": data})
