@@ -110,7 +110,7 @@ function updatePlaceDataControl(placeData) {
 }
 function updateVarControl() {
   var div = varControl.getContainer();
-  var inputs = [];
+  var inputs = ["<b>Selecione a variável</b>"];
   Object.keys(displayText).forEach(function(item) {
     inputs.push(`<label><input type="radio" class="radio-control" name="radio-var-control" value="${item}"><span>${displayText[item]}</span></label>`);
   });

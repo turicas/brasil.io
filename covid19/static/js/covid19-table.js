@@ -12,7 +12,7 @@ jQuery(document).ready(function() {
       { "width": "11%" },
       { "width": "11%" }
     ],
-    "scrollY":        "600px",
+    "scrollY":        "650px",
     "scrollCollapse": true,
     "paging":         false,
     "searching":      true,
