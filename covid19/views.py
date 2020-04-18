@@ -1,11 +1,22 @@
+import random
+
 from django.http import JsonResponse
 from django.shortcuts import render
 
 from .geo import city_geojson
 from .stats import Covid19Stats
 
+from core.util import cached_http_get_json
 
 stats = Covid19Stats()
+
+
+def volunteers(request):
+    url = "https://data.brasil.io/meta/covid19-voluntarios.json"
+    volunteers = cached_http_get_json(url, 5)
+    random.shuffle(volunteers)
+    return render(request, "volunteers.html", {"volunteers": volunteers})
+
 
 def cities(request):
     city_data = stats.city_data
@@ -16,9 +27,7 @@ def cities_geojson(request):
     city_ids = set(stats.city_data["cities"].keys())
     data = city_geojson()
     data["features"] = [
-        feature
-        for feature in data["features"]
-        if feature["id"] in city_ids
+        feature for feature in data["features"] if feature["id"] in city_ids
     ]
     # TODO: return GeoJSONResponse
     return JsonResponse(data)
@@ -69,8 +78,5 @@ def dashboard(request):
     return render(
         request,
         "dashboard.html",
-        {
-            "city_data": city_data["cities"].values(),
-            "aggregate": aggregate,
-        },
+        {"city_data": city_data["cities"].values(), "aggregate": aggregate},
     )
