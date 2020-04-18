@@ -42,7 +42,29 @@ class Covid19Stats:
             total_confirmed=Sum("confirmed"),
             total_deaths=Sum("deaths"),
             total_population=Sum("estimated_population_2019"),
+            last_date=Max("date"),
         )
+
+    @property
+    def country_totals(self):
+        state_totals = self.state_totals
+        confirmed = state_totals["total_confirmed"]
+        deaths = state_totals["total_deaths"]
+        population = state_totals["total_population"]
+        # TODO: is there any way to move this to serializer?
+        return {
+            "city": "Brasil",
+            "city_ibge_code": 0,
+            "city_str": "Brasil",
+            "confirmed": confirmed,
+            "confirmed_per_100k_inhabitants": 100_000 * (confirmed / population),
+            "date": state_totals["last_date"],
+            "date_str": state_totals["last_date"],
+            "death_rate_percent": 100 * (deaths / confirmed),
+            "deaths": deaths,
+            "estimated_population_2019": population,
+            "state": "BR",
+        }
 
     @property
     def total_confirmed(self):
@@ -84,4 +106,4 @@ class Covid19Stats:
             key: max(row[key] for row in cities.values())
             for key in ("confirmed", "confirmed_per_100k_inhabitants", "deaths", "death_rate_percent")
         }
-        return {"cities": cities, "max": max_values}
+        return {"cities": cities, "max": max_values, "total": self.country_totals}

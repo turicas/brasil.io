@@ -1,25 +1,45 @@
-var cityData, cityGeoJSON, cityLayer, colors, displayText, legendBins, map, selectedVar, stateGeoJSON, stateLayer;
+var cityData,
+    cityGeoJSON,
+    cityLayer,
+    colors,
+    countryData,
+    countryId,
+    displayText,
+    legendBins,
+    map,
+    placeDataControl,
+    legendControl,
+    selectedPlace,
+    selectedVar,
+    stateGeoJSON,
+    stateLayer;
+
 colors = {
   "confirmed": "#00F",
   "confirmed_per_100k_inhabitants": "#80F",
   "deaths": "#F00",
-  "death_rate": "#F08",
+  "death_rate_percent": "#F08",
 };
 displayText = {
   "confirmed": "Casos confirmados",
   "confirmed_per_100k_inhabitants": "Confirmados/100k hab.",
   "deaths": "Óbitos confirmados",
-  "death_rate": "Letalitdade (óbitos/confirmados)",
+  "death_rate_percent": "Letalitdade (óbitos/confirmados)",
 };
 legendBins = 5;
+countryId = 0; // Brasil
+selectedPlace = countryId;
 selectedVar = "confirmed";
 zeroText = {
   "confirmed": "Nenhum",
   "confirmed_per_100k_inhabitants": "Nenhum",
   "deaths": "Nenhuma",
-  "death_rate": "Nenhuma",
+  "death_rate_percent": "Nenhuma",
 };
 
+function getPlaceData(place) {
+  return place == countryId ? countryData : cityData[place];
+}
 function opacityFromValue(value, maxValue) {
   return Math.log2(value + 1) / Math.log2(maxValue + 1);
 }
@@ -48,6 +68,22 @@ function stateStyle(feature) {
     opacity: 1,
     weight: 0.5
   };
+}
+function updatePlaceDataControl(placeData) {
+  var div = placeDataControl.getContainer();
+  var dataLines = [];
+  Object.keys(colors).forEach(function(item) {
+    var value = Intl.NumberFormat("pt-BR").format(placeData[item]);
+    value = item.endsWith("percent") ? `${value}%` : value;
+    dataLines.push(`<dt>${displayText[item]}</dt> <dd>${value}</dd>`);
+  });
+  div.innerHTML = `
+    <b>${placeData.city}</b>
+    <br>
+    <dl>
+      ${dataLines.join("<br>")}
+    </dl>
+  `;
 }
 
 function createMap() {
@@ -89,9 +125,11 @@ function updateMap() {
         onEachFeature: function (feature, layer) {
           layer.on("mouseover", function () {
             this.setStyle({opacity: 1});
+            updatePlaceDataControl(getPlaceData(this.feature.id));
           });
           layer.on("mouseout", function () {
             this.setStyle({opacity: 0});
+            updatePlaceDataControl(getPlaceData(countryId));
           });
         }
       }
@@ -99,8 +137,8 @@ function updateMap() {
   }
 
   if (hasToAddLegendLayer()) {
-    var legend = L.control({position: "bottomright"});
-    legend.onAdd = function (map) {
+    legendControl = L.control({position: "bottomright"});
+    legendControl.onAdd = function (map) {
       var div = L.DomUtil.create("div", "info legend");
       var lastValue, displayValue;
       var maxValue = maxValues[selectedVar];
@@ -116,7 +154,15 @@ function updateMap() {
       div.innerHTML += labels.join("<br>");
       return div;
     };
-    legend.addTo(map);
+    legendControl.addTo(map);
+
+    placeDataControl = L.control({position: "bottomleft"});
+    placeDataControl.onAdd = function (map) {
+      var div = L.DomUtil.create("div", "info legend");
+      return div;
+    };
+    placeDataControl.addTo(map);
+    updatePlaceDataControl(getPlaceData(selectedPlace));
   }
 
   if (mapHasLoaded()) {
@@ -134,6 +180,7 @@ function retrieveData() {
     function (data) {
       cityData = data.cities;
       maxValues = data.max;
+      countryData = data.total;
       updateMap();
     }
   );
