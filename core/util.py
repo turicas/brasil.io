@@ -1,6 +1,7 @@
+import gzip
 import json
-from urllib.request import urlopen, URLError
 import socket
+from urllib.request import urlopen, Request, URLError
 
 import django.db.models.fields
 from cachetools import cached, TTLCache
@@ -58,27 +59,42 @@ def get_company_by_document(document):
     return obj
 
 
-@cached(cache=TTLCache(maxsize=100, ttl=24 * 3600))
 def http_get_json(url, timeout):
+    request = Request(url, headers={"Accept-Encoding": "gzip, deflate"})
     try:
-        response = urlopen(url, timeout=timeout)
+        response = urlopen(request, timeout=timeout)
     except (URLError, socket.timeout):
         return None
     else:
-        return json.loads(response.read())
+        encoding = response.info().get("Content-Encoding")
+        response_data = response.read()
+        if encoding in ("deflate", None):
+            data = response_data
+        elif encoding == "gzip":
+            data = gzip.decompress(response_data)
+        else:
+            raise RuntimeError(f"Unknown encoding: {repr(encoding)}")
+        return json.loads(data)
 
 
+@cached(cache=TTLCache(maxsize=100, ttl=24 * 3600))
+def cached_http_get_json(url, timeout):
+    return http_get_json(url, timeout)
+
+
+@cached(cache=TTLCache(maxsize=100, ttl=24 * 3600))
 def github_repository_contributors(username, repository, timeout=1):
     url = f"https://api.github.com/repos/{username}/{repository}/contributors"
-    contributors = http_get_json(url, timeout)
+    contributors = cached_http_get_json(url, timeout)
     if contributors is None:
         print(f"ERROR downloading {url}")
         return []
 
     for contributor in contributors:
         url = contributor["url"]
-        contributor["user_data"] = http_get_json(contributor["url"], timeout)
-        print(f"ERROR downloading {url}")
+        contributor["user_data"] = cached_http_get_json(contributor["url"], timeout)
+        if contributor["user_data"] is None:
+            print(f"ERROR downloading {url}")
 
     return contributors
 

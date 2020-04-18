@@ -1,7 +1,5 @@
 import csv
-import json
 import uuid
-from urllib.request import urlopen
 
 from cache_memoize import cache_memoize
 from django.conf import settings
@@ -15,6 +13,7 @@ from django.urls import reverse
 from core.forms import ContactForm, DatasetSearchForm
 from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
+from core.util import cached_http_get_json
 
 
 max_export_rows = 350_000
@@ -196,13 +195,7 @@ def collaborate(request):
     return render(request, "collaborate.html", {})
 
 
-@cache_memoize(24 * 3600)
-def get_contributors():
-    url = "https://data.brasil.io/meta/contribuidores.json"
-    response = urlopen(url)
-    data = json.loads(response.read())
-    return data
-
-
 def contributors(request):
-    return render(request, "contributors.html", {"contributors": get_contributors()})
+    url = "https://data.brasil.io/meta/contribuidores.json"
+    data = cached_http_get_json(url, 5)
+    return render(request, "contributors.html", {"contributors": data})
