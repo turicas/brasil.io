@@ -25,7 +25,7 @@ displayText = {
   "confirmed": "Casos confirmados",
   "confirmed_per_100k_inhabitants": "Confirmados/100.000 hab.",
   "deaths": "Óbitos confirmados",
-  "death_rate_percent": "Taxa de mortalidade",
+  "death_rate_percent": "Letalidade",
 };
 legendBins = 5;
 countryId = 0; // Brasil

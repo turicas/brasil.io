@@ -54,7 +54,7 @@ def dashboard(request):
         },
         {
             "title": "Óbitos confirmados",
-            "value": total_deaths,
+            "value": f"{total_deaths} ({100 * (total_deaths / total_confirmed):.2f}%)",
             "tooltip": "Total de óbitos confirmados",
         },
         {
