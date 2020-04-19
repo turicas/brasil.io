@@ -27,7 +27,7 @@ displayText = {
   "deaths": "Óbitos confirmados",
   "death_rate_percent": "Letalidade",
 };
-legendBins = 5;
+legendBins = 6;
 countryId = 0; // Brasil
 selectedPlace = countryId;
 selectedVar = "confirmed";
@@ -78,19 +78,22 @@ function changeVar(newVar) {
 }
 
 function updateLegendControl() {
-  var div = legendControl.getContainer();
-  var lastValue, displayValue;
-  var maxValue = maxValues[selectedVar];
-  var color = colors[selectedVar];
-  var zeroDisplay = zeroText[selectedVar];
-  var labels = [`<b>${displayText[selectedVar]}</b>`, ""];
-  for (var opacity = 0; opacity <= 1; opacity += 1.0 / legendBins) {
+  var color = colors[selectedVar],
+      displayValue,
+      div = legendControl.getContainer(),
+      labels = [`<b>${displayText[selectedVar]}</b>`, "<br><br>"],
+      lastValue,
+      maxValue = maxValues[selectedVar],
+      zeroDisplay = zeroText[selectedVar];
+
+  for (var counter = 0; counter <= legendBins; counter += 1) {
+    var opacity = counter / legendBins;
     var value = valueFromOpacity(opacity, maxValue);
     displayValue = lastValue === undefined ? zeroDisplay : `${lastValue} &mdash; ${value}`;
-    labels.push(`<i style="background: ${color}; opacity: ${opacity}"></i> ${displayValue}`);
+    labels.push(`<span class="valign-wrapper"> <i style="background: ${color}; opacity: ${opacity}"></i> ${displayValue} </span>`);
     lastValue = value + 1;
   }
-  div.innerHTML = labels.join("<br>");
+  div.innerHTML = labels.join("");
 }
 function updatePlaceDataControl(placeData) {
   var div = placeDataControl.getContainer();

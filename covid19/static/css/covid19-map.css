@@ -20,23 +20,20 @@
   color: #777;
 }
 
-.legend {
-  line-height: 15px;
-  color: #000;
+.legend i {
+  width: 18px;
+  line-height: inherit;
+  margin-right: 8px;
+  display: inline-block;
+  height: 18px;
 }
+
 .legend > label {
   color: #000;
 }
 .legend > input {
   color: #000;
   font-size: 1em;
-}
-.legend i {
-  width: 18px;
-  height: 18px;
-  float: left;
-  margin-right: 8px;
-  clear: both;
 }
 
 #loading {
