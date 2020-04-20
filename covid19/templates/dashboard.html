@@ -47,7 +47,7 @@
         </span>
       </div>
       <div class="card-content card-body number">
-        {{ row.value }} {% if row.value_percent %}({{ row.value_percent|floatformat:0 }}%){% endif %}
+        {{ row.value }} {% if row.value_percent %}({{ row.value_percent|floatformat:row.decimal_places }}%){% endif %}
       </div>
     </div>
   </div>
