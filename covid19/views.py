@@ -33,19 +33,38 @@ def cities_geojson(request):
     return JsonResponse(data)
 
 
+def br_int_format(number):
+    return f"{number:,}".replace(",", ".")
+
+
+def br_percent_format(a, b, decimal_places=2):
+    value = 100 * (a / b)
+    format_str = f"{{:.{decimal_places}f}}"
+    return format_str.format(value).replace(".", ",") + "%"
+
+
 def dashboard(request):
-    br_int_format = lambda number: f"{number:,}".replace(",", ".")
     affected_cities = stats.affected_cities
     affected_population = stats.affected_population
     cities_with_deaths = stats.cities_with_deaths
     total_confirmed = stats.total_confirmed
     total_deaths = stats.total_deaths
     total_population = stats.total_population
+
+    affected_cities_str = br_int_format(affected_cities)
+    affected_cities_percent_str = br_percent_format(affected_cities, 5570, 0)
+    affected_population_str = f"{affected_population / 1_000_000:.0f}M"
+    affected_population_percent_str = br_percent_format(
+        affected_population, total_population, 0
+    )
+    cities_with_deaths_str = br_int_format(cities_with_deaths)
+    cities_with_deaths_percent_str = br_percent_format(
+        cities_with_deaths, affected_cities, 0
+    )
     total_confirmed_str = br_int_format(total_confirmed)
     total_deaths_str = br_int_format(total_deaths)
+    total_deaths_percent_str = br_percent_format(total_deaths, total_confirmed, 2)
     total_reports_str = br_int_format(stats.total_reports)
-    affected_cities_str = br_int_format(affected_cities)
-    cities_with_deaths_str = br_int_format(cities_with_deaths)
 
     aggregate = [
         {
@@ -60,22 +79,22 @@ def dashboard(request):
         },
         {
             "title": "Óbitos confirmados",
-            "value": f"{total_deaths_str} ({100 * (total_deaths / total_confirmed):.2f}%)",
+            "value": f"{total_deaths_str} ({total_deaths_percent_str})",
             "tooltip": "Total de óbitos confirmados",
         },
         {
             "title": "Municípios atingidos",
-            "value": f"{affected_cities_str} ({100 * affected_cities / 5570:.0f}%)",
+            "value": f"{affected_cities_str} ({affected_cities_percent_str})",
             "tooltip": "Total de municípios com casos confirmados",
         },
         {
             "title": "População desses municípios",
-            "value": f"{affected_population / 1_000_000:.0f}M ({100 * (affected_population / total_population):.0f}%)",
+            "value": f"{affected_population_str} ({affected_population_percent_str})",
             "tooltip": "População dos municípios com casos confirmados, segundo estimativa IBGE 2019",
         },
         {
             "title": "Municípios c/ óbitos",
-            "value": f"{cities_with_deaths_str} ({100 * cities_with_deaths / affected_cities:.0f}%)",
+            "value": f"{cities_with_deaths_str} ({cities_with_deaths_percent_str})",
             "tooltip": "Total de municípios com óbitos confirmados (o percentual é em relação ao total de municípios com casos confirmados)",
         },
     ]
