@@ -117,7 +117,7 @@ MEDIA_ROOT = env("MEDIA_ROOT", default=str(public_root.path("media/")))
 MEDIA_URL = "/media/"
 STATIC_ROOT = str(public_root.path("static/"))
 STATIC_URL = "/static/"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = env("STATICFILES_STORAGE")
 STATICFILES_DIRS = [str(root.path("static"))]
 
 DEFAULT_FILE_STORAGE = env("DEFAULT_FILE_STORAGE")
