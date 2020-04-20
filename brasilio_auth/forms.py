@@ -20,6 +20,10 @@ class UserCreationForm(DjangoUserCreationForm):
         model = get_user_model()
         fields = ('username', 'email')
 
+    def clean_username(self):
+        username = self.cleaned_data.get('username', '')
+        return username.lower()
+
     def save(self, *args, **kwargs):
         user = super(UserCreationForm, self).save(*args, **kwargs)
         if self.cleaned_data.get('subscribe_newsletter'):
