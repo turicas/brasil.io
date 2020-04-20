@@ -34,32 +34,38 @@ def cities_geojson(request):
 
 
 def dashboard(request):
+    br_int_format = lambda number: f"{number:,}".replace(",", ".")
     affected_cities = stats.affected_cities
     affected_population = stats.affected_population
     cities_with_deaths = stats.cities_with_deaths
     total_confirmed = stats.total_confirmed
     total_deaths = stats.total_deaths
     total_population = stats.total_population
+    total_confirmed_str = br_int_format(total_confirmed)
+    total_deaths_str = br_int_format(total_deaths)
+    total_reports_str = br_int_format(stats.total_reports)
+    affected_cities_str = br_int_format(affected_cities)
+    cities_with_deaths_str = br_int_format(cities_with_deaths)
 
     aggregate = [
         {
             "title": "Boletins coletados",
-            "value": stats.total_reports,
+            "value": total_reports_str,
             "tooltip": "Total de boletins das Secretarias Estaduais de Saúde coletados pelos voluntários",
         },
         {
             "title": "Casos confirmados",
-            "value": total_confirmed,
+            "value": total_confirmed_str,
             "tooltip": "Total de casos confirmados",
         },
         {
             "title": "Óbitos confirmados",
-            "value": f"{total_deaths} ({100 * (total_deaths / total_confirmed):.2f}%)",
+            "value": f"{total_deaths_str} ({100 * (total_deaths / total_confirmed):.2f}%)",
             "tooltip": "Total de óbitos confirmados",
         },
         {
             "title": "Municípios atingidos",
-            "value": f"{affected_cities} ({100 * affected_cities / 5570:.0f}%)",
+            "value": f"{affected_cities_str} ({100 * affected_cities / 5570:.0f}%)",
             "tooltip": "Total de municípios com casos confirmados",
         },
         {
@@ -69,7 +75,7 @@ def dashboard(request):
         },
         {
             "title": "Municípios c/ óbitos",
-            "value": f"{cities_with_deaths} ({100 * cities_with_deaths / affected_cities:.0f}%)",
+            "value": f"{cities_with_deaths_str} ({100 * cities_with_deaths / affected_cities:.0f}%)",
             "tooltip": "Total de municípios com óbitos confirmados (o percentual é em relação ao total de municípios com casos confirmados)",
         },
     ]
