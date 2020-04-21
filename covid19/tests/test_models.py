@@ -27,7 +27,7 @@ class StateSpreadsheetTests(TestCase):
             date=today,
             _create_files=True,  # will create a dummy .txt file
         )
-        expected = f'{settings.MEDIA_ROOT}/covid19/rj/casos-rj-{today.isoformat()}-foo-1.txt'
+        expected = f'{settings.MEDIA_ROOT}/covid19/RJ/casos-RJ-{today.isoformat()}-foo-1.txt'
 
         assert expected == spreadsheet.file.path
 
@@ -69,7 +69,7 @@ class StateSpreadsheetTests(TestCase):
             date=today,
             _create_files=True
         )
-        expected = f'{settings.MEDIA_ROOT}/covid19/rj/casos-rj-{today.isoformat()}-foo-5.txt'
+        expected = f'{settings.MEDIA_ROOT}/covid19/RJ/casos-RJ-{today.isoformat()}-foo-5.txt'
 
         assert expected == spreadsheet.file.path
 

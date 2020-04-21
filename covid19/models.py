@@ -11,7 +11,7 @@ def format_spreadsheet_name(instance, filename):
     # file will be uploaded to MEDIA_ROOT/{uf}/casos-{uf}-{date}-{username}-{file_no}.{extension}"
     # where {file_no} is the number of uploaded files from that user for the same pair of state
     # and date. this is necessary to avoid other users from overwriting other spreadsheets
-    uf = instance.state
+    uf = instance.state.upper()
     date = instance.date.isoformat()
     user = instance.user.username
     file_no = StateSpreadsheet.objects.filter_older_versions(instance).count() + 1
