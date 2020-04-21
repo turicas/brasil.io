@@ -89,8 +89,7 @@
           <td data-search="{{ row.city_str }} {{ row.city }}" data-order="{{ row.city_str }}"> {{ row.city }} </td>
           <td data-search="{{ row.state }}"> {{ row.state }} </td>
           <td data-order="{% localize off %}{{ row.confirmed }}{% endlocalize %}"> {{ row.confirmed }} </td>
-          <td data-order="{% localize off %}{{
-            row.confirmed_per_100k_inhabitants }}{% endlocalize %}"> {{ row.confirmed_per_100k_inhabitants|floatformat:2 }} </td>
+          <td data-order="{% localize off %}{{ row.confirmed_per_100k_inhabitants }}{% endlocalize %}"> {{ row.confirmed_per_100k_inhabitants|floatformat:2 }} </td>
           <td data-order="{% localize off %}{{ row.deaths }}{% endlocalize %}"> {{ row.deaths }} </td>
           <td data-order="{% localize off %}{{ row.death_rate_percent }}{% endlocalize %}"> {{ row.death_rate_percent|floatformat:2 }}% </td>
         </tr>
