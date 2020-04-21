@@ -33,10 +33,11 @@ def import_xls(f_obj):
     temp_xls.write(content)
     temp_xls.close()
 
-    data = rows.import_from_xls(temp_xls)
     temp_file = Path(temp_xls.name)
-    os.remove(temp_file)
+    with open(temp_file, 'rb') as temp_xls:
+        data = rows.import_from_xls(temp_xls)
 
+    os.remove(temp_file)
     return data
 
 
