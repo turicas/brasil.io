@@ -4,13 +4,14 @@ jQuery(document).ready(function() {
   dt = jQuery('.mdl-data-table').DataTable({
     "autoWidth": false,
     "columns": [
-      { "width": "20%" },
-      { "width": "20%" },
-      { "width": "16%" },
-      { "width": "11%" },
-      { "width": "11%" },
-      { "width": "11%" },
-      { "width": "11%" }
+      { "width": "18%" },
+      { "width": "18%" },
+      { "width": "14%" },
+      { "width": "10%" },
+      { "width": "10%" },
+      { "width": "10%" },
+      { "width": "10%" },
+      { "width": "10%" }
     ],
     "scrollY":        "650px",
     "scrollCollapse": true,

@@ -34,19 +34,23 @@ dataConfig = {
     "color": "#F08",
     "displayText": "Letalidade",
     "zeroText": "Nenhum",
+  },
+  "deaths_per_100k_inhabitants": {
+    "color": "#F39",
+    "displayText": "Óbitos/100.000 hab.",
+    "zeroText": "Nenhum",
   }
 };
 
 legendBins = 6;
 countryId = 0; // Brasil
 selectedPlace = countryId;
-selectedVar = "confirmed";
+selectedVar = Object.keys(dataConfig)[0];
 
 function getPlaceData(place) {
   return place == countryId ? countryData : cityData[place];
 }
 function opacityFromValue(value, maxValue) {
-  // TODO: should round opacity numbers to bin value in legend?
   return Math.log2(value + 1) / Math.log2(maxValue + 1);
 }
 function valueFromOpacity(opacity, maxValue) {

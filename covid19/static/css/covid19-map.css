@@ -57,3 +57,10 @@
   float: right;
   width: calc(100% - 7rem);
 }
+
+#map-col {
+  padding: 0 2px 0 0;
+}
+#table-col {
+  padding: 0 0 0 0;
+}
