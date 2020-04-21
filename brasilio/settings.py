@@ -217,3 +217,11 @@ RQ_QUEUES = {
 
 # Covid19 import settings
 COVID_IMPORT_PERMISSION_PREFIX = 'can_import_covid_state_'
+
+
+# Sentry config
+import sentry_sdk
+from sentry_sdk.integrations.django import \
+    DjangoIntegration
+
+sentry_sdk.init(env("SENTRY_DSN"), integrations=[DjangoIntegration()])

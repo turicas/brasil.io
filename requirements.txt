@@ -39,3 +39,4 @@ tqdm
 whitenoise
 xlrd
 xlwt
+sentry-sdk==0.14.3
