@@ -90,16 +90,19 @@ function updateLegendControl() {
       displayValue,
       div = legendControl.getContainer(),
       labels = [`<b>${dataConfig[selectedVar].displayText}</b>`, "<br><br>"],
-      lastValue,
+      lastOpacity,
       maxValue = maxValues[selectedVar],
       zeroDisplay = dataConfig[selectedVar].zeroText;
 
   for (var counter = 0; counter <= legendBins; counter += 1) {
     var opacity = counter / legendBins;
     var value = valueFromOpacity(opacity, maxValue);
-    displayValue = lastValue === undefined ? zeroDisplay : `${lastValue} &mdash; ${value}`;
-    labels.push(`<span class="valign-wrapper"> <i style="background: ${color}; opacity: ${opacity}"></i> ${displayValue} </span>`);
-    lastValue = value + 1;
+    var lastValue = lastOpacity === undefined ? 0 : valueFromOpacity(lastOpacity, maxValue);
+    if (lastOpacity === undefined || lastValue != value) {
+      displayValue = lastOpacity === undefined ? zeroDisplay : `${lastValue} &mdash; ${value}`;
+      labels.push(`<span class="valign-wrapper"> <i style="background: ${color}; opacity: ${opacity}"></i> ${displayValue} </span>`);
+    }
+    lastOpacity = opacity;
   }
   div.innerHTML = labels.join("");
 }
