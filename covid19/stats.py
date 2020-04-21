@@ -1,9 +1,10 @@
 from cached_property import cached_property
+from itertools import groupby
+
 from django.db.models import Max, Sum
 
 from core.models import get_table_model
-
-from .serializers import CityCaseSerializer
+from covid19.serializers import CityCaseSerializer
 
 
 class Covid19Stats:
@@ -107,3 +108,31 @@ class Covid19Stats:
             for key in ("confirmed", "confirmed_per_100k_inhabitants", "deaths", "death_rate_percent")
         }
         return {"cities": cities, "max": max_values, "total": self.country_totals}
+
+    def most_recent_city_entries_for_state(self, state, date):
+        return self._get_latest_cases(state, date, "city")
+
+    def most_recent_state_entry(self, state, date):
+        return self._get_latest_cases(state, date, "state")
+
+    def _get_latest_cases(self, state, date, place_type):
+        cases = self.Caso.objects.filter(
+            state=state,
+            date__lt=date,
+            place_type=place_type,
+        ).iterator()
+
+        place_key_func = lambda row: (row.place_type, row.state, row.city)  # noqa
+        order_func = lambda row: row.order_for_place  # noqa
+        cases = sorted(cases, key=place_key_func)
+
+        result = []
+        for place_key, entries in groupby(cases, key=place_key_func):
+            entries = sorted(entries, key=order_func, reverse=True)
+            result.append(entries[0])
+
+        if place_type == "state" and result:
+            assert len(result) == 1
+            result = result[0]
+
+        return result

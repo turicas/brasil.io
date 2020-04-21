@@ -3,7 +3,7 @@ from rows.fields import IntegerField
 from brazil_data.cities import get_city_info, get_state_info
 
 from covid19.models import StateSpreadsheet
-from covid19.db import get_most_recent_city_entries_for_state, get_most_recent_state_entry
+from covid19.stats import Covid19Stats
 
 
 TOTAL_LINE_DISPLAY = 'TOTAL NO ESTADO'
@@ -174,8 +174,10 @@ def validate_historical_data(spreadsheet):
 
     warnings = []
     validation_errors = SpreadsheetValidationErrors()
-    city_entries = get_most_recent_city_entries_for_state(spreadsheet.state, spreadsheet.date)
-    state_entry = get_most_recent_state_entry(spreadsheet.state, spreadsheet.date)
+    covid19_stats = Covid19Stats()
+
+    city_entries = covid19_stats.most_recent_city_entries_for_state(spreadsheet.state, spreadsheet.date)
+    state_entry = covid19_stats.most_recent_state_entry(spreadsheet.state, spreadsheet.date)
 
     for entry in city_entries:
         city_data = spreadsheet.get_data_from_city(entry.city_ibge_code)
