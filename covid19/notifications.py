@@ -1,10 +1,19 @@
 import io
+import requests
 import rows
 from functools import lru_cache
-import requests
+from rocketchat import RocketChat
+
+from django.conf import settings
 
 
 COLLABORATORS_SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1S77CvorwQripFZjlWTOZeBhK42rh3u57aRL1XZGhSdI/export?format=csv&id=1S77CvorwQripFZjlWTOZeBhK42rh3u57aRL1XZGhSdI&gid=0"
+
+
+class FakeChat:
+
+    def send_message(self, channel, message):
+        print(f"New message in {channel}:\n\t{message}")
 
 
 @lru_cache(maxsize=1)
@@ -12,6 +21,16 @@ def collaborators_data():
     response = requests.get(COLLABORATORS_SPREADSHEET_URL)
     url_table = rows.import_from_csv(io.BytesIO(response.content), encoding="utf-8")
     return url_table
+
+
+@lru_cache(maxsize=1):
+def get_chat():
+    chat = FakeChat
+    if settings.ROCKETCHAT_BASE_URL:
+        chat = RocketChat(settings.ROCKETCHAT_BASE_URL)
+        chat.user_id = settings.ROCKETCHAT_USER_ID
+        chat.auth_token = settings.ROCKETCHAT_AUTH_TOKEN
+    return chat
 
 
 def get_state_row(state):
