@@ -39,3 +39,4 @@ tqdm
 whitenoise
 xlrd
 xlwt
+django-minio-storage==0.3.7
