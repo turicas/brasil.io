@@ -6,6 +6,9 @@
   <i class="material-icons right">arrow_drop_down</i>
 </a></li>
 <ul id="{{id_prefix}}_authenticated-dropdown" class="dropdown-content">
+  {% if is_covid19_contributor %}
+  <li><a href="{% url 'admin:covid19_statespreadsheet_changelist' %}">Importação Covid-19</a></li>
+  {% endif %}
   <li><a href="{% url 'brasilio_auth:logout' %}">Logout</a></li>
 </ul>
 
@@ -40,7 +43,7 @@
 </ul>
 
 <li><a href="https://blog.brasil.io/">Blog</a></li>
-<li><a class="btn" href="{% url 'core:donate' %}">Doe</a></li>
+<li><a class="btn" href="{% url 'core:donate' %}">APOIE</a></li>
 
 <script>
   $(".dropdown-trigger").dropdown();

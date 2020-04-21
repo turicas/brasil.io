@@ -16,6 +16,23 @@
 <div class="row">
 
   <section id="info">
+
+    <div class="row">
+      <div class="col s12 m12 l12">
+        <div class="card">
+          <div class="card-content teal-text">
+            <span class="card-title">ESPECIAL COVID-19: DADOS POR MUNICÍPIO</span>
+          </div>
+          <div class="card-content card-body">
+            {% include 'covid19-text.html' %}
+          </div>
+          <div class="card-action">
+            <a href="{% url 'covid19:dashboard' %}">Ver mais</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="row">
       <div class="col s12 m3">
         <div class="card">

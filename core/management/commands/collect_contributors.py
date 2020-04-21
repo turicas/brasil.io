@@ -7,7 +7,7 @@ from core.util import brasilio_github_contributors
 
 
 class Command(BaseCommand):
-    help = "Update choices cache"
+    help = "Collect contributors from GitHub API"
 
     def add_arguments(self, parser):
         parser.add_argument("output_filename")
