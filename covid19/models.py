@@ -135,3 +135,16 @@ class StateSpreadsheet(models.Model):
             return [d for d in self.table_data if d['place_type'] == 'state'][0]
         except IndexError:
             return None
+
+    def check_is_ready_to_be_imported(self):
+        """
+        Compare the spreadsheet with the sibling ones with the possible outputs:
+
+        1. raise OnlyOneSpreadsheetException
+        2. return a tuple as (True, [])
+        3. return a tuple as (False, ['error 1', 'error 2'])
+        """
+        raise NotImplementedError
+
+    def import_to_final_dataset(self):
+        raise NotImplementedError

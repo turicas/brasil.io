@@ -16,3 +16,10 @@ class SpreadsheetValidationErrors(Exception):
 
     def __str__(self):
         return ' - '.join(self.error_messages)
+
+
+class OnlyOneSpreadsheetException(Exception):
+    """
+    Raised when checking if a spreadsheet is ready to be imported but there's no other
+    one to compare with
+    """
