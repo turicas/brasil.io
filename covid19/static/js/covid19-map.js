@@ -1,10 +1,9 @@
 var cityData,
     cityGeoJSON,
     cityLayer,
-    colors,
     countryData,
     countryId,
-    displayText,
+    dataConfig,
     legendBins,
     map,
     placeDataControl,
@@ -15,28 +14,33 @@ var cityData,
     stateLayer,
     varControl;
 
-colors = {
-  "confirmed": "#00F",
-  "confirmed_per_100k_inhabitants": "#2B580C",
-  "deaths": "#F00",
-  "death_rate_percent": "#F08",
+dataConfig = {
+  "confirmed": {
+    "color": "#00F",
+    "displayText": "Casos confirmados",
+    "zeroText": "Nenhum",
+  },
+  "confirmed_per_100k_inhabitants": {
+    "color": "#2B580C",
+    "displayText": "Confirmados/100.000 hab.",
+    "zeroText": "Nenhum",
+  },
+  "deaths": {
+    "color": "#F00",
+    "displayText": "Óbitos confirmados",
+    "zeroText": "Nenhum",
+  },
+  "death_rate_percent": {
+    "color": "#F08",
+    "displayText": "Letalidade",
+    "zeroText": "Nenhum",
+  }
 };
-displayText = {
-  "confirmed": "Casos confirmados",
-  "confirmed_per_100k_inhabitants": "Confirmados/100.000 hab.",
-  "deaths": "Óbitos confirmados",
-  "death_rate_percent": "Letalidade",
-};
+
 legendBins = 6;
 countryId = 0; // Brasil
 selectedPlace = countryId;
 selectedVar = "confirmed";
-zeroText = {
-  "confirmed": "Nenhum",
-  "confirmed_per_100k_inhabitants": "Nenhum",
-  "deaths": "Nenhum",
-  "death_rate_percent": "Nenhum",
-};
 
 function getPlaceData(place) {
   return place == countryId ? countryData : cityData[place];
@@ -54,7 +58,7 @@ function cityStyle(feature) {
   var opacity = opacityFromValue(value, maxValue);
   return {
     color: "#000",
-    fillColor: colors[selectedVar],
+    fillColor: dataConfig[selectedVar].color,
     fillOpacity: opacity,
     lineJoin: "round",
     opacity: 0,
@@ -78,13 +82,13 @@ function changeVar(newVar) {
 }
 
 function updateLegendControl() {
-  var color = colors[selectedVar],
+  var color = dataConfig[selectedVar].color,
       displayValue,
       div = legendControl.getContainer(),
-      labels = [`<b>${displayText[selectedVar]}</b>`, "<br><br>"],
+      labels = [`<b>${dataConfig[selectedVar].displayText}</b>`, "<br><br>"],
       lastValue,
       maxValue = maxValues[selectedVar],
-      zeroDisplay = zeroText[selectedVar];
+      zeroDisplay = dataConfig[selectedVar].zeroText;
 
   for (var counter = 0; counter <= legendBins; counter += 1) {
     var opacity = counter / legendBins;
@@ -98,10 +102,10 @@ function updateLegendControl() {
 function updatePlaceDataControl(placeData) {
   var div = placeDataControl.getContainer();
   var dataLines = [];
-  Object.keys(displayText).forEach(function(item) {
+  Object.keys(dataConfig).forEach(function(item) {
     var value = Intl.NumberFormat("pt-BR").format(placeData[item]);
     value = item.endsWith("percent") ? `${value}%` : value;
-    dataLines.push(`<dt>${displayText[item]}:</dt> <dd>${value}</dd>`);
+    dataLines.push(`<dt>${dataConfig[item].displayText}:</dt> <dd>${value}</dd>`);
   });
   div.innerHTML = `
     <b>${placeData.city}</b>
@@ -114,8 +118,8 @@ function updatePlaceDataControl(placeData) {
 function updateVarControl() {
   var div = varControl.getContainer();
   var inputs = ["<b>Selecione a variável</b>"];
-  Object.keys(displayText).forEach(function(item) {
-    inputs.push(`<label><input type="radio" class="radio-control" name="radio-var-control" value="${item}"><span>${displayText[item]}</span></label>`);
+  Object.keys(dataConfig).forEach(function(item) {
+    inputs.push(`<label><input type="radio" class="radio-control" name="radio-var-control" value="${item}"><span>${dataConfig[item].displayText}</span></label>`);
   });
   div.innerHTML = inputs.join("<br>");
   jQuery(".radio-control").change(function() {
