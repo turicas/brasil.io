@@ -8,9 +8,10 @@ from tempfile import NamedTemporaryFile
 from django import forms
 from django.core.validators import URLValidator
 
+from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.models import StateSpreadsheet
 from covid19.permissions import user_has_state_permission
-from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict, SpreadsheetValidationErrors
+from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict
 
 
 def state_choices_for_user(user):

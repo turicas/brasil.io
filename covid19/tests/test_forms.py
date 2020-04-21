@@ -11,9 +11,9 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models import Q
 from django.test import TestCase
 
+from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.forms import state_choices_for_user, StateSpreadsheetForm
 from covid19.models import StateSpreadsheet
-from covid19.spreadsheet_validator import SpreadsheetValidationErrors
 from covid19.tests.utils import Covid19DatasetTestCase
 
 

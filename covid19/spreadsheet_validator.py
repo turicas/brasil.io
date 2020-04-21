@@ -2,6 +2,7 @@ from rows.fields import IntegerField
 
 from brazil_data.cities import get_city_info, get_state_info
 
+from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.models import StateSpreadsheet
 from covid19.stats import Covid19Stats
 
@@ -9,26 +10,6 @@ from covid19.stats import Covid19Stats
 TOTAL_LINE_DISPLAY = 'TOTAL NO ESTADO'
 UNDEFINED_DISPLAY = 'Importados/Indefinidos'
 INVALID_CITY_CODE = -1
-
-
-class SpreadsheetValidationErrors(Exception):
-    """
-    Custom exception to hold all error messages raised during the validation process
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.error_messages = []
-
-    def new_error(self, msg):
-        self.error_messages.append(msg)
-
-    def raise_if_errors(self):
-        if self.error_messages:
-            raise self
-
-    def __str__(self):
-        return ' - '.join(self.error_messages)
 
 
 def format_spreadsheet_rows_as_dict(rows_table, date, state):
