@@ -39,3 +39,4 @@ tqdm
 whitenoise
 xlrd
 xlwt
+rocketchat==1.0.0
