@@ -213,6 +213,8 @@ RQ_QUEUES = {
         'DEFAULT_TIMEOUT': 500,
     }
 }
+if not DEBUG:
+    RQ_QUEUES['default']['WORKER_CLASS'] = 'brasilio.worker.SentryAwareWorker'
 
 
 # Covid19 import settings
@@ -224,4 +226,5 @@ import sentry_sdk
 from sentry_sdk.integrations.django import \
     DjangoIntegration
 
-sentry_sdk.init(env("SENTRY_DSN"), integrations=[DjangoIntegration()])
+SENTRY_DSN = env("SENTRY_DSN")
+sentry_sdk.init(SENTRY_DSN, integrations=[DjangoIntegration()])
