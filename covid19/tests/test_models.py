@@ -1,3 +1,4 @@
+import pytest
 import shutil
 from copy import deepcopy
 from datetime import date, timedelta
@@ -8,6 +9,7 @@ from unittest.mock import patch
 from django.conf import settings
 from django.test import TestCase
 
+from covid19.exceptions import OnlyOneSpreadsheetException
 from covid19.models import StateSpreadsheet
 from covid19.signals import new_spreadsheet_imported_signal
 
@@ -202,3 +204,31 @@ class StateSpreadsheetTests(TestCase):
         ]
 
         assert sorted(expected) == sorted(sp1.compare_to_spreadsheet(sp2))
+
+    def test_check_is_ready_to_be_imported_for_valid_spreadsheet(self):
+        sp1, sp2 = baker.make(StateSpreadsheet, date=date.today(), state='PR', _quantity=2)
+        sp1.table_data = deepcopy(self.table_data)
+        sp1.save()
+        sp2.table_data = deepcopy(self.table_data)
+        sp2.save()
+
+        assert (True, []) == sp1.check_is_ready_to_be_imported()
+
+    def test_raise_exception_if_single_spreadsheet(self):
+        sp1 = baker.make(StateSpreadsheet, date=date.today(), state='RJ')
+        sp2 = baker.make(StateSpreadsheet, date=date.today(), state='PR')
+
+        with pytest.raises(OnlyOneSpreadsheetException):
+            sp1.check_is_ready_to_be_imported()
+
+    def test_check_is_ready_to_be_imported_for_not_matching_spreadsheets(self):
+        sp1, sp2 = baker.make(StateSpreadsheet, date=date.today(), state='PR', _quantity=2)
+        sp1.table_data = deepcopy(self.table_data)
+        sp1.save()
+
+        self.table_data[0]['deaths'] = 0
+        sp2.table_data = self.table_data
+        sp2.save()
+        expected = ["Número de casos confirmados ou óbitos diferem para Total."]
+
+        assert (False, expected) == sp1.check_is_ready_to_be_imported()

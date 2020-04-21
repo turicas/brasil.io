@@ -1,3 +1,4 @@
+from cached_property import cached_property
 from copy import deepcopy
 from pathlib import Path
 from localflavor.br.br_states import STATE_CHOICES
@@ -5,6 +6,8 @@ from localflavor.br.br_states import STATE_CHOICES
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.contrib.postgres.fields import ArrayField, JSONField
+
+from covid19.exceptions import OnlyOneSpreadsheetException
 
 
 def format_spreadsheet_name(instance, filename):
@@ -122,6 +125,11 @@ class StateSpreadsheet(models.Model):
         self.data['errors'] = data
         self.status = StateSpreadsheet.CHECK_FAILED
 
+    @cached_property
+    def sibilings(self):
+        qs = StateSpreadsheet.objects.filter_active().from_state(self.state).filter(date=self.date)
+        return qs.exclude(pk=self.pk)
+
     def get_data_from_city(self, ibge_code):
         if ibge_code:  # ibge_code = None match for undefined data
             ibge_code = int(ibge_code)
@@ -168,7 +176,16 @@ class StateSpreadsheet(models.Model):
         2. return a tuple as (True, [])
         3. return a tuple as (False, ['error 1', 'error 2'])
         """
-        raise NotImplementedError
+        if not self.sibilings.exists():
+            raise OnlyOneSpreadsheetException()
+
+        errors = []
+        for sibling_spreadsheet in self.sibilings:
+            errors = self.compare_to_spreadsheet(sibling_spreadsheet)
+            if not errors:
+                return True, []
+
+        return False, errors
 
     def import_to_final_dataset(self):
         raise NotImplementedError
