@@ -1,4 +1,5 @@
 import shutil
+from copy import deepcopy
 from datetime import date, timedelta
 from model_bakery import baker
 from pathlib import Path
@@ -12,6 +13,38 @@ from covid19.signals import new_spreadsheet_imported_signal
 
 
 class StateSpreadsheetTests(TestCase):
+
+    def setUp(self):
+        data = date.today().isoformat()
+        self.table_data = [
+            {
+                "city": None,
+                "city_ibge_code": 41,
+                "confirmed": 12,
+                "date": data,
+                "deaths": 7,
+                "place_type": "state",
+                "state": 'PR',
+            },
+            {
+                "city": "Importados/Indefinidos",
+                "city_ibge_code": None,
+                "confirmed": 2,
+                "date": data,
+                "deaths": 2,
+                "place_type": "city",
+                "state": 'PR',
+            },
+            {
+                "city": 'Curitiba',
+                "city_ibge_code": 4321,
+                "confirmed": 10,
+                "date": data,
+                "deaths": 5,
+                "place_type": "city",
+                "state": 'PR',
+            }
+        ]
 
     def tearDown(self):
         if Path(settings.MEDIA_ROOT).exists():
@@ -107,3 +140,65 @@ class StateSpreadsheetTests(TestCase):
             assert prev.cancelled
 
         mocked_process_new_spreadsheet.delay.assert_called_once_with(spreadsheet_pk=spreadsheet.pk)
+
+    def test_compare_matching_spreadsheets_with_success(self):
+        sp1, sp2 = baker.make(StateSpreadsheet, date=date.today(), state='PR', _quantity=2)
+        sp1.table_data = deepcopy(self.table_data)
+        sp2.table_data = deepcopy(self.table_data)
+
+        assert [] == sp1.compare_to_spreadsheet(sp2)
+
+    def test_compare_error_if_not_from_same_state(self):
+        sp1 = baker.make(StateSpreadsheet, date=date.today(), state='RJ')
+        sp2 = baker.make(StateSpreadsheet, date=date.today(), state='PR')
+
+        sp1.table_data = deepcopy(self.table_data)
+        sp2.table_data = deepcopy(self.table_data)
+
+        assert ["Estados das planilhas são diferentes."] == sp1.compare_to_spreadsheet(sp2)
+
+    def test_compare_error_if_not_from_date(self):
+        yesterday = date.today() - timedelta(days=1)
+        sp1 = baker.make(StateSpreadsheet, date=yesterday, state='PR')
+        sp2 = baker.make(StateSpreadsheet, date=date.today(), state='PR')
+
+        sp1.table_data = deepcopy(self.table_data)
+        sp2.table_data = deepcopy(self.table_data)
+
+        assert ["Datas das planilhas são diferentes."] == sp1.compare_to_spreadsheet(sp2)
+
+    def test_error_if_mismatch_of_total_numbers(self):
+        sp1, sp2 = baker.make(StateSpreadsheet, date=date.today(), state='PR', _quantity=2)
+        sp1.table_data = deepcopy(self.table_data)
+
+        self.table_data[0]['deaths'] = 0
+        sp2.table_data = self.table_data
+        expected = ["Número de casos confirmados ou óbitos diferem para Total."]
+
+        assert expected == sp1.compare_to_spreadsheet(sp2)
+
+    def test_error_if_mismatch_of_city_numbers(self):
+        sp1, sp2 = baker.make(StateSpreadsheet, date=date.today(), state='PR', _quantity=2)
+        sp1.table_data = deepcopy(self.table_data)
+
+        self.table_data[1]['deaths'] = 0
+        self.table_data[2]['confirmed'] = 0
+        sp2.table_data = self.table_data
+        expected = [
+            "Número de casos confirmados ou óbitos diferem para Importados/Indefinidos.",
+            "Número de casos confirmados ou óbitos diferem para Curitiba.",
+        ]
+
+        assert sorted(expected) == sorted(sp1.compare_to_spreadsheet(sp2))
+
+    def test_error_if_mismatch_because_other_cities_does_not_exist(self):
+        sp1, sp2 = baker.make(StateSpreadsheet, date=date.today(), state='PR', _quantity=2)
+
+        sp1.table_data = self.table_data
+        expected = [
+            "Número de casos confirmados ou óbitos diferem para Total.",
+            "Número de casos confirmados ou óbitos diferem para Importados/Indefinidos.",
+            "Número de casos confirmados ou óbitos diferem para Curitiba.",
+        ]
+
+        assert sorted(expected) == sorted(sp1.compare_to_spreadsheet(sp2))

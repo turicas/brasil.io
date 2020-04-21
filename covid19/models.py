@@ -136,6 +136,30 @@ class StateSpreadsheet(models.Model):
         except IndexError:
             return None
 
+    def compare_to_spreadsheet(self, other_spreadsheet):
+        match = lambda e1, e2: e1 and e2 and e1['deaths'] == e2['deaths'] and e1['confirmed'] == e2['confirmed']
+
+        errors = []
+        if not self.date == other_spreadsheet.date:
+            errors.append("Datas das planilhas são diferentes.")
+        if not self.state == other_spreadsheet.state:
+            errors.append("Estados das planilhas são diferentes.")
+
+        if errors:
+            return errors
+
+        for entry in self.table_data:
+            display = entry['city'] or 'Total'
+            if entry['place_type'] == 'state':
+                other_entry = other_spreadsheet.get_total_data()
+            else:
+                other_entry = other_spreadsheet.get_data_from_city(entry['city_ibge_code'])
+
+            if not match(entry, other_entry):
+                errors.append(f"Número de casos confirmados ou óbitos diferem para {display}.")
+
+        return errors
+
     def check_is_ready_to_be_imported(self):
         """
         Compare the spreadsheet with the sibling ones with the possible outputs:
