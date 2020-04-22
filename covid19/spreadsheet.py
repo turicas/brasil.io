@@ -2,11 +2,15 @@ import io
 
 import rows
 
-from brazil_data.cities import brazilian_cities_per_state
-from core.util import http_get
+from brazil_data.cities import get_city_info
 
 from covid19 import google_data
 from covid19.models import StateSpreadsheet
+from covid19.exceptions import SpreadsheetValidationErrors
+
+
+TOTAL_LABEL = "TOTAL NO ESTADO"
+UNDEFINED_LABEL = "Importados/Indefinidos"
 
 
 def get_state_data_from_db(state):
@@ -29,7 +33,7 @@ def get_state_data_from_db(state):
         for row in spreadsheet.data["table"]:
             city = row["city"]
             if city is None:
-                city = "TOTAL NO ESTADO"
+                city = TOTAL_LABEL
             cases[date][city] = {
                 "confirmed": row["confirmed"],
                 "deaths": row["deaths"],
@@ -63,10 +67,18 @@ def merge_state_data(state):
     # Update original cases (GS) with new ones (DB), overwritting GS cases for
     # dates which show up in DB.
     final_cases = []
+    original_data_errors = SpreadsheetValidationErrors()
     for row in original_cases:
-        # TODO: check if city names are correct from GS?
         row = row.copy()
         city = row["municipio"]
+        if city not in [TOTAL_LABEL, UNDEFINED_LABEL]:
+            city_info = get_city_info(city, state)
+            if city_info:
+                city = city_info.city
+            else:
+                msg = f'Nome inválido de cidade "{city}" na planilha do Google.'
+                original_data_errors.new_error(msg)
+
         for date, values_for_date in new_cases.items():
             date_str = f"{date.day:02d}_{date.month:02d}"
             city_on_date = values_for_date.get(city, {})
@@ -74,6 +86,7 @@ def merge_state_data(state):
             row[f"mortes_{date_str}"] = city_on_date.get("deaths", None)
         final_cases.append(row)
 
+    original_data_errors.raise_if_errors()
     return {
         "reports": final_reports,
         "cases": final_cases
@@ -98,4 +111,4 @@ if __name__ == "__main__":
     from covid19.spreadsheet import create_merged_state_spreadsheet
     data = create_merged_state_spreadsheet("AC")
     with open("acre.xlsx", mode="wb") as fobj:
-       fobj.write(data.read())
+        fobj.write(data.read())

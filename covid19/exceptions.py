@@ -1,6 +1,6 @@
 class SpreadsheetValidationErrors(Exception):
     """
-    Custom exception to hold all error messages raised during the validation process
+    Custom exception to hold all error messages raised when validating spreadsheets
     """
 
     def __init__(self, *args, **kwargs):
