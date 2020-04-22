@@ -224,6 +224,11 @@ class StateSpreadsheetTests(TestCase):
         sp2.save()
 
         assert (True, []) == sp1.check_is_ready_to_be_imported()
+        sp1.refresh_from_db()
+        sp2.refresh_from_db()
+        assert sp2 == sp1.peer_review
+        assert sp1 == sp2.peer_review
+
 
     def test_raise_exception_if_single_spreadsheet(self):
         sp1 = baker.make(StateSpreadsheet, date=date.today(), state='RJ')

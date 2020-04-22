@@ -192,7 +192,7 @@ class StateSpreadsheet(models.Model):
 
     def check_is_ready_to_be_imported(self):
         """
-        Compare the spreadsheet with the sibling ones with the possible outputs:
+        Compare the spreadsheet with the sibiling ones with the possible outputs:
 
         1. raise OnlyOneSpreadsheetException
         2. return a tuple as (True, [])
@@ -202,9 +202,13 @@ class StateSpreadsheet(models.Model):
             raise OnlyOneSpreadsheetException()
 
         errors = []
-        for sibling_spreadsheet in self.sibilings:
-            errors = self.compare_to_spreadsheet(sibling_spreadsheet)
+        for sibiling_spreadsheet in self.sibilings:
+            errors = self.compare_to_spreadsheet(sibiling_spreadsheet)
             if not errors:
+                self.peer_review = sibiling_spreadsheet
+                sibiling_spreadsheet.peer_review = self
+                sibiling_spreadsheet.save()
+                self.save()
                 return True, []
 
         return False, errors
