@@ -278,3 +278,13 @@ class StateSpreadsheetTests(TestCase):
         spreadsheet = baker.make(StateSpreadsheet)
         with pytest.raises(ValueError):
             spreadsheet.import_to_final_dataset()
+
+    def test_notify_after_import(self):
+        args = []
+        def notification_func(spreadsheet):
+            args.append(spreadsheet)
+
+        spreadsheet = baker.make(StateSpreadsheet, _fill_optional=['peer_review'])
+        spreadsheet.import_to_final_dataset(notification_func)
+
+        assert [spreadsheet] == args

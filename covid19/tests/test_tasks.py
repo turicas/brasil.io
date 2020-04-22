@@ -7,6 +7,7 @@ from django.test import TestCase
 from covid19.models import StateSpreadsheet
 from covid19.tasks import process_new_spreadsheet_task
 from covid19.exceptions import OnlyOneSpreadsheetException
+from covid19.notifications import notify_import_success
 
 
 class ProcessNewSpreadsheetTaskTests(TestCase):
@@ -42,7 +43,7 @@ class ProcessNewSpreadsheetTaskTests(TestCase):
         process_new_spreadsheet_task(spreadsheet.id)
 
         spreadsheet.link_to_matching_spreadsheet_peer.assert_called_once_with()
-        spreadsheet.import_to_final_dataset.assert_called_once_with()
+        spreadsheet.import_to_final_dataset.assert_called_once_with(notify_import_success)
 
     @patch.object(StateSpreadsheet, 'link_to_matching_spreadsheet_peer', Mock())
     def test_do_not_process_spreadsheet_if_for_some_reason_it_is_cancelled(self):

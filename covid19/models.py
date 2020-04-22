@@ -224,9 +224,13 @@ class StateSpreadsheet(models.Model):
 
         return False, errors
 
-    def import_to_final_dataset(self):
+    def import_to_final_dataset(self, notification_callable=None):
         self.refresh_from_db()
         if not self.ready_to_import:
             raise ValueError("{self} is not ready to be imported")
+
         self.status = StateSpreadsheet.DEPLOYED
         self.save()
+
+        if notification_callable:
+            notification_callable(self)

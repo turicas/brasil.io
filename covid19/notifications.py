@@ -68,3 +68,19 @@ def notify_spreadsheet_mismatch(spreadsheet, errors):
     msg += f"\nRealizada por: *{spreadsheet.user.username}*\n\n- {errors}"
 
     chat.send_message(channel, msg)
+
+
+def notify_import_success(spreadsheet):
+    chat = get_chat()
+    state_info = import_info_by_state(spreadsheet.state)
+    channel = "#covid19"
+    collabs = clean_collaborators(state_info.voluntarios)
+    collabs = ' '.join(collabs)
+    authors = ' e '.join([
+        spreadsheet.user.username,
+        spreadsheet.peer_review.user.username,
+    ])
+
+    msg = f"@turicas planilha de {spreadsheet.state} para o dia {spreadsheet.date} checada (dados enviados por {authors}), pode rodar o deploy!"
+
+    chat.send_message(channel, msg)

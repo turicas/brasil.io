@@ -2,7 +2,7 @@ from django_rq import job
 
 from covid19.exceptions import OnlyOneSpreadsheetException
 from covid19.models import StateSpreadsheet
-from covid19.notifications import notify_new_spreadsheet, notify_spreadsheet_mismatch
+from covid19.notifications import notify_new_spreadsheet, notify_spreadsheet_mismatch, notify_import_success
 
 
 @job
@@ -18,6 +18,6 @@ def process_new_spreadsheet_task(spreadsheet_pk):
         notify_new_spreadsheet(spreadsheet)
 
     if ready:
-        spreadsheet.import_to_final_dataset()
+        spreadsheet.import_to_final_dataset(notify_import_success)
     else:
         notify_spreadsheet_mismatch(spreadsheet, errors)
