@@ -62,7 +62,7 @@ class StateSpreadsheetFormTests(Covid19DatasetTestCase):
         self.data = {
             'date': date.today(),
             'state': 'PR',
-            'boletim_urls': 'http://google.com\nhttp://brasil.io',
+            'boletim_urls': 'http://google.com\r\n\r http://brasil.io',
             'boletim_notes': 'notes',
         }
         self.file_data = {

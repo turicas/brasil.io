@@ -76,7 +76,7 @@ class StateSpreadsheetForm(forms.ModelForm):
         return report_date
 
     def clean_boletim_urls(self):
-        urls = self.cleaned_data['boletim_urls'].strip().split('\n')
+        urls = [u.strip() for u in self.cleaned_data['boletim_urls'].split('\n')]
         url_validator = URLValidator(message="Uma ou mais das URLs não são válidas.")
         for url in urls:
             url_validator(url)
