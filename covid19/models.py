@@ -71,6 +71,7 @@ class StateSpreadsheet(models.Model):
     date = models.DateField(null=False, blank=False)
     state = models.CharField(max_length=2, null=False, blank=False, choices=STATE_CHOICES)
     file = models.FileField(upload_to=format_spreadsheet_name)
+    peer_review = models.OneToOneField("self", null=True, blank=True, on_delete=models.SET_NULL)
 
     boletim_urls = ArrayField(
         models.TextField(), null=False,
