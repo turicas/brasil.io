@@ -182,6 +182,40 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
         assert expected in results
 
+    @patch('covid19.spreadsheet_validator.validate_historical_data', Mock(return_value=[]))
+    def test_allow_zero_as_a_valid_value(self):
+        original_content = self.content
+        base = {
+            "city": 'Abatiá',
+            "city_ibge_code": get_city_info('Abatiá', 'PR').city_ibge_code,
+            "confirmed": 9,
+            "date": self.date.isoformat(),
+            "deaths": 1,
+            "place_type": "city",
+            "state": 'PR',
+        }
+
+        # zero confirmed cases
+        self.content = original_content.replace('TOTAL NO ESTADO,102,32', 'TOTAL NO ESTADO,93,31')
+        self.content = self.content.replace('Abatiá,9,1', 'Abatiá,0,0')
+        expected = base.copy()
+        expected['confirmed'] = 0
+        expected['deaths'] = 0
+
+        file_rows = rows.import_from_csv(self.file_from_content)
+        results, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+        assert expected in results
+
+        # zero deaths
+        self.content = original_content.replace('TOTAL NO ESTADO,102,32', 'TOTAL NO ESTADO,102,31')
+        self.content = self.content.replace('Abatiá,9,1', 'Abatiá,9,0')
+        expected = base.copy()
+        expected['deaths'] = 0
+
+        file_rows = rows.import_from_csv(self.file_from_content)
+        results, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+        assert expected in results
+
     def test_both_confirmed_cases_and_deaths_columns_must_be_filled(self):
         original_content = self.content
 
