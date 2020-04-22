@@ -11,11 +11,8 @@ from covid19.models import StateSpreadsheet
 
 def get_state_data_from_db(state):
     """Return all state cases from DB, grouped by date"""
-
-    spreadsheets = StateSpreadsheet.objects.deployed().from_state(state).most_recent_first()
-
     cases, reports = {}, []
-    for spreadsheet in spreadsheets:
+    for spreadsheet in StateSpreadsheet.objects.deployable_for_state(state):
         date = spreadsheet.date
         for url in spreadsheet.boletim_urls:
             # TODO: what to do when we add the same URL twice (from 2 equal
@@ -28,8 +25,6 @@ def get_state_data_from_db(state):
                 }
             )
 
-        if date in cases:
-            continue  # Other spreadsheet for the same date already did it
         cases[date] = {}
         for row in spreadsheet.data["table"]:
             city = row["city"]
