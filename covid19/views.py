@@ -4,6 +4,7 @@ from django.http import JsonResponse, HttpResponse, Http404
 from django.shortcuts import render
 
 from brazil_data.cities import get_state_info
+from core.middlewares import disable_non_logged_user_cache
 from core.util import cached_http_get_json
 from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.geo import city_geojson
@@ -85,6 +86,7 @@ def dashboard(request):
     )
 
 
+@disable_non_logged_user_cache
 def import_spreadsheet_provy(request, state):
     state_info = get_state_info(state)
     if not state_info:

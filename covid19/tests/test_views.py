@@ -12,7 +12,6 @@ class ImportSpreadsheetProxyViewTests(TestCase):
 
     def setUp(self):
         self.url = reverse('covid19:spreadsheet_proxy', args=['RJ'])
-        cache.clear()
 
     @patch('covid19.views.create_merged_state_spreadsheet', autospec=True)
     def test_return_spreadsheet_for_state(self, mock_merge):
