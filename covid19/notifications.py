@@ -13,7 +13,7 @@ COLLABORATORS_SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1S77Cvor
 class FakeChat:
 
     def send_message(self, channel, message):
-        print(f"New message in {channel}:\n\t{message}")
+        print(f"New message in {channel}:\n{message}")
 
 
 @lru_cache(maxsize=1)
@@ -25,7 +25,7 @@ def collaborators_data():
 
 @lru_cache(maxsize=1)
 def get_chat():
-    chat = FakeChat
+    chat = FakeChat()
     if settings.ROCKETCHAT_BASE_URL:
         chat = RocketChat(settings.ROCKETCHAT_BASE_URL)
         chat.user_id = settings.ROCKETCHAT_USER_ID
