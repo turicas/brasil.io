@@ -159,18 +159,10 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         self.content = self.content.replace('TOTAL NO ESTADO,102,32', 'TOTAL NO ESTADO,93,31')
         file_rows = rows.import_from_csv(self.file_from_content)
 
-        expected = {
-            "city": 'Abatiá',
-            "city_ibge_code": get_city_info('Abatiá', 'PR').city_ibge_code,
-            "confirmed": 0,
-            "date": self.date.isoformat(),
-            "deaths": 0,
-            "place_type": "city",
-            "state": 'PR',
-        }
         results, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
-        assert expected in results
+        assert len(results) == len(file_rows) - 1
+        assert "Abatiá" not in [r['city'] for r in results]
 
     @patch('covid19.spreadsheet_validator.validate_historical_data', Mock(return_value=[]))
     def test_always_use_ibge_data_to_format_the_city_name(self):
