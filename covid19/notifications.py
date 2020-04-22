@@ -2,9 +2,9 @@ import io
 import requests
 import rows
 from functools import lru_cache
-from rocketchat import RocketChat
 
 from django.conf import settings
+from utils.rocketchat import RocketChat
 
 
 COLLABORATORS_SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1S77CvorwQripFZjlWTOZeBhK42rh3u57aRL1XZGhSdI/export?format=csv&id=1S77CvorwQripFZjlWTOZeBhK42rh3u57aRL1XZGhSdI&gid=0"
