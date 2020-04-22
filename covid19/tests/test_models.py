@@ -199,8 +199,19 @@ class StateSpreadsheetTests(TestCase):
         sp1.table_data = self.table_data
         expected = [
             "Número de casos confirmados ou óbitos diferem para Total.",
-            "Número de casos confirmados ou óbitos diferem para Importados/Indefinidos.",
-            "Número de casos confirmados ou óbitos diferem para Curitiba.",
+            "Importados/Indefinidos está na planilha (aqui) mas não na outra usada para a comparação (lá).",
+            "Curitiba está na planilha (aqui) mas não na outra usada para a comparação (lá).",
+        ]
+
+        assert sorted(expected) == sorted(sp1.compare_to_spreadsheet(sp2))
+
+    def test_error_if_mismatch_because_other_cities_exists_only_in_the_other_spreadsheet(self):
+        sp1, sp2 = baker.make(StateSpreadsheet, date=date.today(), state='PR', _quantity=2)
+
+        sp1.table_data = self.table_data[:-1]
+        sp2.table_data = self.table_data
+        expected = [
+            "Curitiba está na planilha usada para a comparação (lá) mas não na importada (aqui).",
         ]
 
         assert sorted(expected) == sorted(sp1.compare_to_spreadsheet(sp2))

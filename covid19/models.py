@@ -133,6 +133,10 @@ class StateSpreadsheet(models.Model):
         qs = StateSpreadsheet.objects.filter_active().from_state(self.state).filter(date=self.date)
         return qs.exclude(pk=self.pk, user_id=self.user_id)
 
+    @property
+    def table_data_by_city(self):
+        return {c['city']: c for c in self.table_data if c['place_type'] == 'city'}
+
     def get_data_from_city(self, ibge_code):
         if ibge_code:  # ibge_code = None match for undefined data
             ibge_code = int(ibge_code)
@@ -147,26 +151,40 @@ class StateSpreadsheet(models.Model):
         except IndexError:
             return None
 
-    def compare_to_spreadsheet(self, other_spreadsheet):
+    def compare_to_spreadsheet(self, other):
         match = lambda e1, e2: e1 and e2 and e1['deaths'] == e2['deaths'] and e1['confirmed'] == e2['confirmed']
 
         errors = []
-        if not self.date == other_spreadsheet.date:
+        if not self.date == other.date:
             errors.append("Datas das planilhas são diferentes.")
-        if not self.state == other_spreadsheet.state:
+        if not self.state == other.state:
             errors.append("Estados das planilhas são diferentes.")
 
         if errors:
             return errors
 
+        self_cities = set(self.table_data_by_city.keys())
+        other_cities = set(other.table_data_by_city.keys())
+
+        extra_self_cities = self_cities - other_cities
+        for extra_self in extra_self_cities:
+            errors.append(
+                f"{extra_self} está na planilha (aqui) mas não na outra usada para a comparação (lá)."
+            )
+        extra_other_cities = other_cities - self_cities
+        for extra_other in extra_other_cities:
+            errors.append(
+                f"{extra_other} está na planilha usada para a comparação (lá) mas não na importada (aqui).",
+            )
+
         for entry in self.table_data:
             display = entry['city'] or 'Total'
             if entry['place_type'] == 'state':
-                other_entry = other_spreadsheet.get_total_data()
+                other_entry = other.get_total_data()
             else:
-                other_entry = other_spreadsheet.get_data_from_city(entry['city_ibge_code'])
+                other_entry = other.get_data_from_city(entry['city_ibge_code'])
 
-            if not match(entry, other_entry):
+            if entry['city'] not in extra_self_cities and not match(entry, other_entry):
                 errors.append(f"Número de casos confirmados ou óbitos diferem para {display}.")
 
         return errors
