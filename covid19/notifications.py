@@ -23,7 +23,7 @@ def collaborators_data():
     return url_table
 
 
-@lru_cache(maxsize=1):
+@lru_cache(maxsize=1)
 def get_chat():
     chat = FakeChat
     if settings.ROCKETCHAT_BASE_URL:
@@ -33,13 +33,24 @@ def get_chat():
     return chat
 
 
-def get_state_row(state):
+def import_info_by_state(state):
     data = collaborators_data()
     return [r for r in data if r.uf.upper() == state.upper()][0]
 
 
+def clean_collaborators(collaborators):
+    return ['@' + c.strip() for c in collaborators.split(',')]
+
+
 def notify_new_spreadsheet(spreadsheet):
-    raise NotImplementedError
+    chat = get_chat()
+    state_info = import_info_by_state(spreadsheet.state)
+    channel = state_info.canal
+    collabs = clean_collaborators(state_info.voluntarios)
+    collabs = ' '.join(collabs)
+    msg = f"{collabs} - *Nova planilha* importada para o estado *{spreadsheet.state}* para o dia *{spreadsheet.date}*"
+    msg += f"\nRealizada por: *{spreadsheet.user.username}*\n\nPrecisamos de mais uma planilha para verificar os dados."
+    chat.send_message(channel, msg)
 
 
 def notify_spreadsheet_mismatch(spreadsheet, errors):
