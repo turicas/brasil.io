@@ -50,6 +50,12 @@ class StateSpreadsheetQuerySet(models.QuerySet):
     def uploaded(self):
         return self.filter(status=self.model.UPLOADED)
 
+    def deployable_for_state(self, state, avoid_peer_review_dupes=True):
+        qs = self.from_state(state).deployed().order_by('-date')
+        if avoid_peer_review_dupes:
+            qs = qs.distinct('date')
+        return qs
+
 
 def default_data_json():
     return {

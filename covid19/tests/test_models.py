@@ -288,3 +288,32 @@ class StateSpreadsheetTests(TestCase):
         spreadsheet.import_to_final_dataset(notification_func)
 
         assert [spreadsheet] == args
+
+    def test_ready_to_import_from_state_return_single_spreadsheet_by_day(self):
+        today = date.today()
+        yesterday = today - timedelta(days=1)
+        sp1, sp2 = baker.make(StateSpreadsheet, state='RJ', date=yesterday,  _quantity=2)
+        sp3, sp4 = baker.make(StateSpreadsheet, state='RJ', date=today, _quantity=2)
+        sp1.peer_review = sp2
+        sp2.peer_review = sp1
+        sp3.peer_review = sp4
+        sp4.peer_review = sp3
+        sp1.save()
+        sp2.save()
+        sp3.save()
+        sp4.save()
+        assert all([s.ready_to_import for s in StateSpreadsheet.objects.all()])
+        StateSpreadsheet.objects.all().update(status=StateSpreadsheet.DEPLOYED)
+        baker.make(StateSpreadsheet, state='RJ', date=today, _quantity=2)  # other data not deployed
+
+        deployables = StateSpreadsheet.objects.deployable_for_state('RJ')
+        assert 2 == deployables.count()
+        assert deployables[0] in [sp3, sp4]
+        assert deployables[1] in [sp1, sp2]
+
+        deployables = StateSpreadsheet.objects.deployable_for_state('RJ', avoid_peer_review_dupes=False)
+        assert 4 == deployables.count()
+        assert sp1 in deployables
+        assert sp2 in deployables
+        assert sp3 in deployables
+        assert sp4 in deployables
