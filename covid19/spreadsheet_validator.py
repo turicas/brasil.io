@@ -105,7 +105,8 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
     # this is hacky, I know, but I wanted to centralize all kind of validations inside this function
     on_going_spreadsheet = StateSpreadsheet(state=state, date=date)
     on_going_spreadsheet.table_data = results
-    return results, validate_historical_data(on_going_spreadsheet)
+    warnings = validate_historical_data(on_going_spreadsheet)
+    return on_going_spreadsheet.table_data, warnings
 
 
 def _parse_city_data(city, confirmed, deaths, date, state):
@@ -154,20 +155,28 @@ def validate_historical_data(spreadsheet):
         return data['confirmed'] < previous.confirmed or data['deaths'] < previous.deaths
 
     warnings = []
+    clean_results = spreadsheet.table_data
     validation_errors = SpreadsheetValidationErrors()
     covid19_stats = Covid19Stats()
+    s_date = spreadsheet.date
 
-    city_entries = covid19_stats.most_recent_city_entries_for_state(spreadsheet.state, spreadsheet.date)
-    state_entry = covid19_stats.most_recent_state_entry(spreadsheet.state, spreadsheet.date)
+    city_entries = covid19_stats.most_recent_city_entries_for_state(spreadsheet.state, s_date)
+    state_entry = covid19_stats.most_recent_state_entry(spreadsheet.state, s_date)
 
     for entry in city_entries:
         city_data = spreadsheet.get_data_from_city(entry.city_ibge_code)
-        if not city_data:
+        if not city_data and (entry.confirmed or entry.deaths):
             validation_errors.new_error(
-                f"{entry.city} possui dados históricos e não está presente na planilha"
+                f"{entry.city} possui dados históricos e não está presente na planilha."
             )
             continue
-        if lower_numbers(entry, city_data):
+        elif not city_data:  # previous entry for the city has 0 deaths and 0 confirmed
+            data = _parse_city_data(entry.city, entry.confirmed, entry.deaths, s_date, entry.state)
+            clean_results.append(data)
+            warnings.append(
+                f"{entry.city} possui dados históricos zerados/nulos, não presente na planilha e foi adicionado."
+            )
+        elif lower_numbers(entry, city_data):
             warnings.append(
                 f"Números de confirmados ou óbitos em {entry.city} é menor que o anterior."
             )
@@ -179,4 +188,6 @@ def validate_historical_data(spreadsheet):
         )
 
     validation_errors.raise_if_errors()
+
+    spreadsheet.table_data = clean_results
     return warnings

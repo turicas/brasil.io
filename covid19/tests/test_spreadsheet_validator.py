@@ -376,7 +376,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         exception = execinfo.value
         assert len(self.cities_cases) == len(exception.error_messages)
         for city_name in [c['city'] for c in self.cities_cases]:
-            msg = f"{city_name} possui dados históricos e não está presente na planilha"
+            msg = f"{city_name} possui dados históricos e não está presente na planilha."
             assert msg in exception.error_messages
 
     def test_is_valid_if_historical_data_has_the_same_values_as_the_new_import(self):
@@ -439,3 +439,21 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         warnings = validate_historical_data(self.spreadsheet)
 
         assert expected == warnings
+
+    def test_if_city_is_not_present_and_pprevious_report_has_0_for_both_counters_add_the_entry(self):
+        Covid19Cases = self.Covid19Cases
+        city_data = self.cities_data.pop(0)
+        city_data['deaths'] = 0
+        city_data['confirmed'] = 0
+        city_data['date'] = self.today - timedelta(days=2)
+        baker.make(Covid19Cases, **city_data)
+        self.spreadsheet.table_data = [self.total_data, self.undefined_data] + self.cities_data
+
+        expected = city_data.copy()
+        expected['date'] = self.today.isoformat()
+        assert expected not in self.spreadsheet.table_data
+
+        warnings = validate_historical_data(self.spreadsheet)
+
+        assert [f"{city_data['city']} possui dados históricos zerados/nulos, não presente na planilha e foi adicionado."] == warnings
+        assert expected in self.spreadsheet.table_data
