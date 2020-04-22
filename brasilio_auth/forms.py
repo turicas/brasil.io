@@ -7,6 +7,9 @@ from brasilio_auth.models import NewsletterSubscriber
 
 
 class UserCreationForm(DjangoUserCreationForm):
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={'style': 'text-transform: lowercase'}),
+    )
     email = forms.EmailField()
     password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
     password2 = forms.CharField(
@@ -19,6 +22,10 @@ class UserCreationForm(DjangoUserCreationForm):
     class Meta:
         model = get_user_model()
         fields = ('username', 'email')
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username', '')
+        return username.lower()
 
     def save(self, *args, **kwargs):
         user = super(UserCreationForm, self).save(*args, **kwargs)

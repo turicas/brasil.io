@@ -11,6 +11,7 @@ django-environ
 django-extensions
 django-localflavor==3.0.1
 django-markdownx
+django-minio-storage==0.3.7
 django-naomi
 django-recaptcha
 django-redis
@@ -34,6 +35,7 @@ pytz
 requests
 requests-cache
 sendgrid-django
+sentry-sdk==0.14.3
 six>=1.13
 tqdm
 whitenoise

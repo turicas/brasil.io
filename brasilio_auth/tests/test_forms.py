@@ -1,4 +1,7 @@
+from model_bakery import baker
+
 from django.contrib.auth.forms import UserCreationForm as DjangoUserCreationForm
+from django.conf import settings
 from django.test import TestCase
 
 from brasilio_auth.forms import UserCreationForm
@@ -19,7 +22,7 @@ class UserCreationFormTests(TestCase):
         assert issubclass(UserCreationForm, DjangoUserCreationForm)
 
     def test_create_user(self):
-        passwd = 'someverygoodpassword'
+        passwd = 'verygoodpassword'
         data = {
             'username': 'foo',
             'email': 'foo@bar.com',
@@ -50,3 +53,50 @@ class UserCreationFormTests(TestCase):
         user = form.save()
 
         assert NewsletterSubscriber.objects.filter(user=user).exists()
+
+    def test_force_lower_for_username(self):
+        passwd = 'verygoodpassword'
+        data = {
+            'username': 'FOO',
+            'email': 'foo@bar.com',
+            'password1': passwd,
+            'password2': passwd,
+        }
+
+        form = UserCreationForm(data)
+        assert form.is_valid() is True
+        user = form.save()
+        user.refresh_from_db()
+
+        assert 'foo' == user.username
+
+    def test_respect_abstract_user_max_length_for_username(self):
+        passwd = 'verygoodpassword'
+        data = {
+            'username': 'a' * 150,
+            'email': 'foo@bar.com',
+            'password1': passwd,
+            'password2': passwd,
+        }
+
+        form = UserCreationForm(data)
+        assert form.is_valid()
+
+        data['username'] = 'a' * 151
+        form = UserCreationForm(data)
+        assert not form.is_valid()
+        assert 'username' in form.errors
+
+    def test_invalid_username_if_already_exists(self):
+        baker.make(settings.AUTH_USER_MODEL, username='foo')
+        passwd = 'verygoodpassword'
+        data = {
+            'username': 'foo',
+            'email': 'foo@bar.com',
+            'password1': passwd,
+            'password2': passwd,
+        }
+
+        form = UserCreationForm(data)
+        assert form.is_valid() is False
+        assert 'username' in form.errors

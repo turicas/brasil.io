@@ -63,6 +63,7 @@ class Covid19Stats:
             "date_str": state_totals["last_date"],
             "death_rate_percent": 100 * (deaths / confirmed),
             "deaths": deaths,
+            "deaths_per_100k_inhabitants": 100 * (deaths / population),
             "estimated_population_2019": population,
             "state": "BR",
         }
@@ -96,6 +97,13 @@ class Covid19Stats:
     @property
     def city_data(self):
         # XXX: what should we do about "Importados/Indefinidos"?
+        desired_keys = (
+            "confirmed",
+            "confirmed_per_100k_inhabitants",
+            "deaths",
+            "death_rate_percent",
+            "deaths_per_100k_inhabitants",
+        )
         city_cases = self.city_cases.filter(city_ibge_code__isnull=False)
         serializer = CityCaseSerializer(instance=city_cases, many=True)
         cities = {
@@ -105,7 +113,7 @@ class Covid19Stats:
         }
         max_values = {
             key: max(row[key] for row in cities.values())
-            for key in ("confirmed", "confirmed_per_100k_inhabitants", "deaths", "death_rate_percent")
+            for key in desired_keys
         }
         return {"cities": cities, "max": max_values, "total": self.country_totals}
 
