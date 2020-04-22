@@ -81,6 +81,10 @@ def notify_import_success(spreadsheet):
         spreadsheet.peer_review.user.username,
     ])
 
-    msg = f"@turicas planilha de {spreadsheet.state} para o dia {spreadsheet.date} checada (dados enviados por {authors}), pode rodar o deploy!"
+    msg = f"@turicas planilha de *{spreadsheet.state}* para o dia *{spreadsheet.date}* checada (dados enviados por {authors}), pode rodar o deploy!"
+    if spreadsheet.warnings:
+        msg += f"\nLista de *warnings*:\n- " + '\n- '.join(spreadsheet.warnings)
+    else:
+        msg += '\nPlanilha sem warnings'
 
     chat.send_message(channel, msg)
