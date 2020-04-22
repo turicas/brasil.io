@@ -44,6 +44,9 @@ class StateSpreadsheetQuerySet(models.QuerySet):
     def filter_active(self):
         return self.filter(cancelled=False)
 
+    def deployed(self):
+        return self.filter(status=self.model.DEPLOYED)
+
 
 def default_data_json():
     return {
@@ -188,4 +191,5 @@ class StateSpreadsheet(models.Model):
         return False, errors
 
     def import_to_final_dataset(self):
-        raise NotImplementedError
+        self.status = StateSpreadsheet.DEPLOYED
+        self.save()

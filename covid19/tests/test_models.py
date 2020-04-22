@@ -232,3 +232,14 @@ class StateSpreadsheetTests(TestCase):
         expected = ["Número de casos confirmados ou óbitos diferem para Total."]
 
         assert (False, expected) == sp1.check_is_ready_to_be_imported()
+
+    def test_import_to_final_dataset_update_spreadsheet_status(self):
+        spreadsheet = baker.make(StateSpreadsheet)
+        assert StateSpreadsheet.UPLOADED == spreadsheet.status
+        assert not StateSpreadsheet.objects.deployed().exists()
+
+        spreadsheet.import_to_final_dataset()
+        spreadsheet.refresh_from_db()
+
+        assert StateSpreadsheet.DEPLOYED == spreadsheet.status
+        assert spreadsheet in StateSpreadsheet.objects.deployed()
