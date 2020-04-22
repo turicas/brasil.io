@@ -228,7 +228,7 @@ class StateSpreadsheetTests(TestCase):
         sp2.refresh_from_db()
         assert sp2 == sp1.peer_review
         assert sp1 == sp2.peer_review
-
+        assert sp1.ready_to_import is True
 
     def test_raise_exception_if_single_spreadsheet(self):
         sp1 = baker.make(StateSpreadsheet, date=date.today(), state='RJ')
@@ -250,7 +250,7 @@ class StateSpreadsheetTests(TestCase):
         assert (False, expected) == sp1.link_to_matching_spreadsheet_peer()
 
     def test_import_to_final_dataset_update_spreadsheet_status(self):
-        spreadsheet = baker.make(StateSpreadsheet)
+        spreadsheet = baker.make(StateSpreadsheet, _fill_optional=['peer_review'])
         assert StateSpreadsheet.UPLOADED == spreadsheet.status
         assert not StateSpreadsheet.objects.deployed().exists()
 
@@ -259,3 +259,22 @@ class StateSpreadsheetTests(TestCase):
 
         assert StateSpreadsheet.DEPLOYED == spreadsheet.status
         assert spreadsheet in StateSpreadsheet.objects.deployed()
+
+    def test_import_to_final_dataset_raise_error_if_invalid_status(self):
+        spreadsheet = baker.make(
+            StateSpreadsheet,
+            status=StateSpreadsheet.CHECK_FAILED,
+            _fill_optional=['peer_review']
+        )
+        with pytest.raises(ValueError):
+            spreadsheet.import_to_final_dataset()
+
+    def test_import_to_final_dataset_raise_error_if_cancelled(self):
+        spreadsheet = baker.make(StateSpreadsheet, cancelled=True, _fill_optional=['peer_review'])
+        with pytest.raises(ValueError):
+            spreadsheet.import_to_final_dataset()
+
+    def test_import_to_final_dataset_raise_error_if_no_peer_review(self):
+        spreadsheet = baker.make(StateSpreadsheet)
+        with pytest.raises(ValueError):
+            spreadsheet.import_to_final_dataset()

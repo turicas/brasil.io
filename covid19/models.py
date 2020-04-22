@@ -138,6 +138,14 @@ class StateSpreadsheet(models.Model):
     def table_data_by_city(self):
         return {c['city']: c for c in self.table_data if c['place_type'] == 'city'}
 
+    @property
+    def ready_to_import(self):
+        return all([
+            self.status == StateSpreadsheet.UPLOADED,
+            not self.cancelled,
+            self.peer_review,
+        ])
+
     def get_data_from_city(self, ibge_code):
         if ibge_code:  # ibge_code = None match for undefined data
             ibge_code = int(ibge_code)
@@ -214,5 +222,7 @@ class StateSpreadsheet(models.Model):
         return False, errors
 
     def import_to_final_dataset(self):
+        if not self.ready_to_import:
+            raise ValueError("{self} is not ready to be imported")
         self.status = StateSpreadsheet.DEPLOYED
         self.save()
