@@ -18,9 +18,8 @@ django-rq==2.3.1
 django-storages==1.9.1
 django>=2.0
 djangorestframework
-git+https://github.com/turicas/rows.git@develop#egg=rows
-git+https://github.com/turicas/rows.git@develop#egg=rows[ods]
 gunicorn
+https://github.com/turicas/rows/archive/develop.zip#egg=rows
 ipython
 jinja2
 lxml==4.5.0
