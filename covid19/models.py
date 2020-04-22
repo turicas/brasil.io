@@ -128,7 +128,7 @@ class StateSpreadsheet(models.Model):
     @cached_property
     def sibilings(self):
         qs = StateSpreadsheet.objects.filter_active().from_state(self.state).filter(date=self.date)
-        return qs.exclude(pk=self.pk)
+        return qs.exclude(pk=self.pk, user_id=self.user_id)
 
     def get_data_from_city(self, ibge_code):
         if ibge_code:  # ibge_code = None match for undefined data
