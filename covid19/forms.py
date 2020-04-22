@@ -8,9 +8,10 @@ from tempfile import NamedTemporaryFile
 from django import forms
 from django.core.validators import URLValidator
 
+from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.models import StateSpreadsheet
 from covid19.permissions import user_has_state_permission
-from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict, SpreadsheetValidationErrors
+from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict
 
 
 def state_choices_for_user(user):
@@ -33,10 +34,11 @@ def import_xls(f_obj):
     temp_xls.write(content)
     temp_xls.close()
 
-    data = rows.import_from_xls(temp_xls)
     temp_file = Path(temp_xls.name)
-    os.remove(temp_file)
+    with open(temp_file, 'rb') as temp_xls:
+        data = rows.import_from_xls(temp_xls)
 
+    os.remove(temp_file)
     return data
 
 
@@ -74,7 +76,7 @@ class StateSpreadsheetForm(forms.ModelForm):
         return report_date
 
     def clean_boletim_urls(self):
-        urls = self.cleaned_data['boletim_urls'].strip().split('\n')
+        urls = [u.strip() for u in self.cleaned_data['boletim_urls'].split('\n')]
         url_validator = URLValidator(message="Uma ou mais das URLs não são válidas.")
         for url in urls:
             url_validator(url)

@@ -117,7 +117,7 @@ MEDIA_ROOT = env("MEDIA_ROOT", default=str(public_root.path("media/")))
 MEDIA_URL = "/media/"
 STATIC_ROOT = str(public_root.path("static/"))
 STATIC_URL = "/static/"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = env("STATICFILES_STORAGE")
 STATICFILES_DIRS = [str(root.path("static"))]
 
 DEFAULT_FILE_STORAGE = env("DEFAULT_FILE_STORAGE")
@@ -133,6 +133,15 @@ AWS_S3_ENDPOINT_URL=env("AWS_S3_ENDPOINT_URL")
 AWS_S3_CUSTOM_DOMAIN=env("AWS_S3_CUSTOM_DOMAIN")
 AWS_IS_GZIPPED=env("AWS_IS_GZIPPED")
 GZIP_CONTENT_TYPES=env("GZIP_CONTENT_TYPES")
+
+MINIO_STORAGE_ENDPOINT = AWS_S3_ENDPOINT_URL.replace('https://', '').replace('/', '')
+MINIO_STORAGE_ACCESS_KEY = AWS_ACCESS_KEY_ID
+MINIO_STORAGE_SECRET_KEY = AWS_SECRET_ACCESS_KEY
+MINIO_STORAGE_USE_HTTPS = True
+MINIO_STORAGE_MEDIA_BUCKET_NAME = env("MINIO_STORAGE_MEDIA_BUCKET_NAME")
+MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET = AWS_AUTO_CREATE_BUCKET
+MINIO_STORAGE_STATIC_BUCKET_NAME = env("MINIO_STORAGE_STATIC_BUCKET_NAME")
+MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET = AWS_AUTO_CREATE_BUCKET
 
 
 # Data-related settings
@@ -213,7 +222,22 @@ RQ_QUEUES = {
         'DEFAULT_TIMEOUT': 500,
     }
 }
+if not DEBUG:
+    RQ_QUEUES['default']['WORKER_CLASS'] = 'brasilio.worker.SentryAwareWorker'
 
 
 # Covid19 import settings
 COVID_IMPORT_PERMISSION_PREFIX = 'can_import_covid_state_'
+
+# RockecChat config
+ROCKETCHAT_BASE_URL = env("ROCKETCHAT_BASE_URL")
+ROCKETCHAT_USER_ID = env("ROCKETCHAT_USER_ID")
+ROCKETCHAT_AUTH_TOKEN = env("ROCKETCHAT_AUTH_TOKEN")
+
+# Sentry config
+import sentry_sdk
+from sentry_sdk.integrations.django import \
+    DjangoIntegration
+
+SENTRY_DSN = env("SENTRY_DSN")
+sentry_sdk.init(SENTRY_DSN, integrations=[DjangoIntegration()])
