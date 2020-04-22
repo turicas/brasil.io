@@ -9,18 +9,10 @@ from covid19 import google_data
 from covid19.models import StateSpreadsheet
 
 
-def get_state_spreadsheets_from_database(state):
-    # TODO: this function could be refactored as QuerySet methods
-    statuses = {text: number for (number, text) in StateSpreadsheet.STATUS_CHOICES}
-    return StateSpreadsheet.objects.from_state(state).filter(
-        status=statuses["deployed"]
-    ).order_by("-created_at")  # get the newest first
-
-
 def get_state_data_from_db(state):
     """Return all state cases from DB, grouped by date"""
 
-    spreadsheets = get_state_spreadsheets_from_database(state)
+    spreadsheets = StateSpreadsheet.objects.deployed().from_state(state).most_recent_first()
 
     cases, reports = {}, []
     for spreadsheet in spreadsheets:

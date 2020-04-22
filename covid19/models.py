@@ -50,6 +50,9 @@ class StateSpreadsheetQuerySet(models.QuerySet):
     def uploaded(self):
         return self.filter(status=self.model.UPLOADED)
 
+    def most_recent_first(self):
+        return self.order_by('-created_at')
+
 
 def default_data_json():
     return {
