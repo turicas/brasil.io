@@ -47,6 +47,9 @@ class StateSpreadsheetQuerySet(models.QuerySet):
     def deployed(self):
         return self.filter(status=self.model.DEPLOYED)
 
+    def uploaded(self):
+        return self.filter(status=self.model.UPLOADED)
+
 
 def default_data_json():
     return {
@@ -132,7 +135,7 @@ class StateSpreadsheet(models.Model):
     @cached_property
     def sibilings(self):
         qs = StateSpreadsheet.objects.filter_active().from_state(self.state).filter(date=self.date)
-        return qs.exclude(pk=self.pk, user_id=self.user_id)
+        return qs.uploaded().exclude(pk=self.pk, user_id=self.user_id)
 
     @property
     def table_data_by_city(self):
@@ -222,6 +225,7 @@ class StateSpreadsheet(models.Model):
         return False, errors
 
     def import_to_final_dataset(self):
+        self.refresh_from_db()
         if not self.ready_to_import:
             raise ValueError("{self} is not ready to be imported")
         self.status = StateSpreadsheet.DEPLOYED
