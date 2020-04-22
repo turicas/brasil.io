@@ -13,7 +13,7 @@ def process_new_spreadsheet_task(spreadsheet_pk):
         return None
 
     try:
-        ready, errors = spreadsheet.check_is_ready_to_be_imported()
+        ready, errors = spreadsheet.link_to_matching_spreadsheet_peer()
     except OnlyOneSpreadsheetException:
         notify_new_spreadsheet(spreadsheet)
 

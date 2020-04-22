@@ -216,14 +216,14 @@ class StateSpreadsheetTests(TestCase):
 
         assert sorted(expected) == sorted(sp1.compare_to_spreadsheet(sp2))
 
-    def test_check_is_ready_to_be_imported_for_valid_spreadsheet(self):
+    def test_link_to_matching_spreadsheet_peer_for_valid_spreadsheet(self):
         sp1, sp2 = baker.make(StateSpreadsheet, date=date.today(), state='PR', _quantity=2)
         sp1.table_data = deepcopy(self.table_data)
         sp1.save()
         sp2.table_data = deepcopy(self.table_data)
         sp2.save()
 
-        assert (True, []) == sp1.check_is_ready_to_be_imported()
+        assert (True, []) == sp1.link_to_matching_spreadsheet_peer()
         sp1.refresh_from_db()
         sp2.refresh_from_db()
         assert sp2 == sp1.peer_review
@@ -235,9 +235,9 @@ class StateSpreadsheetTests(TestCase):
         sp2 = baker.make(StateSpreadsheet, date=date.today(), state='PR')
 
         with pytest.raises(OnlyOneSpreadsheetException):
-            sp1.check_is_ready_to_be_imported()
+            sp1.link_to_matching_spreadsheet_peer()
 
-    def test_check_is_ready_to_be_imported_for_not_matching_spreadsheets(self):
+    def test_link_to_matching_spreadsheet_peer_for_not_matching_spreadsheets(self):
         sp1, sp2 = baker.make(StateSpreadsheet, date=date.today(), state='PR', _quantity=2)
         sp1.table_data = deepcopy(self.table_data)
         sp1.save()
@@ -247,7 +247,7 @@ class StateSpreadsheetTests(TestCase):
         sp2.save()
         expected = ["Número de casos confirmados ou óbitos diferem para Total."]
 
-        assert (False, expected) == sp1.check_is_ready_to_be_imported()
+        assert (False, expected) == sp1.link_to_matching_spreadsheet_peer()
 
     def test_import_to_final_dataset_update_spreadsheet_status(self):
         spreadsheet = baker.make(StateSpreadsheet)

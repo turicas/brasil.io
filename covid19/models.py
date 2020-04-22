@@ -190,7 +190,7 @@ class StateSpreadsheet(models.Model):
 
         return errors
 
-    def check_is_ready_to_be_imported(self):
+    def link_to_matching_spreadsheet_peer(self):
         """
         Compare the spreadsheet with the sibiling ones with the possible outputs:
 
