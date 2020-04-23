@@ -16,6 +16,7 @@ def process_new_spreadsheet_task(spreadsheet_pk):
         ready, errors = spreadsheet.link_to_matching_spreadsheet_peer()
     except OnlyOneSpreadsheetException:
         notify_new_spreadsheet(spreadsheet)
+        return
 
     if ready:
         spreadsheet.import_to_final_dataset(notify_import_success)
