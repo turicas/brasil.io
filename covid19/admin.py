@@ -27,8 +27,9 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
     ordering = ['-created_at']
 
     def get_readonly_fields(self, request, obj=None):
-        fields = ['created_at', 'status', 'cancelled']
+        fields = []
         if obj:
+            fields.extend(['created_at', 'status', 'cancelled'])
             fields.extend(StateSpreadsheetForm.Meta.fields + ['warnings_list', 'errors_list'])
         return fields
 

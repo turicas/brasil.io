@@ -11,10 +11,10 @@ from django.test import TestCase
 
 from brazil_data.cities import get_city_info
 from core.models import Table
+from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.models import StateSpreadsheet
 from covid19.spreadsheet_validator import (
     format_spreadsheet_rows_as_dict,
-    SpreadsheetValidationErrors,
     validate_historical_data
 )
 from covid19.tests.utils import Covid19DatasetTestCase
@@ -159,18 +159,10 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         self.content = self.content.replace('TOTAL NO ESTADO,102,32', 'TOTAL NO ESTADO,93,31')
         file_rows = rows.import_from_csv(self.file_from_content)
 
-        expected = {
-            "city": 'Abatiá',
-            "city_ibge_code": get_city_info('Abatiá', 'PR').city_ibge_code,
-            "confirmed": 0,
-            "date": self.date.isoformat(),
-            "deaths": 0,
-            "place_type": "city",
-            "state": 'PR',
-        }
         results, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
-        assert expected in results
+        assert len(results) == len(file_rows) - 1
+        assert "Abatiá" not in [r['city'] for r in results]
 
     @patch('covid19.spreadsheet_validator.validate_historical_data', Mock(return_value=[]))
     def test_always_use_ibge_data_to_format_the_city_name(self):
@@ -188,6 +180,40 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         }
         results, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
+        assert expected in results
+
+    @patch('covid19.spreadsheet_validator.validate_historical_data', Mock(return_value=[]))
+    def test_allow_zero_as_a_valid_value(self):
+        original_content = self.content
+        base = {
+            "city": 'Abatiá',
+            "city_ibge_code": get_city_info('Abatiá', 'PR').city_ibge_code,
+            "confirmed": 9,
+            "date": self.date.isoformat(),
+            "deaths": 1,
+            "place_type": "city",
+            "state": 'PR',
+        }
+
+        # zero confirmed cases
+        self.content = original_content.replace('TOTAL NO ESTADO,102,32', 'TOTAL NO ESTADO,93,31')
+        self.content = self.content.replace('Abatiá,9,1', 'Abatiá,0,0')
+        expected = base.copy()
+        expected['confirmed'] = 0
+        expected['deaths'] = 0
+
+        file_rows = rows.import_from_csv(self.file_from_content)
+        results, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+        assert expected in results
+
+        # zero deaths
+        self.content = original_content.replace('TOTAL NO ESTADO,102,32', 'TOTAL NO ESTADO,102,31')
+        self.content = self.content.replace('Abatiá,9,1', 'Abatiá,9,0')
+        expected = base.copy()
+        expected['deaths'] = 0
+
+        file_rows = rows.import_from_csv(self.file_from_content)
+        results, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
         assert expected in results
 
     def test_both_confirmed_cases_and_deaths_columns_must_be_filled(self):
@@ -384,7 +410,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         exception = execinfo.value
         assert len(self.cities_cases) == len(exception.error_messages)
         for city_name in [c['city'] for c in self.cities_cases]:
-            msg = f"{city_name} possui dados históricos e não está presente na planilha"
+            msg = f"{city_name} possui dados históricos e não está presente na planilha."
             assert msg in exception.error_messages
 
     def test_is_valid_if_historical_data_has_the_same_values_as_the_new_import(self):
@@ -447,3 +473,21 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         warnings = validate_historical_data(self.spreadsheet)
 
         assert expected == warnings
+
+    def test_if_city_is_not_present_and_pprevious_report_has_0_for_both_counters_add_the_entry(self):
+        Covid19Cases = self.Covid19Cases
+        city_data = self.cities_data.pop(0)
+        city_data['deaths'] = 0
+        city_data['confirmed'] = 0
+        city_data['date'] = self.today - timedelta(days=2)
+        baker.make(Covid19Cases, **city_data)
+        self.spreadsheet.table_data = [self.total_data, self.undefined_data] + self.cities_data
+
+        expected = city_data.copy()
+        expected['date'] = self.today.isoformat()
+        assert expected not in self.spreadsheet.table_data
+
+        warnings = validate_historical_data(self.spreadsheet)
+
+        assert [f"{city_data['city']} possui dados históricos zerados/nulos, não presente na planilha e foi adicionado."] == warnings
+        assert expected in self.spreadsheet.table_data

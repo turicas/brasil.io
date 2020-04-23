@@ -1,12 +1,15 @@
 import random
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse, Http404
 from django.shortcuts import render
 
-from .geo import city_geojson
-from .stats import Covid19Stats
-
+from brazil_data.cities import get_state_info
+from core.middlewares import disable_non_logged_user_cache
 from core.util import cached_http_get_json
+from covid19.exceptions import SpreadsheetValidationErrors
+from covid19.geo import city_geojson
+from covid19.spreadsheet import create_merged_state_spreadsheet
+from covid19.stats import Covid19Stats
 
 stats = Covid19Stats()
 
@@ -81,3 +84,19 @@ def dashboard(request):
         "dashboard.html",
         {"city_data": city_data["cities"].values(), "aggregate": aggregate},
     )
+
+
+@disable_non_logged_user_cache
+def import_spreadsheet_proxy(request, state):
+    state_info = get_state_info(state)
+    if not state_info:
+        raise Http404
+
+    try:
+        content = create_merged_state_spreadsheet(state)
+        response = HttpResponse(content)
+        response['Content-Type'] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        response['Content-Disposition'] = f"attachment; filename={state}.xlsx"
+        return response
+    except SpreadsheetValidationErrors as e:
+        return JsonResponse({'errors': e.error_messages}, status=400)

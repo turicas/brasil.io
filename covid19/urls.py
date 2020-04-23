@@ -9,4 +9,5 @@ urlpatterns = [
     path("voluntarios", views.volunteers, name="volunteers"),
     path("cities/cases", views.cities, name="cities-cases"),
     path("cities/geo", views.cities_geojson, name="cities-geo"),
+    path("import-data/<str:state>/", views.import_spreadsheet_proxy, name="spreadsheet_proxy"),
 ]
