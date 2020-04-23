@@ -96,9 +96,9 @@ def create_merged_state_spreadsheet(state):
     cases = rows.import_from_dicts(state_data["cases"])
 
     data = io.BytesIO()
-    rows.export_to_xlsx(reports, data, sheet_name="Boletins (FINAL)")
+    rows.export_to_xlsx(reports, data, sheet_name=google_data.BOLETIM_SPREADSHEET)
     data.seek(0)
-    rows.export_to_xlsx(cases, data, sheet_name="Casos (FINAL)")
+    rows.export_to_xlsx(cases, data, sheet_name=google_data.CASOS_SPREADSHEET)
     data.seek(0)
     return data
 

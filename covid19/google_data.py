@@ -12,6 +12,8 @@ FIELDS_BOLETIM = {
     "url": rows.fields.TextField,
     "notes": rows.fields.TextField,
 }
+BOLETIM_SPREADSHEET = "Boletins (FINAL)"
+CASOS_SPREADSHEET = "Casos (FINAL)"
 
 
 def spreadsheet_download_url(url_or_id, file_format):
@@ -43,9 +45,9 @@ def get_state_data_from_google_spreadsheets(state, timeout=5):
     )
     data = http_get(state_spreadsheet_download_url, timeout)
     reports = rows.import_from_xlsx(
-        io.BytesIO(data), sheet_name="Boletins (FINAL)", force_types=FIELDS_BOLETIM
+        io.BytesIO(data), sheet_name=BOLETIM_SPREADSHEET, force_types=FIELDS_BOLETIM
     )
-    cases = rows.import_from_xlsx(io.BytesIO(data), sheet_name="Casos (FINAL)")
+    cases = rows.import_from_xlsx(io.BytesIO(data), sheet_name=CASOS_SPREADSHEET)
     return {
         "reports": [dict(row._asdict()) for row in reports if row.date],
         "cases": [dict(row._asdict()) for row in cases if row.municipio]
