@@ -1,6 +1,6 @@
 import io
-
 import rows
+from collections import defaultdict
 
 from brazil_data.cities import get_city_info
 
@@ -12,19 +12,16 @@ from covid19.exceptions import SpreadsheetValidationErrors
 
 def get_state_data_from_db(state):
     """Return all state cases from DB, grouped by date"""
-    cases, reports = {}, []
-    for spreadsheet in StateSpreadsheet.objects.deployable_for_state(state):
+    cases, reports = {}, {}
+    spreadsheets = StateSpreadsheet.objects.deployable_for_state(state, avoid_peer_review_dupes=False)
+    for spreadsheet in spreadsheets:
         date = spreadsheet.date
+
+        # Group all notes for a same URL to avoid repeated entries for date/url
+        report_data = reports.get(date, defaultdict(list))
         for url in spreadsheet.boletim_urls:
-            # TODO: what to do when we add the same URL twice (from 2 equal
-            # spreadsheets)?
-            reports.append(
-                {
-                    "date": date,
-                    "url": url,
-                    "notes": spreadsheet.boletim_notes,
-                }
-            )
+            report_data[url].append(spreadsheet.boletim_notes)
+        reports[date] = report_data
 
         cases[date] = {}
         for row in spreadsheet.data["table"]:
@@ -36,8 +33,18 @@ def get_state_data_from_db(state):
                 "deaths": row["deaths"],
             }
 
+    # reports entries should be returned as a list
+    reports_as_list = []
+    for date, urls in reports.items():
+        for url, notes in urls.items():
+            reports_as_list.append({
+                "date": date,
+                "url": url,
+                "notes": "\n".join([n.strip() for n in notes if n.strip()])
+            })
+
     return {
-        "reports": reports,
+        "reports": reports_as_list,
         "cases": cases,
     }
 
