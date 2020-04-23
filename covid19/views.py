@@ -87,7 +87,7 @@ def dashboard(request):
 
 
 @disable_non_logged_user_cache
-def import_spreadsheet_provy(request, state):
+def import_spreadsheet_proxy(request, state):
     state_info = get_state_info(state)
     if not state_info:
         raise Http404
