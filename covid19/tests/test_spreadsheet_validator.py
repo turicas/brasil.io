@@ -312,6 +312,17 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         assert on_going_spreadsheet.state == self.uf
         assert on_going_spreadsheet.date == self.date
 
+    @patch('covid19.spreadsheet_validator.validate_historical_data', Mock(return_value=[]))
+    def test_undefined_can_hold_none_values_for_confirmed_and_deaths(self):
+        self.content = self.content.replace('TOTAL NO ESTADO,102,32', 'TOTAL NO ESTADO,100,30')
+        self.content = self.content.replace('Importados/Indefinidos,2,2', 'Importados/Indefinidos,,')
+        file_rows = rows.import_from_csv(self.file_from_content)
+
+        results, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        assert len(results) == len(file_rows) - 1
+        assert "Importados/Indefinidos" not in [r['city'] for r in results]
+
 
 class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
 
@@ -474,7 +485,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
 
         assert expected == warnings
 
-    def test_if_city_is_not_present_and_pprevious_report_has_0_for_both_counters_add_the_entry(self):
+    def test_if_city_is_not_present_and_previous_report_has_0_for_both_counters_add_the_entry(self):
         Covid19Cases = self.Covid19Cases
         city_data = self.cities_data.pop(0)
         city_data['deaths'] = 0

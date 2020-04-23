@@ -56,6 +56,9 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
         confirmed = getattr(entry, confirmed_attr, None)
         deaths = getattr(entry, deaths_attr, None)
 
+        if city == UNDEFINED_DISPLAY:
+            has_undefined = True
+
         if (confirmed is None and deaths is not None) or (deaths is None and confirmed is not None):
             validation_errors.new_error(f'Dados de casos ou óbitos incompletos na linha {city}')
         if confirmed is None or deaths is None:
@@ -81,8 +84,6 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
         else:
             sum_cases += confirmed
             sum_deaths += deaths
-            if result['city'] == UNDEFINED_DISPLAY:
-                has_undefined = True
 
         results.append(result)
 
