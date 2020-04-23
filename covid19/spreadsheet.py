@@ -6,11 +6,8 @@ from brazil_data.cities import get_city_info
 
 from covid19 import google_data
 from covid19.models import StateSpreadsheet
+from covid19.spreadsheet_validator import TOTAL_LINE_DISPLAY, UNDEFINED_DISPLAY
 from covid19.exceptions import SpreadsheetValidationErrors
-
-
-TOTAL_LABEL = "TOTAL NO ESTADO"
-UNDEFINED_LABEL = "Importados/Indefinidos"
 
 
 def get_state_data_from_db(state):
@@ -33,7 +30,7 @@ def get_state_data_from_db(state):
         for row in spreadsheet.data["table"]:
             city = row["city"]
             if city is None:
-                city = TOTAL_LABEL
+                city = TOTAL_LINE_DISPLAY
             cases[date][city] = {
                 "confirmed": row["confirmed"],
                 "deaths": row["deaths"],
@@ -71,7 +68,7 @@ def merge_state_data(state):
     for row in original_cases:
         row = row.copy()
         city = row["municipio"]
-        if city not in [TOTAL_LABEL, UNDEFINED_LABEL]:
+        if city not in [TOTAL_LINE_DISPLAY, UNDEFINED_DISPLAY]:
             city_info = get_city_info(city, state)
             if city_info:
                 city = city_info.city
