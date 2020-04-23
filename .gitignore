@@ -21,6 +21,7 @@ dist/*
 docker/neo4j
 docker/redis
 docker/postgres/data
+docker/postgresql
 public/
 reg_settings.py
 .vscode/

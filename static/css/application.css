@@ -151,6 +151,14 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0.5rem 0 0.5rem 0;
 }
 
+.container.badge {
+  max-width: 240px;
+}
+
+.img-badge {
+  width: 100%;
+}
+
 .container {
   margin: 0 auto;
   width: 90%;
