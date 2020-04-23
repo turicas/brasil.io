@@ -237,6 +237,8 @@ class StateSpreadsheet(models.Model):
 
         self.status = StateSpreadsheet.DEPLOYED
         self.save()
+        self.peer_review.status = StateSpreadsheet.DEPLOYED
+        self.peer_review.save()
 
         if notification_callable:
             notification_callable(self)

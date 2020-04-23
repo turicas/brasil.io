@@ -258,7 +258,8 @@ class StateSpreadsheetTests(TestCase):
         spreadsheet.refresh_from_db()
 
         assert StateSpreadsheet.DEPLOYED == spreadsheet.status
-        assert spreadsheet in StateSpreadsheet.objects.deployed()
+        assert StateSpreadsheet.DEPLOYED == spreadsheet.peer_review.status
+        assert spreadsheet.peer_review in StateSpreadsheet.objects.deployed()
 
     def test_import_to_final_dataset_raise_error_if_invalid_status(self):
         spreadsheet = baker.make(
