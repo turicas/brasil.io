@@ -141,7 +141,7 @@ class StateSpreadsheet(models.Model):
     @cached_property
     def sibilings(self):
         qs = StateSpreadsheet.objects.filter_active().from_state(self.state).filter(date=self.date)
-        return qs.uploaded().exclude(pk=self.pk, user_id=self.user_id)
+        return qs.uploaded().exclude(pk=self.pk, user_id=self.user_id).order_by('-created_at')
 
     @property
     def table_data_by_city(self):
