@@ -181,18 +181,20 @@ class StateSpreadsheet(models.Model):
         if errors:
             return errors
 
+        user = self.user.username
+        other_user = other.user.username
         self_cities = set(self.table_data_by_city.keys())
         other_cities = set(other.table_data_by_city.keys())
 
         extra_self_cities = self_cities - other_cities
         for extra_self in extra_self_cities:
             errors.append(
-                f"{extra_self} está na planilha (aqui) mas não na outra usada para a comparação (lá)."
+                f"{extra_self} está na planilha (por {user}) mas não na outra usada para a comparação (por {other_user})."
             )
         extra_other_cities = other_cities - self_cities
         for extra_other in extra_other_cities:
             errors.append(
-                f"{extra_other} está na planilha usada para a comparação (lá) mas não na importada (aqui).",
+                f"{extra_other} está na planilha usada para a comparação (por {other_user}) mas não na importada (por {user}).",
             )
 
         for entry in self.table_data:
