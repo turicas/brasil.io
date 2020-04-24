@@ -35,7 +35,7 @@ def notify_new_spreadsheet(spreadsheet):
 
     msg = f"{collabs} - *Nova planilha* importada para o estado *{spreadsheet.state}* para o dia *{spreadsheet.date}*"
     msg += f"\nRealizada por: *{spreadsheet.user.username}*\n\nPrecisamos de mais uma planilha para verificar os dados."
-    msg += "\nOs dados só poderão ser atualizados se uma nova planilha for enviada e os dados serem os mesmos."
+    msg += "\nOs dados só poderão ser atualizados se uma nova planilha for enviada e os dados forem os mesmos."
 
     chat.send_message(channel, msg)
 
