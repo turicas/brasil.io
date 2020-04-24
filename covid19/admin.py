@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db import transaction
 from django.utils.html import format_html
 
 from covid19.forms import state_choices_for_user, StateSpreadsheetForm
@@ -39,9 +40,14 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
         return super().formfield_for_choice_field(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):
+        is_new = not bool(obj.pk)
+
         obj.user = request.user
+        if is_new:
+             transaction.on_commit(
+                lambda: new_spreadsheet_imported_signal.send(sender=self, spreadsheet=obj)
+            )
         super().save_model(request, obj, form, change)
-        new_spreadsheet_imported_signal.send(sender=self, spreadsheet=obj)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request).select_related('user')
