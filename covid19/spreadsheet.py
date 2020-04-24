@@ -90,11 +90,34 @@ def merge_state_data(state):
             row[f"mortes_{date_str}"] = city_on_date.get("deaths", None)
         final_cases.append(row)
 
+    ordered_cases = []
+    for row in final_cases:
+        ordered_cases.append(row_with_sorted_columns(row))
+
     original_data_errors.raise_if_errors()
     return {
         "reports": final_reports,
-        "cases": final_cases
+        "cases": ordered_cases
     }
+
+
+def row_with_sorted_columns(row):
+    row_dates = set()
+    for key in row.keys():
+        if not key.startswith("confirmados"):
+            continue
+        label, day, month = key.split('_')
+        row_dates.add(f"2020-{int(month):02d}-{int(day):02d}")
+
+    new = {"municipio": row['municipio']}
+    for date_str in sorted(row_dates, reverse=True):
+        year, month, day = date_str.split('-')
+        confirmed = f'confirmados_{day}_{month}'
+        deaths = f'mortes_{day}_{month}'
+        new[confirmed] = row[confirmed]
+        new[deaths] = row[deaths]
+
+    return new
 
 
 def create_merged_state_spreadsheet(state):
