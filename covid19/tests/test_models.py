@@ -247,7 +247,16 @@ class StateSpreadsheetTests(TestCase):
         sp2.save()
         expected = ["Número de casos confirmados ou óbitos diferem para Total."]
 
-        assert (False, expected) == sp1.link_to_matching_spreadsheet_peer()
+        valid, errors = sp1.link_to_matching_spreadsheet_peer()
+        sp1.refresh_from_db()
+        sp2.refresh_from_db()
+
+        assert not valid
+        assert expected == errors
+        assert expected == sp1.errors
+        assert sp1.status == StateSpreadsheet.CHECK_FAILED
+        assert expected == sp2.errors
+        assert sp2.status == StateSpreadsheet.CHECK_FAILED
 
     def test_import_to_final_dataset_update_spreadsheet_status(self):
         spreadsheet = baker.make(StateSpreadsheet, _fill_optional=['peer_review'])

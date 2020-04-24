@@ -229,6 +229,11 @@ class StateSpreadsheet(models.Model):
                 sibiling_spreadsheet.save()
                 self.save()
                 return True, []
+            else:
+                sibiling_spreadsheet.errors = errors
+                self.errors = errors
+                sibiling_spreadsheet.save()
+                self.save()
 
         return False, errors
 
