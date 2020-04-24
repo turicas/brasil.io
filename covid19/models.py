@@ -47,8 +47,8 @@ class StateSpreadsheetQuerySet(models.QuerySet):
     def deployed(self):
         return self.filter(status=self.model.DEPLOYED)
 
-    def uploaded(self):
-        return self.filter(status=self.model.UPLOADED)
+    def pending_review(self):
+        return self.filter(status__in=[self.model.UPLOADED, self.model.CHECK_FAILED])
 
     def deployable_for_state(self, state, avoid_peer_review_dupes=True):
         qs = self.from_state(state).deployed().order_by('-date')
@@ -141,7 +141,7 @@ class StateSpreadsheet(models.Model):
     @cached_property
     def sibilings(self):
         qs = StateSpreadsheet.objects.filter_active().from_state(self.state).filter(date=self.date)
-        return qs.uploaded().exclude(pk=self.pk, user_id=self.user_id).order_by('-created_at')
+        return qs.pending_review().exclude(pk=self.pk, user_id=self.user_id).order_by('-created_at')
 
     @property
     def table_data_by_city(self):
@@ -224,10 +224,8 @@ class StateSpreadsheet(models.Model):
         for sibiling_spreadsheet in self.sibilings:
             errors = self.compare_to_spreadsheet(sibiling_spreadsheet)
             if not errors:
-                self.peer_review = sibiling_spreadsheet
-                sibiling_spreadsheet.peer_review = self
-                sibiling_spreadsheet.save()
-                self.save()
+                self.link_to(sibiling_spreadsheet)
+                sibiling_spreadsheet.link_to(self)
                 return True, []
             else:
                 sibiling_spreadsheet.errors = errors
@@ -236,6 +234,12 @@ class StateSpreadsheet(models.Model):
                 self.save()
 
         return False, errors
+
+    def link_to(self, other):
+        self.peer_review = other
+        self.errors = []
+        self.status = StateSpreadsheet.UPLOADED
+        self.save()
 
     def import_to_final_dataset(self, notification_callable=None):
         self.refresh_from_db()

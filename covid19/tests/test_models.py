@@ -230,6 +230,40 @@ class StateSpreadsheetTests(TestCase):
         assert sp1 == sp2.peer_review
         assert sp1.ready_to_import is True
 
+    def test_link_to_matching_spreadsheet_peer_considers_previous_fails(self):
+        user_1, user_2 = baker.make(settings.AUTH_USER_MODEL, _quantity=2)
+        previous_sp1 = baker.prepare(StateSpreadsheet, date=date.today(), state='PR', user=user_1)
+        previous_sp1.table_data = []
+        previous_sp1.save()
+
+        sp2 = baker.prepare(StateSpreadsheet, date=date.today(), state='PR', user=user_2)
+        sp2.table_data = deepcopy(self.table_data)
+        sp2.save()
+
+        previous_sp1.link_to_matching_spreadsheet_peer()
+        previous_sp1.refresh_from_db()
+        sp2.refresh_from_db()
+
+        assert previous_sp1.errors
+        assert sp2.errors
+        assert sp2.status == StateSpreadsheet.CHECK_FAILED
+
+        sp1 = baker.prepare(StateSpreadsheet, date=date.today(), state='PR', user=user_1)
+        sp1.table_data = deepcopy(self.table_data)
+        sp1.save()
+
+        assert (True, []) == sp1.link_to_matching_spreadsheet_peer()
+        sp1.refresh_from_db()
+        sp2.refresh_from_db()
+        assert sp2 == sp1.peer_review
+        assert sp1 == sp2.peer_review
+        assert sp1.ready_to_import is True
+        assert sp2.ready_to_import is True
+        assert sp1.errors == []
+        assert sp2.errors == []
+        assert sp1.status == StateSpreadsheet.UPLOADED
+        assert sp2.status == StateSpreadsheet.UPLOADED
+
     def test_raise_exception_if_single_spreadsheet(self):
         sp1 = baker.make(StateSpreadsheet, date=date.today(), state='RJ')
         sp2 = baker.make(StateSpreadsheet, date=date.today(), state='PR')
