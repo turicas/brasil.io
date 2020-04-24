@@ -222,6 +222,10 @@ RQ_QUEUES = {
         'DEFAULT_TIMEOUT': 500,
     }
 }
+RQ = {
+    'DEFAULT_RESULT_TTL': 60 * 60 * 24,  # 24-hours
+}
+
 if not DEBUG:
     RQ_QUEUES['default']['WORKER_CLASS'] = 'brasilio.worker.SentryAwareWorker'
 
