@@ -1,3 +1,4 @@
+import io
 import os
 import rows
 from datetime import date
@@ -84,12 +85,12 @@ class StateSpreadsheetForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        file = cleaned_data.get('file')
+        fobj = cleaned_data.get('file')
         spreadsheet_date = cleaned_data.get("date")
         state = cleaned_data.get("state")
 
-        if all([file, spreadsheet_date, state]):
-            path = Path(file.name)
+        if all([fobj, spreadsheet_date, state]):
+            path = Path(fobj.name)
             import_func_per_suffix = {
                 '.csv': rows.import_from_csv,
                 '.xls': import_xls,
@@ -103,8 +104,10 @@ class StateSpreadsheetForm(forms.ModelForm):
                 msg = f"Formato de planilha inválida. O arquivo precisa estar formatado como {valid}."  # noqa
                 raise forms.ValidationError(msg)
 
+            file_data = io.BytesIO(fobj.read())
+            fobj.seek(0)
             try:
-                file_rows = import_func(file)
+                file_rows = import_func(file_data)
             except Exception as e:
                 raise forms.ValidationError(e)
 
