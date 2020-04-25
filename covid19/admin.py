@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.db import transaction
+from django.templatetags.static import static
 from django.utils.html import format_html
 
 from covid19.forms import state_choices_for_user, StateSpreadsheetForm
@@ -21,16 +22,32 @@ class StateFilter(admin.SimpleListFilter):
         return queryset
 
 
+class ActiveFilter(admin.SimpleListFilter):
+    title = "active"
+    parameter_name = "active"
+
+    def lookups(self, request, model_admin):
+        return [("True", "Ativa"), ("False", "Inativa")]
+
+    def queryset(self, request, queryset):
+        active = self.value()
+        if active == "True":
+            queryset = queryset.filter_active()
+        elif active == "False":
+            queryset = queryset.filter_inactive()
+        return queryset
+
+
 class StateSpreadsheetModelAdmin(admin.ModelAdmin):
-    list_display = ['created_at', 'state', 'date', 'user', 'status', 'warnings_list', 'cancelled']
-    list_filter = [StateFilter, 'status', 'cancelled']
+    list_display = ['created_at', 'state', 'date', 'user', 'status', 'warnings_list', 'active']
+    list_filter = [StateFilter, 'status', ActiveFilter]
     form = StateSpreadsheetForm
     ordering = ['-created_at']
 
     def get_readonly_fields(self, request, obj=None):
         fields = []
         if obj:
-            fields.extend(['created_at', 'status', 'cancelled'])
+            fields.extend(['created_at', 'status', 'active'])
             fields.extend(StateSpreadsheetForm.Meta.fields + ['warnings_list', 'errors_list'])
         return fields
 
@@ -54,6 +71,15 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
         if not request.user.is_superuser:
             qs = qs.from_user(request.user)
         return qs
+
+    def active(self, obj):
+        images = {
+            True: static("admin/img/icon-yes.svg"),
+            False: static("admin/img/icon-no.svg"),
+        }
+        value = obj.active
+        title = "Ativa" if value else "Inativa"
+        return format_html(f'<img src="{images[value]}" title="{title}" alt="{title}">')
 
     def warnings_list(self, obj):
         li_tags = ''.join([f'<li>{w}</li>' for w in obj.warnings])

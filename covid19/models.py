@@ -44,6 +44,9 @@ class StateSpreadsheetQuerySet(models.QuerySet):
     def filter_active(self):
         return self.filter(cancelled=False)
 
+    def filter_inactive(self):
+        return self.filter(cancelled=True)
+
     def deployed(self):
         return self.filter(status=self.model.DEPLOYED)
 
@@ -112,6 +115,10 @@ class StateSpreadsheet(models.Model):
     def __str__(self):
         active = 'Ativa' if not self.cancelled else 'Cancelada'
         return f'Planilha {active}: {self.state} - {self.date} por {self.user}'
+
+    @property
+    def active(self):
+        return not self.cancelled
 
     @property
     def table_data(self):
