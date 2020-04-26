@@ -78,67 +78,108 @@ def cities_geojson(request):
     return JsonResponse(data, content_type="application/geo+json")
 
 
-def dashboard(request, state=None):
-    if state is not None and not get_state_info(state):
-        raise Http404
-    elif state:
-        state_id = STATE_BY_ACRONYM[state].ibge_code
-    else:
-        state_id = None
-
-    aggregate = [
+def make_aggregate(
+    reports,
+    confirmed,
+    deaths,
+    affected_cities,
+    cities,
+    affected_population,
+    population,
+    cities_with_deaths,
+    for_state=False,
+):
+    data = [
         {
             "title": "Boletins coletados",
-            "value": stats.total_reports,
-            "tooltip": "Total de boletins das Secretarias Estaduais de Saúde coletados pelos voluntários",
+            "value": reports,
+            "tooltip": "Total de boletins epidemiológicos coletados pelos voluntários",
         },
         {
             "title": "Casos confirmados",
-            "value": stats.total_confirmed,
+            "value": confirmed,
             "tooltip": "Total de casos confirmados",
         },
         {
             "decimal_places": 2,
             "title": "Óbitos confirmados",
             "tooltip": "Total de óbitos confirmados",
-            "value": stats.total_deaths,
-            "value_percent": 100 * (stats.total_deaths / stats.total_confirmed),
+            "value": deaths,
+            "value_percent": 100 * (deaths / confirmed),
         },
         {
             "decimal_places": 0,
             "title": "Municípios atingidos",
             "tooltip": "Total de municípios com casos confirmados",
-            "value": stats.affected_cities,
-            "value_percent": 100 * (stats.affected_cities / 5570),
+            "value": affected_cities,
+            "value_percent": 100 * (affected_cities / cities),
         },
         {
             "decimal_places": 0,
             "title": "População desses municípios",
-            "tooltip": "População dos municípios com casos confirmados, segundo estimativa IBGE 2019",
-            "value": f"{stats.affected_population / 1_000_000:.0f}M",
-            "value_percent": 100 * (stats.affected_population / stats.total_population),
+            "tooltip": "População dos municípios com casos confirmados (segundo estimativa IBGE 2019)",
+            "value": f"{affected_population / 1_000_000:.0f}M",
+            "value_percent": 100 * (affected_population / population),
         },
         {
             "decimal_places": 0,
             "title": "Municípios c/ óbitos",
             "tooltip": "Total de municípios com óbitos confirmados (o percentual é em relação ao total de municípios com casos confirmados)",
-            "value": stats.cities_with_deaths,
-            "value_percent": 100 * (stats.cities_with_deaths / stats.affected_cities),
+            "value": cities_with_deaths,
+            "value_percent": 100 * (cities_with_deaths / affected_cities),
         },
     ]
+    if for_state:
+        for row in data:
+            row["tooltip"] += " nesse estado"
+    return data
+
+
+def dashboard(request, state=None):
+    if state is not None and not get_state_info(state):
+        raise Http404
+
+    country_aggregate = make_aggregate(
+        reports=stats.total_reports,
+        confirmed=stats.total_confirmed,
+        deaths=stats.total_deaths,
+        affected_cities=stats.affected_cities,
+        cities=stats.number_of_cities,
+        affected_population=stats.affected_population,
+        population=stats.total_population,
+        cities_with_deaths=stats.cities_with_deaths,
+    )
     if state:
         city_data = stats.city_data_for_state(state)
+        state_data = STATE_BY_ACRONYM[state]
+        state_id = state_data.ibge_code
+        state_name = state_data.name
+        state_aggregate = make_aggregate(
+            reports=stats.total_reports_for_state(state),
+            confirmed=stats.total_confirmed_for_state(state),
+            deaths=stats.total_deaths_for_state(state),
+            affected_cities=stats.affected_cities_for_state(state),
+            cities=stats.number_of_cities_for_state(state),
+            affected_population=stats.affected_population_for_state(state),
+            population=stats.total_population_for_state(state),
+            cities_with_deaths=stats.cities_with_deaths_for_state(state),
+            for_state=True
+        )
     else:
         city_data = stats.city_data
+        state_id = state_name = None
+        state_aggregate = None
 
     return render(
         request,
         "dashboard.html",
         {
-            "aggregate": aggregate,
+            "country_aggregate": country_aggregate,
+            "state_aggregate": state_aggregate,
             "city_data": city_data,
             "state": state,
             "state_id": state_id,
+            "state_name": state_name,
             "states": STATES,
         },
     )

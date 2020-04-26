@@ -36,8 +36,11 @@
   </div>
 </p>
 
-<div class="row">
-  {% for row in aggregate %}
+<div class="row card" style="height: 100%">
+  <div class="card-content teal-text card-title">
+    Panorama Nacional
+  </div>
+  {% for row in country_aggregate %}
   <div class="col s12 m6 l4 xl2">
     <div class="card">
       <div class="card-content teal-text card-title">
@@ -71,6 +74,32 @@
   </div>
   </nav>
 </div>
+
+<h2>Casos de COVID-19 {% if state %}por estado: {{ state_name }}{% else %}no Brasil{% endif %}</h2>
+{% if state %}
+<div class="row card" style="height: 100%">
+  <div class="card-content teal-text card-title">
+    Panorama Estadual
+  </div>
+  {% for row in state_aggregate %}
+  <div class="col s12 m6 l4 xl2">
+    <div class="card">
+      <div class="card-content teal-text card-title">
+        <span class="tooltipped" data-position="bottom" data-tooltip="{{ row.tooltip }}">
+          <i class="material-icons">info</i>
+          {{row.title}}
+        </span>
+      </div>
+      <div class="card-content card-body number">
+        {{ row.value }} {% if row.value_percent %}({{ row.value_percent|floatformat:row.decimal_places }}%){% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  <div style="clear: both"></div>
+</div>
+{% endif %}
+
 <div class="row">
 
   <div id="map-col" class="col xl12 l12 m12 s12">

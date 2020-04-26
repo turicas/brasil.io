@@ -3,6 +3,7 @@ from itertools import groupby
 
 from django.db.models import Max, Sum
 
+from brazil_data.cities import brazilian_cities_per_state
 from core.models import get_table_model
 from covid19.serializers import CityCaseSerializer
 
@@ -43,13 +44,32 @@ class Covid19Stats:
     def total_reports(self):
         return self.Boletim.objects.count()
 
+    def total_reports_for_state(self, state):
+        return self.Boletim.objects.filter(state=state).count()
+
     @property
     def affected_cities(self):
         return self.city_cases.count()
 
+    def affected_cities_for_state(self, state):
+        return self.city_cases.filter(state=state).count()
+
     @property
     def cities_with_deaths(self):
         return self.city_cases.filter(deaths__gt=0).count()
+
+    def cities_with_deaths_for_state(self, state):
+        return self.city_cases.filter(state=state, deaths__gt=0).count()
+
+    @property
+    def number_of_cities(self):
+        return sum(
+            len(cities)
+            for cities in brazilian_cities_per_state().values()
+        )
+
+    def number_of_cities_for_state(self, state):
+        return len(brazilian_cities_per_state()[state])
 
     @property
     def state_totals(self):
@@ -69,9 +89,9 @@ class Covid19Stats:
         # TODO: use new schema from caso_full when its ready
         # TODO: is there any way to move this to serializer?
         return {
-            "city": "Brasil",
+            "city": "BR",
             "city_ibge_code": 0,
-            "city_str": "Brasil",
+            "city_str": "BR",
             "confirmed": confirmed,
             "confirmed_per_100k_inhabitants": 100_000 * (confirmed / population),
             "date": state_totals["last_date"],
@@ -110,6 +130,23 @@ class Covid19Stats:
             "state": state,
         }
 
+    def state_aggregate(self, state):
+        return self.state_cases.filter(state=state).aggregate(
+            total_confirmed=Sum("confirmed"),
+            total_deaths=Sum("deaths"),
+            total_population=Sum("estimated_population_2019"),
+            last_date=Max("date"),
+        )
+
+    def total_confirmed_for_state(self, state):
+        return self.state_aggregate(state)["total_confirmed"]
+
+    def total_deaths_for_state(self, state):
+        return self.state_aggregate(state)["total_deaths"]
+
+    def total_population_for_state(self, state):
+        return self.state_aggregate(state)["total_population"]
+
     @property
     def total_confirmed(self):
         return self.state_totals["total_confirmed"]
@@ -132,9 +169,17 @@ class Covid19Stats:
             total_population=Sum("estimated_population_2019")
         )
 
+    def city_totals_for_state(self, state):
+        return self.city_cases.filter(state=state).aggregate(
+            total_population=Sum("estimated_population_2019")
+        )
+
     @property
     def affected_population(self):
         return self.city_totals["total_population"]
+
+    def affected_population_for_state(self, state):
+        return self.city_totals_for_state(state)["total_population"]
 
     @property
     def city_data(self):
