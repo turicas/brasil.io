@@ -10,7 +10,7 @@ from core.util import cached_http_get_json
 from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.geo import city_geojson
 from covid19.spreadsheet import create_merged_state_spreadsheet
-from covid19.stats import Covid19Stats
+from covid19.stats import Covid19Stats, max_values
 
 stats = Covid19Stats()
 
@@ -26,14 +26,18 @@ def cities(request):
     state = request.GET.get("state", None)
     if state is not None and not get_state_info(state):
         raise Http404
-    city_data = stats.city_data
+
     if state:
-        city_data["cities"] = {
-            key: value
-            for key, value in city_data["cities"].items()
-            if value["state"] == state
-        }
-    return JsonResponse(city_data)
+        city_data = stats.city_data_for_state(state)
+    else:
+        city_data = stats.city_data
+
+    result = {
+        "cities": {row["city_ibge_code"]: row for row in city_data},
+        "max": max_values(city_data),
+        "total": stats.country_row,
+    }
+    return JsonResponse(result)
 
 
 def cities_geojson(request):
@@ -42,14 +46,12 @@ def cities_geojson(request):
         raise Http404
     elif state:
         high_fidelity = True
-        city_ids = set(
-            key
-            for key, value in stats.city_data["cities"].items()
-            if value["state"] == state
-        )
+        city_data = stats.city_data_for_state(state)
     else:
         high_fidelity = False
-        city_ids = set(stats.city_data["cities"].keys())
+        city_data = stats.city_data
+
+    city_ids = set(row["city_ibge_code"] for row in city_data)
     data = city_geojson(high_fidelity=high_fidelity)
     data["features"] = [
         feature for feature in data["features"] if feature["id"] in city_ids
@@ -106,21 +108,17 @@ def dashboard(request, state=None):
             "value_percent": 100 * (stats.cities_with_deaths / stats.affected_cities),
         },
     ]
-    city_data = stats.city_data
     if state:
-        # TODO: implement "stats.city_data_for_state"
-        city_data["cities"] = {
-            key: value
-            for key, value in city_data["cities"].items()
-            if value["state"] == state
-        }
+        city_data = stats.city_data_for_state(state)
+    else:
+        city_data = stats.city_data
 
     return render(
         request,
         "dashboard.html",
         {
             "aggregate": aggregate,
-            "city_data": city_data["cities"].values(),
+            "city_data": city_data,
             "state": state,
             "state_id": state_id,
         },

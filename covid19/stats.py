@@ -8,6 +8,20 @@ from core.models import get_table_model
 from covid19.serializers import CityCaseSerializer
 
 
+def max_values(data):
+    desired_keys = (
+        "confirmed",
+        "confirmed_per_100k_inhabitants",
+        "deaths",
+        "death_rate_percent",
+        "deaths_per_100k_inhabitants",
+    )
+    return {
+        key: max(row[key] for row in data)
+        for key in desired_keys
+    }
+
+
 class Covid19Stats:
 
     @cached_property
@@ -48,11 +62,12 @@ class Covid19Stats:
         )
 
     @property
-    def country_totals(self):
+    def country_row(self):
         state_totals = self.state_totals
         confirmed = state_totals["total_confirmed"]
         deaths = state_totals["total_deaths"]
         population = state_totals["total_population"]
+        # TODO: use new schema from caso_full when its ready
         # TODO: is there any way to move this to serializer?
         return {
             "city": "Brasil",
@@ -61,7 +76,7 @@ class Covid19Stats:
             "confirmed": confirmed,
             "confirmed_per_100k_inhabitants": 100_000 * (confirmed / population),
             "date": state_totals["last_date"],
-            "date_str": state_totals["last_date"],
+            "date_str": str(state_totals["last_date"]),
             "death_rate_percent": 100 * (deaths / confirmed),
             "deaths": deaths,
             "deaths_per_100k_inhabitants": 100 * (deaths / population),
@@ -98,25 +113,21 @@ class Covid19Stats:
     @property
     def city_data(self):
         # XXX: what should we do about "Importados/Indefinidos"?
-        desired_keys = (
-            "confirmed",
-            "confirmed_per_100k_inhabitants",
-            "deaths",
-            "death_rate_percent",
-            "deaths_per_100k_inhabitants",
-        )
         city_cases = self.city_cases.filter(city_ibge_code__isnull=False)
         serializer = CityCaseSerializer(instance=city_cases, many=True)
-        cities = {
-            row["city_ibge_code"]: row
+        cities = [
+            row
             for row in serializer.data
             if (row["confirmed"], row["deaths"]) != (0, 0)
-        }
-        max_values = {
-            key: max(row[key] for row in cities.values())
-            for key in desired_keys
-        }
-        return {"cities": cities, "max": max_values, "total": self.country_totals}
+        ]
+        return cities
+
+    def city_data_for_state(self, state):
+        return [
+            row
+            for row in self.city_data
+            if row["state"] == state
+        ]
 
     def most_recent_city_entries_for_state(self, state, date):
         return self._get_latest_cases(state, date, "city")
