@@ -3,6 +3,7 @@ from itertools import groupby
 
 from django.db.models import Max, Sum
 
+from brazil_data.states import STATE_BY_ACRONYM
 from core.models import get_table_model
 from covid19.serializers import CityCaseSerializer
 

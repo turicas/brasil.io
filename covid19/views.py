@@ -4,6 +4,7 @@ from django.http import JsonResponse, HttpResponse, Http404
 from django.shortcuts import render
 
 from brazil_data.cities import get_state_info
+from brazil_data.states import STATE_BY_ACRONYM
 from core.middlewares import disable_non_logged_user_cache
 from core.util import cached_http_get_json
 from covid19.exceptions import SpreadsheetValidationErrors
@@ -12,12 +13,6 @@ from covid19.spreadsheet import create_merged_state_spreadsheet
 from covid19.stats import Covid19Stats
 
 stats = Covid19Stats()
-state_codes = {
-    "AC": 12, "AL": 27, "AM": 13, "AP": 16, "BA": 29, "CE": 23, "DF": 53,
-    "ES": 32, "GO": 52, "MA": 21, "MG": 31, "MS": 50, "MT": 51, "PA": 15,
-    "PB": 25, "PE": 26, "PI": 22, "PR": 41, "RJ": 33, "RN": 24, "RO": 11,
-    "RR": 14, "RS": 43, "SC": 42, "SE": 28, "SP": 35, "TO": 17,
-}
 
 
 def volunteers(request):
@@ -67,7 +62,7 @@ def dashboard(request, state=None):
     if state is not None and not get_state_info(state):
         raise Http404
     elif state:
-        state_id = state_codes[state]
+        state_id = STATE_BY_ACRONYM[state].ibge_code
     else:
         state_id = None
 
