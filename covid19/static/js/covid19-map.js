@@ -158,7 +158,17 @@ function mapHasLoaded() {
 }
 function updateMap() {
   if (hasToAddStateLayer()) {
-    stateLayer = L.geoJSON(stateGeoJSON, {style: stateStyle}).addTo(map);
+    if (selectedStateId === undefined) {
+      stateLayer = L.geoJSON(stateGeoJSON, {style: stateStyle}).addTo(map);
+    }
+    else {
+      var filteredStateGeoJSON = stateGeoJSON;
+      filteredStateGeoJSON.features = filteredStateGeoJSON.features.filter(function (item) {
+        return item.properties.CD_GEOCUF == selectedStateId;
+      });
+      stateLayer = L.geoJSON(filteredStateGeoJSON, {style: stateStyle}).addTo(map);
+    }
+    map.fitBounds(stateLayer.getBounds());
   }
 
   if (hasToAddCityLayer()) {

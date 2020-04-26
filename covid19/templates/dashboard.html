@@ -118,9 +118,11 @@ var dataURL = {
   cities: "{% url 'covid19:cities-cases' %}",
   stateGeoJSON: "https://data.brasil.io/dataset/shapefiles-brasil/0.01/BR-UF.geojson",
   cityGeoJSON: "{% url 'covid19:cities-geo' %}",
-}
-$(document).ready(function(){
-  $('.tooltipped').tooltip();
+};
+var selectedStateId = {% if not state_id %}undefined{% else %}{{ state_id }}{% endif %};
+
+jQuery(document).ready(function(){
+  jQuery('.tooltipped').tooltip();
 });
 </script>
 {% endblock %}
