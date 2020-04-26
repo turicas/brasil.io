@@ -28,13 +28,34 @@ def volunteers(request):
 
 
 def cities(request):
+    state = request.GET.get("state", None)
+    if state is not None and not get_state_info(state):
+        raise Http404
     city_data = stats.city_data
+    if state:
+        city_data["cities"] = {
+            key: value
+            for key, value in city_data["cities"].items()
+            if value["state"] == state
+        }
     return JsonResponse(city_data)
 
 
 def cities_geojson(request):
-    city_ids = set(stats.city_data["cities"].keys())
-    data = city_geojson()
+    state = request.GET.get("state", None)
+    if state is not None and not get_state_info(state):
+        raise Http404
+    elif state:
+        high_fidelity = True
+        city_ids = set(
+            key
+            for key, value in stats.city_data["cities"].items()
+            if value["state"] == state
+        )
+    else:
+        high_fidelity = False
+        city_ids = set(stats.city_data["cities"].keys())
+    data = city_geojson(high_fidelity=high_fidelity)
     data["features"] = [
         feature for feature in data["features"] if feature["id"] in city_ids
     ]
