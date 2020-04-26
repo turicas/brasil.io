@@ -29,13 +29,15 @@ def cities(request):
 
     if state:
         city_data = stats.city_data_for_state(state)
+        total_row = stats.state_row(state)
     else:
         city_data = stats.city_data
+        total_row = stats.country_row
 
     result = {
         "cities": {row["city_ibge_code"]: row for row in city_data},
         "max": max_values(city_data),
-        "total": stats.country_row,
+        "total": total_row,
     }
     return JsonResponse(result)
 

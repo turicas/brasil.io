@@ -3,7 +3,6 @@ from itertools import groupby
 
 from django.db.models import Max, Sum
 
-from brazil_data.states import STATE_BY_ACRONYM
 from core.models import get_table_model
 from covid19.serializers import CityCaseSerializer
 
@@ -82,6 +81,33 @@ class Covid19Stats:
             "deaths_per_100k_inhabitants": 100 * (deaths / population),
             "estimated_population_2019": population,
             "state": "BR",
+        }
+
+    def state_row(self, state):
+        cases_for_state = [case for case in self.state_cases if case.state == state]
+        assert len(cases_for_state) == 1
+        case = cases_for_state[0]
+
+        confirmed = case.confirmed
+        deaths = case.deaths
+        population = case.estimated_population_2019
+        state_name = case.state
+
+        # TODO: use new schema from caso_full when its ready
+        # TODO: is there any way to move this to serializer?
+        return {
+            "city": state_name,
+            "city_ibge_code": case.city_ibge_code,
+            "city_str": state_name,
+            "confirmed": confirmed,
+            "confirmed_per_100k_inhabitants": 100_000 * (confirmed / population),
+            "date": case.date,
+            "date_str": str(case.date),
+            "death_rate_percent": 100 * (deaths / confirmed),
+            "deaths": deaths,
+            "deaths_per_100k_inhabitants": 100 * (deaths / population),
+            "estimated_population_2019": population,
+            "state": state,
         }
 
     @property
