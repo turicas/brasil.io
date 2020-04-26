@@ -8,7 +8,7 @@ from brazil_data.states import STATE_BY_ACRONYM
 from core.middlewares import disable_non_logged_user_cache
 from core.util import cached_http_get_json
 from covid19.exceptions import SpreadsheetValidationErrors
-from covid19.geo import city_geojson
+from covid19.geo import city_geojson, state_geojson
 from covid19.spreadsheet import create_merged_state_spreadsheet
 from covid19.stats import Covid19Stats, max_values
 
@@ -42,6 +42,22 @@ def cities(request):
     return JsonResponse(result)
 
 
+def states_geojson(request):
+    state = request.GET.get("state", None)
+    if state is not None and not get_state_info(state):
+        raise Http404
+
+    data = state_geojson(high_fidelity=bool(state))
+    if state:
+        state_id = STATE_BY_ACRONYM[state].ibge_code
+        data["features"] = [
+            feature
+            for feature in data["features"]
+            if int(feature["properties"]["CD_GEOCUF"]) == state_id
+        ]
+    return JsonResponse(data, content_type="application/geo+json")
+
+
 def cities_geojson(request):
     state = request.GET.get("state", None)
     if state is not None and not get_state_info(state):
@@ -58,8 +74,7 @@ def cities_geojson(request):
     data["features"] = [
         feature for feature in data["features"] if feature["id"] in city_ids
     ]
-    # TODO: return GeoJSONResponse
-    return JsonResponse(data)
+    return JsonResponse(data, content_type="application/geo+json")
 
 
 def dashboard(request, state=None):

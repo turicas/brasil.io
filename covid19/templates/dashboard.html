@@ -116,7 +116,7 @@
 <script type="text/javascript">
 var dataURL = {
   cities: "{% url 'covid19:cities-cases' %}{% if state %}?state={{ state }}{% endif %}",
-  stateGeoJSON: "https://data.brasil.io/dataset/shapefiles-brasil/0.01/BR-UF.geojson",
+  stateGeoJSON: "{% url 'covid19:states-geo' %}{% if state %}?state={{ state }}{% endif %}",
   cityGeoJSON: "{% url 'covid19:cities-geo' %}{% if state %}?state={{ state }}{% endif %}",
 };
 var selectedStateId = {% if not state_id %}undefined{% else %}{{ state_id }}{% endif %};
