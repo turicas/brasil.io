@@ -1,6 +1,7 @@
 #map {
-  min-width: 400px;
+  margin-top: -40px;
   min-height: 850px;
+  min-width: 400px;
 }
 
 .card {
@@ -39,8 +40,10 @@
 #loading {
   position: relative;
   z-index: 999;
-  margin-bottom: -50px;
+  margin-bottom: 0px;
   margin-left: 50px;
+  height: 40px;
+  padding-top: 10px;
 }
 #loading > span > img {
   width: 20px;

@@ -4,7 +4,7 @@ from django.http import JsonResponse, HttpResponse, Http404
 from django.shortcuts import render
 
 from brazil_data.cities import get_state_info
-from brazil_data.states import STATE_BY_ACRONYM
+from brazil_data.states import STATES, STATE_BY_ACRONYM
 from core.middlewares import disable_non_logged_user_cache
 from core.util import cached_http_get_json
 from covid19.exceptions import SpreadsheetValidationErrors
@@ -138,6 +138,7 @@ def dashboard(request, state=None):
             "city_data": city_data,
             "state": state,
             "state_id": state_id,
+            "states": STATES,
         },
     )
 

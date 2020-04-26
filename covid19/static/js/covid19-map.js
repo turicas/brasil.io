@@ -1,8 +1,8 @@
 var cityData,
     cityGeoJSON,
     cityLayer,
-    countryData,
-    countryId,
+    totalData,
+    totalId,
     dataConfig,
     legendBins,
     map,
@@ -43,12 +43,12 @@ dataConfig = {
 };
 
 legendBins = 6;
-countryId = 0; // Brasil
-selectedPlace = countryId;
+totalId = 0; // Brasil or state
+selectedPlace = totalId;
 selectedVar = Object.keys(dataConfig)[0];
 
 function getPlaceData(place) {
-  return place == countryId ? countryData : cityData[place];
+  return place == totalId ? totalData : cityData[place];
 }
 function opacityFromValue(value, maxValue) {
   return Math.log2(value + 1) / Math.log2(maxValue + 1);
@@ -189,7 +189,7 @@ function updateMap() {
           });
           layer.on("mouseout", function () {
             this.setStyle({opacity: 0});
-            updatePlaceDataControl(getPlaceData(countryId));
+            updatePlaceDataControl(getPlaceData(totalId));
           });
         }
       }
@@ -247,7 +247,7 @@ function retrieveData() {
     function (data) {
       cityData = data.cities;
       maxValues = data.max;
-      countryData = data.total;
+      totalData = data.total;
       updateMap();
     }
   );
