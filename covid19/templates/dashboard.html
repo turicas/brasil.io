@@ -52,22 +52,23 @@
     </div>
   </div>
   {% endfor %}
+  <div style="clear: both"></div>
 </div>
 
 <div class="row" style="clear: both">
   <nav>
-    <div class="nav-wrapper indigo">
-      <ul>
-        <li{% if not state %} class="active"{% endif %}>
-          <a href="{% url 'covid19:dashboard' %}">BR</a>
-        </li>
-        {% for state_data in states %}
-        <li{% if state == state_data.acronym %} class="active"{% endif %}>
-          <a href="{% url 'covid19:dashboard' state_data.acronym %}">{{ state_data.acronym }}</a>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
+  <div class="nav-wrapper indigo">
+    <ul>
+      <li{% if not state %} class="active"{% endif %}>
+        <a class="state-option" href="{% url 'covid19:dashboard' %}">BR</a>
+      </li>
+      {% for state_data in states %}
+      <li{% if state == state_data.acronym %} class="active"{% endif %}>
+        <a class="state-option" href="{% url 'covid19:dashboard' state_data.acronym %}">{{ state_data.acronym }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
   </nav>
 </div>
 <div class="row">

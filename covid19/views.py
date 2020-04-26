@@ -153,8 +153,10 @@ def import_spreadsheet_proxy(request, state):
     try:
         content = create_merged_state_spreadsheet(state)
         response = HttpResponse(content)
-        response['Content-Type'] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        response['Content-Disposition'] = f"attachment; filename={state}.xlsx"
+        response[
+            "Content-Type"
+        ] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        response["Content-Disposition"] = f"attachment; filename={state}.xlsx"
         return response
     except SpreadsheetValidationErrors as e:
-        return JsonResponse({'errors': e.error_messages}, status=400)
+        return JsonResponse({"errors": e.error_messages}, status=400)

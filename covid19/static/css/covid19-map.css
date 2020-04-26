@@ -67,3 +67,14 @@
 #table-col {
   padding: 0 0 0 0;
 }
+
+.state-option {
+  font-size: 1em;
+  padding: 0 1em;
+}
+@media screen and (max-width: 1280px) {
+  .state-option {
+    font-size: 1em;
+    padding: 0 0.25em;
+  }
+}
