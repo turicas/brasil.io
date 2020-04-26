@@ -135,14 +135,16 @@ function updateVarControl() {
 }
 
 function createMap() {
+  var minZoom = selectedStateId === undefined ? 4.5 : 6;
+  var maxZoom = selectedStateId === undefined ? 9 : 12;
   map = L.map("map", {
     zoomSnap: 0.25,
     zoomDelta: 0.25,
-    minZoom: 4.5,
-    maxZoom: 9,
+    minZoom: minZoom,
+    maxZoom: maxZoom,
     attributionControl: false
   });
-  map.setView([-15, -54], 4.75);
+  map.setView([-15, -54], minZoom);
 }
 function hasToAddStateLayer() {
   return stateGeoJSON !== undefined && stateLayer === undefined;
