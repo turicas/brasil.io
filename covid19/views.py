@@ -27,16 +27,17 @@ def cities(request):
     if state is not None and not get_state_info(state):
         raise Http404
 
+    brazil_city_data = stats.city_data
     if state:
         city_data = stats.city_data_for_state(state)
         total_row = stats.state_row(state)
     else:
-        city_data = stats.city_data
+        city_data = brazil_city_data
         total_row = stats.country_row
 
     result = {
         "cities": {row["city_ibge_code"]: row for row in city_data},
-        "max": max_values(city_data),
+        "max": max_values(brazil_city_data),
         "total": total_row,
     }
     return JsonResponse(result)
