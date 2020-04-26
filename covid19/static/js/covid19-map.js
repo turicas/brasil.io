@@ -76,7 +76,7 @@ function stateStyle(feature) {
     fillOpacity: 0.1,
     lineJoin: "round",
     opacity: 1,
-    weight: 0.5
+    weight: 0.75
   };
 }
 function changeVar(newVar) {
@@ -135,8 +135,8 @@ function updateVarControl() {
 }
 
 function createMap() {
-  var minZoom = selectedStateId === undefined ? 4.5 : 6;
-  var maxZoom = selectedStateId === undefined ? 9 : 12;
+  var minZoom = selectedStateId === undefined ? 4.5 : 7;
+  var maxZoom = selectedStateId === undefined ? 8 : 12;
   map = L.map("map", {
     zoomSnap: 0.25,
     zoomDelta: 0.25,
