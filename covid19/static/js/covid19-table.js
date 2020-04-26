@@ -1,9 +1,8 @@
 var dt;
 
 jQuery(document).ready(function() {
-  dt = jQuery('.mdl-data-table').DataTable({
-    "autoWidth": false,
-    "columns": [
+  if (selectedStateId === undefined) {
+    var columns = [
       { "width": "18%" },
       { "width": "18%" },
       { "width": "14%" },
@@ -12,7 +11,22 @@ jQuery(document).ready(function() {
       { "width": "10%" },
       { "width": "10%" },
       { "width": "10%" }
-    ],
+    ];
+  }
+  else {
+    var columns = [
+      { "width": "25%" },
+      { "width": "25%" },
+      { "width": "10%" },
+      { "width": "10%" },
+      { "width": "10%" },
+      { "width": "10%" },
+      { "width": "10%" }
+    ];
+  }
+  dt = jQuery('.mdl-data-table').DataTable({
+    "autoWidth": false,
+    "columns": columns,
     "scrollY":        "650px",
     "scrollCollapse": true,
     "paging":         false,

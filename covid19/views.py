@@ -91,6 +91,13 @@ def dashboard(request, state=None):
         },
     ]
     city_data = stats.city_data
+    if state:
+        # TODO: implement "stats.city_data_for_state"
+        city_data["cities"] = {
+            key: value
+            for key, value in city_data["cities"].items()
+            if value["state"] == state
+        }
 
     return render(
         request,
