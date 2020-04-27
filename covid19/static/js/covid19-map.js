@@ -1,8 +1,8 @@
 var cityData,
     cityGeoJSON,
     cityLayer,
-    countryData,
-    countryId,
+    totalData,
+    totalId,
     dataConfig,
     legendBins,
     map,
@@ -43,12 +43,12 @@ dataConfig = {
 };
 
 legendBins = 6;
-countryId = 0; // Brasil
-selectedPlace = countryId;
+totalId = 0; // Brasil or state
+selectedPlace = totalId;
 selectedVar = Object.keys(dataConfig)[0];
 
 function getPlaceData(place) {
-  return place == countryId ? countryData : cityData[place];
+  return place == totalId ? totalData : cityData[place];
 }
 function opacityFromValue(value, maxValue) {
   return Math.log2(value + 1) / Math.log2(maxValue + 1);
@@ -76,7 +76,7 @@ function stateStyle(feature) {
     fillOpacity: 0.1,
     lineJoin: "round",
     opacity: 1,
-    weight: 0.5
+    weight: 0.75
   };
 }
 function changeVar(newVar) {
@@ -135,14 +135,16 @@ function updateVarControl() {
 }
 
 function createMap() {
+  var minZoom = selectedStateId === undefined ? 4.5 : 7;
+  var maxZoom = selectedStateId === undefined ? 8 : 12;
   map = L.map("map", {
     zoomSnap: 0.25,
     zoomDelta: 0.25,
-    minZoom: 4.5,
-    maxZoom: 9,
+    minZoom: minZoom,
+    maxZoom: maxZoom,
     attributionControl: false
   });
-  map.setView([-15, -54], 4.75);
+  map.setView([-15, -54], minZoom);
 }
 function hasToAddStateLayer() {
   return stateGeoJSON !== undefined && stateLayer === undefined;
@@ -158,7 +160,16 @@ function mapHasLoaded() {
 }
 function updateMap() {
   if (hasToAddStateLayer()) {
-    stateLayer = L.geoJSON(stateGeoJSON, {style: stateStyle}).addTo(map);
+    if (selectedStateId === undefined) {
+      stateLayer = L.geoJSON(stateGeoJSON, {style: stateStyle}).addTo(map);
+    }
+    else {
+      var filteredStateGeoJSON = stateGeoJSON;
+      filteredStateGeoJSON.features = filteredStateGeoJSON.features.filter(function (item) {
+        return item.properties.CD_GEOCUF == selectedStateId;
+      });
+      stateLayer = L.geoJSON(filteredStateGeoJSON, {style: stateStyle}).addTo(map);
+    }
   }
 
   if (hasToAddCityLayer()) {
@@ -177,7 +188,7 @@ function updateMap() {
           });
           layer.on("mouseout", function () {
             this.setStyle({opacity: 0});
-            updatePlaceDataControl(getPlaceData(countryId));
+            updatePlaceDataControl(getPlaceData(totalId));
           });
         }
       }
@@ -227,6 +238,7 @@ function updateMap() {
 function mapLoaded() {
   jQuery("#loading").css("z-index", -999);
   jQuery(".radio-control:first").prop("checked", true).trigger("click");
+  map.fitBounds(stateLayer.getBounds());
 }
 
 function retrieveData() {
@@ -235,7 +247,7 @@ function retrieveData() {
     function (data) {
       cityData = data.cities;
       maxValues = data.max;
-      countryData = data.total;
+      totalData = data.total;
       updateMap();
     }
   );

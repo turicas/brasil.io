@@ -6,16 +6,16 @@
 {% block head %}
 {{ block.super }}
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
-<link rel="stylesheet" href="{% static 'css/covid19-map.css' %}"/>
-<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
+<link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/covid19-map.css' %}"/>
+<script type="text/javascript" language="javascript" src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
 <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" language="javascript" src="{% static 'js/covid19-table.js' %}"></script>
 <script type="text/javascript" language="javascript" src="{% static 'js/covid19-map.js' %}"></script>
 {% endblock %}
 
 {% block content %}{% localize on %}
-<div>
+<div id="dashboard-header">
   <h1> ESPECIAL COVID-19 - Dados por Município </h1>
   {% include 'covid19-text.html' %}
   <div class="center">
@@ -34,10 +34,13 @@
     </a>
     <a class="btn" href="{% url 'core:donate' %}">Apoie o projeto</a>
   </div>
-</p>
+</div>
 
-<div class="row">
-  {% for row in aggregate %}
+<div id="dashboard-country-aggregate" class="row card" style="height: 100%">
+  <div class="card-content teal-text card-title">
+    Panorama Nacional
+  </div>
+  {% for row in country_aggregate %}
   <div class="col s12 m6 l4 xl2">
     <div class="card">
       <div class="card-content teal-text card-title">
@@ -52,7 +55,50 @@
     </div>
   </div>
   {% endfor %}
+  <div style="clear: both"></div>
 </div>
+
+<div id="dashboard-state-selector" class="row" style="clear: both">
+  <nav>
+  <div class="nav-wrapper indigo">
+    <ul>
+      <li{% if not state %} class="active"{% endif %}>
+        <a class="state-option" href="{% url 'covid19:dashboard' %}">BR</a>
+      </li>
+      {% for state_data in states %}
+      <li{% if state == state_data.acronym %} class="active"{% endif %}>
+        <a class="state-option" href="{% url 'covid19:dashboard' state_data.acronym %}">{{ state_data.acronym }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  </nav>
+</div>
+
+<h2>Casos de COVID-19 {% if state %}por estado: {{ state_name }}{% else %}no Brasil{% endif %}</h2>
+{% if state %}
+<div class="row card" style="height: 100%">
+  <div class="card-content teal-text card-title">
+    Panorama Estadual
+  </div>
+  {% for row in state_aggregate %}
+  <div class="col s12 m6 l4 xl2">
+    <div class="card">
+      <div class="card-content teal-text card-title">
+        <span class="tooltipped" data-position="bottom" data-tooltip="{{ row.tooltip }}">
+          <i class="material-icons">info</i>
+          {{row.title}}
+        </span>
+      </div>
+      <div class="card-content card-body number">
+        {{ row.value }} {% if row.value_percent %}({{ row.value_percent|floatformat:row.decimal_places }}%){% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  <div style="clear: both"></div>
+</div>
+{% endif %}
 
 <div class="row">
 
@@ -74,7 +120,7 @@
         <tr>
           <th> Data </th>
           <th> Município </th>
-          <th> UF </th>
+          {% if not state %}<th> UF </th>{% endif %}
           <th> Confirmados </th>
           <th> Confirmados<br>por 100k hab. </th>
           <th> Óbitos </th>
@@ -88,7 +134,7 @@
         <tr>
           <td data-search="{{ row.date|date:"d/m/Y" }}" data-order="{% localize off %}{{ row.date_str }}{% endlocalize %}"> {{ row.date|date:"d/m/Y" }} </td>
           <td data-search="{{ row.city_str }} {{ row.city }}" data-order="{{ row.city_str }}"> {{ row.city }} </td>
-          <td data-search="{{ row.state }}"> {{ row.state }} </td>
+          {% if not state %}<td data-search="{{ row.state }}"> <a href="{% url 'covid19:dashboard' row.state %}">{{ row.state }}</a> </td>{% endif %}
           <td data-order="{% localize off %}{{ row.confirmed }}{% endlocalize %}"> {{ row.confirmed }} </td>
           <td data-order="{% localize off %}{{ row.confirmed_per_100k_inhabitants }}{% endlocalize %}"> {{ row.confirmed_per_100k_inhabitants|floatformat:2 }} </td>
           <td data-order="{% localize off %}{{ row.deaths }}{% endlocalize %}"> {{ row.deaths }} </td>
@@ -99,7 +145,7 @@
       </tbody>
     </table>
     <p class="right-align">
-      <a class="btn" href="{% url 'core:dataset-table-detail' 'covid19' 'caso' %}?is_last=True&amp;place_type=city&amp;format=csv">
+      <a class="btn" href="{% url 'core:dataset-table-detail' 'covid19' 'caso' %}?is_last=True&amp;place_type=city{% if state %}&amp;state={{ state }}{% endif %}&amp;format=csv">
         Baixar dados em CSV
       </a>
     </p>
@@ -115,12 +161,14 @@
 {{ block.super }}
 <script type="text/javascript">
 var dataURL = {
-  cities: "{% url 'covid19:cities-cases' %}",
-  stateGeoJSON: "https://data.brasil.io/dataset/shapefiles-brasil/0.01/BR-UF.geojson",
-  cityGeoJSON: "{% url 'covid19:cities-geo' %}",
-}
-$(document).ready(function(){
-  $('.tooltipped').tooltip();
+  cities: "{% url 'covid19:cities-cases' %}{% if state %}?state={{ state }}{% endif %}",
+  stateGeoJSON: "{% url 'covid19:states-geo' %}{% if state %}?state={{ state }}{% endif %}",
+  cityGeoJSON: "{% url 'covid19:cities-geo' %}{% if state %}?state={{ state }}{% endif %}",
+};
+var selectedStateId = {% if not state_id %}undefined{% else %}{{ state_id }}{% endif %};
+
+jQuery(document).ready(function(){
+  jQuery('.tooltipped').tooltip();
 });
 </script>
 {% endblock %}
