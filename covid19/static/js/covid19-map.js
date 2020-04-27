@@ -47,6 +47,9 @@ totalId = 0; // Brasil or state
 selectedPlace = totalId;
 selectedVar = Object.keys(dataConfig)[0];
 
+function mapType() {
+  return selectedStateId === undefined ? "country" : "state";
+}
 function getPlaceData(place) {
   return place == totalId ? totalData : cityData[place];
 }
@@ -135,8 +138,8 @@ function updateVarControl() {
 }
 
 function createMap() {
-  var minZoom = selectedStateId === undefined ? 4.5 : 7;
-  var maxZoom = selectedStateId === undefined ? 8 : 12;
+  var minZoom = mapType() == "country" ? 4.5 : 6;
+  var maxZoom = mapType() == "country" ? 8 : 12;
   map = L.map("map", {
     zoomSnap: 0.25,
     zoomDelta: 0.25,
@@ -158,18 +161,22 @@ function hasToAddLegendLayer() {
 function mapHasLoaded() {
   return stateLayer !== undefined && cityLayer !== undefined;
 }
+function mapFit() {
+  map.fitBounds(stateLayer.getBounds());
+}
 function updateMap() {
   if (hasToAddStateLayer()) {
-    if (selectedStateId === undefined) {
+    if (mapType() == "country") {
       stateLayer = L.geoJSON(stateGeoJSON, {style: stateStyle}).addTo(map);
     }
-    else {
+    else if (mapType() == "state") {
       var filteredStateGeoJSON = stateGeoJSON;
       filteredStateGeoJSON.features = filteredStateGeoJSON.features.filter(function (item) {
         return item.properties.CD_GEOCUF == selectedStateId;
       });
       stateLayer = L.geoJSON(filteredStateGeoJSON, {style: stateStyle}).addTo(map);
     }
+    mapFit();
   }
 
   if (hasToAddCityLayer()) {
@@ -238,7 +245,6 @@ function updateMap() {
 function mapLoaded() {
   jQuery("#loading").css("z-index", -999);
   jQuery(".radio-control:first").prop("checked", true).trigger("click");
-  map.fitBounds(stateLayer.getBounds());
 }
 
 function retrieveData() {
