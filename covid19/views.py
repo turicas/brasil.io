@@ -47,6 +47,8 @@ def states_geojson(request):
     state = request.GET.get("state", None)
     if state is not None and not get_state_info(state):
         raise Http404
+    if state:
+        state = state.upper()
 
     data = state_geojson(high_fidelity=bool(state))
     if state:
@@ -64,6 +66,7 @@ def cities_geojson(request):
     if state is not None and not get_state_info(state):
         raise Http404
     elif state:
+        state = state.upper()
         high_fidelity = True
         city_data = stats.city_data_for_state(state)
     else:
@@ -138,6 +141,8 @@ def make_aggregate(
 def dashboard(request, state=None):
     if state is not None and not get_state_info(state):
         raise Http404
+    if state:
+        state = state.upper()
 
     country_aggregate = make_aggregate(
         reports=stats.total_reports,
