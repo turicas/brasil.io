@@ -170,7 +170,6 @@ function updateMap() {
       });
       stateLayer = L.geoJSON(filteredStateGeoJSON, {style: stateStyle}).addTo(map);
     }
-    map.fitBounds(stateLayer.getBounds());
   }
 
   if (hasToAddCityLayer()) {
@@ -239,6 +238,7 @@ function updateMap() {
 function mapLoaded() {
   jQuery("#loading").css("z-index", -999);
   jQuery(".radio-control:first").prop("checked", true).trigger("click");
+  map.fitBounds(stateLayer.getBounds());
 }
 
 function retrieveData() {

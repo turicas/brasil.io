@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block content %}{% localize on %}
-<div>
+<div id="dashboard-header">
   <h1> ESPECIAL COVID-19 - Dados por Município </h1>
   {% include 'covid19-text.html' %}
   <div class="center">
@@ -34,9 +34,9 @@
     </a>
     <a class="btn" href="{% url 'core:donate' %}">Apoie o projeto</a>
   </div>
-</p>
+</div>
 
-<div class="row card" style="height: 100%">
+<div id="dashboard-country-aggregate" class="row card" style="height: 100%">
   <div class="card-content teal-text card-title">
     Panorama Nacional
   </div>
@@ -58,7 +58,7 @@
   <div style="clear: both"></div>
 </div>
 
-<div class="row" style="clear: both">
+<div id="dashboard-state-selector" class="row" style="clear: both">
   <nav>
   <div class="nav-wrapper indigo">
     <ul>
