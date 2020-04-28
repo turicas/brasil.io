@@ -15,19 +15,14 @@ var cityData,
     varControl;
 
 dataConfig = {
-  "confirmed": {
-    "color": "#00F",
-    "displayText": "Casos confirmados",
-    "zeroText": "Nenhum",
-  },
   "confirmed_per_100k_inhabitants": {
     "color": "#2B580C",
     "displayText": "Confirmados/100.000 hab.",
     "zeroText": "Nenhum",
   },
-  "deaths": {
-    "color": "#F00",
-    "displayText": "Óbitos confirmados",
+  "deaths_per_100k_inhabitants": {
+    "color": "#F39",
+    "displayText": "Óbitos/100.000 hab.",
     "zeroText": "Nenhum",
   },
   "death_rate_percent": {
@@ -35,11 +30,16 @@ dataConfig = {
     "displayText": "Letalidade",
     "zeroText": "Nenhum",
   },
-  "deaths_per_100k_inhabitants": {
-    "color": "#F39",
-    "displayText": "Óbitos/100.000 hab.",
+  "confirmed": {
+    "color": "#00F",
+    "displayText": "Casos confirmados",
     "zeroText": "Nenhum",
-  }
+  },
+  "deaths": {
+    "color": "#F00",
+    "displayText": "Óbitos confirmados",
+    "zeroText": "Nenhum",
+  },
 };
 
 legendBins = 6;
