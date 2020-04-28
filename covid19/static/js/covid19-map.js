@@ -19,26 +19,36 @@ dataConfig = {
     "color": "#2B580C",
     "displayText": "Confirmados/100.000 hab.",
     "zeroText": "Nenhum",
+    "opacityFromValue": log2OpacityFromValue,
+    "valueFromOpacity": log2ValueFromOpacity,
   },
   "deaths_per_100k_inhabitants": {
     "color": "#F39",
     "displayText": "Óbitos/100.000 hab.",
     "zeroText": "Nenhum",
+    "opacityFromValue": log2OpacityFromValue,
+    "valueFromOpacity": log2ValueFromOpacity,
   },
   "death_rate_percent": {
     "color": "#F08",
     "displayText": "Letalidade",
     "zeroText": "Nenhum",
+    "opacityFromValue": linearOpacityFromValue,
+    "valueFromOpacity": linearValueFromOpacity,
   },
   "confirmed": {
     "color": "#00F",
     "displayText": "Casos confirmados",
     "zeroText": "Nenhum",
+    "opacityFromValue": log2OpacityFromValue,
+    "valueFromOpacity": log2ValueFromOpacity,
   },
   "deaths": {
     "color": "#F00",
     "displayText": "Óbitos confirmados",
     "zeroText": "Nenhum",
+    "opacityFromValue": log2OpacityFromValue,
+    "valueFromOpacity": log2ValueFromOpacity,
   },
 };
 
@@ -53,16 +63,22 @@ function mapType() {
 function getPlaceData(place) {
   return place == totalId ? totalData : cityData[place];
 }
-function opacityFromValue(value, maxValue) {
+function linearOpacityFromValue(value, maxValue) {
+  return value / maxValue;
+}
+function linearValueFromOpacity(opacity, maxValue) {
+  return parseInt(opacity * maxValue);
+}
+function log2OpacityFromValue(value, maxValue) {
   return Math.log2(value + 1) / Math.log2(maxValue + 1);
 }
-function valueFromOpacity(opacity, maxValue) {
+function log2ValueFromOpacity(opacity, maxValue) {
   return parseInt(2 ** (opacity * Math.log2(maxValue + 1)) - 1);
 }
 function cityStyle(feature) {
   var value = cityData[feature.id][selectedVar] || 0;
   var maxValue = maxValues[selectedVar];
-  var opacity = opacityFromValue(value, maxValue);
+  var opacity = dataConfig[selectedVar].opacityFromValue(value, maxValue);
   return {
     color: "#000",
     fillColor: dataConfig[selectedVar].color,
@@ -99,8 +115,8 @@ function updateLegendControl() {
 
   for (var counter = 0; counter <= legendBins; counter += 1) {
     var opacity = counter / legendBins;
-    var value = valueFromOpacity(opacity, maxValue);
-    var lastValue = lastOpacity === undefined ? 0 : valueFromOpacity(lastOpacity, maxValue);
+    var value = dataConfig[selectedVar].valueFromOpacity(opacity, maxValue);
+    var lastValue = lastOpacity === undefined ? 0 : dataConfig[selectedVar].valueFromOpacity(lastOpacity, maxValue);
     if (lastOpacity === undefined || lastValue != value) {
       displayValue = lastOpacity === undefined ? zeroDisplay : `${lastValue} &mdash; ${value}`;
       labels.push(`<span class="valign-wrapper"> <i style="background: ${color}; opacity: ${opacity}"></i> ${displayValue} </span>`);
