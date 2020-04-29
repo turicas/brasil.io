@@ -1,11 +1,10 @@
-import environ
-
 from urllib.parse import urlparse
-from django.urls import reverse_lazy
 
-# Sentry config
+import environ
 import sentry_sdk
+from django.urls import reverse_lazy
 from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.rq import RqIntegration
 
 
 root = environ.Path(__file__) - 2
@@ -232,11 +231,6 @@ ROCKETCHAT_USER_ID = env("ROCKETCHAT_USER_ID")
 ROCKETCHAT_AUTH_TOKEN = env("ROCKETCHAT_AUTH_TOKEN")
 
 # Sentry config
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
-from sentry_sdk.integrations.rq import RqIntegration
-
-
 SENTRY_DSN = env("SENTRY_DSN")
 sentry_sdk.init(
     SENTRY_DSN,
