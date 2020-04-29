@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0003_table_search'),
+        ("core", "0003_table_search"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='dataset',
-            name='icon',
-            field=models.CharField(default='', max_length=31),
+            model_name="dataset",
+            name="icon",
+            field=models.CharField(default="", max_length=31),
             preserve_default=False,
         ),
     ]

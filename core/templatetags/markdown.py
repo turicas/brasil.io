@@ -4,8 +4,4 @@ from django import template
 
 register = template.Library()
 # Gets value from markdownx settings because it can return a default.
-markdownify = register.filter(
-    import_string(
-        mdx_settings.MARKDOWNX_MARKDOWNIFY_FUNCTION
-    )
-)
+markdownify = register.filter(import_string(mdx_settings.MARKDOWNX_MARKDOWNIFY_FUNCTION))

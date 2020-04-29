@@ -54,9 +54,7 @@ def states_geojson(request):
     if state:
         state_id = STATE_BY_ACRONYM[state].ibge_code
         data["features"] = [
-            feature
-            for feature in data["features"]
-            if int(feature["properties"]["CD_GEOCUF"]) == state_id
+            feature for feature in data["features"] if int(feature["properties"]["CD_GEOCUF"]) == state_id
         ]
     return JsonResponse(data, content_type="application/geo+json")
 
@@ -75,9 +73,7 @@ def cities_geojson(request):
 
     city_ids = set(row["city_ibge_code"] for row in city_data)
     data = city_geojson(high_fidelity=high_fidelity)
-    data["features"] = [
-        feature for feature in data["features"] if feature["id"] in city_ids
-    ]
+    data["features"] = [feature for feature in data["features"] if feature["id"] in city_ids]
     return JsonResponse(data, content_type="application/geo+json")
 
 
@@ -98,11 +94,7 @@ def make_aggregate(
             "value": reports,
             "tooltip": "Total de boletins epidemiológicos coletados pelos voluntários",
         },
-        {
-            "title": "Casos confirmados",
-            "value": confirmed,
-            "tooltip": "Total de casos confirmados",
-        },
+        {"title": "Casos confirmados", "value": confirmed, "tooltip": "Total de casos confirmados",},
         {
             "decimal_places": 2,
             "title": "Óbitos confirmados",
@@ -127,7 +119,7 @@ def make_aggregate(
         {
             "decimal_places": 0,
             "title": "Municípios c/ óbitos",
-            "tooltip": "Total de municípios com óbitos confirmados (o percentual é em relação ao total de municípios com casos confirmados)",
+            "tooltip": "Total de municípios com óbitos confirmados (o percentual é em relação ao total de municípios com casos confirmados)",  # noqa
             "value": cities_with_deaths,
             "value_percent": 100 * (cities_with_deaths / affected_cities),
         },
@@ -168,7 +160,7 @@ def dashboard(request, state=None):
             affected_population=stats.affected_population_for_state(state),
             population=stats.total_population_for_state(state),
             cities_with_deaths=stats.cities_with_deaths_for_state(state),
-            for_state=True
+            for_state=True,
         )
     else:
         city_data = stats.city_data
@@ -199,9 +191,7 @@ def import_spreadsheet_proxy(request, state):
     try:
         content = create_merged_state_spreadsheet(state)
         response = HttpResponse(content)
-        response[
-            "Content-Type"
-        ] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        response["Content-Type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         response["Content-Disposition"] = f"attachment; filename={state}.xlsx"
         return response
     except SpreadsheetValidationErrors as e:

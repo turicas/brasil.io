@@ -4,20 +4,20 @@ from django.db import connection, migrations
 
 
 def rename_tables(apps, schema_editor):
-    Dataset = apps.get_model('core', 'Dataset')
+    Dataset = apps.get_model("core", "Dataset")
 
-    existing_tables_sql = '''
+    existing_tables_sql = """
         SELECT table_name
         FROM information_schema.tables
         WHERE table_name LIKE 'core_%'
-    '''
+    """
     with connection.cursor() as cursor:
         cursor.execute(existing_tables_sql)
         existing_tables = list([item[0] for item in cursor.fetchall()])
 
-    rename_table_sql = 'ALTER TABLE {} RENAME TO {}'
+    rename_table_sql = "ALTER TABLE {} RENAME TO {}"
     for dataset in Dataset.objects.all():
-        version = dataset.version_set.order_by('order').last()
+        version = dataset.version_set.order_by("order").last()
         # Will migrate only default tables (we were not using the other
         # ones until now)
         tables = list(dataset.table_set.filter(version=version, default=True))
@@ -25,10 +25,10 @@ def rename_tables(apps, schema_editor):
             continue
         assert len(tables) == 1
         table = tables[0]
-        dataset_name = dataset.slug.replace('-', '')
-        table_name = table.name.replace('_', '')
-        old_name = 'core_' + dataset_name
-        new_name = 'data_' + dataset_name + '_' + table_name
+        dataset_name = dataset.slug.replace("-", "")
+        table_name = table.name.replace("_", "")
+        old_name = "core_" + dataset_name
+        new_name = "data_" + dataset_name + "_" + table_name
         if old_name in existing_tables:  # old name, must rename it
             with connection.cursor() as cursor:
                 cursor.execute(rename_table_sql.format(old_name, new_name))
@@ -37,7 +37,7 @@ def rename_tables(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0009_field_frontend_filter'),
+        ("core", "0009_field_frontend_filter"),
     ]
 
     operations = [migrations.RunPython(rename_tables)]

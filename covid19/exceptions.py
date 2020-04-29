@@ -15,7 +15,7 @@ class SpreadsheetValidationErrors(Exception):
             raise self
 
     def __str__(self):
-        return ' - '.join(self.error_messages)
+        return " - ".join(self.error_messages)
 
 
 class OnlyOneSpreadsheetException(Exception):

@@ -7,7 +7,6 @@ from utils.rocketchat import RocketChat
 
 
 class FakeChat:
-
     def send_message(self, channel, message):
         print(f"New message in {channel}:\n{message}")
 
@@ -23,7 +22,7 @@ def get_chat():
 
 
 def clean_collaborators(collaborators):
-    return ['@' + c.strip() for c in collaborators.split(',')]
+    return ["@" + c.strip() for c in collaborators.split(",")]
 
 
 def notify_new_spreadsheet(spreadsheet):
@@ -31,7 +30,7 @@ def notify_new_spreadsheet(spreadsheet):
     state_info = import_info_by_state(spreadsheet.state)
     channel = state_info.canal
     collabs = clean_collaborators(state_info.voluntarios)
-    collabs = ' '.join(collabs)
+    collabs = " ".join(collabs)
 
     msg = f"{collabs} - *Nova planilha* importada para o estado *{spreadsheet.state}* para o dia *{spreadsheet.date}*"
     msg += f"\nRealizada por: *{spreadsheet.user.username}*\n\nPrecisamos de mais uma planilha para verificar os dados."
@@ -45,10 +44,10 @@ def notify_spreadsheet_mismatch(spreadsheet, errors):
     state_info = import_info_by_state(spreadsheet.state)
     channel = state_info.canal
     collabs = clean_collaborators(state_info.voluntarios)
-    collabs = ' '.join(collabs)
+    collabs = " ".join(collabs)
 
     errors = "\n- ".join(errors)
-    msg = f"{collabs} - *Dados divergentes* na planilha importada para o estado *{spreadsheet.state}* para o dia *{spreadsheet.date}*"
+    msg = f"{collabs} - *Dados divergentes* na planilha importada para o estado *{spreadsheet.state}* para o dia *{spreadsheet.date}*"  # noqa
     msg += f"\nRealizada por: *{spreadsheet.user.username}*\n\n- {errors}"
 
     chat.send_message(channel, msg)
@@ -56,17 +55,13 @@ def notify_spreadsheet_mismatch(spreadsheet, errors):
 
 def notify_import_success(spreadsheet):
     chat = get_chat()
-    state_info = import_info_by_state(spreadsheet.state)
     channel = "#covid19"
-    authors = ' e '.join([
-        spreadsheet.user.username,
-        spreadsheet.peer_review.user.username,
-    ])
+    authors = " e ".join([spreadsheet.user.username, spreadsheet.peer_review.user.username,])
 
-    msg = f"@turicas planilha de *{spreadsheet.state}* para o dia *{spreadsheet.date}* checada (dados enviados por {authors}), pode rodar o deploy!"
+    msg = f"@turicas planilha de *{spreadsheet.state}* para o dia *{spreadsheet.date}* checada (dados enviados por {authors}), pode rodar o deploy!"  # noqa
     if spreadsheet.warnings:
-        msg += f"\nLista de *warnings*:\n- " + '\n- '.join(spreadsheet.warnings)
+        msg += f"\nLista de *warnings*:\n- " + "\n- ".join(spreadsheet.warnings)
     else:
-        msg += '\nPlanilha sem warnings'
+        msg += "\nPlanilha sem warnings"
 
     chat.send_message(channel, msg)

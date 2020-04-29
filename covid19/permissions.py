@@ -4,7 +4,7 @@ from django.conf import settings
 
 
 def _format_perm_code(uf):
-    return 'covid19.' + settings.COVID_IMPORT_PERMISSION_PREFIX + uf.upper()
+    return "covid19." + settings.COVID_IMPORT_PERMISSION_PREFIX + uf.upper()
 
 
 def user_has_state_permission(user, uf):
