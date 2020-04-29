@@ -6,6 +6,7 @@ from localflavor.br.br_states import STATE_CHOICES
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.contrib.postgres.fields import ArrayField, JSONField
+from django.urls import reverse
 
 from covid19.exceptions import OnlyOneSpreadsheetException
 
@@ -153,6 +154,10 @@ class StateSpreadsheet(models.Model):
     @property
     def ready_to_import(self):
         return all([self.status == StateSpreadsheet.UPLOADED, not self.cancelled, self.peer_review,])
+
+    @property
+    def admin_url(self):
+        return reverse("admin:covid19_statespreadsheet_change", args=[self.pk])
 
     def get_data_from_city(self, ibge_code):
         if ibge_code:  # ibge_code = None match for undefined data
