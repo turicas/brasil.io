@@ -28,7 +28,7 @@ def getattribute(obj, field):
 
 
 @register.filter(name="getplainattribute")
-def getattribute(obj, field):
+def getplainattribute(obj, field):
     return _getattr(obj, field, should_obfuscate=False)
 
 
