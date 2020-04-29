@@ -2,8 +2,10 @@ import csv
 
 from django.contrib import admin
 from django.contrib.admin.views.decorators import staff_member_required
-from django.urls import path
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
 from django.http import StreamingHttpResponse
+from django.urls import path
 
 from brasilio_auth.models import NewsletterSubscriber
 from brasilio_auth.services import subscribers_as_csv_rows
@@ -47,4 +49,10 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
         return view(request)
 
 
+class UserAdmin(BaseUserAdmin):
+    list_filter = ('groups', 'is_staff', 'is_superuser', 'is_active')
+
+
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
 admin.site.register(NewsletterSubscriber, NewsletterSubscriberAdmin)
