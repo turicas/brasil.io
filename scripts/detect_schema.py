@@ -82,9 +82,7 @@ def detect_schema(dataset_slug, tablename, version_name, filename, encoding, sam
         _ = next(reader)  # Skip header
         total = sum(1 for line in tqdm(reader, desc=desc, unit=" rows"))
 
-    desc = "Creating schema using {}".format(
-        f"{samples} samples" if samples else "all rows"
-    )
+    desc = "Creating schema using {}".format(f"{samples} samples" if samples else "all rows")
     reader = csv.reader(open_compressed(filename))
     header = next(reader)
     iterator = tqdm(reader, desc=desc, total=total)
@@ -120,10 +118,7 @@ def detect_schema(dataset_slug, tablename, version_name, filename, encoding, sam
     for index, (field_name, field_type) in enumerate(detector.fields.items()):
         # TODO: replace "string" with "text" inside Brasil.IO's code
         field_type = (
-            field_type.__name__.lower()
-            .replace("field", "")
-            .replace("text", "string")
-            .replace("float", "decimal")
+            field_type.__name__.lower().replace("field", "").replace("text", "string").replace("float", "decimal")
         )
         title = make_title(field_name)
         min_size, max_size = detector.min_sizes[index], detector.max_sizes[index]
@@ -134,9 +129,7 @@ def detect_schema(dataset_slug, tablename, version_name, filename, encoding, sam
         has_choices = detector.choices[index] is not None
         link_template = ""
         if "cnpj" in field_name or "cpf" in field_name:
-            link_template = (
-                "/especiais/documento/{{ " + field_name + "|encrypt_if_needed }}"
-            )
+            link_template = "/especiais/documento/{{ " + field_name + "|encrypt_if_needed }}"
 
         result.append(
             {
@@ -188,9 +181,7 @@ if __name__ == "__main__":
     table_name = filename.name.split(".")[0]
     today = datetime.datetime.now()
     version_name = "{}-{:02d}".format(today.year, today.month)
-    result = detect_schema(
-        dataset_slug, table_name, version_name, filename, args.encoding, args.samples
-    )
+    result = detect_schema(dataset_slug, table_name, version_name, filename, args.encoding, args.samples)
 
     output_path = Path(args.output_path)
     if not output_path.exists():

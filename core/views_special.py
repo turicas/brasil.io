@@ -26,11 +26,7 @@ def index(request):
 
 
 def _get_fields(table, remove):
-    return [
-        field
-        for field in table.field_set.all()
-        if field.show_on_frontend and field.name not in remove
-    ]
+    return [field for field in table.field_set.all() if field.show_on_frontend and field.name not in remove]
 
 
 def unaccent(text):
@@ -98,49 +94,33 @@ def document_detail(request, document):
     applications_data = Candidatos.objects.none()
     filiations_data = FiliadosPartidos.objects.none()
     applications_fields = _get_fields(
-        get_table("eleicoes-brasil", "candidatos"),
-        remove=["cpf_candidato", "nome_candidato"],
+        get_table("eleicoes-brasil", "candidatos"), remove=["cpf_candidato", "nome_candidato"],
     )
-    companies_fields = _get_fields(
-        get_table("socios-brasil", "socios"), remove=["cpf_cnpj_socio", "nome_socio"]
-    )
+    companies_fields = _get_fields(get_table("socios-brasil", "socios"), remove=["cpf_cnpj_socio", "nome_socio"])
     camara_spending_fields = _get_fields(
-        get_table("gastos-deputados", "cota_parlamentar"),
-        remove=["txtcnpjcpf", "txtfornecedor"],
+        get_table("gastos-deputados", "cota_parlamentar"), remove=["txtcnpjcpf", "txtfornecedor"],
     )
     federal_spending_fields = _get_fields(
-        get_table("gastos-diretos", "gastos"),
-        remove=["codigo_favorecido", "nome_favorecido"],
+        get_table("gastos-diretos", "gastos"), remove=["codigo_favorecido", "nome_favorecido"],
     )
-    partners_fields = _get_fields(
-        get_table("socios-brasil", "socios"), remove=["cnpj", "razao_social"]
-    )
+    partners_fields = _get_fields(get_table("socios-brasil", "socios"), remove=["cnpj", "razao_social"])
     filiations_fields = _get_fields(get_table("eleicoes-brasil", "filiados"), remove=[])
     branches_fields = _get_fields(
-        get_table("documentos-brasil", "documents"),
-        remove=["document_type", "sources", "text"],
+        get_table("documentos-brasil", "documents"), remove=["document_type", "sources", "text"],
     )
 
     if is_company:
-        partners_data = Socios.objects.filter(cnpj__in=branches_cnpjs).order_by(
-            "nome_socio"
-        )
+        partners_data = Socios.objects.filter(cnpj__in=branches_cnpjs).order_by("nome_socio")
         company = Empresas.objects.filter(cnpj=obj.document).first()
         obj_dict["state"] = company.uf if company else ""
-        companies_data = Holdings.objects.filter(
-            cnpj_socia__in=branches_cnpjs
-        ).order_by("razao_social")
-        companies_fields = _get_fields(
-            get_table("socios-brasil", "holdings"), remove=["cnpj_socia"]
-        )
+        companies_data = Holdings.objects.filter(cnpj_socia__in=branches_cnpjs).order_by("razao_social")
+        companies_fields = _get_fields(get_table("socios-brasil", "holdings"), remove=["cnpj_socia"])
 
         # all appearances of 'obj.document'
-        camara_spending_data = GastosDeputados.objects.filter(
-            txtcnpjcpf__in=branches_cnpjs
-        ).order_by("-datemissao")
-        federal_spending_data = GastosDiretos.objects.filter(
-            codigo_favorecido__in=branches_cnpjs
-        ).order_by("-data_pagamento")
+        camara_spending_data = GastosDeputados.objects.filter(txtcnpjcpf__in=branches_cnpjs).order_by("-datemissao")
+        federal_spending_data = GastosDiretos.objects.filter(codigo_favorecido__in=branches_cnpjs).order_by(
+            "-data_pagamento"
+        )
     elif is_person:
         companies_data = (
             Socios.objects.filter(nome_socio=unaccent(obj.name))
@@ -148,17 +128,11 @@ def document_detail(request, document):
             .order_by("razao_social")
         )
         applications_data = Candidatos.objects.filter(cpf_candidato=obj.document)
-        filiations_data = FiliadosPartidos.objects.filter(
-            nome_do_filiado=unaccent(obj.name)
-        )
+        filiations_data = FiliadosPartidos.objects.filter(nome_do_filiado=unaccent(obj.name))
 
         # all appearances of 'obj.document'
-        camara_spending_data = GastosDeputados.objects.filter(
-            txtcnpjcpf=obj.document
-        ).order_by("-datemissao")
-        federal_spending_data = GastosDiretos.objects.filter(
-            codigo_favorecido=obj.document
-        ).order_by("-data_pagamento")
+        camara_spending_data = GastosDeputados.objects.filter(txtcnpjcpf=obj.document).order_by("-datemissao")
+        federal_spending_data = GastosDiretos.objects.filter(codigo_favorecido=obj.document).order_by("-data_pagamento")
 
     original_document = request.GET.get("original_document", None)
     context = {
@@ -214,9 +188,7 @@ def fix_nodes(nodes):
         node = node.copy()
         cnpj_root = node.get("cnpj_root")
         if cnpj_root:
-            documents = Documents.objects.filter(
-                document_type="CNPJ", docroot=cnpj_root
-            ).order_by("document")
+            documents = Documents.objects.filter(document_type="CNPJ", docroot=cnpj_root).order_by("document")
             if documents:
                 cnpj = documents.first().document
             else:
@@ -236,10 +208,7 @@ def trace_path(request):
         destination_name = form.cleaned_data["destination_name"]
         path = _get_path(
             (form.cleaned_data["origin_type"], form.cleaned_data["origin_identifier"]),
-            (
-                form.cleaned_data["destination_type"],
-                form.cleaned_data["destination_identifier"],
-            ),
+            (form.cleaned_data["destination_type"], form.cleaned_data["destination_identifier"],),
         )
 
     context = {

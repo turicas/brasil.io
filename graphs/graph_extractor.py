@@ -8,7 +8,7 @@ def selector():
     return NodeSelector(get_graph_db_connection())
 
 
-def _extract_network(query, path_key='p'):
+def _extract_network(query, path_key="p"):
     graph = nx.DiGraph()
     output = get_graph_db_connection().run(query)
     while output.forward():
@@ -18,19 +18,11 @@ def _extract_network(query, path_key='p'):
 
         for node in nodes:
             labels = list(node.labels())
-            graph.add_node(
-                node.__name__,
-                tipo=labels[0],
-                labels=labels,
-                **node.properties
-            )
+            graph.add_node(node.__name__, tipo=labels[0], labels=labels, **node.properties)
 
         for rel in rels:
             graph.add_edge(
-                rel.start_node().__name__,
-                rel.end_node().__name__,
-                tipo_relacao=rel.type(),
-                **rel.properties
+                rel.start_node().__name__, rel.end_node().__name__, tipo_relacao=rel.type(), **rel.properties
             )
 
     return graph
@@ -68,7 +60,7 @@ def get_company_node(cnpj):
     Returns py2neo.types.Node or None
     """
     cnpj_root = cnpj[:8]
-    node = selector().select('PessoaJuridica', cnpj_root=cnpj_root).first()
+    node = selector().select("PessoaJuridica", cnpj_root=cnpj_root).first()
     if not node:
         raise NodeDoesNotExistException()
     return node
@@ -78,7 +70,7 @@ def get_person_node(name):
     """
     Returns py2neo.types.Node or None
     """
-    node = selector().select('PessoaFisica', nome=name).first()
+    node = selector().select("PessoaFisica", nome=name).first()
     if not node:
         raise NodeDoesNotExistException()
     return node
@@ -88,7 +80,7 @@ def get_foreigner_node(name):
     """
     Returns py2neo.types.Node or None
     """
-    node = selector().select('NomeExterior', nome=name).first()
+    node = selector().select("NomeExterior", nome=name).first()
     if not node:
         raise NodeDoesNotExistException()
     return node

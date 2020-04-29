@@ -107,12 +107,7 @@ def dataset_detail(request, slug, tablename=""):
 
     if not tablename:
         tablename = dataset.get_default_table().name
-        return redirect(
-            reverse(
-                "core:dataset-table-detail",
-                kwargs={"slug": slug, "tablename": tablename},
-            )
-        )
+        return redirect(reverse("core:dataset-table-detail", kwargs={"slug": slug, "tablename": tablename},))
 
     try:
         table = dataset.get_table(tablename)
@@ -122,9 +117,7 @@ def dataset_detail(request, slug, tablename=""):
 
     querystring = request.GET.copy()
     page_number = querystring.pop("page", ["1"])[0].strip() or "1"
-    items_per_page = querystring.pop("items", [str(settings.ROWS_PER_PAGE)])[
-        0
-    ].strip() or str(settings.ROWS_PER_PAGE)
+    items_per_page = querystring.pop("items", [str(settings.ROWS_PER_PAGE)])[0].strip() or str(settings.ROWS_PER_PAGE)
     download_csv = querystring.pop("format", [""]) == ["csv"]
     try:
         page = int(page_number)
@@ -153,8 +146,7 @@ def dataset_detail(request, slug, tablename=""):
         writer = csv.writer(pseudo_buffer, dialect=csv.excel)
         csv_rows = queryset_to_csv(all_data, fields)
         response = StreamingHttpResponse(
-            (writer.writerow(row) for row in csv_rows),
-            content_type="text/csv;charset=UTF-8",
+            (writer.writerow(row) for row in csv_rows), content_type="text/csv;charset=UTF-8",
         )
         response["Content-Disposition"] = 'attachment; filename="{}"'.format(filename)
         response.encoding = "UTF-8"

@@ -19,15 +19,12 @@ def format_spreadsheet_name(instance, filename):
     user = instance.user.username
     file_no = StateSpreadsheet.objects.filter_older_versions(instance).count() + 1
     suffix = Path(filename).suffix
-    return f'covid19/{uf}/casos-{uf}-{date}-{user}-{file_no}{suffix}'  # noqa
+    return f"covid19/{uf}/casos-{uf}-{date}-{user}-{file_no}{suffix}"  # noqa
 
 
 class StateSpreadsheetQuerySet(models.QuerySet):
-
     def filter_older_versions(self, spreadsheet):
-        qs = self.from_user(spreadsheet.user).from_state(spreadsheet.state).filter(
-            date=spreadsheet.date,
-        )
+        qs = self.from_user(spreadsheet.user).from_state(spreadsheet.state).filter(date=spreadsheet.date,)
         if spreadsheet.id:
             qs = qs.exclude(id=spreadsheet.id)
         return qs
@@ -54,9 +51,9 @@ class StateSpreadsheetQuerySet(models.QuerySet):
         return self.filter(status__in=[self.model.UPLOADED, self.model.CHECK_FAILED])
 
     def deployable_for_state(self, state, avoid_peer_review_dupes=True):
-        qs = self.filter_active().from_state(state).deployed().order_by('-date')
+        qs = self.filter_active().from_state(state).deployed().order_by("-date")
         if avoid_peer_review_dupes:
-            qs = qs.distinct('date')
+            qs = qs.distinct("date")
         return qs
 
 
@@ -85,13 +82,12 @@ class StateSpreadsheet(models.Model):
     file = models.FileField(upload_to=format_spreadsheet_name)
     peer_review = models.OneToOneField("self", null=True, blank=True, on_delete=models.SET_NULL)
 
-    boletim_urls = ArrayField(
-        models.TextField(), null=False,
-        blank=False, help_text="Lista de URLs do(s) boletim(s)"
-    )
+    boletim_urls = ArrayField(models.TextField(), null=False, blank=False, help_text="Lista de URLs do(s) boletim(s)")
     boletim_notes = models.CharField(
-        max_length=1023, default='', blank=True,
-        help_text='Observações no boletim como "depois de publicar o boletim a secretaria postou no Twitter que teve mais uma morte".'  # noqa
+        max_length=1023,
+        default="",
+        blank=True,
+        help_text='Observações no boletim como "depois de publicar o boletim a secretaria postou no Twitter que teve mais uma morte".',  # noqa
     )
 
     # status da planilha: só aceitaremos planilhas sem erros, então quando ela
@@ -113,8 +109,8 @@ class StateSpreadsheet(models.Model):
     cancelled = models.BooleanField(default=False)
 
     def __str__(self):
-        active = 'Ativa' if not self.cancelled else 'Cancelada'
-        return f'Planilha {active}: {self.state} - {self.date} por {self.user}'
+        active = "Ativa" if not self.cancelled else "Cancelada"
+        return f"Planilha {active}: {self.state} - {self.date} por {self.user}"
 
     @property
     def active(self):
@@ -122,62 +118,58 @@ class StateSpreadsheet(models.Model):
 
     @property
     def table_data(self):
-        return deepcopy(self.data['table'])
+        return deepcopy(self.data["table"])
 
     @table_data.setter
     def table_data(self, data):
-        self.data['table'] = deepcopy(data)
+        self.data["table"] = deepcopy(data)
 
     @property
     def warnings(self):
-        return deepcopy(self.data['warnings'])
+        return deepcopy(self.data["warnings"])
 
     @warnings.setter
     def warnings(self, data):
-        self.data['warnings'] = data
+        self.data["warnings"] = data
 
     @property
     def errors(self):
-        return deepcopy(self.data['errors'])
+        return deepcopy(self.data["errors"])
 
     @errors.setter
     def errors(self, data):
-        self.data['errors'] = data
+        self.data["errors"] = data
         self.status = StateSpreadsheet.CHECK_FAILED
 
     @cached_property
     def sibilings(self):
         qs = StateSpreadsheet.objects.filter_active().from_state(self.state).filter(date=self.date)
-        return qs.pending_review().exclude(pk=self.pk, user_id=self.user_id).order_by('-created_at')
+        return qs.pending_review().exclude(pk=self.pk, user_id=self.user_id).order_by("-created_at")
 
     @property
     def table_data_by_city(self):
-        return {c['city']: c for c in self.table_data if c['place_type'] == 'city'}
+        return {c["city"]: c for c in self.table_data if c["place_type"] == "city"}
 
     @property
     def ready_to_import(self):
-        return all([
-            self.status == StateSpreadsheet.UPLOADED,
-            not self.cancelled,
-            self.peer_review,
-        ])
+        return all([self.status == StateSpreadsheet.UPLOADED, not self.cancelled, self.peer_review,])
 
     def get_data_from_city(self, ibge_code):
         if ibge_code:  # ibge_code = None match for undefined data
             ibge_code = int(ibge_code)
         try:
-            return [d for d in self.table_data if d['city_ibge_code'] == ibge_code][0]
+            return [d for d in self.table_data if d["city_ibge_code"] == ibge_code][0]
         except IndexError:
             return None
 
     def get_total_data(self):
         try:
-            return [d for d in self.table_data if d['place_type'] == 'state'][0]
+            return [d for d in self.table_data if d["place_type"] == "state"][0]
         except IndexError:
             return None
 
     def compare_to_spreadsheet(self, other):
-        match = lambda e1, e2: e1 and e2 and e1['deaths'] == e2['deaths'] and e1['confirmed'] == e2['confirmed']
+        match = lambda e1, e2: e1 and e2 and e1["deaths"] == e2["deaths"] and e1["confirmed"] == e2["confirmed"]
 
         errors = []
         if not self.date == other.date:
@@ -205,13 +197,13 @@ class StateSpreadsheet(models.Model):
             )
 
         for entry in self.table_data:
-            display = entry['city'] or 'Total'
-            if entry['place_type'] == 'state':
+            display = entry["city"] or "Total"
+            if entry["place_type"] == "state":
                 other_entry = other.get_total_data()
             else:
-                other_entry = other.get_data_from_city(entry['city_ibge_code'])
+                other_entry = other.get_data_from_city(entry["city_ibge_code"])
 
-            if entry['city'] not in extra_self_cities and not match(entry, other_entry):
+            if entry["city"] not in extra_self_cities and not match(entry, other_entry):
                 errors.append(f"Número de casos confirmados ou óbitos diferem para {display}.")
 
         return errors

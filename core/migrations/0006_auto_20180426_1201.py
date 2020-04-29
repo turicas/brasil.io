@@ -6,30 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0005_dataset_show'),
+        ("core", "0005_dataset_show"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='field',
-            name='link_template',
-            field=models.URLField(blank=True, max_length=2000, null=True),
+            model_name="field", name="link_template", field=models.URLField(blank=True, max_length=2000, null=True),
+        ),
+        migrations.AddField(model_name="field", name="show_on_frontend", field=models.BooleanField(default=False),),
+        migrations.AddField(
+            model_name="field", name="title", field=models.CharField(default="", max_length=63), preserve_default=False,
         ),
         migrations.AddField(
-            model_name='field',
-            name='show_on_frontend',
-            field=models.BooleanField(default=False),
-        ),
-        migrations.AddField(
-            model_name='field',
-            name='title',
-            field=models.CharField(default='', max_length=63),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name='field',
-            name='order',
-            field=models.PositiveIntegerField(default=0),
-            preserve_default=False,
+            model_name="field", name="order", field=models.PositiveIntegerField(default=0), preserve_default=False,
         ),
     ]

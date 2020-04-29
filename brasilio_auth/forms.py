@@ -7,28 +7,26 @@ from brasilio_auth.models import NewsletterSubscriber
 
 
 class UserCreationForm(DjangoUserCreationForm):
-    username = forms.CharField(
-        widget=forms.TextInput(attrs={'style': 'text-transform: lowercase'}),
-    )
+    username = forms.CharField(widget=forms.TextInput(attrs={"style": "text-transform: lowercase"}),)
     email = forms.EmailField()
     password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
     password2 = forms.CharField(
         label=_("Password confirmation"),
         widget=forms.PasswordInput,
-        help_text=_("Enter the same password as above, for verification.")
+        help_text=_("Enter the same password as above, for verification."),
     )
     subscribe_newsletter = forms.BooleanField(required=False)
 
     class Meta:
         model = get_user_model()
-        fields = ('username', 'email')
+        fields = ("username", "email")
 
     def clean_username(self):
-        username = self.cleaned_data.get('username', '')
+        username = self.cleaned_data.get("username", "")
         return username.lower()
 
     def save(self, *args, **kwargs):
         user = super(UserCreationForm, self).save(*args, **kwargs)
-        if self.cleaned_data.get('subscribe_newsletter'):
+        if self.cleaned_data.get("subscribe_newsletter"):
             NewsletterSubscriber.objects.create(user=user)
         return user

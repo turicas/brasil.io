@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 
 class Covid19Config(AppConfig):
-    name = 'covid19'
+    name = "covid19"
 
     def ready(self):
         try:

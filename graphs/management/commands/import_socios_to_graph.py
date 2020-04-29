@@ -9,7 +9,7 @@ from graphs.connection import get_graph_db_connection
 
 
 class Command(BaseCommand):
-    help = 'Import socios-brasil data to Neo4J DB'
+    help = "Import socios-brasil data to Neo4J DB"
 
     def __init__(self, *args, **kwargs):
         super(BaseCommand, self).__init__(*args, **kwargs)
@@ -20,32 +20,29 @@ class Command(BaseCommand):
 
     @property
     def Documentos(self):
-        if not getattr(self, '_Documentos', None):
-            self._Documentos = Table.objects.for_dataset('documentos-brasil').named('documents').get_model()
+        if not getattr(self, "_Documentos", None):
+            self._Documentos = Table.objects.for_dataset("documentos-brasil").named("documents").get_model()
         return self._Documentos
 
     def create_indexes(self):
         labels_keys = [
-            ('PessoaJuridica', 'cnpj_root'),
-            ('PessoaFisica', 'nome'),
-            ('NomeExterior', 'nome'),
+            ("PessoaJuridica", "cnpj_root"),
+            ("PessoaFisica", "nome"),
+            ("NomeExterior", "nome"),
         ]
         for label, key in labels_keys:
             self.graph_db.schema.create_uniqueness_constraint(label, key)
 
     def get_socios_brasil_model(self):
-        table = Table.objects.for_dataset('socios-brasil').named('socios')
+        table = Table.objects.for_dataset("socios-brasil").named("socios")
         return table.get_model()
 
     def get_emp_name(self, cnpj, default):
         cnpj_prefix = cnpj[:8]
 
         if cnpj_prefix not in self.company_names:
-            headquarter_prefix = cnpj_prefix + '0001'
-            branches = self.Documentos.objects.filter(
-                docroot=cnpj_prefix,
-                document_type='CNPJ',
-            )
+            headquarter_prefix = cnpj_prefix + "0001"
+            branches = self.Documentos.objects.filter(docroot=cnpj_prefix, document_type="CNPJ",)
 
             if branches.exists():
                 try:
@@ -75,16 +72,18 @@ class Command(BaseCommand):
 
         batches = []
         for partnership in pfs:
-            batches.append({
-                "cpf": (partnership.cpf_cnpj_socio or '').upper(),
-                "nome": partnership.nome_socio.upper(),
-                "cnpj_root": partnership.cnpj.upper()[:8],
-                "nome_emp": self.get_emp_name(partnership.cnpj, default=partnership.razao_social),
-                'codigo_qualificacao_socio': partnership.codigo_qualificacao_socio,
-                'qualificacao_socio': partnership.qualificacao_socio,
-            })
+            batches.append(
+                {
+                    "cpf": (partnership.cpf_cnpj_socio or "").upper(),
+                    "nome": partnership.nome_socio.upper(),
+                    "cnpj_root": partnership.cnpj.upper()[:8],
+                    "nome_emp": self.get_emp_name(partnership.cnpj, default=partnership.razao_social),
+                    "codigo_qualificacao_socio": partnership.codigo_qualificacao_socio,
+                    "qualificacao_socio": partnership.qualificacao_socio,
+                }
+            )
 
-        return query, {'batches': batches}
+        return query, {"batches": batches}
 
     def get_pjs_query_and_params(self, pjs):
         query = """
@@ -99,16 +98,18 @@ class Command(BaseCommand):
 
         batches = []
         for partnership in pjs:
-            batches.append({
-                "cnpj_root": partnership.cpf_cnpj_socio.upper()[:8],
-                "nome": self.get_emp_name(partnership.cpf_cnpj_socio, default=partnership.nome_socio),
-                'codigo_qualificacao_socio': partnership.codigo_qualificacao_socio,
-                'qualificacao_socio': partnership.qualificacao_socio,
-                "cnpj_root_emp": partnership.cnpj.upper()[:8],
-                "nome_emp": self.get_emp_name(partnership.cnpj, default=partnership.razao_social),
-            })
+            batches.append(
+                {
+                    "cnpj_root": partnership.cpf_cnpj_socio.upper()[:8],
+                    "nome": self.get_emp_name(partnership.cpf_cnpj_socio, default=partnership.nome_socio),
+                    "codigo_qualificacao_socio": partnership.codigo_qualificacao_socio,
+                    "qualificacao_socio": partnership.qualificacao_socio,
+                    "cnpj_root_emp": partnership.cnpj.upper()[:8],
+                    "nome_emp": self.get_emp_name(partnership.cnpj, default=partnership.razao_social),
+                }
+            )
 
-        return query, {'batches': batches}
+        return query, {"batches": batches}
 
     def get_ext_query_and_params(self, ext):
         query = """
@@ -124,19 +125,21 @@ class Command(BaseCommand):
 
         batches = []
         for partnership in ext:
-            batches.append({
-                "cpf_cnpj": (partnership.cpf_cnpj_socio or '').upper(),
-                "nome": partnership.nome_socio.upper(),
-                'codigo_qualificacao_socio': partnership.codigo_qualificacao_socio,
-                'qualificacao_socio': partnership.qualificacao_socio,
-                "cnpj_root_emp": partnership.cnpj.upper()[:8],
-                "nome_emp": self.get_emp_name(partnership.cnpj, default=partnership.razao_social),
-            })
+            batches.append(
+                {
+                    "cpf_cnpj": (partnership.cpf_cnpj_socio or "").upper(),
+                    "nome": partnership.nome_socio.upper(),
+                    "codigo_qualificacao_socio": partnership.codigo_qualificacao_socio,
+                    "qualificacao_socio": partnership.qualificacao_socio,
+                    "cnpj_root_emp": partnership.cnpj.upper()[:8],
+                    "nome_emp": self.get_emp_name(partnership.cnpj, default=partnership.razao_social),
+                }
+            )
 
-        return query, {'batches': batches}
+        return query, {"batches": batches}
 
     def handle(self, *args, **kwargs):
-        print('Importando os sócios para o Neo4J...\n')
+        print("Importando os sócios para o Neo4J...\n")
         start = time.time()
 
         SociosBrasil = self.get_socios_brasil_model()
@@ -194,7 +197,5 @@ class Command(BaseCommand):
 
         end = time.time()
         duration = int((end - start) / 60)
-        print('  + Finalizado em {} min ({} lotes, {} lote/min)'.format(
-            duration, num_batches, num_batches / duration
-        ))
+        print("  + Finalizado em {} min ({} lotes, {} lote/min)".format(duration, num_batches, num_batches / duration))
         print("Importação realizada com sucesso terminada")

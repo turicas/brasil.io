@@ -8,8 +8,7 @@ from urllib.parse import urlparse
 import django.db.models.indexes as django_indexes
 from django.contrib.postgres.fields import ArrayField, JSONField
 import django.contrib.postgres.indexes as pg_indexes
-from django.contrib.postgres.search import (SearchQuery, SearchVector,
-                                            SearchVectorField)
+from django.contrib.postgres.search import SearchQuery, SearchVector, SearchVectorField
 from django.db import connection, models
 from cachalot.api import invalidate
 
@@ -20,61 +19,59 @@ from core.filters import DynamicModelFilterProcessor
 
 DYNAMIC_MODEL_REGISTRY = {}
 FIELD_TYPES = {
-    'binary': models.BinaryField,
-    'bool': models.BooleanField,
-    'date': models.DateField,
-    'datetime': models.DateTimeField,
-    'decimal': models.DecimalField,
-    'email': models.EmailField,
-    'float': models.FloatField,
-    'integer': models.IntegerField,
-    'json': JSONField,
-    'string': models.CharField,
-    'text': models.TextField,
+    "binary": models.BinaryField,
+    "bool": models.BooleanField,
+    "date": models.DateField,
+    "datetime": models.DateTimeField,
+    "decimal": models.DecimalField,
+    "email": models.EmailField,
+    "float": models.FloatField,
+    "integer": models.IntegerField,
+    "json": JSONField,
+    "string": models.CharField,
+    "text": models.TextField,
 }
+
 
 def model_to_code(Model):
     meta = Model._meta
     extra = Model.extra
     model_name = Model.__name__
-    ordering = extra.get('ordering', [])
-    filtering = extra.get('filtering', [])
-    search = extra.get('search', [])
-    indexes = ',\n                    '.join(
-        f'models.{index.__class__.__name__}(name={repr(index.name)}, fields={repr(index.fields)})'
+    ordering = extra.get("ordering", [])
+    filtering = extra.get("filtering", [])
+    search = extra.get("search", [])
+    indexes = ",\n                    ".join(
+        f"models.{index.__class__.__name__}(name={repr(index.name)}, fields={repr(index.fields)})"
         for index in meta.indexes
     )
     fields_text = []
     for field in meta.fields:
-        if field.name == 'id':
+        if field.name == "id":
             continue
-        field_type = field.__class__.__name__.replace('Field', '').lower()
-        if field_type == 'searchvector':
-            field_class = 'SearchVector'
-        elif field_type == 'jsonfield':
-            field_class = 'JSONField'
+        field_type = field.__class__.__name__.replace("Field", "").lower()
+        if field_type == "searchvector":
+            field_class = "SearchVector"
+        elif field_type == "jsonfield":
+            field_class = "JSONField"
         else:
-            if field_type == 'char':
-                field_type = 'string'
-            field_class = 'models.' + FIELD_TYPES[field_type].__name__
+            if field_type == "char":
+                field_type = "string"
+            field_class = "models." + FIELD_TYPES[field_type].__name__
         kwargs = {
-            'null': field.null,
+            "null": field.null,
         }
-        options = 'max_length max_digits decimal_places'.split()
+        options = "max_length max_digits decimal_places".split()
         for option in options:
             value = getattr(field, option, None)
             if value:
                 kwargs[option] = value
-        field_args = ', '.join(
-            '{}={}'.format(key, repr(value)) for key, value in kwargs.items()
-        )
-        fields_text.append(
-            f'{field.name} = {field_class}({field_args})'
-        )
+        field_args = ", ".join("{}={}".format(key, repr(value)) for key, value in kwargs.items())
+        fields_text.append(f"{field.name} = {field_class}({field_args})")
 
-    fields = '\n            '.join(fields_text)
+    fields = "\n            ".join(fields_text)
     # TODO: missing objects?
-    return dedent(f'''
+    return dedent(
+        f"""
         class {model_name}(models.Model):
 
             {fields}
@@ -84,18 +81,17 @@ def model_to_code(Model):
                     {indexes}
                 ]
                 ordering = {repr(ordering)}
-    ''').strip()
+    """
+    ).strip()
+
 
 def make_index_name(tablename, index_type, fields):
-    idx_hash = hashlib.md5(
-        f'{tablename} {index_type} {", ".join(sorted(fields))}'.encode('ascii')
-    ).hexdigest()
-    tablename = tablename.replace('data_', '').replace('-', '')[:12]
-    return f'idx_{tablename}_{index_type[0]}{idx_hash[-12:]}'
+    idx_hash = hashlib.md5(f'{tablename} {index_type} {", ".join(sorted(fields))}'.encode("ascii")).hexdigest()
+    tablename = tablename.replace("data_", "").replace("-", "")[:12]
+    return f"idx_{tablename}_{index_type[0]}{idx_hash[-12:]}"
 
 
 class DynamicModelMixin:
-
     @classmethod
     def tablename(cls):
         return cls._meta.db_table
@@ -119,19 +115,21 @@ class DynamicModelMixin:
     @classmethod
     def analyse_table(cls):
         with connection.cursor() as cursor:
-            cursor.execute('VACUUM ANALYSE {}'.format(cls.tablename()))
+            cursor.execute("VACUUM ANALYSE {}".format(cls.tablename()))
 
     @classmethod
     def create_triggers(cls):
-        trigger_name = f'tgr_tsv_{cls.tablename()}'
-        fieldnames = ', '.join(cls.extra['search'])
-        query = dedent(f'''
+        trigger_name = f"tgr_tsv_{cls.tablename()}"
+        fieldnames = ", ".join(cls.extra["search"])
+        query = dedent(
+            f"""
             CREATE TRIGGER {trigger_name}
                 BEFORE INSERT OR UPDATE
                 ON {cls.tablename()}
                 FOR EACH ROW EXECUTE PROCEDURE
                 tsvector_update_trigger(search_data, 'pg_catalog.portuguese', {fieldnames})
-        ''').strip()
+        """
+        ).strip()
         # TODO: replace pg_catalog.portuguese with dataset language
         with connection.cursor() as cursor:
             cursor.execute(query)
@@ -142,29 +140,31 @@ class DynamicModelMixin:
             for index in cls._meta.indexes:
                 index_class = type(index)
                 if index_class is django_indexes.Index:
-                    index_type = 'btree'
+                    index_type = "btree"
                 elif index_class is pg_indexes.GinIndex:
-                    index_type = 'gin'
+                    index_type = "gin"
                 else:
-                    raise ValueError('Cannot identify index type of {index}')
+                    raise ValueError("Cannot identify index type of {index}")
 
                 fieldnames = []
                 for fieldname in index.fields:
-                    if fieldname.startswith('-'):
-                        value = f'{fieldname[1:]} DESC'
+                    if fieldname.startswith("-"):
+                        value = f"{fieldname[1:]} DESC"
                     else:
-                        value = f'{fieldname} ASC'
-                    if index_type == 'gin':
-                        value = value.split(' ')[0]
+                        value = f"{fieldname} ASC"
+                    if index_type == "gin":
+                        value = value.split(" ")[0]
                     fieldnames.append(value)
 
-                fieldnames = ',\n                            '.join(fieldnames)
-                query = dedent(f'''
+                fieldnames = ",\n                            ".join(fieldnames)
+                query = dedent(
+                    f"""
                     CREATE INDEX CONCURRENTLY {index.name}
                         ON {cls.tablename()} USING {index_type} (
                             {fieldnames}
                         );
-                ''').strip()
+                """
+                ).strip()
                 cursor.execute(query)
 
     @classmethod
@@ -174,13 +174,12 @@ class DynamicModelMixin:
 
 
 class DynamicModelQuerySet(models.QuerySet):
-
     def search(self, search_query):
         qs = self
-        search_fields = self.model.extra['search']
+        search_fields = self.model.extra["search"]
         if search_query and search_fields:
             words = search_query.split()
-            config = 'pg_catalog.portuguese'  # TODO: get from self.model.extra
+            config = "pg_catalog.portuguese"  # TODO: get from self.model.extra
             query = None
             for word in set(words):
                 if not word:
@@ -193,19 +192,17 @@ class DynamicModelQuerySet(models.QuerySet):
         return qs
 
     def apply_filters(self, filtering):
-        model_filtering = self.model.extra['filtering']
+        model_filtering = self.model.extra["filtering"]
         processor = DynamicModelFilterProcessor(filtering, model_filtering)
         return self.filter(**processor.filters)
 
     def apply_ordering(self, query):
         qs = self
-        model_ordering = self.model.extra['ordering']
-        model_filtering = self.model.extra['filtering']
+        model_ordering = self.model.extra["ordering"]
+        model_filtering = self.model.extra["filtering"]
         allowed_fields = set(model_ordering + model_filtering)
-        clean_allowed = [field.replace('-', '').strip().lower()
-                         for field in allowed_fields]
-        ordering_query = [field for field in query
-                          if field.replace('-', '') in clean_allowed]
+        clean_allowed = [field.replace("-", "").strip().lower() for field in allowed_fields]
+        ordering_query = [field for field in query if field.replace("-", "") in clean_allowed]
         if ordering_query:
             qs = qs.order_by(*ordering_query)
         elif model_ordering:
@@ -216,11 +213,9 @@ class DynamicModelQuerySet(models.QuerySet):
     def filter_by_querystring(self, querystring):
         queryset = self
         query = querystring.copy()
-        order_by = query.pop('order-by', [''])
-        order_by = [field.strip().lower()
-                    for field in order_by[0].split(',')
-                    if field.strip()]
-        search_query = query.pop('search', [''])[0]
+        order_by = query.pop("order-by", [""])
+        order_by = [field.strip().lower() for field in order_by[0].split(",") if field.strip()]
+        search_query = query.pop("search", [""])[0]
         query = {key: value for key, value in query.items() if value}
         if search_query:
             queryset = queryset.search(search_query)
@@ -231,7 +226,7 @@ class DynamicModelQuerySet(models.QuerySet):
         return queryset
 
     def count(self):
-        if getattr(self, '_count', None) is not None:
+        if getattr(self, "_count", None) is not None:
             return self._count
 
         query = self.query
@@ -239,8 +234,7 @@ class DynamicModelQuerySet(models.QuerySet):
             try:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "SELECT reltuples FROM pg_class WHERE relname = %s",
-                        [query.model._meta.db_table],
+                        "SELECT reltuples FROM pg_class WHERE relname = %s", [query.model._meta.db_table],
                     )
                     self._count = int(cursor.fetchone()[0])
             except:
@@ -269,7 +263,7 @@ class Dataset(models.Model):
     def tables(self):
         # By now we're ignoring version - just take the last one
         version = self.get_last_version()
-        return self.table_set.filter(version=version).order_by('name')
+        return self.table_set.filter(version=version).order_by("name")
 
     @property
     def last_version(self):
@@ -282,49 +276,44 @@ class Dataset(models.Model):
         return Table.objects.for_dataset(self).default()
 
     def __str__(self):
-        return ('{} (by {}, source: {})'
-                .format(self.name, self.author_name, self.source_name))
+        return "{} (by {}, source: {})".format(self.name, self.author_name, self.source_name)
 
     def get_model_declaration(self):
-        version = self.version_set.order_by('order').last()
+        version = self.version_set.order_by("order").last()
         table = self.table_set.get(version=version, default=True)
         return table.get_model_declaration()
 
     def get_last_version(self):
-        return self.version_set.order_by('order').last()
+        return self.version_set.order_by("order").last()
 
 
 class Link(models.Model):
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE,
-                                null=False, blank=False)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, null=False, blank=False)
     title = models.CharField(max_length=255, null=False, blank=False)
     url = models.URLField(max_length=2000, null=False, blank=False)
 
     def __str__(self):
         domain = urlparse(self.url).netloc
-        return '{} ({})'.format(self.title, domain)
+        return "{} ({})".format(self.title, domain)
 
 
 class Version(models.Model):
     collected_at = models.DateField(null=False, blank=False)
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE,
-                                null=False, blank=False)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, null=False, blank=False)
     download_url = models.URLField(max_length=2000, null=False, blank=False)
     name = models.CharField(max_length=255, null=False, blank=False)
     order = models.PositiveIntegerField(null=False, blank=False)
 
     def __str__(self):
-        return ('{}.{} (order: {})'
-                .format(self.dataset.slug, self.name, self.order))
+        return "{}.{} (order: {})".format(self.dataset.slug, self.name, self.order)
 
 
 class TableQuerySet(models.QuerySet):
-
     def for_dataset(self, dataset):
         if isinstance(dataset, str):
-            kwargs = {'dataset__slug': dataset}
+            kwargs = {"dataset__slug": dataset}
         else:
-            kwargs = {'dataset': dataset}
+            kwargs = {"dataset": dataset}
         return self.filter(**kwargs)
 
     def default(self):
@@ -337,32 +326,23 @@ class TableQuerySet(models.QuerySet):
 class Table(models.Model):
     objects = TableQuerySet.as_manager()
 
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE,
-                                null=False, blank=False)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, null=False, blank=False)
     default = models.BooleanField(null=False, blank=False)
     name = models.CharField(max_length=255, null=False, blank=False)
     options = JSONField(null=True, blank=True)
-    ordering = ArrayField(models.CharField(max_length=63),
-                          null=False, blank=False)
-    filtering = ArrayField(models.CharField(max_length=63),
-                           null=True, blank=True)
-    search = ArrayField(models.CharField(max_length=63),
-                        null=True, blank=True)
-    version = models.ForeignKey(Version, on_delete=models.CASCADE,
-                                null=False, blank=False)
+    ordering = ArrayField(models.CharField(max_length=63), null=False, blank=False)
+    filtering = ArrayField(models.CharField(max_length=63), null=True, blank=True)
+    search = ArrayField(models.CharField(max_length=63), null=True, blank=True)
+    version = models.ForeignKey(Version, on_delete=models.CASCADE, null=False, blank=False)
     import_date = models.DateTimeField(null=True, blank=True)
     description = MarkdownxField(null=True, blank=True)
 
     def __str__(self):
-        return ('{}.{}.{}'.
-                format(self.dataset.slug, self.version.name, self.name))
+        return "{}.{}.{}".format(self.dataset.slug, self.version.name, self.name)
 
     @property
     def db_table(self):
-        return 'data_{}_{}'.format(
-            self.dataset.slug.replace('-', ''),
-            self.name.replace('_', ''),
-        )
+        return "data_{}_{}".format(self.dataset.slug.replace("-", ""), self.name.replace("_", ""),)
 
     @property
     def fields(self):
@@ -371,22 +351,24 @@ class Table(models.Model):
     @property
     def schema(self):
         db_fields_to_rows_fields = {
-            'binary': rows_fields.BinaryField,
-            'bool': rows_fields.BoolField,
-            'date': rows_fields.DateField,
-            'datetime': rows_fields.DatetimeField,
-            'decimal': rows_fields.DecimalField,
-            'email': rows_fields.EmailField,
-            'float': rows_fields.FloatField,
-            'integer': rows_fields.IntegerField,
-            'json': rows_fields.JSONField,
-            'string': rows_fields.TextField,
-            'text': rows_fields.TextField,
+            "binary": rows_fields.BinaryField,
+            "bool": rows_fields.BoolField,
+            "date": rows_fields.DateField,
+            "datetime": rows_fields.DatetimeField,
+            "decimal": rows_fields.DecimalField,
+            "email": rows_fields.EmailField,
+            "float": rows_fields.FloatField,
+            "integer": rows_fields.IntegerField,
+            "json": rows_fields.JSONField,
+            "string": rows_fields.TextField,
+            "text": rows_fields.TextField,
         }
-        return OrderedDict([
-            (n, db_fields_to_rows_fields.get(t, rows_fields.Field))
-            for n, t in self.fields.values_list('name', 'type')
-        ])
+        return OrderedDict(
+            [
+                (n, db_fields_to_rows_fields.get(t, rows_fields.Field))
+                for n, t in self.fields.values_list("name", "type")
+            ]
+        )
 
     def get_model(self, cache=True):
         if cache and self.id in DYNAMIC_MODEL_REGISTRY:
@@ -396,64 +378,39 @@ class Table(models.Model):
         # in DYNAMIC_MODEL_REGISTRY and not cache)
         # TODO: may use Django's internal registry instead of
         # DYNAMIC_MODEL_REGISTRY
-        name = self.dataset.slug + '-' + self.name.replace('_', '-')
-        model_name = ''.join([word.capitalize() for word in name.split('-')])
-        fields = {field.name: field.field_class
-                  for field in self.fields}
-        fields['search_data'] = SearchVectorField(null=True)
+        name = self.dataset.slug + "-" + self.name.replace("_", "-")
+        model_name = "".join([word.capitalize() for word in name.split("-")])
+        fields = {field.name: field.field_class for field in self.fields}
+        fields["search_data"] = SearchVectorField(null=True)
         ordering = self.ordering or []
         filtering = self.filtering or []
         search = self.search or []
         indexes = []
         # TODO: add has_choices fields also
         if ordering:
-            indexes.append(
-                django_indexes.Index(
-                    name=make_index_name(name, 'order', ordering),
-                    fields=ordering,
-                )
-            )
+            indexes.append(django_indexes.Index(name=make_index_name(name, "order", ordering), fields=ordering,))
         if filtering:
             for field_name in filtering:
                 if ordering == [field_name]:
                     continue
                 indexes.append(
-                    django_indexes.Index(
-                        name=make_index_name(name, 'filter', [field_name]),
-                        fields=[field_name]
-                    )
+                    django_indexes.Index(name=make_index_name(name, "filter", [field_name]), fields=[field_name])
                 )
         if search:
             indexes.append(
-                pg_indexes.GinIndex(
-                    name=make_index_name(name, 'search', ['search_data']),
-                    fields=['search_data']
-                )
+                pg_indexes.GinIndex(name=make_index_name(name, "search", ["search_data"]), fields=["search_data"])
             )
 
-        Options = type(
-            'Meta',
-            (object,),
-            {
-                'ordering': ordering,
-                'indexes': indexes,
-                'db_table': self.db_table,
-            },
-        )
+        Options = type("Meta", (object,), {"ordering": ordering, "indexes": indexes, "db_table": self.db_table,},)
         Model = type(
             model_name,
             (DynamicModelMixin, models.Model,),
-            {
-                '__module__': 'core.models',
-                'Meta': Options,
-                'objects': DynamicModelQuerySet.as_manager(),
-                **fields,
-            },
+            {"__module__": "core.models", "Meta": Options, "objects": DynamicModelQuerySet.as_manager(), **fields,},
         )
         Model.extra = {
-            'filtering': filtering,
-            'ordering': ordering,
-            'search': search,
+            "filtering": filtering,
+            "ordering": ordering,
+            "search": search,
         }
         DYNAMIC_MODEL_REGISTRY[self.id] = Model
         return Model
@@ -467,7 +424,6 @@ class Table(models.Model):
 
 
 class FieldQuerySet(models.QuerySet):
-
     def for_table(self, table):
         return self.filter(table=table)
 
@@ -481,8 +437,7 @@ class Field(models.Model):
     TYPE_CHOICES = [(value, value) for value in FIELD_TYPES.keys()]
 
     choices = JSONField(null=True, blank=True)
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE,
-                                null=False, blank=False)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
     frontend_filter = models.BooleanField(null=False, blank=True, default=False)
     has_choices = models.BooleanField(null=False, blank=True, default=False)
@@ -494,42 +449,35 @@ class Field(models.Model):
     obfuscate = models.BooleanField(null=False, blank=True, default=False)
     show = models.BooleanField(null=False, blank=True, default=True)
     show_on_frontend = models.BooleanField(null=False, blank=True, default=False)
-    table = models.ForeignKey(Table, on_delete=models.CASCADE,
-                              null=False, blank=False)
+    table = models.ForeignKey(Table, on_delete=models.CASCADE, null=False, blank=False)
     title = models.CharField(max_length=63)
-    type = models.CharField(max_length=15, choices=TYPE_CHOICES,
-                            null=False, blank=False)
-    version = models.ForeignKey(Version, on_delete=models.CASCADE,
-                                null=True, blank=True)
+    type = models.CharField(max_length=15, choices=TYPE_CHOICES, null=False, blank=False)
+    version = models.ForeignKey(Version, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
-        ordering = ['order']
+        ordering = ["order"]
 
     def __str__(self):
         options = self.options or {}
-        options_str = ', '.join('{}={}'.format(key, repr(value))
-                                               for key, value in options.items())
-        return '{}.{}({})'.format(self.table.name, self.name, options_str)
+        options_str = ", ".join("{}={}".format(key, repr(value)) for key, value in options.items())
+        return "{}.{}({})".format(self.table.name, self.name, options_str)
 
     @property
     def field_class(self):
         kwargs = self.options or {}
-        kwargs['null'] = self.null
+        kwargs["null"] = self.null
         return FIELD_TYPES[self.type](**kwargs)
 
     def options_text(self):
         if not self.options:
-            return ''
+            return ""
 
-        return ', '.join(['{}={}'.format(key, repr(value))
-                          for key, value in self.options.items()])
+        return ", ".join(["{}={}".format(key, repr(value)) for key, value in self.options.items()])
 
     def update_choices(self):
         Model = self.table.get_model()
-        choices = Model.objects.order_by(self.name)\
-                               .distinct(self.name)\
-                               .values_list(self.name, flat=True)
-        self.choices = {'data': [str(value) for value in choices]}
+        choices = Model.objects.order_by(self.name).distinct(self.name).values_list(self.name, flat=True)
+        self.choices = {"data": [str(value) for value in choices]}
 
 
 @lru_cache(maxsize=128)

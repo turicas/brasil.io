@@ -6,13 +6,9 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0008_auto_20180501_2154'),
+        ("core", "0008_auto_20180501_2154"),
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='field',
-            name='frontend_filter',
-            field=models.BooleanField(default=False),
-        ),
+        migrations.AddField(model_name="field", name="frontend_filter", field=models.BooleanField(default=False),),
     ]

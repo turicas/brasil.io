@@ -37,11 +37,9 @@ def get_state_data_from_db(state):
     reports_as_list = []
     for date, urls in reports.items():
         for url, notes in urls.items():
-            reports_as_list.append({
-                "date": date,
-                "url": url,
-                "notes": "\n".join([n.strip() for n in notes if n.strip()])
-            })
+            reports_as_list.append(
+                {"date": date, "url": url, "notes": "\n".join([n.strip() for n in notes if n.strip()])}
+            )
 
     return {
         "reports": reports_as_list,
@@ -61,11 +59,7 @@ def merge_state_data(state):
     # Update original reports (GS) with new ones (DB), removing GS reports for
     # dates which show up in DB.
     new_reports_dates = set(row["date"] for row in new_reports)
-    original_reports_filtered = [
-        row
-        for row in original_reports
-        if row["date"] not in new_reports_dates
-    ]
+    original_reports_filtered = [row for row in original_reports if row["date"] not in new_reports_dates]
     final_reports = original_reports_filtered + new_reports
 
     # Update original cases (GS) with new ones (DB), overwritting GS cases for
@@ -95,10 +89,7 @@ def merge_state_data(state):
         ordered_cases.append(row_with_sorted_columns(row))
 
     original_data_errors.raise_if_errors()
-    return {
-        "reports": final_reports,
-        "cases": ordered_cases
-    }
+    return {"reports": final_reports, "cases": ordered_cases}
 
 
 def row_with_sorted_columns(row):
@@ -106,14 +97,14 @@ def row_with_sorted_columns(row):
     for key in row.keys():
         if not key.startswith("confirmados"):
             continue
-        label, day, month = key.split('_')
+        label, day, month = key.split("_")
         row_dates.add(f"2020-{int(month):02d}-{int(day):02d}")
 
-    new = {"municipio": row['municipio']}
+    new = {"municipio": row["municipio"]}
     for date_str in sorted(row_dates, reverse=True):
-        year, month, day = date_str.split('-')
-        confirmed = f'confirmados_{day}_{month}'
-        deaths = f'mortes_{day}_{month}'
+        year, month, day = date_str.split("-")
+        confirmed = f"confirmados_{day}_{month}"
+        deaths = f"mortes_{day}_{month}"
         new[confirmed] = row[confirmed]
         new[deaths] = row[deaths]
 
@@ -136,6 +127,7 @@ def create_merged_state_spreadsheet(state):
 if __name__ == "__main__":
     # XXX: Run this on `manage.py shell`:
     from covid19.spreadsheet import create_merged_state_spreadsheet
+
     data = create_merged_state_spreadsheet("AC")
     with open("acre.xlsx", mode="wb") as fobj:
         fobj.write(data.read())
