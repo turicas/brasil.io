@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load l10n %}
+{% load static %}
+{% block title %}Covid19 Status de Importação - Brasil.IO{% endblock %}
+
+{% block head %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
+<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/covid19-status.css' %}"/>
+{% endblock %}
+
+{% block content %}{% localize on %}
+<div id="dashboard-header">
+  <h1> ESPECIAL COVID-19 - Status de Importação </h1>
+  {% include 'covid19-text.html' %}
+  <div class="center">
+    <a class="btn"
+      href="https://blog.brasil.io/2020/03/23/dados-coronavirus-por-municipio-mais-atualizados/">
+      Sobre o projeto
+    </a>
+    <a class="btn" href="{% url 'core:dataset-detail' 'covid19' %}">
+      Dados completos
+    </a>
+    <a class="btn" href="https://github.com/turicas/covid19-br/tree/master/api.md">
+      Documentação da API
+    </a>
+    <a class="btn" href="https://github.com/turicas/covid19-br/tree/master/clipping.md">
+      Quem está usando
+    </a>
+    <a class="btn" href="{% url 'core:donate' %}">Apoie o projeto</a>
+  </div>
+</div>
+
+<div id="table_container" class="row">
+
+  <div id="table-col" class="col xl12 l12 m12 s12">
+    <table class="table mdl-data-table">
+      <thead>
+        <tr>
+          <th> UF </th>
+          <th> Data mais Recente </th>
+          <th> Status </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for row in import_data %}
+        <tr>
+          <td> {{ row.uf }} </td>
+          <td> {{ row.report_date }} </td>
+          <td> {{ row.status }} </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <p style="clear: both"></p>
+</div>
+{% endlocalize %}
+{% endblock %}
