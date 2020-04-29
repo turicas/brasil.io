@@ -45,7 +45,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -240,8 +239,13 @@ ROCKETCHAT_AUTH_TOKEN = env("ROCKETCHAT_AUTH_TOKEN")
 
 # Sentry config
 import sentry_sdk
-from sentry_sdk.integrations.django import \
-    DjangoIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.rq import RqIntegration
+
 
 SENTRY_DSN = env("SENTRY_DSN")
-sentry_sdk.init(SENTRY_DSN, integrations=[DjangoIntegration()])
+sentry_sdk.init(
+    SENTRY_DSN,
+    integrations=[DjangoIntegration(), RqIntegration()],
+    send_default_pii=True,
+)
