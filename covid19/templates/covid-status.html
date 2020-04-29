@@ -35,7 +35,7 @@
 <div id="table_container" class="row">
 
   <div id="table-col" class="col xl12 l12 m12 s12">
-    <table class="table mdl-data-table">
+    <table class="table" id="status-data-table">
       <thead>
         <tr>
           <th> UF </th>
@@ -47,9 +47,9 @@
       <tbody>
         {% for row in import_data %}
         <tr>
-          <td> {{ row.uf }} </td>
-          <td> {{ row.report_date }} </td>
-          <td> {{ row.status }} </td>
+          <td data-order="{{ row.uf }}"> {{ row.uf }} </td>
+          <td data-order="{% localize off %}{{ row.report_date_str }}{% endlocalize %}"> {{ row.report_date }} </td>
+          <td data-order="{{ row.status}}"> {{ row.status }} </td>
         </tr>
         {% endfor %}
       </tbody>
@@ -59,4 +59,21 @@
   <p style="clear: both"></p>
 </div>
 {% endlocalize %}
+{% endblock %}
+
+{% block script %}
+{{ block.super }}
+<script type="text/javascript">
+
+jQuery(document).ready(function() {
+  jQuery('#status-data-table').DataTable({
+    "paging":         false,
+    "searching":      false,
+    "bInfo":          false,
+    "order": [1, "desc"],
+  });
+});
+
+</script>
+
 {% endblock %}

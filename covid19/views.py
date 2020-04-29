@@ -220,6 +220,7 @@ def status(request):
             'state': state.name,
             'status': '',
             'report_date': None,
+            'report_date_str': '',
             'spreadsheet': None,
         }
 
@@ -228,6 +229,7 @@ def status(request):
             table_entry['spreadsheet'] = most_recet
             table_entry['status'] = most_recet.get_status_display()
             table_entry['report_date'] = most_recet.date
+            table_entry['report_date_str'] = str(most_recet.date)
 
         data.append(table_entry)
 
