@@ -47,7 +47,7 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
 
 
 class UserAdmin(BaseUserAdmin):
-    list_filter = ('groups', 'is_staff', 'is_superuser', 'is_active')
+    list_filter = ("groups", "is_staff", "is_superuser", "is_active")
 
 
 admin.site.unregister(User)
