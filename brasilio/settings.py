@@ -244,4 +244,8 @@ from sentry_sdk.integrations.rq import RqIntegration
 
 
 SENTRY_DSN = env("SENTRY_DSN")
-sentry_sdk.init(SENTRY_DSN, integrations=[DjangoIntegration(), RqIntegration()])
+sentry_sdk.init(
+    SENTRY_DSN,
+    integrations=[DjangoIntegration(), RqIntegration()],
+    send_default_pii=True,
+)
