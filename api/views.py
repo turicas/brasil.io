@@ -1,11 +1,10 @@
 from collections import Sequence
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers, viewsets
+from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 
-from core.models import Dataset, Table, Link
+from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
 from api.serializers import DatasetDetailSerializer, DatasetSerializer, GenericSerializer
 

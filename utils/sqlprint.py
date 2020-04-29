@@ -16,7 +16,9 @@ def terminal_width():
 
     width = 0
     try:
-        import struct, fcntl, termios
+        import fcntl
+        import struct
+        import termios
 
         s = struct.pack("HHHH", 0, 0, 0, 0)
         x = fcntl.ioctl(1, termios.TIOCGWINSZ, s)

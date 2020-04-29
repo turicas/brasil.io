@@ -3,6 +3,10 @@ import environ
 from urllib.parse import urlparse
 from django.urls import reverse_lazy
 
+# Sentry config
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
 
 root = environ.Path(__file__) - 2
 env = environ.Env(DEBUG=(bool, False))
@@ -227,10 +231,6 @@ COVID_IMPORT_PERMISSION_PREFIX = "can_import_covid_state_"
 ROCKETCHAT_BASE_URL = env("ROCKETCHAT_BASE_URL")
 ROCKETCHAT_USER_ID = env("ROCKETCHAT_USER_ID")
 ROCKETCHAT_AUTH_TOKEN = env("ROCKETCHAT_AUTH_TOKEN")
-
-# Sentry config
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
 
 SENTRY_DSN = env("SENTRY_DSN")
 sentry_sdk.init(SENTRY_DSN, integrations=[DjangoIntegration()])

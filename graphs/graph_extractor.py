@@ -2,6 +2,7 @@ import networkx as nx
 from py2neo.database.selection import NodeSelector
 
 from graphs.connection import get_graph_db_connection
+from graphs.exceptions import NodeDoesNotExistException
 
 
 def selector():

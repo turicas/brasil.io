@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 import django.db.models.indexes as django_indexes
 from django.contrib.postgres.fields import ArrayField, JSONField
 import django.contrib.postgres.indexes as pg_indexes
-from django.contrib.postgres.search import SearchQuery, SearchVector, SearchVectorField
+from django.contrib.postgres.search import SearchQuery, SearchVectorField
 from django.db import connection, models
 from cachalot.api import invalidate
 

@@ -1,16 +1,10 @@
-import datetime
-import json
-from collections import defaultdict
 from unicodedata import normalize
 
-from cached_property import cached_property
 from cryptography.fernet import Fernet, InvalidToken
 from django.conf import settings
-from django.contrib.postgres.search import SearchQuery
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils.text import slugify
 
 from core.forms import TracePathForm, CompanyGroupsForm
 from core.models import get_table, get_table_model

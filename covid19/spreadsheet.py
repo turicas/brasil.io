@@ -126,7 +126,7 @@ def create_merged_state_spreadsheet(state):
 
 if __name__ == "__main__":
     # XXX: Run this on `manage.py shell`:
-    from covid19.spreadsheet import create_merged_state_spreadsheet
+    from covid19.spreadsheet import create_merged_state_spreadsheet  # noqa
 
     data = create_merged_state_spreadsheet("AC")
     with open("acre.xlsx", mode="wb") as fobj:
