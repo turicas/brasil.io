@@ -246,7 +246,7 @@ class StateSpreadsheetTests(TestCase):
 
     def test_raise_exception_if_single_spreadsheet(self):
         sp1 = baker.make(StateSpreadsheet, date=date.today(), state="RJ")
-        sp2 = baker.make(StateSpreadsheet, date=date.today(), state="PR")
+        baker.make(StateSpreadsheet, date=date.today(), state="PR")
 
         with pytest.raises(OnlyOneSpreadsheetException):
             sp1.link_to_matching_spreadsheet_peer()

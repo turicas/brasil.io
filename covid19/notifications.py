@@ -55,7 +55,6 @@ def notify_spreadsheet_mismatch(spreadsheet, errors):
 
 def notify_import_success(spreadsheet):
     chat = get_chat()
-    state_info = import_info_by_state(spreadsheet.state)
     channel = "#covid19"
     authors = " e ".join([spreadsheet.user.username, spreadsheet.peer_review.user.username,])
 

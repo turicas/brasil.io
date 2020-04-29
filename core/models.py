@@ -38,8 +38,6 @@ def model_to_code(Model):
     extra = Model.extra
     model_name = Model.__name__
     ordering = extra.get("ordering", [])
-    filtering = extra.get("filtering", [])
-    search = extra.get("search", [])
     indexes = ",\n                    ".join(
         f"models.{index.__class__.__name__}(name={repr(index.name)}, fields={repr(index.fields)})"
         for index in meta.indexes

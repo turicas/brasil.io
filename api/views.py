@@ -58,7 +58,7 @@ class DatasetDataListView(ListAPIView):
         return GenericSerializer
 
     def get_serializer(self, *args, **kwargs):
-        Model = self.get_model_class()  # TODO: avoid to call it twice
+        self.get_model_class()  # TODO: avoid to call it twice
         obfuscate_fields = [field.name for field in self.get_table().fields if field.obfuscate and field.show]
         if obfuscate_fields:
             objects = args[0]
