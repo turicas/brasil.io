@@ -39,7 +39,7 @@ def contact(request):
         if form.is_valid():
             data = form.cleaned_data
             email = EmailMessage(
-                subject="Contato no Brasil.IO",
+                subject=f"Contato no Brasil.IO: {data['name']}",
                 body=data["message"],
                 from_email=f'{data["name"]} (via Brasil.IO) <{settings.DEFAULT_FROM_EMAIL}>',
                 to=[settings.DEFAULT_FROM_EMAIL],

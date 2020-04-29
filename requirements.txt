@@ -37,6 +37,5 @@ sendgrid-django
 sentry-sdk==0.14.3
 six>=1.13
 tqdm
-whitenoise
 xlrd
 xlwt
