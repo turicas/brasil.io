@@ -102,7 +102,7 @@ class DynamicModelMixin:
         try:
             with connection.schema_editor() as schema_editor:
                 schema_editor.create_model(cls)
-        except:
+        except Exception:
             raise
         finally:
             # TODO: check if this approach really works - it looks like Django
@@ -235,7 +235,7 @@ class DynamicModelQuerySet(models.QuerySet):
                         "SELECT reltuples FROM pg_class WHERE relname = %s", [query.model._meta.db_table],
                     )
                     self._count = int(cursor.fetchone()[0])
-            except:
+            except Exception:
                 self._count = super().count()
         else:
             self._count = super().count()
