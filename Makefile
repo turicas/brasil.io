@@ -6,3 +6,6 @@ run_rqworker:
 
 run:
 	make -j2 run_django run_rqworker
+
+black:
+	black . --exclude "docker" -l 120
