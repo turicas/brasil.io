@@ -233,7 +233,5 @@ ROCKETCHAT_AUTH_TOKEN = env("ROCKETCHAT_AUTH_TOKEN")
 # Sentry config
 SENTRY_DSN = env("SENTRY_DSN")
 sentry_sdk.init(
-    SENTRY_DSN,
-    integrations=[DjangoIntegration(), RqIntegration()],
-    send_default_pii=True,
+    SENTRY_DSN, integrations=[DjangoIntegration(), RqIntegration()], send_default_pii=True,
 )
