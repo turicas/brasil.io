@@ -64,9 +64,6 @@ def notify_import_success(spreadsheet):
     ])
 
     msg = f"@turicas planilha de *{spreadsheet.state}* para o dia *{spreadsheet.date}* checada (dados enviados por {authors}), pode rodar o deploy!"
-    if spreadsheet.warnings:
-        msg += f"\nLista de *warnings*:\n- " + '\n- '.join(spreadsheet.warnings)
-    else:
-        msg += '\nPlanilha sem warnings'
+    msg += f"\nLink para a planilha: https://brasil.io{spreadsheet.admin_url}"
 
     chat.send_message(channel, msg)
