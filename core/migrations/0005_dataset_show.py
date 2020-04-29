@@ -6,13 +6,9 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0004_dataset_icon'),
+        ("core", "0004_dataset_icon"),
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='dataset',
-            name='show',
-            field=models.BooleanField(default=False),
-        ),
+        migrations.AddField(model_name="dataset", name="show", field=models.BooleanField(default=False),),
     ]

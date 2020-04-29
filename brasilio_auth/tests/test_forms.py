@@ -9,9 +9,8 @@ from brasilio_auth.models import NewsletterSubscriber
 
 
 class UserCreationFormTests(TestCase):
-
     def test_required_fields(self):
-        required_fields = ['username', 'email', 'password1', 'password2']
+        required_fields = ["username", "email", "password1", "password2"]
 
         form = UserCreationForm({})
         assert form.is_valid() is False
@@ -22,30 +21,30 @@ class UserCreationFormTests(TestCase):
         assert issubclass(UserCreationForm, DjangoUserCreationForm)
 
     def test_create_user(self):
-        passwd = 'verygoodpassword'
+        passwd = "verygoodpassword"
         data = {
-            'username': 'foo',
-            'email': 'foo@bar.com',
-            'password1': passwd,
-            'password2': passwd,
+            "username": "foo",
+            "email": "foo@bar.com",
+            "password1": passwd,
+            "password2": passwd,
         }
 
         form = UserCreationForm(data)
         assert form.is_valid() is True
         user = form.save()
 
-        assert data['username'] == user.username
-        assert data['email'] == user.email
+        assert data["username"] == user.username
+        assert data["email"] == user.email
         assert user.check_password(passwd) is True
         assert not NewsletterSubscriber.objects.filter(user=user).exists()
 
     def test_subscribe_to_newsleter(self):
         data = {
-            'username': 'foo',
-            'email': 'foo@bar.com',
-            'password1': '123123asd',
-            'password2': '123123asd',
-            'subscribe_newsletter': True,
+            "username": "foo",
+            "email": "foo@bar.com",
+            "password1": "123123asd",
+            "password2": "123123asd",
+            "subscribe_newsletter": True,
         }
 
         form = UserCreationForm(data)
@@ -55,12 +54,12 @@ class UserCreationFormTests(TestCase):
         assert NewsletterSubscriber.objects.filter(user=user).exists()
 
     def test_force_lower_for_username(self):
-        passwd = 'verygoodpassword'
+        passwd = "verygoodpassword"
         data = {
-            'username': 'FOO',
-            'email': 'foo@bar.com',
-            'password1': passwd,
-            'password2': passwd,
+            "username": "FOO",
+            "email": "foo@bar.com",
+            "password1": passwd,
+            "password2": passwd,
         }
 
         form = UserCreationForm(data)
@@ -68,35 +67,35 @@ class UserCreationFormTests(TestCase):
         user = form.save()
         user.refresh_from_db()
 
-        assert 'foo' == user.username
+        assert "foo" == user.username
 
     def test_respect_abstract_user_max_length_for_username(self):
-        passwd = 'verygoodpassword'
+        passwd = "verygoodpassword"
         data = {
-            'username': 'a' * 150,
-            'email': 'foo@bar.com',
-            'password1': passwd,
-            'password2': passwd,
+            "username": "a" * 150,
+            "email": "foo@bar.com",
+            "password1": passwd,
+            "password2": passwd,
         }
 
         form = UserCreationForm(data)
         assert form.is_valid()
 
-        data['username'] = 'a' * 151
+        data["username"] = "a" * 151
         form = UserCreationForm(data)
         assert not form.is_valid()
-        assert 'username' in form.errors
+        assert "username" in form.errors
 
     def test_invalid_username_if_already_exists(self):
-        baker.make(settings.AUTH_USER_MODEL, username='foo')
-        passwd = 'verygoodpassword'
+        baker.make(settings.AUTH_USER_MODEL, username="foo")
+        passwd = "verygoodpassword"
         data = {
-            'username': 'foo',
-            'email': 'foo@bar.com',
-            'password1': passwd,
-            'password2': passwd,
+            "username": "foo",
+            "email": "foo@bar.com",
+            "password1": passwd,
+            "password2": passwd,
         }
 
         form = UserCreationForm(data)
         assert form.is_valid() is False
-        assert 'username' in form.errors
+        assert "username" in form.errors

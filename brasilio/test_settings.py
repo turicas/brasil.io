@@ -1,5 +1,5 @@
-from .settings import *
+from .settings import *  # noqa
 
 
-for queue in RQ_QUEUES.values():
-    queue['ASYNC'] = False
+for queue in RQ_QUEUES.values():  # noqa
+    queue["ASYNC"] = False

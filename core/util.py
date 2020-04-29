@@ -17,19 +17,14 @@ def create_object(Model, data):
     )
 
     for field in Model._meta.fields:
-        if (
-            isinstance(field, special_fields)
-            and not (data.get(field.name) or "").strip()
-        ):
+        if isinstance(field, special_fields) and not (data.get(field.name) or "").strip():
             data[field.name] = None
 
     return Model(**data)
 
 
 def get_company_by_document(document):
-    Documents = (
-        Table.objects.for_dataset("documentos-brasil").named("documents").get_model()
-    )
+    Documents = Table.objects.for_dataset("documentos-brasil").named("documents").get_model()
     doc_prefix = document[:8]
     headquarter_prefix = doc_prefix + "0001"
     branches = Documents.objects.filter(docroot=doc_prefix, document_type="CNPJ")

@@ -6,18 +6,16 @@ from django.db import migrations
 
 
 def create_covid19_state_groups(apps, schema_editor):
-    Group = apps.get_model('auth', 'Group')
-    Permission = apps.get_model('auth', 'Permission')
+    Group = apps.get_model("auth", "Group")
+    Permission = apps.get_model("auth", "Permission")
 
-    perm_codes = ['add_statespreadsheet', 'view_statespreadsheet']
+    perm_codes = ["add_statespreadsheet", "view_statespreadsheet"]
     group_permissions = Permission.objects.filter(codename__in=perm_codes)
 
     for uf, name in STATE_CHOICES:
-        state_perm = Permission.objects.get(
-            codename=settings.COVID_IMPORT_PERMISSION_PREFIX + uf
-        )
+        state_perm = Permission.objects.get(codename=settings.COVID_IMPORT_PERMISSION_PREFIX + uf)
 
-        name = f'Covid-19 Import State: {name}'
+        name = f"Covid-19 Import State: {name}"
         group = Group.objects.create(name=name)
 
         group.permissions.add(*group_permissions)
@@ -25,19 +23,14 @@ def create_covid19_state_groups(apps, schema_editor):
 
 
 def delete_covid19_state_groups(apps, schema_editor):
-    Group = apps.get_model('auth', 'Group')
-    Group.objects.filter(name__startswith='Covid-19 Import State').delete()
+    Group = apps.get_model("auth", "Group")
+    Group.objects.filter(name__startswith="Covid-19 Import State").delete()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('covid19', '0003_auto_20200410_1939'),
+        ("covid19", "0003_auto_20200410_1939"),
     ]
 
-    operations = [
-        migrations.RunPython(
-            create_covid19_state_groups,
-            delete_covid19_state_groups,
-        )
-    ]
+    operations = [migrations.RunPython(create_covid19_state_groups, delete_covid19_state_groups,)]

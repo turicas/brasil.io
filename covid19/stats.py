@@ -16,14 +16,10 @@ def max_values(data):
         "death_rate_percent",
         "deaths_per_100k_inhabitants",
     )
-    return {
-        key: max(row[key] for row in data)
-        for key in desired_keys
-    }
+    return {key: max(row[key] for row in data) for key in desired_keys}
 
 
 class Covid19Stats:
-
     @cached_property
     def Boletim(self):
         return get_table_model("covid19", "boletim")
@@ -63,10 +59,7 @@ class Covid19Stats:
 
     @property
     def number_of_cities(self):
-        return sum(
-            len(cities)
-            for cities in brazilian_cities_per_state().values()
-        )
+        return sum(len(cities) for cities in brazilian_cities_per_state().values())
 
     def number_of_cities_for_state(self, state):
         return len(brazilian_cities_per_state()[state])
@@ -166,13 +159,11 @@ class Covid19Stats:
             max_confirmed_per_100k_inhabitants=Max("confirmed_per_100k_inhabitants"),
             max_death_rate=Max("death_rate"),
             max_deaths=Max("deaths"),
-            total_population=Sum("estimated_population_2019")
+            total_population=Sum("estimated_population_2019"),
         )
 
     def city_totals_for_state(self, state):
-        return self.city_cases.filter(state=state).aggregate(
-            total_population=Sum("estimated_population_2019")
-        )
+        return self.city_cases.filter(state=state).aggregate(total_population=Sum("estimated_population_2019"))
 
     @property
     def affected_population(self):
@@ -186,19 +177,11 @@ class Covid19Stats:
         # XXX: what should we do about "Importados/Indefinidos"?
         city_cases = self.city_cases.filter(city_ibge_code__isnull=False)
         serializer = CityCaseSerializer(instance=city_cases, many=True)
-        cities = [
-            row
-            for row in serializer.data
-            if (row["confirmed"], row["deaths"]) != (0, 0)
-        ]
+        cities = [row for row in serializer.data if (row["confirmed"], row["deaths"]) != (0, 0)]
         return cities
 
     def city_data_for_state(self, state):
-        return [
-            row
-            for row in self.city_data
-            if row["state"] == state
-        ]
+        return [row for row in self.city_data if row["state"] == state]
 
     def most_recent_city_entries_for_state(self, state, date):
         return self._get_latest_cases(state, date, "city")
@@ -207,11 +190,7 @@ class Covid19Stats:
         return self._get_latest_cases(state, date, "state")
 
     def _get_latest_cases(self, state, date, place_type):
-        cases = self.Caso.objects.filter(
-            state=state,
-            date__lt=date,
-            place_type=place_type,
-        ).iterator()
+        cases = self.Caso.objects.filter(state=state, date__lt=date, place_type=place_type,).iterator()
 
         place_key_func = lambda row: (row.place_type, row.state, row.city)  # noqa
         order_func = lambda row: row.order_for_place  # noqa
