@@ -3,6 +3,7 @@
 
 import os
 
+
 from django.conf import settings
 from django.db import connection
 
@@ -52,7 +53,7 @@ class SqlPrintingMiddleware:
                 total_time = total_time + float(query["time"])
                 while len(sql) > width - indentation:
                     print("{}{}".format(" " * indentation, sql[: width - indentation]))
-                    sql = sql[width - indentation :]
+                    sql = sql[width - indentation :]  # noqa
                 print("{}{}\n".format(" " * indentation, sql))
             replace_tuple = (" " * indentation, str(total_time))
             print("{}\033[1;32m[TOTAL TIME: {} seconds]\033[0m".format(*replace_tuple))

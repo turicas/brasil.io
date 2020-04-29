@@ -179,8 +179,8 @@ class StateSpreadsheetTests(TestCase):
         sp1.table_data = self.table_data
         expected = [
             "Número de casos confirmados ou óbitos diferem para Total.",
-            f"Importados/Indefinidos está na planilha (por {sp1.user.username}) mas não na outra usada para a comparação (por {sp2.user.username}).",
-            f"Curitiba está na planilha (por {sp1.user.username}) mas não na outra usada para a comparação (por {sp2.user.username}).",
+            f"Importados/Indefinidos está na planilha (por {sp1.user.username}) mas não na outra usada para a comparação (por {sp2.user.username}).",  # noqa
+            f"Curitiba está na planilha (por {sp1.user.username}) mas não na outra usada para a comparação (por {sp2.user.username}).",  # noqa
         ]
 
         assert sorted(expected) == sorted(sp1.compare_to_spreadsheet(sp2))
@@ -191,7 +191,7 @@ class StateSpreadsheetTests(TestCase):
         sp1.table_data = self.table_data[:-1]
         sp2.table_data = self.table_data
         expected = [
-            f"Curitiba está na planilha usada para a comparação (por {sp2.user.username}) mas não na importada (por {sp1.user.username}).",
+            f"Curitiba está na planilha usada para a comparação (por {sp2.user.username}) mas não na importada (por {sp1.user.username}).",  # noqa
         ]
 
         assert sorted(expected) == sorted(sp1.compare_to_spreadsheet(sp2))

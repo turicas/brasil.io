@@ -67,7 +67,7 @@ class Command(BaseCommand):
             ON CREATE SET p.cpf=r.cpf
             ON MATCH SET p.cpf=r.cpf
             CREATE (p)-[:TEM_SOCIEDADE { codigo_tipo_socio: r.codigo_qualificacao_socio, qualificacao_socio: r.qualificacao_socio }]->(c)
-        """
+        """  # noqa
 
         batches = []
         for partnership in pfs:
@@ -93,7 +93,7 @@ class Command(BaseCommand):
             MERGE (p:PessoaJuridica { cnpj_root: r.cnpj_root })
             ON CREATE SET p.nome=r.nome
             CREATE (p)-[:TEM_SOCIEDADE { codigo_tipo_socio: r.codigo_qualificacao_socio, qualificacao_socio: r.qualificacao_socio }]->(c)
-        """
+        """  # noqa
 
         batches = []
         for partnership in pjs:
@@ -120,7 +120,7 @@ class Command(BaseCommand):
             ON CREATE SET p.cpf_cnpj=r.cpf_cnpj
             ON MATCH SET p.cpf_cnpj=r.cpf_cnpj
             CREATE (p)-[:TEM_SOCIEDADE { codigo_tipo_socio: r.codigo_qualificacao_socio, qualificacao_socio: r.qualificacao_socio }]->(c)
-        """
+        """  # noqa
 
         batches = []
         for partnership in ext:

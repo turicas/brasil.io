@@ -119,7 +119,7 @@ def make_aggregate(
         {
             "decimal_places": 0,
             "title": "Municípios c/ óbitos",
-            "tooltip": "Total de municípios com óbitos confirmados (o percentual é em relação ao total de municípios com casos confirmados)",
+            "tooltip": "Total de municípios com óbitos confirmados (o percentual é em relação ao total de municípios com casos confirmados)",  # noqa
             "value": cities_with_deaths,
             "value_percent": 100 * (cities_with_deaths / affected_cities),
         },

@@ -169,7 +169,7 @@ class StateSpreadsheet(models.Model):
             return None
 
     def compare_to_spreadsheet(self, other):
-        match = lambda e1, e2: e1 and e2 and e1["deaths"] == e2["deaths"] and e1["confirmed"] == e2["confirmed"]
+        match = lambda e1, e2: e1 and e2 and e1["deaths"] == e2["deaths"] and e1["confirmed"] == e2["confirmed"]  # noqa
 
         errors = []
         if not self.date == other.date:
@@ -188,12 +188,12 @@ class StateSpreadsheet(models.Model):
         extra_self_cities = self_cities - other_cities
         for extra_self in extra_self_cities:
             errors.append(
-                f"{extra_self} está na planilha (por {user}) mas não na outra usada para a comparação (por {other_user})."
+                f"{extra_self} está na planilha (por {user}) mas não na outra usada para a comparação (por {other_user})."  # noqa
             )
         extra_other_cities = other_cities - self_cities
         for extra_other in extra_other_cities:
             errors.append(
-                f"{extra_other} está na planilha usada para a comparação (por {other_user}) mas não na importada (por {user}).",
+                f"{extra_other} está na planilha usada para a comparação (por {other_user}) mas não na importada (por {user}).",  # noqa
             )
 
         for entry in self.table_data:

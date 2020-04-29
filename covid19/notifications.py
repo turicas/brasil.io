@@ -47,7 +47,7 @@ def notify_spreadsheet_mismatch(spreadsheet, errors):
     collabs = " ".join(collabs)
 
     errors = "\n- ".join(errors)
-    msg = f"{collabs} - *Dados divergentes* na planilha importada para o estado *{spreadsheet.state}* para o dia *{spreadsheet.date}*"
+    msg = f"{collabs} - *Dados divergentes* na planilha importada para o estado *{spreadsheet.state}* para o dia *{spreadsheet.date}*"  # noqa
     msg += f"\nRealizada por: *{spreadsheet.user.username}*\n\n- {errors}"
 
     chat.send_message(channel, msg)
@@ -58,7 +58,7 @@ def notify_import_success(spreadsheet):
     channel = "#covid19"
     authors = " e ".join([spreadsheet.user.username, spreadsheet.peer_review.user.username,])
 
-    msg = f"@turicas planilha de *{spreadsheet.state}* para o dia *{spreadsheet.date}* checada (dados enviados por {authors}), pode rodar o deploy!"
+    msg = f"@turicas planilha de *{spreadsheet.state}* para o dia *{spreadsheet.date}* checada (dados enviados por {authors}), pode rodar o deploy!"  # noqa
     if spreadsheet.warnings:
         msg += f"\nLista de *warnings*:\n- " + "\n- ".join(spreadsheet.warnings)
     else:

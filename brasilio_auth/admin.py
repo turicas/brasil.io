@@ -30,8 +30,8 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
         def view(request):
             rows = subscribers_as_csv_rows()
 
-            ### we can refactor this later
-            ### copied from core/views.py
+            # we can refactor this later
+            # copied from core/views.py
             pseudo_buffer = Echo()
             writer = csv.writer(pseudo_buffer, dialect=csv.excel)
             response = StreamingHttpResponse(
