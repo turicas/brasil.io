@@ -48,8 +48,8 @@
         {% for row in import_data %}
         <tr>
           <td data-order="{{ row.uf }}"> {{ row.uf }} </td>
-          <td data-order="{% localize off %}{{ row.report_date_str }}{% endlocalize %}"> {{ row.report_date }} </td>
-          <td data-order="{{ row.status}}"> {{ row.status }} </td>
+          <td data-order="{% localize off %}{{ row.report_date_str }}{% endlocalize %}"> {{ row.report_date|default:'------' }} </td>
+          <td data-order="{{ row.status}}"> {{ row.status|default:'------' }} </td>
         </tr>
         {% endfor %}
       </tbody>
