@@ -1,0 +1,25 @@
+exclude: 'docs|node_modules|.git|.tox'
+default_stages: [commit]
+fail_fast: true
+
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: master
+    hooks:
+      - id: trailing-whitespace
+        files: (^|/).+\.(py|html|sh|css|js)$
+
+-   repo: local
+    hooks:
+      - id: flake8
+        name: flake8
+        entry: flake8
+        language: python
+        types: [python]
+        args: ['--config=setup.cfg']
+      - id: black
+        name: black
+        entry: black .
+        language: python
+        types: [python]
+        args: ['--check', '-l', '120', '--exclude', 'docker']

@@ -27,9 +27,7 @@ class RocketChat:
 
     def login(self, username, password):
         self.username = username
-        response = requests.post(
-            self.make_url("login"), data={"user": username, "password": password}
-        )
+        response = requests.post(self.make_url("login"), data={"user": username, "password": password})
         data = response.json()
         assert data["status"] == "success"
         self.user_id = data["data"]["userId"]
@@ -56,7 +54,5 @@ class RocketChat:
 
     def send_message(self, channel, message):
         return self.make_request(
-            "POST",
-            self.make_url("chat.postMessage"),
-            json={"channel": channel, "text": message,},
+            "POST", self.make_url("chat.postMessage"), json={"channel": channel, "text": message,},
         )

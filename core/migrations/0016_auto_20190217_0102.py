@@ -6,13 +6,11 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0015_auto_20190217_0101'),
+        ("core", "0015_auto_20190217_0101"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='field',
-            name='link_template',
-            field=models.TextField(blank=True, max_length=2000, null=True),
+            model_name="field", name="link_template", field=models.TextField(blank=True, max_length=2000, null=True),
         ),
     ]

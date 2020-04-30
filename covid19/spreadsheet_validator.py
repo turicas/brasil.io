@@ -7,8 +7,8 @@ from covid19.models import StateSpreadsheet
 from covid19.stats import Covid19Stats
 
 
-TOTAL_LINE_DISPLAY = 'TOTAL NO ESTADO'
-UNDEFINED_DISPLAY = 'Importados/Indefinidos'
+TOTAL_LINE_DISPLAY = "TOTAL NO ESTADO"
+UNDEFINED_DISPLAY = "Importados/Indefinidos"
 INVALID_CITY_CODE = -1
 
 
@@ -25,17 +25,15 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
     field_names = rows_table.field_names
 
     try:
-        confirmed_attr = _get_column_name(
-            field_names, ['confirmados', 'confirmado', 'casos_confirmados']
-        )
+        confirmed_attr = _get_column_name(field_names, ["confirmados", "confirmado", "casos_confirmados"])
     except ValueError as e:
         validation_errors.new_error(str(e))
     try:
-        deaths_attr = _get_column_name(field_names, ['obitos', 'obito', 'morte', 'mortes'])
+        deaths_attr = _get_column_name(field_names, ["obitos", "obito", "morte", "mortes"])
     except ValueError as e:
         validation_errors.new_error(str(e))
     try:
-        city_attr = _get_column_name(field_names, ['municipio', 'cidade'])
+        city_attr = _get_column_name(field_names, ["municipio", "cidade"])
     except ValueError as e:
         validation_errors.new_error(str(e))
 
@@ -60,25 +58,21 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
             has_undefined = True
 
         if (confirmed is None and deaths is not None) or (deaths is None and confirmed is not None):
-            validation_errors.new_error(f'Dados de casos ou óbitos incompletos na linha {city}')
+            validation_errors.new_error(f"Dados de casos ou óbitos incompletos na linha {city}")
         if confirmed is None or deaths is None:
             continue
 
         if deaths > confirmed:
-            validation_errors.new_error(
-                f'Valor de óbitos maior que casos confirmados na linha {city} da planilha'
-            )
+            validation_errors.new_error(f"Valor de óbitos maior que casos confirmados na linha {city} da planilha")
         elif deaths < 0 or confirmed < 0:
-            validation_errors.new_error(
-                f'Valores negativos na linha {city} da planilha'
-            )
+            validation_errors.new_error(f"Valores negativos na linha {city} da planilha")
 
         result = _parse_city_data(city, confirmed, deaths, date, state)
-        if result['city_ibge_code'] == INVALID_CITY_CODE:
-            validation_errors.new_error(f'{city} não pertence à UF {state}')
+        if result["city_ibge_code"] == INVALID_CITY_CODE:
+            validation_errors.new_error(f"{city} não pertence à UF {state}")
             continue
 
-        if result['place_type'] == 'state':
+        if result["place_type"] == "state":
             has_total = True
             total_cases, total_deaths = confirmed, deaths
         else:
@@ -93,13 +87,9 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
         validation_errors.new_error(f'A linha "{UNDEFINED_DISPLAY}" está faltando na planilha')
 
     if sum_cases and sum_cases != total_cases:
-        validation_errors.new_error(
-            f'A soma de casos ({sum_cases}) difere da entrada total ({total_cases}).'
-        )
+        validation_errors.new_error(f"A soma de casos ({sum_cases}) difere da entrada total ({total_cases}).")
     if sum_deaths and sum_deaths != total_deaths:
-        validation_errors.new_error(
-            f'A soma de mortes ({sum_deaths}) difere da entrada total ({total_deaths}).'
-        )
+        validation_errors.new_error(f"A soma de mortes ({sum_deaths}) difere da entrada total ({total_deaths}).")
 
     validation_errors.raise_if_errors()
 
@@ -121,15 +111,15 @@ def _parse_city_data(city, confirmed, deaths, date, state):
     }
 
     if city == TOTAL_LINE_DISPLAY:
-        data['city_ibge_code'] = get_state_info(state).state_ibge_code
-        data['place_type'] = 'state'
-        data['city'] = None
+        data["city_ibge_code"] = get_state_info(state).state_ibge_code
+        data["place_type"] = "state"
+        data["city"] = None
     elif city == UNDEFINED_DISPLAY:
-        data['city_ibge_code'] = None
+        data["city_ibge_code"] = None
     else:
         city_info = get_city_info(city, state)
-        data['city_ibge_code'] = getattr(city_info, 'city_ibge_code', INVALID_CITY_CODE)
-        data['city'] = getattr(city_info, 'city', INVALID_CITY_CODE)
+        data["city_ibge_code"] = getattr(city_info, "city_ibge_code", INVALID_CITY_CODE)
+        data["city"] = getattr(city_info, "city", INVALID_CITY_CODE)
 
     return data
 
@@ -150,10 +140,11 @@ def validate_historical_data(spreadsheet):
     If any invalid data, it'll raise a SpreadsheetValidationErrors
     If valid data, returns a list with eventual warning messages
     """
+
     def lower_numbers(previous, data):
         if not previous:
             return False
-        return data['confirmed'] < previous.confirmed or data['deaths'] < previous.deaths
+        return data["confirmed"] < previous.confirmed or data["deaths"] < previous.deaths
 
     warnings = []
     clean_results = spreadsheet.table_data
@@ -167,9 +158,7 @@ def validate_historical_data(spreadsheet):
     for entry in city_entries:
         city_data = spreadsheet.get_data_from_city(entry.city_ibge_code)
         if not city_data and (entry.confirmed or entry.deaths):
-            validation_errors.new_error(
-                f"{entry.city} possui dados históricos e não está presente na planilha."
-            )
+            validation_errors.new_error(f"{entry.city} possui dados históricos e não está presente na planilha.")
             continue
         elif not city_data:  # previous entry for the city has 0 deaths and 0 confirmed
             data = _parse_city_data(entry.city, entry.confirmed, entry.deaths, s_date, entry.state)
@@ -178,15 +167,11 @@ def validate_historical_data(spreadsheet):
                 f"{entry.city} possui dados históricos zerados/nulos, não presente na planilha e foi adicionado."
             )
         elif lower_numbers(entry, city_data):
-            warnings.append(
-                f"Números de confirmados ou óbitos em {entry.city} é menor que o anterior."
-            )
+            warnings.append(f"Números de confirmados ou óbitos em {entry.city} é menor que o anterior.")
 
     total_data = spreadsheet.get_total_data()
     if lower_numbers(state_entry, total_data):
-        warnings.append(
-            f"Números de confirmados ou óbitos totais é menor que o total anterior."
-        )
+        warnings.append(f"Números de confirmados ou óbitos totais é menor que o total anterior.")
 
     validation_errors.raise_if_errors()
 

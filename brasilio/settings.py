@@ -1,7 +1,10 @@
-import environ
-
 from urllib.parse import urlparse
+
+import environ
+import sentry_sdk
 from django.urls import reverse_lazy
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.rq import RqIntegration
 
 
 root = environ.Path(__file__) - 2
@@ -33,9 +36,8 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_extensions",
     "rest_framework",
-    'markdownx',
+    "markdownx",
     "django_rq",
-
     # Project apps
     "core",
     "graphs",
@@ -45,13 +47,12 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    'django.middleware.cache.UpdateCacheMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    "django.middleware.cache.UpdateCacheMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    'core.middlewares.NotLoggedUserFetchFromCacheMiddleware',
+    "core.middlewares.NotLoggedUserFetchFromCacheMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -89,9 +90,7 @@ DB_STATEMENT_TIMEOUT = env("DB_STATEMENT_TIMEOUT", default=20000, cast=int)  # m
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -123,18 +122,18 @@ STATICFILES_DIRS = [str(root.path("static"))]
 DEFAULT_FILE_STORAGE = env("DEFAULT_FILE_STORAGE")
 
 # django-storage configurations for AWS file upload
-AWS_ACCESS_KEY_ID=env("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY=env("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME=env("AWS_STORAGE_BUCKET_NAME")
-AWS_DEFAULT_ACL=env("AWS_DEFAULT_ACL")
-AWS_BUCKET_ACL=env("AWS_BUCKET_ACL")
-AWS_AUTO_CREATE_BUCKET=env("AWS_AUTO_CREATE_BUCKET")
-AWS_S3_ENDPOINT_URL=env("AWS_S3_ENDPOINT_URL")
-AWS_S3_CUSTOM_DOMAIN=env("AWS_S3_CUSTOM_DOMAIN")
-AWS_IS_GZIPPED=env("AWS_IS_GZIPPED")
-GZIP_CONTENT_TYPES=env("GZIP_CONTENT_TYPES")
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
+AWS_DEFAULT_ACL = env("AWS_DEFAULT_ACL")
+AWS_BUCKET_ACL = env("AWS_BUCKET_ACL")
+AWS_AUTO_CREATE_BUCKET = env("AWS_AUTO_CREATE_BUCKET")
+AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL")
+AWS_S3_CUSTOM_DOMAIN = env("AWS_S3_CUSTOM_DOMAIN")
+AWS_IS_GZIPPED = env("AWS_IS_GZIPPED")
+GZIP_CONTENT_TYPES = env("GZIP_CONTENT_TYPES")
 
-MINIO_STORAGE_ENDPOINT = AWS_S3_ENDPOINT_URL.replace('https://', '').replace('/', '')
+MINIO_STORAGE_ENDPOINT = AWS_S3_ENDPOINT_URL.replace("https://", "").replace("/", "")
 MINIO_STORAGE_ACCESS_KEY = AWS_ACCESS_KEY_ID
 MINIO_STORAGE_SECRET_KEY = AWS_SECRET_ACCESS_KEY
 MINIO_STORAGE_USE_HTTPS = True
@@ -164,9 +163,7 @@ EMAIL_USE_TLS = env("EMAIL_USE_TLS", default="True").lower() == "true"
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="contato@brasil.io")
 ADMINS = env("ADMINS").strip() or []
 if ADMINS:
-    ADMINS = [
-        [item.strip() for item in admin.split("|")] for admin in ADMINS.split(",")
-    ]
+    ADMINS = [[item.strip() for item in admin.split("|")] for admin in ADMINS.split(",")]
 if DEBUG:
     EMAIL_FILE_PATH = MEDIA_ROOT
 else:
@@ -201,9 +198,9 @@ ROWS_PER_PAGE = env("ROWS_PER_PAGE", int, default=50)
 
 REDIS_URL = env("REDIS_URL")
 CACHALOT_ENABLED = env("CACHE_ENABLED", bool, default=True)
-CACHE_MIDDLEWARE_ALIAS = 'default'
+CACHE_MIDDLEWARE_ALIAS = "default"
 CACHE_MIDDLEWARE_SECONDS = 600  # 10 minutes
-CACHE_MIDDLEWARE_KEY_PREFIX = 'non_logged_user_'
+CACHE_MIDDLEWARE_KEY_PREFIX = "non_logged_user_"
 CACHALOT_CACHE = "default"
 CACHES = {
     "default": {
@@ -216,22 +213,17 @@ CACHES = {
 
 
 # django-rq config
-RQ_QUEUES = {
-    'default': {
-        'URL': REDIS_URL,
-        'DEFAULT_TIMEOUT': 500,
-    }
-}
+RQ_QUEUES = {"default": {"URL": REDIS_URL, "DEFAULT_TIMEOUT": 500,}}
 RQ = {
-    'DEFAULT_RESULT_TTL': 60 * 60 * 24,  # 24-hours
+    "DEFAULT_RESULT_TTL": 60 * 60 * 24,  # 24-hours
 }
 
 if not DEBUG:
-    RQ_QUEUES['default']['WORKER_CLASS'] = 'brasilio.worker.SentryAwareWorker'
+    RQ_QUEUES["default"]["WORKER_CLASS"] = "brasilio.worker.SentryAwareWorker"
 
 
 # Covid19 import settings
-COVID_IMPORT_PERMISSION_PREFIX = 'can_import_covid_state_'
+COVID_IMPORT_PERMISSION_PREFIX = "can_import_covid_state_"
 
 # RockecChat config
 ROCKETCHAT_BASE_URL = env("ROCKETCHAT_BASE_URL")
@@ -239,9 +231,7 @@ ROCKETCHAT_USER_ID = env("ROCKETCHAT_USER_ID")
 ROCKETCHAT_AUTH_TOKEN = env("ROCKETCHAT_AUTH_TOKEN")
 
 # Sentry config
-import sentry_sdk
-from sentry_sdk.integrations.django import \
-    DjangoIntegration
-
 SENTRY_DSN = env("SENTRY_DSN")
-sentry_sdk.init(SENTRY_DSN, integrations=[DjangoIntegration()])
+sentry_sdk.init(
+    SENTRY_DSN, integrations=[DjangoIntegration(), RqIntegration()], send_default_pii=True,
+)

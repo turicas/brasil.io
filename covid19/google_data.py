@@ -21,14 +21,14 @@ def spreadsheet_download_url(url_or_id, file_format):
         spreadsheet_id = parse_qs(urlparse(url_or_id).query)["id"][0]
     else:
         spreadsheet_id = url_or_id
-    return f"https://docs.google.com/spreadsheets/u/0/d/{spreadsheet_id}/export?format={file_format}&id={spreadsheet_id}"
+    return (
+        f"https://docs.google.com/spreadsheets/u/0/d/{spreadsheet_id}/export?format={file_format}&id={spreadsheet_id}"
+    )
 
 
 @cached(cache=TTLCache(maxsize=100, ttl=24 * 3600))
 def get_general_spreadsheet(timeout=5):
-    data = http_get(
-        spreadsheet_download_url(STATE_LINKS_SPREADSHEET_ID, "csv"), timeout
-    )
+    data = http_get(spreadsheet_download_url(STATE_LINKS_SPREADSHEET_ID, "csv"), timeout)
     table = rows.import_from_csv(io.BytesIO(data), encoding="utf-8")
     return {row.uf: row for row in table}
 
@@ -40,15 +40,11 @@ def import_info_by_state(state):
 
 def get_state_data_from_google_spreadsheets(state, timeout=5):
     state_spreadsheet_url = import_info_by_state(state).planilha_brasilio
-    state_spreadsheet_download_url = spreadsheet_download_url(
-        state_spreadsheet_url, "xlsx"
-    )
+    state_spreadsheet_download_url = spreadsheet_download_url(state_spreadsheet_url, "xlsx")
     data = http_get(state_spreadsheet_download_url, timeout)
-    reports = rows.import_from_xlsx(
-        io.BytesIO(data), sheet_name=BOLETIM_SPREADSHEET, force_types=FIELDS_BOLETIM
-    )
+    reports = rows.import_from_xlsx(io.BytesIO(data), sheet_name=BOLETIM_SPREADSHEET, force_types=FIELDS_BOLETIM)
     cases = rows.import_from_xlsx(io.BytesIO(data), sheet_name=CASOS_SPREADSHEET)
     return {
         "reports": [dict(row._asdict()) for row in reports if row.date],
-        "cases": [dict(row._asdict()) for row in cases if row.municipio]
+        "cases": [dict(row._asdict()) for row in cases if row.municipio],
     }

@@ -7,18 +7,27 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('covid19', '0001_initial'),
+        ("covid19", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='statespreadsheet',
-            name='boletim_notes',
-            field=models.CharField(blank=True, default='', help_text='Observações no boletim como "depois de publicar o boletim a secretaria postou no Twitter que teve mais uma morte".', max_length=1023),
+            model_name="statespreadsheet",
+            name="boletim_notes",
+            field=models.CharField(
+                blank=True,
+                default="",
+                help_text='Observações no boletim como "depois de publicar o boletim a secretaria postou no Twitter que teve mais uma morte".',
+                max_length=1023,
+            ),
         ),
         migrations.AlterField(
-            model_name='statespreadsheet',
-            name='boletim_urls',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.TextField(), help_text='Lista de URLs do(s) boletim(s) separada por vírgula', size=None),
+            model_name="statespreadsheet",
+            name="boletim_urls",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.TextField(),
+                help_text="Lista de URLs do(s) boletim(s) separada por vírgula",
+                size=None,
+            ),
         ),
     ]
