@@ -41,6 +41,7 @@
           <th> UF </th>
           <th> Data mais Recente </th>
           <th> Status </th>
+          <th> Data mais Recente (Deployed) </th>
         </tr>
       </thead>
 
@@ -50,6 +51,7 @@
           <td data-order="{{ row.uf }}"> {{ row.uf }} </td>
           <td data-order="{% localize off %}{{ row.report_date_str }}{% endlocalize %}"> {{ row.report_date|default:'------' }} </td>
           <td data-order="{{ row.status}}"> {{ row.status|default:'------' }} </td>
+          <td data-order="{% localize off %}{{ row.deployed_date_str }}{% endlocalize %}"> {{ row.deployed_date|default:'------' }} </td>
         </tr>
         {% endfor %}
       </tbody>
