@@ -38,7 +38,7 @@
     <table class="table" id="status-data-table">
       <thead>
         <tr>
-          <th> UF </th>
+          <th> Estado </th>
           <th> Data mais Recente </th>
           <th> Status </th>
           <th> Data mais Recente (Deployed) </th>
@@ -48,7 +48,7 @@
       <tbody>
         {% for row in import_data %}
         <tr>
-          <td data-order="{{ row.uf }}"> {{ row.uf }} </td>
+          <td data-order="{{ row.state }}"> <a class="state-option" href="{% url 'covid19:dashboard' row.uf %}">{{ row.state }}</a> </td>
           <td data-order="{% localize off %}{{ row.report_date_str }}{% endlocalize %}"> {{ row.report_date|default:'------' }} </td>
           <td data-order="{{ row.status}}"> {{ row.status|default:'------' }} </td>
           <td data-order="{% localize off %}{{ row.deployed_date_str }}{% endlocalize %}"> {{ row.deployed_date|default:'------' }} </td>
