@@ -204,23 +204,23 @@ def status(request):
     data = []
     for state in STATES:
         uf = state.acronym
-        qs = StateSpreadsheet.objects.from_state(uf).order_by('-date')
+        qs = StateSpreadsheet.objects.from_state(uf).order_by("-date")
         table_entry = {
-            'uf': uf,
-            'state': state.name,
-            'status': '',
-            'report_date': None,
-            'report_date_str': '',
-            'spreadsheet': None,
+            "uf": uf,
+            "state": state.name,
+            "status": "",
+            "report_date": None,
+            "report_date_str": "",
+            "spreadsheet": None,
         }
 
         most_recet = qs.first()
         if most_recet:
-            table_entry['spreadsheet'] = most_recet
-            table_entry['status'] = most_recet.get_status_display()
-            table_entry['report_date'] = most_recet.date
-            table_entry['report_date_str'] = str(most_recet.date)
+            table_entry["spreadsheet"] = most_recet
+            table_entry["status"] = most_recet.get_status_display()
+            table_entry["report_date"] = most_recet.date
+            table_entry["report_date_str"] = str(most_recet.date)
 
         data.append(table_entry)
 
-    return render(request, "covid-status.html", {'import_data': data})
+    return render(request, "covid-status.html", {"import_data": data})
