@@ -2,7 +2,6 @@ import pytest
 import rows
 from datetime import date, timedelta
 from io import BytesIO
-from pathlib import Path
 from model_bakery import baker
 from unittest.mock import patch, Mock
 
@@ -17,12 +16,9 @@ from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict, valid
 from covid19.tests.utils import Covid19DatasetTestCase
 
 
-SAMPLE_SPREADSHEETS_DATA_DIR = Path(settings.BASE_DIR).joinpath("covid19", "tests", "data")
-
-
 class FormatSpreadsheetRowsAsDictTests(TestCase):
     def setUp(self):
-        sample = SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR.csv"
+        sample = settings.SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR.csv"
         self.content = sample.read_text()
         self.date = date.today()
         self.uf = "PR"
@@ -285,7 +281,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
     @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=[]))
     def test_do_not_check_for_totals_if_only_total_lines_data(self):
-        sample = SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR-no-cities-data.csv"
+        sample = settings.SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR-no-cities-data.csv"
         assert sample.exists()
         self.content = sample.read_text()
 
