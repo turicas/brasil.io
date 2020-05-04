@@ -30,3 +30,10 @@ class UserCreationForm(DjangoUserCreationForm):
         if self.cleaned_data.get("subscribe_newsletter"):
             NewsletterSubscriber.objects.create(user=user)
         return user
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        if email:
+            if get_user_model().objects.filter(email__iexact=email).exists():
+                raise forms.ValidationError(f"Usuário com o email {email} já cadastrado.")
+        return email
