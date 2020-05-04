@@ -38,7 +38,7 @@ def notify_new_spreadsheet(spreadsheet):
     channel, collabs = notification_info_by_state(spreadsheet.state)
 
     msg = f"{collabs} - *Nova planilha* importada para o estado *{spreadsheet.state}* para o dia *{spreadsheet.date}*"
-    msg += f"\nRealizada por: *{spreadsheet.user.username}*\n\nPrecisamos de mais uma planilha para verificar os dados."
+    msg += f"\nRealizada por: *@{spreadsheet.user.username}*\n\nPrecisamos de mais uma planilha para verificar os dados."  # noqa
     msg += "\nOs dados só poderão ser atualizados se uma nova planilha for enviada e os dados forem os mesmos."
 
     chat.send_message(channel, msg)
@@ -50,7 +50,7 @@ def notify_spreadsheet_mismatch(spreadsheet, errors):
 
     errors = "\n- ".join(errors)
     msg = f"{collabs} - *Dados divergentes* na planilha importada para o estado *{spreadsheet.state}* para o dia *{spreadsheet.date}*"  # noqa
-    msg += f"\nRealizada por: *{spreadsheet.user.username}*\n\n- {errors}"
+    msg += f"\nRealizada por: *@{spreadsheet.user.username}*\n\n- {errors}"
     msg += f"\n\nLink para a planilha: https://brasil.io{spreadsheet.admin_url}"
 
     chat.send_message(channel, msg)
@@ -59,7 +59,7 @@ def notify_spreadsheet_mismatch(spreadsheet, errors):
 def notify_import_success(spreadsheet):
     chat = get_chat()
     channel = "#covid19"
-    authors = " e ".join([spreadsheet.user.username, spreadsheet.peer_review.user.username,])
+    authors = " e ".join([f"@{spreadsheet.user.username}", f"@{spreadsheet.peer_review.user.username}",])
 
     msg = f"@turicas planilha de *{spreadsheet.state}* para o dia *{spreadsheet.date}* checada (dados enviados por {authors}), pode rodar o deploy!"  # noqa
     msg += f"\nLink para a planilha: https://brasil.io{spreadsheet.admin_url}"
@@ -68,5 +68,6 @@ def notify_import_success(spreadsheet):
     channel, collabs = notification_info_by_state(spreadsheet.state)
 
     msg = f"{collabs} - planilha de *{spreadsheet.state}* para o dia *{spreadsheet.date}* checada pronta para o deploy!"  # noqa
+    msg += f"\nDados enviados por {authors}"
     msg += f"\nLink para a planilha: https://brasil.io{spreadsheet.admin_url}"
     chat.send_message(channel, msg)
