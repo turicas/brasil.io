@@ -1,16 +1,19 @@
-from django.urls import path
+import csv
 
+from django.urls import path
 from django.contrib import admin
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.templatetags.static import static
 from django.utils.html import format_html
 
 from brazil_data.states import STATES
+from brazil_data.cities import brazilian_cities_per_state
 from covid19.forms import state_choices_for_user, StateSpreadsheetForm
 from covid19.models import StateSpreadsheet
 from covid19.signals import new_spreadsheet_imported_signal
 from covid19.permissions import user_has_state_permission
+from covid19.spreadsheet_validator import TOTAL_LINE_DISPLAY, UNDEFINED_DISPLAY
 
 
 class StateFilter(admin.SimpleListFilter):
@@ -127,7 +130,27 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
         return super().add_view(request, *args, **kwargs)
 
     def sample_spreadsheet_view(self, request, state):
-        return HttpResponse(state)
+        try:
+            cities = brazilian_cities_per_state()[state]
+        except KeyError:
+            raise Http404
+
+        if not user_has_state_permission(request.user, state):
+            raise Http404
+
+        csv_rows = [
+            ("municipio", "confirmados", "mortes"),
+            (TOTAL_LINE_DISPLAY, None, None),
+            (UNDEFINED_DISPLAY, None, None),
+        ] + [(city, None, None) for city in cities]
+
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = f'attachment; filename="modelo-{state}.csv"'
+
+        writer = csv.writer(response)
+        writer.writerows(csv_rows)
+
+        return response
 
 
 admin.site.register(StateSpreadsheet, StateSpreadsheetModelAdmin)
