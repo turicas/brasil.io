@@ -49,11 +49,16 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
     has_total, has_undefined = False, False
     total_cases, total_deaths = 0, 0
     sum_cases, sum_deaths = 0, 0
+    processed_cities = set()
     for entry in rows_table:
         city = getattr(entry, city_attr, None)
         confirmed = getattr(entry, confirmed_attr, None)
         deaths = getattr(entry, deaths_attr, None)
 
+        if city in processed_cities:
+            validation_errors.new_error(f"Mais de uma entrada para {city}")
+
+        processed_cities.add(city)
         if city == UNDEFINED_DISPLAY:
             has_undefined = True
 

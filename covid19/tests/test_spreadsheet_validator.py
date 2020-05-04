@@ -317,6 +317,16 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         assert len(results) == len(file_rows) - 1
         assert "Importados/Indefinidos" not in [r["city"] for r in results]
 
+    def test_validation_error_if_city_is_repeated(self):
+        self.content = self.content.replace("Abatiá,9,1", "Abatiá,9,1\nAbatiá,0,0")
+
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(SpreadsheetValidationErrors) as execinfo:
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        exception = execinfo.value
+        assert "Mais de uma entrada para Abatiá" in exception.error_messages
+
 
 class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
     def setUp(self):
