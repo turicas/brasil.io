@@ -25,12 +25,17 @@ def clean_collaborators(collaborators):
     return ["@" + c.strip() for c in collaborators.split(",")]
 
 
-def notify_new_spreadsheet(spreadsheet):
-    chat = get_chat()
-    state_info = import_info_by_state(spreadsheet.state)
+def notification_info_by_state(state):
+    state_info = import_info_by_state(state)
     channel = state_info.canal
     collabs = clean_collaborators(state_info.voluntarios)
     collabs = " ".join(collabs)
+    return channel, collabs
+
+
+def notify_new_spreadsheet(spreadsheet):
+    chat = get_chat()
+    channel, collabs = notification_info_by_state(spreadsheet.state)
 
     msg = f"{collabs} - *Nova planilha* importada para o estado *{spreadsheet.state}* para o dia *{spreadsheet.date}*"
     msg += f"\nRealizada por: *{spreadsheet.user.username}*\n\nPrecisamos de mais uma planilha para verificar os dados."
@@ -41,10 +46,7 @@ def notify_new_spreadsheet(spreadsheet):
 
 def notify_spreadsheet_mismatch(spreadsheet, errors):
     chat = get_chat()
-    state_info = import_info_by_state(spreadsheet.state)
-    channel = state_info.canal
-    collabs = clean_collaborators(state_info.voluntarios)
-    collabs = " ".join(collabs)
+    channel, collabs = notification_info_by_state(spreadsheet.state)
 
     errors = "\n- ".join(errors)
     msg = f"{collabs} - *Dados divergentes* na planilha importada para o estado *{spreadsheet.state}* para o dia *{spreadsheet.date}*"  # noqa
