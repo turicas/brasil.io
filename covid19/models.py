@@ -201,6 +201,13 @@ class StateSpreadsheet(models.Model):
                 f"{extra_other} está na planilha usada para a comparação (por {other_user}) mas não na importada (por {user}).",  # noqa
             )
 
+        self_len = len(self.table_data)
+        other_len = len(other.table_data)
+        if not errors and self_len != other_len:
+            errors.append(
+                f"Número de entradas finais divergem. A planilha de comparação (por {other_user}) possui {other_len} mas a importada (por {user}) possui {self_len}.",  # noqa
+            )
+
         for entry in self.table_data:
             display = entry["city"] or "Total"
             if entry["place_type"] == "state":
