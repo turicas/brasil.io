@@ -3,9 +3,11 @@ from django.db import transaction
 from django.templatetags.static import static
 from django.utils.html import format_html
 
+from brazil_data.states import STATES
 from covid19.forms import state_choices_for_user, StateSpreadsheetForm
 from covid19.models import StateSpreadsheet
 from covid19.signals import new_spreadsheet_imported_signal
+from covid19.permissions import user_has_state_permission
 
 
 class StateFilter(admin.SimpleListFilter):
@@ -97,6 +99,18 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
             return format_html(f"<ul>{li_tags}</ul>")
 
     errors_list.short_description = "Errors"
+
+    def add_view(self, request, *args, **kwargs):
+        extra_context = kwargs.get("extra_context") or {}
+
+        allowed_states = []
+        for state in STATES:
+            if user_has_state_permission(request.user, state.acronym):
+                allowed_states.append(state)
+
+        extra_context["allowed_states"] = allowed_states
+        kwargs["extra_context"] = extra_context
+        return super().add_view(request, *args, **kwargs)
 
 
 admin.site.register(StateSpreadsheet, StateSpreadsheetModelAdmin)
