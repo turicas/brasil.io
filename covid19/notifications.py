@@ -62,5 +62,10 @@ def notify_import_success(spreadsheet):
 
     msg = f"@turicas planilha de *{spreadsheet.state}* para o dia *{spreadsheet.date}* checada (dados enviados por {authors}), pode rodar o deploy!"  # noqa
     msg += f"\nLink para a planilha: https://brasil.io{spreadsheet.admin_url}"
+    chat.send_message(channel, msg)
 
+    channel, collabs = notification_info_by_state(spreadsheet.state)
+
+    msg = f"{collabs} - planilha de *{spreadsheet.state}* para o dia *{spreadsheet.date}* checada pronta para o deploy!"  # noqa
+    msg += f"\nLink para a planilha: https://brasil.io{spreadsheet.admin_url}"
     chat.send_message(channel, msg)
