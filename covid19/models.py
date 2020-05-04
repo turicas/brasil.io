@@ -85,7 +85,7 @@ class StateSpreadsheet(models.Model):
 
     boletim_urls = ArrayField(models.TextField(), null=False, blank=False, help_text="Lista de URLs do(s) boletim(s)")
     boletim_notes = models.CharField(
-        max_length=1023,
+        max_length=2000,
         default="",
         blank=True,
         help_text='Observações no boletim como "depois de publicar o boletim a secretaria postou no Twitter que teve mais uma morte".',  # noqa
