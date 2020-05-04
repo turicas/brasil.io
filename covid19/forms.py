@@ -47,6 +47,11 @@ class StateSpreadsheetForm(forms.ModelForm):
     boletim_urls = forms.CharField(
         widget=forms.Textarea, help_text="Lista de URLs do(s) boletim(s) com uma entrada por linha"
     )
+    boletim_notes = forms.CharField(
+        widget=forms.Textarea,
+        required=False,
+        help_text='Observações no boletim como "depois de publicar o boletim a secretaria postou no Twitter que teve mais uma morte".',  # noqa
+    )
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user", None)

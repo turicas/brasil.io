@@ -211,3 +211,9 @@ class StateSpreadsheetFormTests(Covid19DatasetTestCase):
 
         assert not form.is_valid()
         assert "__all__" in form.errors
+
+    def test_validate_notes_max_length(self):
+        self.data["boletim_notes"] = "a" * 2001
+        form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
+        assert not form.is_valid()
+        assert "boletim_notes" in form.errors
