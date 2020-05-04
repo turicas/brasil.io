@@ -57,7 +57,8 @@ class StateSpreadsheetForm(forms.ModelForm):
         help = (
             'Caso necessário, baixe o arquivo modelo para os estados clicando nos botões acima entitulados "Modelo XX".'
         )
-        self.fields["state"].help_text = help
+        if "state" in self.fields:
+            self.fields["state"].help_text = help
         self.file_data_as_json = []
         self.data_warnings = []
 
