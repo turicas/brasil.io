@@ -53,6 +53,11 @@ class StateSpreadsheetForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.user:
             self.fields["state"].choices = state_choices_for_user(self.user)
+
+        help = (
+            'Caso necessário, baixe o arquivo modelo para os estados clicando nos botões acima entitulados "Modelo XX".'
+        )
+        self.fields["state"].help_text = help
         self.file_data_as_json = []
         self.data_warnings = []
 
