@@ -46,4 +46,4 @@ jobs:
         python manage.py collectstatic --no-input
     - name: Run Tests
       run: |
-        python manage.py test
+        pytest
