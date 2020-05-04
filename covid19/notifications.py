@@ -51,6 +51,7 @@ def notify_spreadsheet_mismatch(spreadsheet, errors):
     errors = "\n- ".join(errors)
     msg = f"{collabs} - *Dados divergentes* na planilha importada para o estado *{spreadsheet.state}* para o dia *{spreadsheet.date}*"  # noqa
     msg += f"\nRealizada por: *{spreadsheet.user.username}*\n\n- {errors}"
+    msg += f"\n\nLink para a planilha: https://brasil.io{spreadsheet.admin_url}"
 
     chat.send_message(channel, msg)
 
