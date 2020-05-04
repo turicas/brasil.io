@@ -99,3 +99,31 @@ class UserCreationFormTests(TestCase):
         form = UserCreationForm(data)
         assert form.is_valid() is False
         assert "username" in form.errors
+
+    def test_invalid_email_if_user_already_exists(self):
+        baker.make(settings.AUTH_USER_MODEL, email="foo@bar.com")
+        passwd = "verygoodpassword"
+        data = {
+            "username": "foo",
+            "email": "foo@bar.com",
+            "password1": passwd,
+            "password2": passwd,
+        }
+
+        form = UserCreationForm(data)
+        assert not form.is_valid()
+        assert "email" in form.errors
+
+    def test_email_validation_does_not_break_if_different_letter_case(self):
+        baker.make(settings.AUTH_USER_MODEL, email="foo@bar.com")
+        passwd = "verygoodpassword"
+        data = {
+            "username": "foo",
+            "email": "FOO@bar.com",
+            "password1": passwd,
+            "password2": passwd,
+        }
+
+        form = UserCreationForm(data)
+        assert not form.is_valid()
+        assert "email" in form.errors
