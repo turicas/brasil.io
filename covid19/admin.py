@@ -43,6 +43,7 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
     list_filter = [StateFilter, "status", ActiveFilter]
     form = StateSpreadsheetForm
     ordering = ["-created_at"]
+    add_form_template = "admin/covid19_add_form.html"
 
     def get_readonly_fields(self, request, obj=None):
         fields = []
