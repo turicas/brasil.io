@@ -1,5 +1,8 @@
+from django.urls import path
+
 from django.contrib import admin
 from django.db import transaction
+from django.http import HttpResponse
 from django.templatetags.static import static
 from django.utils.html import format_html
 
@@ -46,6 +49,17 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
     form = StateSpreadsheetForm
     ordering = ["-created_at"]
     add_form_template = "admin/covid19_add_form.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "planilha-model/<str:state>/",
+                self.admin_site.admin_view(self.sample_spreadsheet_view),
+                name="sample_covid_spreadsheet",
+            ),
+        ]
+        return custom_urls + urls
 
     def get_readonly_fields(self, request, obj=None):
         fields = []
@@ -111,6 +125,9 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
         extra_context["allowed_states"] = allowed_states
         kwargs["extra_context"] = extra_context
         return super().add_view(request, *args, **kwargs)
+
+    def sample_spreadsheet_view(self, request, state):
+        return HttpResponse(state)
 
 
 admin.site.register(StateSpreadsheet, StateSpreadsheetModelAdmin)
