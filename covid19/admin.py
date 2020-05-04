@@ -1,11 +1,19 @@
+import csv
+
+from django.urls import path
 from django.contrib import admin
 from django.db import transaction
+from django.http import HttpResponse, Http404
 from django.templatetags.static import static
 from django.utils.html import format_html
 
+from brazil_data.states import STATES
+from brazil_data.cities import brazilian_cities_per_state
 from covid19.forms import state_choices_for_user, StateSpreadsheetForm
 from covid19.models import StateSpreadsheet
 from covid19.signals import new_spreadsheet_imported_signal
+from covid19.permissions import user_has_state_permission
+from covid19.spreadsheet_validator import TOTAL_LINE_DISPLAY, UNDEFINED_DISPLAY
 
 
 class StateFilter(admin.SimpleListFilter):
@@ -43,6 +51,18 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
     list_filter = [StateFilter, "status", ActiveFilter]
     form = StateSpreadsheetForm
     ordering = ["-created_at"]
+    add_form_template = "admin/covid19_add_form.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "planilha-model/<str:state>/",
+                self.admin_site.admin_view(self.sample_spreadsheet_view),
+                name="sample_covid_spreadsheet",
+            ),
+        ]
+        return custom_urls + urls
 
     def get_readonly_fields(self, request, obj=None):
         fields = []
@@ -96,6 +116,41 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
             return format_html(f"<ul>{li_tags}</ul>")
 
     errors_list.short_description = "Errors"
+
+    def add_view(self, request, *args, **kwargs):
+        extra_context = kwargs.get("extra_context") or {}
+
+        allowed_states = []
+        for state in STATES:
+            if user_has_state_permission(request.user, state.acronym):
+                allowed_states.append(state)
+
+        extra_context["allowed_states"] = allowed_states
+        kwargs["extra_context"] = extra_context
+        return super().add_view(request, *args, **kwargs)
+
+    def sample_spreadsheet_view(self, request, state):
+        try:
+            cities = brazilian_cities_per_state()[state]
+        except KeyError:
+            raise Http404
+
+        if not user_has_state_permission(request.user, state):
+            raise Http404
+
+        csv_rows = [
+            ("municipio", "confirmados", "mortes"),
+            (TOTAL_LINE_DISPLAY, None, None),
+            (UNDEFINED_DISPLAY, None, None),
+        ] + [(city, None, None) for city in cities]
+
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = f'attachment; filename="modelo-{state}.csv"'
+
+        writer = csv.writer(response)
+        writer.writerows(csv_rows)
+
+        return response
 
 
 admin.site.register(StateSpreadsheet, StateSpreadsheetModelAdmin)
