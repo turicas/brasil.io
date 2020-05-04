@@ -1,3 +1,4 @@
+import json
 import pytest
 import shutil
 from copy import deepcopy
@@ -338,3 +339,33 @@ class StateSpreadsheetTests(TestCase):
         assert sp2 in deployables
         assert sp3 in deployables
         assert sp4 in deployables
+
+    def test_pernambuco_mismatch_regression_test(self):
+        """
+        Esse erro aconteceu porque a planilha sp2 possuiu entradas duplicadas para Vicência.
+        Esse teste garante que, mesmo que esse erro passe na validação individual da planilha,
+        ele não prossiga na comparação com outras.
+        """
+        json_dir = settings.SAMPLE_SPREADSHEETS_DATA_DIR / "table_data"
+        sp1 = baker.make(StateSpreadsheet, state="PE", date=date.today())
+        sp2 = baker.make(StateSpreadsheet, state="PE", date=date.today())
+
+        with open(json_dir / "PE_2020_05_03_planilha_1.json") as fd:
+            sp1.table_data = json.load(fd)
+            sp1.save()
+            sp1.refresh_from_db()
+        with open(json_dir / "PE_2020_05_03_planilha_2.json") as fd:
+            sp2.table_data = json.load(fd)
+            sp2.save()
+            sp2.refresh_from_db()
+
+        expected = [
+            f"Número de entradas finais divergem. A planilha de comparação (por {sp2.user.username}) possui 143 mas a importada (por {sp1.user.username}) possui 142.",  # noqa
+        ]
+        assert sp1.compare_to_spreadsheet(sp2) == expected
+
+        expected = [
+            f"Número de entradas finais divergem. A planilha de comparação (por {sp1.user.username}) possui 142 mas a importada (por {sp2.user.username}) possui 143.",  # noqa
+            "Número de casos confirmados ou óbitos diferem para Vicência.",
+        ]
+        assert sp2.compare_to_spreadsheet(sp1) == expected
