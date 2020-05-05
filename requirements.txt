@@ -41,3 +41,4 @@ xlrd
 xlwt
 django-newsletter==0.9
 sorl-thumbnail==12.6.3
+django-tinymce==3.0.2

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django_rq",
     "sorl.thumbnail",
     "newsletter",
+    "tinymce",
     # Project apps
     "core",
     "graphs",
@@ -248,3 +249,4 @@ NEWSLETTER_EMAIL_DELAY = env("NEWSLETTER_EMAIL_DELAY", float)
 NEWSLETTER_BATCH_DELAY = env("NEWSLETTER_BATCH_DELAY", int)
 # Number of emails in one batch
 NEWSLETTER_BATCH_SIZE = env("NEWSLETTER_BATCH_SIZE", int)
+NEWSLETTER_RICHTEXT_WIDGET = "tinymce.widgets.TinyMCE"
