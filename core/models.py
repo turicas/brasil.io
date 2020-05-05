@@ -321,8 +321,17 @@ class TableQuerySet(models.QuerySet):
         return self.get(name=name)
 
 
+class ActiveTableManager(models.Manager):
+    """
+    This manager is the main one for the Table model and it excludes hidden tables by default
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().filter(hidden=False)
+
+
 class Table(models.Model):
-    objects = TableQuerySet.as_manager()
+    objects = ActiveTableManager.from_queryset(TableQuerySet)()
 
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, null=False, blank=False)
     default = models.BooleanField(null=False, blank=False)
