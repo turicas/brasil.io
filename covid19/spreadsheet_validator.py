@@ -55,6 +55,9 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
         confirmed = getattr(entry, confirmed_attr, None)
         deaths = getattr(entry, deaths_attr, None)
         if not city:
+            if confirmed or deaths:
+                msg = "Uma ou mais linhas com a coluna de cidade vazia possuem números de confirmados ou óbitos"
+                validation_errors.new_error(msg)
             continue
 
         if city in processed_cities:

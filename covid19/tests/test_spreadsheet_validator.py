@@ -302,6 +302,19 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         assert len(file_rows) > 8
         assert 8 == len(data)
 
+    def test_raise_error_if_empty_line_but_with_data(self):
+        sample = settings.SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR-empty-lines.csv"
+        assert sample.exists()
+        self.content = sample.read_text()
+        self.content = self.content.replace(',,', ',10,20')
+
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(SpreadsheetValidationErrors) as execinfo:
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        exception = execinfo.value
+        msg = "Uma ou mais linhas com a coluna de cidade vazia possuem números de confirmados ou óbitos"
+        assert msg in exception.error_messages
     @patch("covid19.spreadsheet_validator.validate_historical_data")
     def test_validate_historical_data_as_the_final_validation(self, mock_validate_historical_data):
         mock_validate_historical_data.return_value = ["warning 1", "warning 2"]
