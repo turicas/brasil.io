@@ -239,4 +239,12 @@ sentry_sdk.init(
     SENTRY_DSN, integrations=[DjangoIntegration(), RqIntegration()], send_default_pii=True,
 )
 
+# Newsletter config
 SITE_ID = 1
+NEWSLETTER_CONFIRM_EMAIL = env("NEWSLETTER_CONFIRM_EMAIL", bool)
+# Amount of seconds to wait between each email
+NEWSLETTER_EMAIL_DELAY = env("NEWSLETTER_EMAIL_DELAY", float)
+# Amount of seconds to wait between each batch
+NEWSLETTER_BATCH_DELAY = env("NEWSLETTER_BATCH_DELAY", int)
+# Number of emails in one batch
+NEWSLETTER_BATCH_SIZE = env("NEWSLETTER_BATCH_SIZE", int)
