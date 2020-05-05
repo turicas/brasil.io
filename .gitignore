@@ -20,7 +20,6 @@ data/*
 dist/*
 docker/neo4j
 docker/redis
-docker/postgres/data
 docker/postgresql/data
 public/
 reg_settings.py

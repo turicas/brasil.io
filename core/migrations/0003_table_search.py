@@ -7,13 +7,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0002_auto_20180407_2303'),
+        ("core", "0002_auto_20180407_2303"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='table',
-            name='search',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=63), blank=True, null=True, size=None),
+            model_name="table",
+            name="search",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(max_length=63), blank=True, null=True, size=None
+            ),
         ),
     ]

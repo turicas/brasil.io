@@ -8,7 +8,6 @@ from graphs.exceptions import NodeDoesNotExistException
 
 
 class GetResourceNetworkView(APIView):
-
     def get(self, request):
         serializer = serializers.ResourceNetworkSerializer(data=request.GET)
         serializer.is_valid(raise_exception=True)
@@ -16,7 +15,6 @@ class GetResourceNetworkView(APIView):
 
 
 class GetNodeDataView(APIView):
-
     def get(self, request):
         serializer = serializers.NodeSerializer(data=request.GET)
         serializer.is_valid(raise_exception=True)
@@ -27,7 +25,6 @@ class GetNodeDataView(APIView):
 
 
 class GetPartnershipPathsView(APIView):
-
     def get(self, request):
         serializer = serializers.PathSerializer(data=request.GET)
         serializer.is_valid(raise_exception=True)
@@ -38,7 +35,6 @@ class GetPartnershipPathsView(APIView):
 
 
 class GetCompanySubsequentPartnershipsGraphView(APIView):
-
     def get(self, request):
         serializer = serializers.CompanySubsequentPartnershipsSerializer(data=request.GET)
         serializer.is_valid(raise_exception=True)
@@ -49,7 +45,6 @@ class GetCompanySubsequentPartnershipsGraphView(APIView):
 
 
 class CNPJCompanyGroupsView(APIView):
-
     def get(self, request):
         serializer = serializers.CNPJCompanyGroupsSerializer(data=request.GET)
         serializer.is_valid(raise_exception=True)

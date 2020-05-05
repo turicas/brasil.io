@@ -11,20 +11,26 @@ from core.models import Dataset, Link, Version, Table, Field
 
 DATASETS, VERSIONS, TABLES = {}, {}, {}
 
+
 def is_empty(row):
-    return not any([str(value).strip()
-                    for value in row._asdict().values()
-                    if value is not None])
+    return not any([str(value).strip() for value in row._asdict().values() if value is not None])
+
 
 def is_complete(row):
-    return all([str(value).strip()
-                for key, value in row._asdict().items()
-                if key not in ('options', 'link_template', 'description')])
+    return all(
+        [
+            str(value).strip()
+            for key, value in row._asdict().items()
+            if key not in ("options", "link_template", "description")
+        ]
+    )
+
 
 def get_dataset(slug):
     if slug not in DATASETS:
         DATASETS[slug] = Dataset.objects.get(slug=slug)
     return DATASETS[slug]
+
 
 def get_version(dataset, name):
     key = (dataset.id, name)
@@ -32,65 +38,69 @@ def get_version(dataset, name):
         VERSIONS[key] = Version.objects.get(dataset=dataset, name=name)
     return VERSIONS[key]
 
+
 def get_table(dataset, version, name):
     key = (dataset.id, version.id, name)
     if key not in TABLES:
-        TABLES[key] = Table.objects.get(dataset=dataset, version=version,
-                                        name=name)
+        TABLES[key] = Table.objects.get(dataset=dataset, version=version, name=name)
     return TABLES[key]
+
 
 def dataset_update_data(row):
     return {
-        'slug': row['slug'],
-        'defaults': row,
+        "slug": row["slug"],
+        "defaults": row,
     }
+
 
 def link_update_data(row):
     return {
-        'dataset': row['dataset'],
-        'url': row['url'],
-        'defaults': row,
+        "dataset": row["dataset"],
+        "url": row["url"],
+        "defaults": row,
     }
+
 
 def version_update_data(row):
     return {
-        'dataset': row['dataset'],
-        'name': row['name'],
-        'defaults': row,
+        "dataset": row["dataset"],
+        "name": row["name"],
+        "defaults": row,
     }
 
 
 def str_to_list(data):
     if data:
-        return [field.strip() for field in data.split(',')]
+        return [field.strip() for field in data.split(",")]
 
 
 def table_update_data(row):
-    row['ordering'] = str_to_list(row['ordering'])
-    row['filtering'] = str_to_list(row['filtering'])
-    row['search'] = str_to_list(row['search'])
+    row["ordering"] = str_to_list(row["ordering"])
+    row["filtering"] = str_to_list(row["filtering"])
+    row["search"] = str_to_list(row["search"])
     return {
-        'dataset': row['dataset'],
-        'version': row['version'],
-        'name': row['name'],
-        'defaults': row,
+        "dataset": row["dataset"],
+        "version": row["version"],
+        "name": row["name"],
+        "defaults": row,
     }
+
 
 def field_update_data(row):
     return {
-        'dataset': row['dataset'],
-        'version': row['version'],
-        'table': row['table'],
-        'name': row['name'],
-        'defaults': row,
+        "dataset": row["dataset"],
+        "version": row["version"],
+        "table": row["table"],
+        "name": row["name"],
+        "defaults": row,
     }
 
 
 class Command(BaseCommand):
-    help = 'Update models (metadata only)'
+    help = "Update models (metadata only)"
 
     def _update_data(self, cls, table, get_update_data):
-        print('Updating {}...'.format(cls.__name__), end='', flush=True)
+        print("Updating {}...".format(cls.__name__), end="", flush=True)
         total_created, total_updated, total_skipped = 0, 0, 0
         for row in table:
             if is_empty(row):
@@ -101,34 +111,28 @@ class Command(BaseCommand):
 
             data = row._asdict()
             try:
-                if 'dataset_slug' in data:
-                    data['dataset'] = get_dataset(data.pop('dataset_slug'))
-                if 'version_name' in data:
-                    data['version'] = get_version(data['dataset'],
-                                                  data.pop('version_name'))
-                if 'table_name' in data:
-                    data['table'] = get_table(data['dataset'],
-                                              data['version'],
-                                              data.pop('table_name'))
+                if "dataset_slug" in data:
+                    data["dataset"] = get_dataset(data.pop("dataset_slug"))
+                if "version_name" in data:
+                    data["version"] = get_version(data["dataset"], data.pop("version_name"))
+                if "table_name" in data:
+                    data["table"] = get_table(data["dataset"], data["version"], data.pop("table_name"))
             except ObjectDoesNotExist:
                 total_skipped += 1
                 continue
 
-            _, created = cls.objects.update_or_create(
-                **get_update_data(data)
-            )
+            _, created = cls.objects.update_or_create(**get_update_data(data))
             if created:
                 total_created += 1
             else:
                 total_updated += 1
-        print(' created: {}, updated: {}, skipped: {}.'
-              .format(total_created, total_updated, total_skipped))
+        print(" created: {}, updated: {}, skipped: {}.".format(total_created, total_updated, total_skipped))
 
     def add_arguments(self, parser):
-        parser.add_argument('--truncate', action='store_true')
+        parser.add_argument("--truncate", action="store_true")
 
     def handle(self, *args, **kwargs):
-        truncate = kwargs.get('truncate', False)
+        truncate = kwargs.get("truncate", False)
         update_functions = [
             (Dataset, dataset_update_data),
             (Link, link_update_data),
@@ -138,21 +142,21 @@ class Command(BaseCommand):
         ]
 
         if truncate:
-            print('Deleting metadata to create new objects...')
+            print("Deleting metadata to create new objects...")
             for Model, _ in update_functions:
                 Model.objects.all().delete()
         else:
-            print('WARNING: updating data only. If some field was removed '
-                  'this change will not be reflected on your database. '
-                  'Consider using --truncate')
+            print(
+                "WARNING: updating data only. If some field was removed "
+                "this change will not be reflected on your database. "
+                "Consider using --truncate"
+            )
 
         self.datasets, self.tables, self.versions = {}, {}, {}
         response = urlopen(settings.DATA_URL)
         data = response.read()
         for Model, update_data_function in update_functions:
             table = rows.import_from_xlsx(
-                io.BytesIO(data),
-                sheet_name=Model.__name__,
-                workbook_kwargs={"read_only": False},
+                io.BytesIO(data), sheet_name=Model.__name__, workbook_kwargs={"read_only": False},
             )
             self._update_data(Model, table, update_data_function)

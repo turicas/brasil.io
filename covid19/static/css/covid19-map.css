@@ -1,6 +1,7 @@
 #map {
-  min-width: 400px;
+  margin-top: -40px;
   min-height: 850px;
+  min-width: 400px;
 }
 
 .card {
@@ -39,8 +40,10 @@
 #loading {
   position: relative;
   z-index: 999;
-  margin-bottom: -50px;
+  margin-bottom: 0px;
   margin-left: 50px;
+  height: 40px;
+  padding-top: 10px;
 }
 #loading > span > img {
   width: 20px;
@@ -56,4 +59,22 @@
 .dataTables_wrapper .dataTables_filter input[type=search] {
   float: right;
   width: calc(100% - 7rem);
+}
+
+#map-col {
+  padding: 0 2px 0 0;
+}
+#table-col {
+  padding: 0 0 0 0;
+}
+
+.state-option {
+  font-size: 1em;
+  padding: 0 1em;
+}
+@media screen and (max-width: 1280px) {
+  .state-option {
+    font-size: 1em;
+    padding: 0 0.25em;
+  }
 }
