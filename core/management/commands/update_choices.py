@@ -25,7 +25,7 @@ class Command(BaseCommand):
             print("{}".format(dataset.slug))
             start_dataset = time.time()
 
-            tables = Table.objects.for_dataset(dataset)
+            tables = Table.with_hidden.for_dataset(dataset)
             if tablename:
                 tables = [tables.named(tablename)]
             for table in tables:
