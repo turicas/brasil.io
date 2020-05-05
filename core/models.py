@@ -330,8 +330,15 @@ class ActiveTableManager(models.Manager):
         return super().get_queryset().filter(hidden=False)
 
 
+class AllTablesManager(models.Manager):
+    """
+    This manager is used to fetch all tables in the database, including the hidden ones
+    """
+
+
 class Table(models.Model):
     objects = ActiveTableManager.from_queryset(TableQuerySet)()
+    with_hidden = AllTablesManager.from_queryset(TableQuerySet)()
 
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, null=False, blank=False)
     default = models.BooleanField(null=False, blank=False)

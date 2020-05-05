@@ -45,7 +45,7 @@ class TableModelTests(TestCase):
             assert rows_field_type == table.schema["table_column"]
 
     def test_table_default_manager_excludes_hidden_tables(self):
-        dataset = baker.make('core.Dataset')
+        dataset = baker.make("core.Dataset")
         table = baker.make(Table, dataset=dataset, default=True)
         hidden_table = baker.make(Table, hidden=True, dataset=dataset, default=True)
 
@@ -61,3 +61,13 @@ class TableModelTests(TestCase):
 
         assert table == Table.objects.for_dataset(dataset).default()
         assert table == Table.objects.named(table.name)
+
+        tables = Table.with_hidden.all()
+        assert 2 == tables.count()
+        assert table in tables
+        assert hidden_table in tables
+
+        tables = Table.with_hidden.for_dataset(dataset)
+        assert 2 == tables.count()
+        assert table in tables
+        assert hidden_table in tables
