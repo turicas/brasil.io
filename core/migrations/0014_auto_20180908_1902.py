@@ -6,13 +6,9 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0013_auto_20180824_2201'),
+        ("core", "0013_auto_20180824_2201"),
     ]
 
     operations = [
-        migrations.RenameField(
-            model_name='table',
-            old_name='last_update',
-            new_name='import_date',
-        ),
+        migrations.RenameField(model_name="table", old_name="last_update", new_name="import_date",),
     ]

@@ -3,34 +3,23 @@
 import django.contrib.postgres.fields
 from django.db import migrations, models
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0001_initial'),
+        ("core", "0001_initial"),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='field',
-            name='index',
-        ),
-        migrations.RemoveField(
-            model_name='field',
-            name='max_length',
-        ),
+        migrations.RemoveField(model_name="field", name="index",),
+        migrations.RemoveField(model_name="field", name="max_length",),
+        migrations.AddField(model_name="field", name="null", field=models.BooleanField(default=True),),
+        migrations.AlterField(model_name="field", name="show", field=models.BooleanField(default=True),),
         migrations.AddField(
-            model_name='field',
-            name='null',
-            field=models.BooleanField(default=True),
-        ),
-        migrations.AlterField(
-            model_name='field',
-            name='show',
-            field=models.BooleanField(default=True),
-        ),
-        migrations.AddField(
-            model_name='table',
-            name='filtering',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=63), blank=True, null=True, size=None),
+            model_name="table",
+            name="filtering",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(max_length=63), blank=True, null=True, size=None
+            ),
         ),
     ]

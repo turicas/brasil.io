@@ -14,9 +14,7 @@ urlpatterns = [
     path("datasets/", views.dataset_list, name="dataset-list"),
     path("home/", views.home, name="home"),
     path("dataset/<slug>/", views.dataset_detail, name="dataset-detail"),
-    path(
-        "dataset/<slug>/<tablename>/", views.dataset_detail, name="dataset-table-detail"
-    ),
+    path("dataset/<slug>/<tablename>/", views.dataset_detail, name="dataset-table-detail"),
     path("datasets/sugira/", views.dataset_suggestion, name="dataset-suggestion"),
     path("manifesto/", views.manifesto, name="manifesto"),
     path("colabore/", views.collaborate, name="collaborate"),

@@ -24,15 +24,10 @@ class Command(BaseCommand):
         parser.add_argument("--no-import-data", required=False, action="store_true")
         parser.add_argument("--no-vacuum", required=False, action="store_true")
         parser.add_argument("--no-clear-view-cache", required=False, action="store_true")
-        parser.add_argument(
-            "--no-create-filter-indexes", required=False, action="store_true"
-        )
+        parser.add_argument("--no-create-filter-indexes", required=False, action="store_true")
         parser.add_argument("--no-fill-choices", required=False, action="store_true")
         parser.add_argument(
-            "--collect-date",
-            required=False,
-            action="store",
-            help="collect date in format YYYY-MM-DD",
+            "--collect-date", required=False, action="store", help="collect date in format YYYY-MM-DD",
         )
 
     def clean_collect_date(self, collect_date):
@@ -55,10 +50,7 @@ class Command(BaseCommand):
         collect_date = self.clean_collect_date(kwargs["collect_date"])
 
         if ask_confirmation:
-            print(
-                "This operation will DESTROY the existing data for this "
-                "dataset table."
-            )
+            print("This operation will DESTROY the existing data for this " "dataset table.")
             answer = input("Do you want to continue? (y/n) ")
             if answer.lower().strip() not in ("y", "yes"):
                 exit()
@@ -89,9 +81,7 @@ class Command(BaseCommand):
             # etc.)
             file_header = open_compressed(filename).readline().strip().split(",")
             table_schema = table.schema
-            schema = OrderedDict(
-                [(field_name, table_schema[field_name]) for field_name in file_header]
-            )
+            schema = OrderedDict([(field_name, table_schema[field_name]) for field_name in file_header])
             try:
                 import_meta = pgimport(
                     filename=filename,

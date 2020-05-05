@@ -1,10 +1,9 @@
 var cityData,
     cityGeoJSON,
     cityLayer,
-    colors,
-    countryData,
-    countryId,
-    displayText,
+    totalData,
+    totalId,
+    dataConfig,
     legendBins,
     map,
     placeDataControl,
@@ -15,46 +14,74 @@ var cityData,
     stateLayer,
     varControl;
 
-colors = {
-  "confirmed": "#00F",
-  "confirmed_per_100k_inhabitants": "#2B580C",
-  "deaths": "#F00",
-  "death_rate_percent": "#F08",
-};
-displayText = {
-  "confirmed": "Casos confirmados",
-  "confirmed_per_100k_inhabitants": "Confirmados/100.000 hab.",
-  "deaths": "Óbitos confirmados",
-  "death_rate_percent": "Letalidade",
-};
-legendBins = 6;
-countryId = 0; // Brasil
-selectedPlace = countryId;
-selectedVar = "confirmed";
-zeroText = {
-  "confirmed": "Nenhum",
-  "confirmed_per_100k_inhabitants": "Nenhum",
-  "deaths": "Nenhum",
-  "death_rate_percent": "Nenhum",
+dataConfig = {
+  "confirmed_per_100k_inhabitants": {
+    "color": "#2B580C",
+    "displayText": "Confirmados/100.000 hab.",
+    "zeroText": "Nenhum",
+    "opacityFromValue": log2OpacityFromValue,
+    "valueFromOpacity": log2ValueFromOpacity,
+  },
+  "deaths_per_100k_inhabitants": {
+    "color": "#F39",
+    "displayText": "Óbitos/100.000 hab.",
+    "zeroText": "Nenhum",
+    "opacityFromValue": log2OpacityFromValue,
+    "valueFromOpacity": log2ValueFromOpacity,
+  },
+  "death_rate_percent": {
+    "color": "#F08",
+    "displayText": "Letalidade",
+    "zeroText": "Nenhum",
+    "opacityFromValue": linearOpacityFromValue,
+    "valueFromOpacity": linearValueFromOpacity,
+  },
+  "confirmed": {
+    "color": "#00F",
+    "displayText": "Casos confirmados",
+    "zeroText": "Nenhum",
+    "opacityFromValue": log2OpacityFromValue,
+    "valueFromOpacity": log2ValueFromOpacity,
+  },
+  "deaths": {
+    "color": "#F00",
+    "displayText": "Óbitos confirmados",
+    "zeroText": "Nenhum",
+    "opacityFromValue": log2OpacityFromValue,
+    "valueFromOpacity": log2ValueFromOpacity,
+  },
 };
 
-function getPlaceData(place) {
-  return place == countryId ? countryData : cityData[place];
+legendBins = 6;
+totalId = 0; // Brasil or state
+selectedPlace = totalId;
+selectedVar = Object.keys(dataConfig)[0];
+
+function mapType() {
+  return selectedStateId === undefined ? "country" : "state";
 }
-function opacityFromValue(value, maxValue) {
-  // TODO: should round opacity numbers to bin value in legend?
+function getPlaceData(place) {
+  return place == totalId ? totalData : cityData[place];
+}
+function linearOpacityFromValue(value, maxValue) {
+  return value / maxValue;
+}
+function linearValueFromOpacity(opacity, maxValue) {
+  return parseInt(opacity * maxValue);
+}
+function log2OpacityFromValue(value, maxValue) {
   return Math.log2(value + 1) / Math.log2(maxValue + 1);
 }
-function valueFromOpacity(opacity, maxValue) {
+function log2ValueFromOpacity(opacity, maxValue) {
   return parseInt(2 ** (opacity * Math.log2(maxValue + 1)) - 1);
 }
 function cityStyle(feature) {
   var value = cityData[feature.id][selectedVar] || 0;
   var maxValue = maxValues[selectedVar];
-  var opacity = opacityFromValue(value, maxValue);
+  var opacity = dataConfig[selectedVar].opacityFromValue(value, maxValue);
   return {
     color: "#000",
-    fillColor: colors[selectedVar],
+    fillColor: dataConfig[selectedVar].color,
     fillOpacity: opacity,
     lineJoin: "round",
     opacity: 0,
@@ -68,7 +95,7 @@ function stateStyle(feature) {
     fillOpacity: 0.1,
     lineJoin: "round",
     opacity: 1,
-    weight: 0.5
+    weight: 0.75
   };
 }
 function changeVar(newVar) {
@@ -78,30 +105,33 @@ function changeVar(newVar) {
 }
 
 function updateLegendControl() {
-  var color = colors[selectedVar],
+  var color = dataConfig[selectedVar].color,
       displayValue,
       div = legendControl.getContainer(),
-      labels = [`<b>${displayText[selectedVar]}</b>`, "<br><br>"],
-      lastValue,
+      labels = [`<b>${dataConfig[selectedVar].displayText}</b>`, "<br><br>"],
+      lastOpacity,
       maxValue = maxValues[selectedVar],
-      zeroDisplay = zeroText[selectedVar];
+      zeroDisplay = dataConfig[selectedVar].zeroText;
 
   for (var counter = 0; counter <= legendBins; counter += 1) {
     var opacity = counter / legendBins;
-    var value = valueFromOpacity(opacity, maxValue);
-    displayValue = lastValue === undefined ? zeroDisplay : `${lastValue} &mdash; ${value}`;
-    labels.push(`<span class="valign-wrapper"> <i style="background: ${color}; opacity: ${opacity}"></i> ${displayValue} </span>`);
-    lastValue = value + 1;
+    var value = dataConfig[selectedVar].valueFromOpacity(opacity, maxValue);
+    var lastValue = lastOpacity === undefined ? 0 : dataConfig[selectedVar].valueFromOpacity(lastOpacity, maxValue);
+    if (lastOpacity === undefined || lastValue != value) {
+      displayValue = lastOpacity === undefined ? zeroDisplay : `${lastValue} &mdash; ${value}`;
+      labels.push(`<span class="valign-wrapper"> <i style="background: ${color}; opacity: ${opacity}"></i> ${displayValue} </span>`);
+    }
+    lastOpacity = opacity;
   }
   div.innerHTML = labels.join("");
 }
 function updatePlaceDataControl(placeData) {
   var div = placeDataControl.getContainer();
   var dataLines = [];
-  Object.keys(displayText).forEach(function(item) {
+  Object.keys(dataConfig).forEach(function(item) {
     var value = Intl.NumberFormat("pt-BR").format(placeData[item]);
     value = item.endsWith("percent") ? `${value}%` : value;
-    dataLines.push(`<dt>${displayText[item]}:</dt> <dd>${value}</dd>`);
+    dataLines.push(`<dt>${dataConfig[item].displayText}:</dt> <dd>${value}</dd>`);
   });
   div.innerHTML = `
     <b>${placeData.city}</b>
@@ -114,8 +144,8 @@ function updatePlaceDataControl(placeData) {
 function updateVarControl() {
   var div = varControl.getContainer();
   var inputs = ["<b>Selecione a variável</b>"];
-  Object.keys(displayText).forEach(function(item) {
-    inputs.push(`<label><input type="radio" class="radio-control" name="radio-var-control" value="${item}"><span>${displayText[item]}</span></label>`);
+  Object.keys(dataConfig).forEach(function(item) {
+    inputs.push(`<label><input type="radio" class="radio-control" name="radio-var-control" value="${item}"><span>${dataConfig[item].displayText}</span></label>`);
   });
   div.innerHTML = inputs.join("<br>");
   jQuery(".radio-control").change(function() {
@@ -124,14 +154,16 @@ function updateVarControl() {
 }
 
 function createMap() {
+  var minZoom = mapType() == "country" ? 4.5 : 6;
+  var maxZoom = mapType() == "country" ? 8 : 12;
   map = L.map("map", {
     zoomSnap: 0.25,
     zoomDelta: 0.25,
-    minZoom: 4.5,
-    maxZoom: 9,
+    minZoom: minZoom,
+    maxZoom: maxZoom,
     attributionControl: false
   });
-  map.setView([-15, -54], 4.75);
+  map.setView([-15, -54], minZoom);
 }
 function hasToAddStateLayer() {
   return stateGeoJSON !== undefined && stateLayer === undefined;
@@ -145,9 +177,22 @@ function hasToAddLegendLayer() {
 function mapHasLoaded() {
   return stateLayer !== undefined && cityLayer !== undefined;
 }
+function mapFit() {
+  map.fitBounds(stateLayer.getBounds());
+}
 function updateMap() {
   if (hasToAddStateLayer()) {
-    stateLayer = L.geoJSON(stateGeoJSON, {style: stateStyle}).addTo(map);
+    if (mapType() == "country") {
+      stateLayer = L.geoJSON(stateGeoJSON, {style: stateStyle}).addTo(map);
+    }
+    else if (mapType() == "state") {
+      var filteredStateGeoJSON = stateGeoJSON;
+      filteredStateGeoJSON.features = filteredStateGeoJSON.features.filter(function (item) {
+        return item.properties.CD_GEOCUF == selectedStateId;
+      });
+      stateLayer = L.geoJSON(filteredStateGeoJSON, {style: stateStyle}).addTo(map);
+    }
+    mapFit();
   }
 
   if (hasToAddCityLayer()) {
@@ -166,7 +211,7 @@ function updateMap() {
           });
           layer.on("mouseout", function () {
             this.setStyle({opacity: 0});
-            updatePlaceDataControl(getPlaceData(countryId));
+            updatePlaceDataControl(getPlaceData(totalId));
           });
         }
       }
@@ -224,7 +269,7 @@ function retrieveData() {
     function (data) {
       cityData = data.cities;
       maxValues = data.max;
-      countryData = data.total;
+      totalData = data.total;
       updateMap();
     }
   );

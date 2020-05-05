@@ -17,19 +17,14 @@ def create_object(Model, data):
     )
 
     for field in Model._meta.fields:
-        if (
-            isinstance(field, special_fields)
-            and not (data.get(field.name) or "").strip()
-        ):
+        if isinstance(field, special_fields) and not (data.get(field.name) or "").strip():
             data[field.name] = None
 
     return Model(**data)
 
 
 def get_company_by_document(document):
-    Documents = (
-        Table.objects.for_dataset("documentos-brasil").named("documents").get_model()
-    )
+    Documents = Table.objects.for_dataset("documentos-brasil").named("documents").get_model()
     doc_prefix = document[:8]
     headquarter_prefix = doc_prefix + "0001"
     branches = Documents.objects.filter(docroot=doc_prefix, document_type="CNPJ")
@@ -59,7 +54,12 @@ def get_company_by_document(document):
     return obj
 
 
-def http_get_json(url, timeout):
+def http_get(url, timeout):
+    """Execute a HTTP GET request and returns `None` if `timeout` is achieved.
+
+    This function is capable of decompressing data automatically from HTTP
+    server."""
+
     request = Request(url, headers={"Accept-Encoding": "gzip, deflate"})
     try:
         response = urlopen(request, timeout=timeout)
@@ -74,7 +74,14 @@ def http_get_json(url, timeout):
             data = gzip.decompress(response_data)
         else:
             raise RuntimeError(f"Unknown encoding: {repr(encoding)}")
-        return json.loads(data)
+        return data
+
+
+def http_get_json(url, timeout):
+    data = http_get(url, timeout)
+    if data is not None:
+        data = json.loads(data)
+    return data
 
 
 @cached(cache=TTLCache(maxsize=100, ttl=24 * 3600))

@@ -1,3 +1,4 @@
+import io
 import os
 import rows
 from datetime import date
@@ -8,9 +9,10 @@ from tempfile import NamedTemporaryFile
 from django import forms
 from django.core.validators import URLValidator
 
+from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.models import StateSpreadsheet
 from covid19.permissions import user_has_state_permission
-from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict, SpreadsheetValidationErrors
+from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict
 
 
 def state_choices_for_user(user):
@@ -29,34 +31,45 @@ def import_xls(f_obj):
     content = f_obj.read()
     f_obj.seek(0)
 
-    temp_xls = NamedTemporaryFile(suffix='.xls', delete=False)
+    temp_xls = NamedTemporaryFile(suffix=".xls", delete=False)
     temp_xls.write(content)
     temp_xls.close()
 
-    data = rows.import_from_xls(temp_xls)
     temp_file = Path(temp_xls.name)
-    os.remove(temp_file)
+    with open(temp_file, "rb") as temp_xls:
+        data = rows.import_from_xls(temp_xls)
 
+    os.remove(temp_file)
     return data
 
 
 class StateSpreadsheetForm(forms.ModelForm):
     boletim_urls = forms.CharField(
+        widget=forms.Textarea, help_text="Lista de URLs do(s) boletim(s) com uma entrada por linha"
+    )
+    boletim_notes = forms.CharField(
         widget=forms.Textarea,
-        help_text="Lista de URLs do(s) boletim(s) com uma entrada por linha"
+        required=False,
+        help_text='Observações no boletim como "depois de publicar o boletim a secretaria postou no Twitter que teve mais uma morte".',  # noqa
     )
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
+        self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
         if self.user:
-            self.fields['state'].choices = state_choices_for_user(self.user)
+            self.fields["state"].choices = state_choices_for_user(self.user)
+
+        help = (
+            'Caso necessário, baixe o arquivo modelo para os estados clicando nos botões acima entitulados "Modelo XX".'
+        )
+        if "state" in self.fields:
+            self.fields["state"].help_text = help
         self.file_data_as_json = []
         self.data_warnings = []
 
     class Meta:
         model = StateSpreadsheet
-        fields = ['date', 'state', 'file', 'boletim_urls', 'boletim_notes']
+        fields = ["date", "state", "file", "boletim_urls", "boletim_notes"]
 
     def save(self, commit=True):
         spreadsheet = super().save(commit=False)
@@ -68,13 +81,13 @@ class StateSpreadsheetForm(forms.ModelForm):
         return spreadsheet
 
     def clean_date(self):
-        report_date = self.cleaned_data['date']
+        report_date = self.cleaned_data["date"]
         if report_date > date.today():
-            raise forms.ValidationError('Campo não aceita datas futuras.')
+            raise forms.ValidationError("Campo não aceita datas futuras.")
         return report_date
 
     def clean_boletim_urls(self):
-        urls = self.cleaned_data['boletim_urls'].strip().split('\n')
+        urls = [u.strip() for u in self.cleaned_data["boletim_urls"].split("\n")]
         url_validator = URLValidator(message="Uma ou mais das URLs não são válidas.")
         for url in urls:
             url_validator(url)
@@ -82,17 +95,17 @@ class StateSpreadsheetForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        file = cleaned_data.get('file')
+        fobj = cleaned_data.get("file")
         spreadsheet_date = cleaned_data.get("date")
         state = cleaned_data.get("state")
 
-        if all([file, spreadsheet_date, state]):
-            path = Path(file.name)
+        if all([fobj, spreadsheet_date, state]):
+            path = Path(fobj.name)
             import_func_per_suffix = {
-                '.csv': rows.import_from_csv,
-                '.xls': import_xls,
-                '.xlsx': rows.import_from_xlsx,
-                '.ods': rows.import_from_ods,
+                ".csv": rows.import_from_csv,
+                ".xls": import_xls,
+                ".xlsx": rows.import_from_xlsx,
+                ".ods": rows.import_from_ods,
             }
 
             import_func = import_func_per_suffix.get(path.suffix.lower())
@@ -101,8 +114,10 @@ class StateSpreadsheetForm(forms.ModelForm):
                 msg = f"Formato de planilha inválida. O arquivo precisa estar formatado como {valid}."  # noqa
                 raise forms.ValidationError(msg)
 
+            file_data = io.BytesIO(fobj.read())
+            fobj.seek(0)
             try:
-                file_rows = import_func(file)
+                file_rows = import_func(file_data)
             except Exception as e:
                 raise forms.ValidationError(e)
 

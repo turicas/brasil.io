@@ -6,17 +6,10 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0006_auto_20180426_1201'),
+        ("core", "0006_auto_20180426_1201"),
     ]
 
     operations = [
-        migrations.AlterModelOptions(
-            name='field',
-            options={'ordering': ['order']},
-        ),
-        migrations.AddField(
-            model_name='field',
-            name='obfuscate',
-            field=models.BooleanField(default=False),
-        ),
+        migrations.AlterModelOptions(name="field", options={"ordering": ["order"]},),
+        migrations.AddField(model_name="field", name="obfuscate", field=models.BooleanField(default=False),),
     ]

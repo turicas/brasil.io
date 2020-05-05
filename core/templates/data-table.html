@@ -24,7 +24,7 @@
     {% if field.link_template and value %}
     <td><a href="{{ field.link_template|render:row }}"> {{ value }} </a></td>
     {% else %}
-    <td>{{ value|default:'' }}</td>
+    <td>{{ value|default_if_none:'' }}</td>
     {% endif %}
     {% endwith %}{% endif %}{% endfor %}
   </tr>
