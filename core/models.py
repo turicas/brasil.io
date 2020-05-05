@@ -267,8 +267,11 @@ class Dataset(models.Model):
     def last_version(self):
         return self.get_last_version()
 
-    def get_table(self, tablename):
-        return Table.objects.for_dataset(self).named(tablename)
+    def get_table(self, tablename, allow_hidden=False):
+        if allow_hidden:
+            return Table.with_hidden.for_dataset(self).named(tablename)
+        else:
+            return Table.objects.for_dataset(self).named(tablename)
 
     def get_default_table(self):
         return Table.objects.for_dataset(self).default()
@@ -321,8 +324,24 @@ class TableQuerySet(models.QuerySet):
         return self.get(name=name)
 
 
+class ActiveTableManager(models.Manager):
+    """
+    This manager is the main one for the Table model and it excludes hidden tables by default
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().filter(hidden=False)
+
+
+class AllTablesManager(models.Manager):
+    """
+    This manager is used to fetch all tables in the database, including the hidden ones
+    """
+
+
 class Table(models.Model):
-    objects = TableQuerySet.as_manager()
+    objects = ActiveTableManager.from_queryset(TableQuerySet)()
+    with_hidden = AllTablesManager.from_queryset(TableQuerySet)()
 
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, null=False, blank=False)
     default = models.BooleanField(null=False, blank=False)
@@ -334,6 +353,7 @@ class Table(models.Model):
     version = models.ForeignKey(Version, on_delete=models.CASCADE, null=False, blank=False)
     import_date = models.DateTimeField(null=True, blank=True)
     description = MarkdownxField(null=True, blank=True)
+    hidden = models.BooleanField(default=False)
 
     def __str__(self):
         return "{}.{}.{}".format(self.dataset.slug, self.version.name, self.name)
@@ -345,6 +365,10 @@ class Table(models.Model):
     @property
     def fields(self):
         return self.field_set.all()
+
+    @property
+    def enabled(self):
+        return not self.hidden
 
     @property
     def schema(self):

@@ -109,7 +109,8 @@ def dataset_detail(request, slug, tablename=""):
         return redirect(reverse("core:dataset-table-detail", kwargs={"slug": slug, "tablename": tablename},))
 
     try:
-        table = dataset.get_table(tablename)
+        allow_hidden = request.user.is_superuser
+        table = dataset.get_table(tablename, allow_hidden=allow_hidden)
     except Table.DoesNotExist:
         context = {"message": "Table does not exist"}
         return render(request, "404.html", context, status=404)

@@ -55,7 +55,7 @@ class Command(BaseCommand):
             if answer.lower().strip() not in ("y", "yes"):
                 exit()
 
-        table = Table.objects.for_dataset(dataset_slug).named(tablename)
+        table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
         Model = table.get_model()
 
         if import_data:

@@ -42,7 +42,7 @@ def get_version(dataset, name):
 def get_table(dataset, version, name):
     key = (dataset.id, version.id, name)
     if key not in TABLES:
-        TABLES[key] = Table.objects.get(dataset=dataset, version=version, name=name)
+        TABLES[key] = Table.with_hidden.get(dataset=dataset, version=version, name=name)
     return TABLES[key]
 
 
