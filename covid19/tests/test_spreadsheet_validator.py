@@ -339,7 +339,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         exception = execinfo.value
         assert "Mais de uma entrada para Abatiá" in exception.error_messages
 
-    def test_validation_error_if_city_formyla(self):
+    def test_validation_error_if_city_formula(self):
         self.content = self.content.replace("Abatiá,9,1", "Abatiá,'=SUM(A1:A3)',1")
 
         file_rows = rows.import_from_csv(self.file_from_content)
