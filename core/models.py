@@ -334,6 +334,7 @@ class Table(models.Model):
     version = models.ForeignKey(Version, on_delete=models.CASCADE, null=False, blank=False)
     import_date = models.DateTimeField(null=True, blank=True)
     description = MarkdownxField(null=True, blank=True)
+    hidden = models.BooleanField(default=False)
 
     def __str__(self):
         return "{}.{}.{}".format(self.dataset.slug, self.version.name, self.name)
