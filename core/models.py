@@ -267,8 +267,11 @@ class Dataset(models.Model):
     def last_version(self):
         return self.get_last_version()
 
-    def get_table(self, tablename):
-        return Table.objects.for_dataset(self).named(tablename)
+    def get_table(self, tablename, allow_hidden=False):
+        if allow_hidden:
+            return Table.with_hidden.for_dataset(self).named(tablename)
+        else:
+            return Table.objects.for_dataset(self).named(tablename)
 
     def get_default_table(self):
         return Table.objects.for_dataset(self).default()
