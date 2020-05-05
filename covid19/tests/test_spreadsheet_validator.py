@@ -339,6 +339,16 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         exception = execinfo.value
         assert "Mais de uma entrada para Abatiá" in exception.error_messages
 
+    def test_validation_error_if_city_formyla(self):
+        self.content = self.content.replace("Abatiá,9,1", "Abatiá,'=SUM(A1:A3)',1")
+
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(SpreadsheetValidationErrors) as execinfo:
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        exception = execinfo.value
+        assert "Provavelmente há uma fórmula na linha Abatiá da planilha" in exception.error_messages
+
 
 class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
     def setUp(self):

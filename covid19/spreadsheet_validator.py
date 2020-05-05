@@ -69,10 +69,14 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
         if confirmed is None or deaths is None:
             continue
 
-        if deaths > confirmed:
-            validation_errors.new_error(f"Valor de óbitos maior que casos confirmados na linha {city} da planilha")
-        elif deaths < 0 or confirmed < 0:
-            validation_errors.new_error(f"Valores negativos na linha {city} da planilha")
+        try:
+            if deaths > confirmed:
+                validation_errors.new_error(f"Valor de óbitos maior que casos confirmados na linha {city} da planilha")
+            elif deaths < 0 or confirmed < 0:
+                validation_errors.new_error(f"Valores negativos na linha {city} da planilha")
+        except TypeError:
+            validation_errors.new_error(f"Provavelmente há uma fórmula na linha {city} da planilha")
+            continue
 
         result = _parse_city_data(city, confirmed, deaths, date, state)
         if result["city_ibge_code"] == INVALID_CITY_CODE:
