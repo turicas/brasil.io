@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.templatetags.static import static
+from django.utils.html import format_html
 from markdownx.admin import MarkdownxModelAdmin
 
 from core import models
@@ -38,6 +40,20 @@ class TableAdmin(MarkdownxModelAdmin):
         if ordering:
             qs = qs.order_by(*ordering)
         return qs
+
+    list_filter = ["hidden", "dataset__slug", "default"]
+    list_display = ["__str__", "enabled_flag"]
+
+    def enabled_flag(self, obj):
+        images = {
+            True: static("admin/img/icon-yes.svg"),
+            False: static("admin/img/icon-no.svg"),
+        }
+        value = obj.enabled
+        title = "Enabled" if value else "Hidden"
+        return format_html(f'<img src="{images[value]}" title="{title}" alt="{title}">')
+
+    enabled_flag.short_description = "Enabled"
 
 
 admin.site.register(models.Table, TableAdmin)

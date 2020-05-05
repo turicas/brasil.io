@@ -364,6 +364,10 @@ class Table(models.Model):
         return self.field_set.all()
 
     @property
+    def enabled(self):
+        return not self.hidden
+
+    @property
     def schema(self):
         db_fields_to_rows_fields = {
             "binary": rows_fields.BinaryField,
