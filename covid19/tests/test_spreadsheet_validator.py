@@ -315,6 +315,8 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         exception = execinfo.value
         msg = "Uma ou mais linhas com a coluna de cidade vazia possuem números de confirmados ou óbitos"
         assert msg in exception.error_messages
+        assert exception.error_messages.count(msg) == 1
+
     @patch("covid19.spreadsheet_validator.validate_historical_data")
     def test_validate_historical_data_as_the_final_validation(self, mock_validate_historical_data):
         mock_validate_historical_data.return_value = ["warning 1", "warning 2"]
