@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "markdownx",
     "django_rq",
+    "sorl.thumbnail",
+    "newsletter",
     # Project apps
     "core",
     "graphs",

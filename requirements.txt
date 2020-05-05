@@ -39,3 +39,5 @@ six>=1.13
 tqdm
 xlrd
 xlwt
+django-newsletter==0.9
+sorl-thumbnail==12.6.3
