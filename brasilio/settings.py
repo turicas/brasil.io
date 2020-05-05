@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     # Django apps
     "django.contrib.admin",
     "django.contrib.auth",
+    "django.contrib.sites",
     "django.contrib.contenttypes",
     "django.contrib.humanize",
     "django.contrib.messages",
@@ -237,3 +238,5 @@ SENTRY_DSN = env("SENTRY_DSN")
 sentry_sdk.init(
     SENTRY_DSN, integrations=[DjangoIntegration(), RqIntegration()], send_default_pii=True,
 )
+
+SITE_ID = 1
