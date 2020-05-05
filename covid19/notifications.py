@@ -38,7 +38,7 @@ def notify_new_spreadsheet(spreadsheet):
     channel, collabs = notification_info_by_state(spreadsheet.state)
 
     msg = f"{collabs} - *Nova planilha* importada para o estado *{spreadsheet.state}* para o dia *{spreadsheet.date}*"
-    msg += f"\nRealizada por: *@{spreadsheet.user.username}*\n\nPrecisamos de mais uma planilha para verificar os dados."  # noqa
+    msg += f"\nRealizada por: @{spreadsheet.user.username}\n\nPrecisamos de mais uma planilha para verificar os dados."  # noqa
     msg += "\nOs dados só poderão ser atualizados se uma nova planilha for enviada e os dados forem os mesmos."
 
     chat.send_message(channel, msg)
@@ -50,7 +50,7 @@ def notify_spreadsheet_mismatch(spreadsheet, errors):
 
     errors = "\n- ".join(errors)
     msg = f"{collabs} - *Dados divergentes* na planilha importada para o estado *{spreadsheet.state}* para o dia *{spreadsheet.date}*"  # noqa
-    msg += f"\nRealizada por: *@{spreadsheet.user.username}*\n\n- {errors}"
+    msg += f"\nRealizada por: @{spreadsheet.user.username}\n\n- {errors}"
     msg += f"\n\nLink para a planilha: https://brasil.io{spreadsheet.admin_url}"
 
     chat.send_message(channel, msg)

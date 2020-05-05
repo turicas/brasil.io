@@ -54,6 +54,11 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
         city = getattr(entry, city_attr, None)
         confirmed = getattr(entry, confirmed_attr, None)
         deaths = getattr(entry, deaths_attr, None)
+        if not city:
+            if confirmed or deaths:
+                msg = "Uma ou mais linhas com a coluna de cidade vazia possuem números de confirmados ou óbitos"
+                validation_errors.new_error(msg)
+            continue
 
         if city in processed_cities:
             validation_errors.new_error(f"Mais de uma entrada para {city}")
@@ -61,16 +66,22 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
         processed_cities.add(city)
         if city == UNDEFINED_DISPLAY:
             has_undefined = True
+        elif city == TOTAL_LINE_DISPLAY:
+            has_total = True
 
         if (confirmed is None and deaths is not None) or (deaths is None and confirmed is not None):
             validation_errors.new_error(f"Dados de casos ou óbitos incompletos na linha {city}")
         if confirmed is None or deaths is None:
             continue
 
-        if deaths > confirmed:
-            validation_errors.new_error(f"Valor de óbitos maior que casos confirmados na linha {city} da planilha")
-        elif deaths < 0 or confirmed < 0:
-            validation_errors.new_error(f"Valores negativos na linha {city} da planilha")
+        try:
+            if deaths > confirmed:
+                validation_errors.new_error(f"Valor de óbitos maior que casos confirmados na linha {city} da planilha")
+            elif deaths < 0 or confirmed < 0:
+                validation_errors.new_error(f"Valores negativos na linha {city} da planilha")
+        except TypeError:
+            validation_errors.new_error(f"Provavelmente há uma fórmula na linha {city} da planilha")
+            continue
 
         result = _parse_city_data(city, confirmed, deaths, date, state)
         if result["city_ibge_code"] == INVALID_CITY_CODE:
@@ -78,7 +89,6 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
             continue
 
         if result["place_type"] == "state":
-            has_total = True
             total_cases, total_deaths = confirmed, deaths
         else:
             sum_cases += confirmed

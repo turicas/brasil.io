@@ -5,10 +5,14 @@ class SpreadsheetValidationErrors(Exception):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.error_messages = []
+        self._error_messages = set()
 
     def new_error(self, msg):
-        self.error_messages.append(msg)
+        self._error_messages.add(msg)
+
+    @property
+    def error_messages(self):
+        return list(self._error_messages)
 
     def raise_if_errors(self):
         if self.error_messages:
