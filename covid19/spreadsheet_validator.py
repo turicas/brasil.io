@@ -63,6 +63,8 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
         processed_cities.add(city)
         if city == UNDEFINED_DISPLAY:
             has_undefined = True
+        elif city == TOTAL_LINE_DISPLAY:
+            has_total = True
 
         if (confirmed is None and deaths is not None) or (deaths is None and confirmed is not None):
             validation_errors.new_error(f"Dados de casos ou óbitos incompletos na linha {city}")
@@ -84,7 +86,6 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
             continue
 
         if result["place_type"] == "state":
-            has_total = True
             total_cases, total_deaths = confirmed, deaths
         else:
             sum_cases += confirmed
