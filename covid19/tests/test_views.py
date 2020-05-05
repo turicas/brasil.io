@@ -37,4 +37,4 @@ class ImportSpreadsheetProxyViewTests(TestCase):
         response = self.client.get(self.url)
 
         assert 400 == response.status_code
-        assert ["error 1", "error 2"] == sorted(response.json()['errors'])
+        assert ["error 1", "error 2"] == sorted(response.json()["errors"])

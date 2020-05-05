@@ -306,7 +306,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         sample = settings.SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR-empty-lines.csv"
         assert sample.exists()
         self.content = sample.read_text()
-        self.content = self.content.replace(',,', ',10,20')
+        self.content = self.content.replace(",,", ",10,20")
 
         file_rows = rows.import_from_csv(self.file_from_content)
         with pytest.raises(SpreadsheetValidationErrors) as execinfo:
