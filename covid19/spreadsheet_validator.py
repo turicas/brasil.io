@@ -54,6 +54,8 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
         city = getattr(entry, city_attr, None)
         confirmed = getattr(entry, confirmed_attr, None)
         deaths = getattr(entry, deaths_attr, None)
+        if not city:
+            continue
 
         if city in processed_cities:
             validation_errors.new_error(f"Mais de uma entrada para {city}")

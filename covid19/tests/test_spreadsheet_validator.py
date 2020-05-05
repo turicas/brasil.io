@@ -290,6 +290,18 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
         assert data[0]["deaths"] == 50
 
+    @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=[]))
+    def test_ignore_empty_lines_when_importing(self):
+        sample = settings.SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR-empty-lines.csv"
+        assert sample.exists()
+        self.content = sample.read_text()
+
+        file_rows = rows.import_from_csv(self.file_from_content)
+        data, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        assert len(file_rows) > 8
+        assert 8 == len(data)
+
     @patch("covid19.spreadsheet_validator.validate_historical_data")
     def test_validate_historical_data_as_the_final_validation(self, mock_validate_historical_data):
         mock_validate_historical_data.return_value = ["warning 1", "warning 2"]
