@@ -2,6 +2,7 @@ import io
 import rows
 from cache_memoize import cache_memoize
 from collections import namedtuple
+from retry import retry
 from urllib.parse import parse_qs, urlparse
 
 from core.util import http_get
@@ -41,6 +42,7 @@ def import_info_by_state(state):
     return StateData(**data)
 
 
+@retry(tries=3, delay=5)
 def get_state_data_from_google_spreadsheets(state, timeout=5):
     state_spreadsheet_url = import_info_by_state(state).planilha_brasilio
     state_spreadsheet_download_url = spreadsheet_download_url(state_spreadsheet_url, "xlsx")
