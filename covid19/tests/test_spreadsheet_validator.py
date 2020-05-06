@@ -364,6 +364,19 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         exception = execinfo.value
         assert "Provavelmente há uma fórmula na linha Abatiá da planilha" in exception.error_messages
 
+    @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=["db warning"]))
+    def test_undefined_entry_can_have_more_deaths_than_cases(self):
+        self.content = self.content.replace("TOTAL NO ESTADO,102,32", "TOTAL NO ESTADO,102,33")
+        self.content = self.content.replace("Importados/Indefinidos,2,2", "Importados/Indefinidos,2,3")
+        file_rows = rows.import_from_csv(self.file_from_content)
+
+        results, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        assert len(results) == len(file_rows)
+        assert 2 == len(warnings)
+        assert "db warning" in warnings
+        assert "Importados/Indefinidos com número óbitos maior que de casos confirmados."
+
 
 class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
     def setUp(self):
