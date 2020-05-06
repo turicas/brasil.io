@@ -38,7 +38,7 @@ def get_general_spreadsheet(timeout=5):
 def import_info_by_state(state):
     states_data = get_general_spreadsheet()
     data = states_data[state.upper()]
-    StateData = namedtuple('StateData', data.keys())
+    StateData = namedtuple("StateData", data.keys())
     return StateData(**data)
 
 
