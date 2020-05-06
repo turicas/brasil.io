@@ -45,7 +45,7 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
     if not rows_table.fields[deaths_attr] == IntegerField:
         validation_errors.new_error('A coluna "Mortes" precisa ter somente números inteiros"')
 
-    results = []
+    results, warnings = [], []
     has_total, has_undefined = False, False
     total_cases, total_deaths = 0, 0
     sum_cases, sum_deaths = 0, 0
@@ -64,7 +64,8 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
             validation_errors.new_error(f"Mais de uma entrada para {city}")
 
         processed_cities.add(city)
-        if city == UNDEFINED_DISPLAY:
+        is_undefined = city == UNDEFINED_DISPLAY
+        if is_undefined:
             has_undefined = True
         elif city == TOTAL_LINE_DISPLAY:
             has_total = True
@@ -76,7 +77,11 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
 
         try:
             if deaths > confirmed:
-                validation_errors.new_error(f"Valor de óbitos maior que casos confirmados na linha {city} da planilha")
+                if is_undefined:
+                    warnings.append(f"{city} com número óbitos maior que de casos confirmados.")
+                else:
+                    msg = f"Valor de óbitos maior que casos confirmados na linha {city} da planilha"
+                    validation_errors.new_error(msg)
             elif deaths < 0 or confirmed < 0:
                 validation_errors.new_error(f"Valores negativos na linha {city} da planilha")
         except TypeError:
@@ -111,7 +116,7 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
     # this is hacky, I know, but I wanted to centralize all kind of validations inside this function
     on_going_spreadsheet = StateSpreadsheet(state=state, date=date)
     on_going_spreadsheet.table_data = results
-    warnings = validate_historical_data(on_going_spreadsheet)
+    warnings.extend(validate_historical_data(on_going_spreadsheet))
     return on_going_spreadsheet.table_data, warnings
 
 
