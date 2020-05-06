@@ -25,6 +25,7 @@ ipython
 jinja2
 lxml==4.5.0
 markdown
+model-bakery==1.1.0
 networkx==2.1
 openpyxl
 psycopg2-binary

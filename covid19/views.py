@@ -3,11 +3,16 @@ import random
 from django.http import JsonResponse, HttpResponse, Http404
 from django.shortcuts import render
 
+from rest_framework import views
+from rest_framework.response import Response
+from rest_framework import permissions
+
 from brazil_data.cities import get_state_info
 from brazil_data.states import STATES, STATE_BY_ACRONYM
 from core.middlewares import disable_non_logged_user_cache
 from core.util import cached_http_get_json
 from covid19.exceptions import SpreadsheetValidationErrors
+from covid19.forms import StateSpreadsheetForm
 from covid19.geo import city_geojson, state_geojson
 from covid19.spreadsheet import create_merged_state_spreadsheet
 from covid19.stats import Covid19Stats, max_values
@@ -230,3 +235,32 @@ def status(request):
         data.append(table_entry)
 
     return render(request, "covid-status.html", {"import_data": data})
+
+
+class StateSpreadsheetViewList(views.APIView):
+    def get(self, request, *args, **kwargs):
+        return Response({'message': 'ok'})
+
+    def post(self, request, *args, **kwargs):
+        data = {
+                'state': kwargs.get('state'),
+                'date': kwargs.get('date'),
+                'boletim_urls': kwargs.get('boletim_urls'),
+                'boletim_notes': kwargs.get('boletim_notes'),
+                }
+        file_data = kwargs.get('file_data')
+
+        form = StateSpreadsheetForm(data, file_data, user=request.user)
+        if form.is_valid():
+            spreadsheet = form.save()
+            spreadsheet.refresh_from_db()
+            transaction.on_commit(
+                    lambda: new_spreadsheet_imported_signal.send(
+                        sender=self,
+                        spreadsheet=spreadsheet
+                        )
+                    )
+
+            state = data['state']
+            return Response({'success': True, 'errors': []})
+        return Response({'success': False, 'errors': form.errors}, status=400)
