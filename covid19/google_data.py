@@ -1,6 +1,7 @@
 import io
 import rows
 from cache_memoize import cache_memoize
+from collections import namedtuple
 from urllib.parse import parse_qs, urlparse
 
 from core.util import http_get
@@ -35,7 +36,9 @@ def get_general_spreadsheet(timeout=5):
 
 def import_info_by_state(state):
     states_data = get_general_spreadsheet()
-    return states_data[state.upper()]
+    data = states_data[state.upper()]
+    StateData = namedtuple('StateData', data.keys())
+    return StateData(**data)
 
 
 def get_state_data_from_google_spreadsheets(state, timeout=5):
