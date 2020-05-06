@@ -1,6 +1,6 @@
 import io
 import rows
-from cachetools import cached, TTLCache
+from cache_memoize import cache_memoize
 from urllib.parse import parse_qs, urlparse
 
 from core.util import http_get
@@ -26,11 +26,11 @@ def spreadsheet_download_url(url_or_id, file_format):
     )
 
 
-@cached(cache=TTLCache(maxsize=100, ttl=24 * 3600))
+@cache_memoize(24 * 3600)
 def get_general_spreadsheet(timeout=5):
     data = http_get(spreadsheet_download_url(STATE_LINKS_SPREADSHEET_ID, "csv"), timeout)
     table = rows.import_from_csv(io.BytesIO(data), encoding="utf-8")
-    return {row.uf: row for row in table}
+    return {row.uf: row._asdict() for row in table}
 
 
 def import_info_by_state(state):
