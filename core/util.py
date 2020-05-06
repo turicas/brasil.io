@@ -1,6 +1,7 @@
 import gzip
 import json
 import socket
+from textwrap import dedent
 from urllib.request import urlopen, Request, URLError
 
 import django.db.models.fields
@@ -140,3 +141,28 @@ def brasilio_github_contributors():
     total_contributors = list(contributor_data.values())
     total_contributors.sort(key=lambda row: row["contributions"], reverse=True)
     return total_contributors
+
+
+def create_table_documentation(table):
+    dataset_slug = table.dataset.slug
+    fields_text = []
+    for field in table.field_set.all().order_by("order"):
+        field_filtering = field.name in table.filtering
+        field_str = f"- {'🔍 ' if field_filtering else ''}`{field.name}`: {field.description}"
+        fields_text.append(field_str)
+    fields_str = "\n".join(fields_text)
+    return dedent(f"""
+        ### `{table.name}`
+
+        {table.description}
+
+        - API: https://brasil.io/api/dataset/{dataset_slug}/{table.name}/data
+        - Dados completos para download: https://data.brasil.io/dataset/{dataset_slug}/{table.name}.csv.gz
+
+        Colunas:
+
+        FIELDS_STR
+
+        🔍 = colunas que podem ser filtrados via query string na API e na interface.
+        """
+    ).replace("FIELDS_STR", fields_str)
