@@ -377,6 +377,17 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         assert "db warning" in warnings
         assert "Importados/Indefinidos com número óbitos maior que de casos confirmados."
 
+    @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=[]))
+    def test_spreadsheet_only_with_total_line_should_be_valid(self):
+        self.content = "municipio,confirmados,mortes\nTOTAL NO ESTADO,102,32"
+        file_rows = rows.import_from_csv(self.file_from_content)
+
+        results, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        assert len(results) == 1
+        assert results[0]["confirmed"] == 102
+        assert results[0]["deaths"] == 32
+
 
 class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
     def setUp(self):

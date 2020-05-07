@@ -103,7 +103,7 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
 
     if not has_total:
         validation_errors.new_error(f'A linha "{TOTAL_LINE_DISPLAY}" está faltando na planilha')
-    if not has_undefined:
+    if not has_undefined and len(results) > 1:
         validation_errors.new_error(f'A linha "{UNDEFINED_DISPLAY}" está faltando na planilha')
 
     if sum_cases and sum_cases != total_cases:
