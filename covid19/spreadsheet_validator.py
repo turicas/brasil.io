@@ -171,25 +171,37 @@ def validate_historical_data(spreadsheet):
     validation_errors = SpreadsheetValidationErrors()
     covid19_stats = Covid19Stats()
     s_date = spreadsheet.date
+    has_only_total = False
+    total_data = spreadsheet.get_total_data()
+    if len(spreadsheet.table_data) == 1 and total_data:
+        has_only_total = True
 
     city_entries = covid19_stats.most_recent_city_entries_for_state(spreadsheet.state, s_date)
     state_entry = covid19_stats.most_recent_state_entry(spreadsheet.state, s_date)
 
     for entry in city_entries:
         city_data = spreadsheet.get_data_from_city(entry.city_ibge_code)
-        if not city_data and (entry.confirmed or entry.deaths):
+        if not has_only_total and not city_data and (entry.confirmed or entry.deaths):
             validation_errors.new_error(f"{entry.city} possui dados históricos e não está presente na planilha.")
             continue
         elif not city_data:  # previous entry for the city has 0 deaths and 0 confirmed
             data = _parse_city_data(entry.city, entry.confirmed, entry.deaths, s_date, entry.state)
             clean_results.append(data)
-            warnings.append(
-                f"{entry.city} possui dados históricos zerados/nulos, não presente na planilha e foi adicionado."
-            )
+            if not has_only_total:
+                warnings.append(
+                    f"{entry.city} possui dados históricos zerados/nulos, não presente na planilha e foi adicionado."
+                )
         elif lower_numbers(entry, city_data):
             warnings.append(f"Números de confirmados ou óbitos em {entry.city} é menor que o anterior.")
 
-    total_data = spreadsheet.get_total_data()
+    if has_only_total:
+        if state_entry:
+            warnings.append(
+                f"Planilha importada somente com dados totais. Dados de cidades foram reutilizados da importação do dia {state_entry.date}."
+            )
+        else:
+            warnings.append(f"Planilha importada somente com dados totais.")
+
     if lower_numbers(state_entry, total_data):
         warnings.append(f"Números de confirmados ou óbitos totais é menor que o total anterior.")
 

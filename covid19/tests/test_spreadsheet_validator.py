@@ -568,3 +568,40 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             f"{city_data['city']} possui dados históricos zerados/nulos, não presente na planilha e foi adicionado."
         ] == warnings
         assert expected in self.spreadsheet.table_data
+
+    def test_reuse_past_data_if_city_not_present_in_data_with_only_total_sum(self):
+        Covid19Cases = self.Covid19Cases
+        previous_entries = self.cities_data + [self.total_data, self.undefined_data]
+        for cases_data in [c.copy() for c in previous_entries]:
+            cases_data["date"] = self.today - timedelta(days=2)
+            baker.make(Covid19Cases, **cases_data)
+
+        self.total_data["deaths"] = 2
+        self.total_data["confirmed"] = 5
+        self.spreadsheet.table_data = [self.total_data]  # only total
+
+        warnings = validate_historical_data(self.spreadsheet)
+
+        assert self.total_data in self.spreadsheet.table_data
+        assert self.undefined_data in self.spreadsheet.table_data
+        for city_data in self.cities_data:
+            assert city_data in self.spreadsheet.table_data
+
+        assert 2 == len(warnings)
+        assert (
+            f'Planilha importada somente com dados totais. Dados de cidades foram reutilizados da importação do dia {cases_data["date"]}.'
+            in warnings
+        )
+        assert "Números de confirmados ou óbitos totais é menor que o total anterior." in warnings
+        assert self.spreadsheet.get_total_data()["deaths"] == 2
+        assert self.spreadsheet.get_total_data()["confirmed"] == 5
+
+    def test_accept_first_spreadsheet_only_with_total_tada(self):
+        Covid19Cases = self.Covid19Cases
+        self.spreadsheet.table_data = [self.total_data]  # only total
+
+        warnings = validate_historical_data(self.spreadsheet)
+
+        assert 1 == len(self.spreadsheet.table_data)
+        assert self.total_data in self.spreadsheet.table_data
+        assert ["Planilha importada somente com dados totais."] == warnings
