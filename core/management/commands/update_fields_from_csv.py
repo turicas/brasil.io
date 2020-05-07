@@ -30,19 +30,12 @@ class Command(BaseCommand):
                 # this first `for`.
                 row = row._asdict()
                 row["dataset"] = Dataset.objects.get(slug=row.pop("dataset_slug"))
-                row["version"] = Version.objects.get(
-                    dataset=row["dataset"], name=row.pop("version_name")
-                )
+                row["version"] = Version.objects.get(dataset=row["dataset"], name=row.pop("version_name"))
                 row["table"] = Table.with_hidden.get(
-                    dataset=row["dataset"],
-                    version=row["version"],
-                    name=row.pop("table_name"),
+                    dataset=row["dataset"], version=row["version"], name=row.pop("table_name"),
                 )
                 existing_field = Field.objects.filter(
-                    dataset=row["dataset"],
-                    version=row["version"],
-                    table=row["table"],
-                    name=row["name"],
+                    dataset=row["dataset"], version=row["version"], table=row["table"], name=row["name"],
                 )
                 if not existing_field.exists():
                     action = "created"

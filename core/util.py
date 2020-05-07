@@ -151,7 +151,8 @@ def create_table_documentation(table):
         field_str = f"- {'🔍 ' if field_filtering else ''}`{field.name}`: {field.description}"
         fields_text.append(field_str)
     fields_str = "\n".join(fields_text)
-    return dedent(f"""
+    return dedent(
+        f"""
         ### `{table.name}`
 
         {table.description}
