@@ -597,7 +597,6 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         assert self.spreadsheet.get_total_data()["confirmed"] == 5
 
     def test_accept_first_spreadsheet_only_with_total_tada(self):
-        Covid19Cases = self.Covid19Cases
         self.spreadsheet.table_data = [self.total_data]  # only total
 
         warnings = validate_historical_data(self.spreadsheet)
