@@ -14,11 +14,7 @@ class Covid19Screenshot:
 
     def css_by_xpath(self, xpath):
         elem = self.browser.find_by_xpath(xpath).first
-        css = [
-            x.split(":")
-            for x in elem._element.get_attribute("style").split(";")
-            if x.strip()
-        ]
+        css = [x.split(":") for x in elem._element.get_attribute("style").split(";") if x.strip()]
         return {key.strip(): value.strip() for (key, value) in css}
 
     def visit_dashboard(self, state=None):
@@ -70,9 +66,7 @@ class Covid19Screenshot:
         time.sleep(1)
 
     def screenshot(self, filename, state=None):
-        temp_filename = self.browser.find_by_xpath(
-            "//div[@class = 'container']"
-        ).screenshot()
+        temp_filename = self.browser.find_by_xpath("//div[@class = 'container']").screenshot()
         os.rename(temp_filename, filename)
 
     def close(self):
