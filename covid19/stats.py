@@ -45,10 +45,17 @@ class Covid19Stats:
 
     @property
     def affected_cities(self):
-        return self.city_cases.count()
+        return self.city_cases.filter(city_ibge_code__isnull=False)
+
+    @property
+    def number_of_affected_cities(self):
+        return self.affected_cities.count()
 
     def affected_cities_for_state(self, state):
-        return self.city_cases.filter(state=state).count()
+        return self.affected_cities.filter(state=state)
+
+    def number_of_affected_cities_for_state(self, state):
+        return self.affected_cities_for_state(state).count()
 
     @property
     def cities_with_deaths(self):
