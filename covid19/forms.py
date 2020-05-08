@@ -52,6 +52,8 @@ class StateSpreadsheetForm(forms.ModelForm):
         required=False,
         help_text='Observações no boletim como "depois de publicar o boletim a secretaria postou no Twitter que teve mais uma morte".',  # noqa
     )
+    skip_sum_cases = forms.BooleanField(required=False, label="Ignorar validação de soma de casos",)
+    skip_sum_deaths = forms.BooleanField(required=False, label="Ignorar validação de soma de mortes",)
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user", None)
@@ -123,7 +125,11 @@ class StateSpreadsheetForm(forms.ModelForm):
 
             try:
                 self.file_data_as_json, self.data_warnings = format_spreadsheet_rows_as_dict(
-                    file_rows, spreadsheet_date, state
+                    file_rows,
+                    spreadsheet_date,
+                    state,
+                    skip_sum_cases=cleaned_data.get("skip_sum_cases", False),
+                    skip_sum_deaths=cleaned_data.get("skip_sum_deaths", False),
                 )
             except SpreadsheetValidationErrors as exception:
                 for error in exception.error_messages:

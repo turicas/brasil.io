@@ -269,15 +269,41 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         self.content = self.content.replace("TOTAL NO ESTADO,102,32", "TOTAL NO ESTADO,1000,32")
         file_rows = rows.import_from_csv(self.file_from_content)
 
-        with pytest.raises(SpreadsheetValidationErrors):
+        with pytest.raises(SpreadsheetValidationErrors) as execinfo:
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        exception = execinfo.value
+        assert "A soma de casos (102) difere da entrada total (1000)." in exception.error_messages
 
     def test_not_valid_if_sum_of_deaths_does_not_matches_with_total(self):
         self.content = self.content.replace("TOTAL NO ESTADO,102,32", "TOTAL NO ESTADO,102,50")
         file_rows = rows.import_from_csv(self.file_from_content)
 
-        with pytest.raises(SpreadsheetValidationErrors):
+        with pytest.raises(SpreadsheetValidationErrors) as execinfo:
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        exception = execinfo.value
+        assert "A soma de mortes (32) difere da entrada total (50)." in exception.error_messages
+
+    @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=[]))
+    def test_ignore_sum_of_cases_if_flagged(self):
+        self.content = self.content.replace("TOTAL NO ESTADO,102,32", "TOTAL NO ESTADO,1000,32")
+        file_rows = rows.import_from_csv(self.file_from_content)
+
+        results, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf, skip_sum_cases=True)
+
+        assert "A checagem da soma de casos por cidade com o valor total foi desativada." in warnings
+        assert results[0]["confirmed"] == 1000
+
+    @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=[]))
+    def test_ignore_sum_of_deaths_if_flagged(self):
+        self.content = self.content.replace("TOTAL NO ESTADO,102,32", "TOTAL NO ESTADO,102,90")
+        file_rows = rows.import_from_csv(self.file_from_content)
+
+        results, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf, skip_sum_deaths=True)
+
+        assert "A checagem da soma de óbitos por cidade com o valor total foi desativada." in warnings
+        assert results[0]["deaths"] == 90
 
     @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=[]))
     def test_do_not_check_for_totals_if_only_total_lines_data(self):

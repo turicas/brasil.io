@@ -12,7 +12,7 @@ UNDEFINED_DISPLAY = "Importados/Indefinidos"
 INVALID_CITY_CODE = -1
 
 
-def format_spreadsheet_rows_as_dict(rows_table, date, state):
+def format_spreadsheet_rows_as_dict(rows_table, date, state, skip_sum_cases=False, skip_sum_deaths=False):
     """
     Receives rows.Table object, a date and a brazilan UF, validates the data
     and returns tuble with 2 lists:
@@ -106,9 +106,13 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state):
     if not has_undefined and len(results) > 1:
         validation_errors.new_error(f'A linha "{UNDEFINED_DISPLAY}" está faltando na planilha')
 
-    if sum_cases and sum_cases != total_cases:
+    if skip_sum_cases:
+        warnings.append("A checagem da soma de casos por cidade com o valor total foi desativada.")
+    elif sum_cases and sum_cases != total_cases:
         validation_errors.new_error(f"A soma de casos ({sum_cases}) difere da entrada total ({total_cases}).")
-    if sum_deaths and sum_deaths != total_deaths:
+    if skip_sum_deaths:
+        warnings.append("A checagem da soma de óbitos por cidade com o valor total foi desativada.")
+    elif sum_deaths and sum_deaths != total_deaths:
         validation_errors.new_error(f"A soma de mortes ({sum_deaths}) difere da entrada total ({total_deaths}).")
 
     validation_errors.raise_if_errors()
