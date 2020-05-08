@@ -1,3 +1,4 @@
+import rows
 import shutil
 from datetime import date, timedelta
 from localflavor.br.br_states import STATE_CHOICES
@@ -144,7 +145,7 @@ class StateSpreadsheetFormTests(Covid19DatasetTestCase):
         form = StateSpreadsheetForm(self.data, self.file_data)
         assert "__all__" in form.errors
 
-    @patch("covid19.forms.format_spreadsheet_rows_as_dict")
+    @patch("covid19.forms.format_spreadsheet_rows_as_dict", autospec=True)
     def test_populate_object_data_with_valid_sample(self, mocked_format):
         mocked_format.return_value = (["results", "list"], ["warnings", "list"])
         form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
@@ -159,8 +160,14 @@ class StateSpreadsheetFormTests(Covid19DatasetTestCase):
         spreadsheet.refresh_from_db()
 
         assert expected == spreadsheet.data
+        assert 1 == mocked_format.call_count
+        data, import_date, state = mocked_format.call_args_list[0][0]
+        assert date.today() == import_date
+        assert state == "PR"
+        for entry, expected_entry in zip(data, rows.import_from_csv(self.file_data["file"])):
+            assert entry._asdict() == expected_entry._asdict()
 
-    @patch("covid19.forms.format_spreadsheet_rows_as_dict")
+    @patch("covid19.forms.format_spreadsheet_rows_as_dict", autospec=True)
     def test_list_all_errors_fom_the_import_process(self, mocked_format):
         exception = SpreadsheetValidationErrors()
         exception.new_error("Error 1")
