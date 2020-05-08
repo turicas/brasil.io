@@ -1,9 +1,24 @@
+function hexToRGBA(hex, rgba) {
+  parts = hex.split("");
+  parts.shift();
+  if (parts.length == 3) {
+    parts = [parts[0], parts[0], parts[1], parts[1], parts[2], parts[2]];
+  }
+  hexNumber = `0x${parts.join("")}`;
+  red = (hexNumber >> 16) & 255;
+  green = (hexNumber >> 8) & 255;
+  blue = hexNumber & 255;
+  return `rgba(${red}, ${green}, ${blue}, ${rgba})`;
+}
+
 class LineBarChart {
 
-  constructor(context, lineTitle, barTitle) {
+  constructor(context, lineTitle, lineColor, barTitle, barColor) {
     this.animationDuration = 50;
+    this.barColor = barColor;
     this.barTitle = barTitle;
     this.context = context;
+    this.lineColor = lineColor;
     this.lineTitle = lineTitle;
     this.options = {
       animation: {duration: this.animationDuration},
@@ -25,7 +40,7 @@ class LineBarChart {
 
   lineDataset() {
     return {
-      borderColor: "#FF1111",
+      borderColor: this.lineColor,
       data: this.lineData,
       fill: false,
       label: this.lineTitle,
@@ -36,9 +51,8 @@ class LineBarChart {
 
   barDataset() {
     return {
-      borderColor: "#FF0000",
+      backgroundColor: this.barColor,
       data: this.barData,
-      fill: false,
       label: this.barTitle,
       type: "bar",
       yAxisID: 2,
@@ -67,48 +81,56 @@ jQuery(document).ready(function(){
     caseDailyChart = new LineBarChart(
       jQuery("#case-daily-chart")[0].getContext("2d"),
       "Casos confirmados acumulados",
-      "Novos casos no dia"
+      dataConfig.confirmed.color,
+      "Novos casos no dia",
+      hexToRGBA(dataConfig.confirmed.color, 0.5),
     );
     caseDailyChart.setData(
-      data.daily.date,
-      data.daily.confirmed,
-      data.daily.new_confirmed
+      data.from_states.daily.date,
+      data.from_states.daily.confirmed,
+      data.from_states.daily.new_confirmed
     );
     caseDailyChart.draw();
 
     deathDailyChart = new LineBarChart(
       jQuery("#death-daily-chart")[0].getContext("2d"),
       "Óbitos confirmados acumulados",
-      "Novos óbitos no dia"
+      dataConfig.deaths.color,
+      "Novos óbitos no dia",
+      hexToRGBA(dataConfig.deaths.color, 0.5),
     );
     deathDailyChart.setData(
-      data.daily.date,
-      data.daily.deaths,
-      data.daily.new_deaths
+      data.from_states.daily.date,
+      data.from_states.daily.deaths,
+      data.from_states.daily.new_deaths
     );
     deathDailyChart.draw();
 
     caseWeeklyChart = new LineBarChart(
       jQuery("#case-weekly-chart")[0].getContext("2d"),
       "Casos confirmados acumulados",
-      "Novos casos na semana"
+      dataConfig.confirmed.color,
+      "Novos casos na semana",
+      hexToRGBA(dataConfig.confirmed.color, 0.5),
     );
     caseWeeklyChart.setData(
-      data.weekly.epidemiological_week,
-      data.weekly.confirmed,
-      data.weekly.new_confirmed
+      data.from_states.weekly.epidemiological_week,
+      data.from_states.weekly.confirmed,
+      data.from_states.weekly.new_confirmed
     );
     caseWeeklyChart.draw();
 
     deathWeeklyChart = new LineBarChart(
       jQuery("#death-weekly-chart")[0].getContext("2d"),
       "Óbitos confirmados acumulados",
-      "Novos óbitos na semana"
+      dataConfig.deaths.color,
+      "Novos óbitos na semana",
+      hexToRGBA(dataConfig.deaths.color, 0.5),
     );
     deathWeeklyChart.setData(
-      data.weekly.epidemiological_week,
-      data.weekly.deaths,
-      data.weekly.new_deaths
+      data.from_states.weekly.epidemiological_week,
+      data.from_states.weekly.deaths,
+      data.from_states.weekly.new_deaths
     );
     deathWeeklyChart.draw();
   });

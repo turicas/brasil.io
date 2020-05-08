@@ -3,7 +3,6 @@ var cityData,
     cityLayer,
     totalData,
     totalId,
-    dataConfig,
     legendBins,
     map,
     placeDataControl,
@@ -13,44 +12,6 @@ var cityData,
     stateGeoJSON,
     stateLayer,
     varControl;
-
-dataConfig = {
-  "confirmed_per_100k_inhabitants": {
-    "color": "#2B580C",
-    "displayText": "Confirmados/100.000 hab.",
-    "zeroText": "Nenhum",
-    "opacityFromValue": log2OpacityFromValue,
-    "valueFromOpacity": log2ValueFromOpacity,
-  },
-  "deaths_per_100k_inhabitants": {
-    "color": "#F39",
-    "displayText": "Óbitos/100.000 hab.",
-    "zeroText": "Nenhum",
-    "opacityFromValue": log2OpacityFromValue,
-    "valueFromOpacity": log2ValueFromOpacity,
-  },
-  "death_rate_percent": {
-    "color": "#F08",
-    "displayText": "Letalidade",
-    "zeroText": "Nenhum",
-    "opacityFromValue": linearOpacityFromValue,
-    "valueFromOpacity": linearValueFromOpacity,
-  },
-  "confirmed": {
-    "color": "#00F",
-    "displayText": "Casos confirmados",
-    "zeroText": "Nenhum",
-    "opacityFromValue": log2OpacityFromValue,
-    "valueFromOpacity": log2ValueFromOpacity,
-  },
-  "deaths": {
-    "color": "#F00",
-    "displayText": "Óbitos confirmados",
-    "zeroText": "Nenhum",
-    "opacityFromValue": log2OpacityFromValue,
-    "valueFromOpacity": log2ValueFromOpacity,
-  },
-};
 
 legendBins = 6;
 totalId = 0; // Brasil or state
@@ -62,18 +23,6 @@ function mapType() {
 }
 function getPlaceData(place) {
   return place == totalId ? totalData : cityData[place];
-}
-function linearOpacityFromValue(value, maxValue) {
-  return value / maxValue;
-}
-function linearValueFromOpacity(opacity, maxValue) {
-  return parseInt(opacity * maxValue);
-}
-function log2OpacityFromValue(value, maxValue) {
-  return Math.log2(value + 1) / Math.log2(maxValue + 1);
-}
-function log2ValueFromOpacity(opacity, maxValue) {
-  return parseInt(2 ** (opacity * Math.log2(maxValue + 1)) - 1);
 }
 function cityStyle(feature) {
   var value = cityData[feature.id][selectedVar] || 0;
