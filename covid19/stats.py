@@ -1,6 +1,7 @@
-from cached_property import cached_property
+from collections import Counter
 from itertools import groupby
 
+from cached_property import cached_property
 from django.db.models import Max, Sum
 
 from brazil_data.cities import brazilian_cities_per_state
@@ -20,6 +21,19 @@ def max_values(data):
 
 
 class Covid19Stats:
+    graph_daily_columns = {
+        "confirmed": (Sum, "last_available_confirmed"),
+        "deaths": (Sum, "last_available_deaths"),
+        "new_confirmed": (Sum, "new_confirmed"),
+        "new_deaths": (Sum, "new_deaths"),
+    }
+    graph_weekly_columns = {
+        "confirmed": (Max, "last_available_confirmed"),
+        "deaths": (Max, "last_available_deaths"),
+        "new_confirmed": (Sum, "new_confirmed"),
+        "new_deaths": (Sum, "new_deaths"),
+    }
+
     @cached_property
     def Boletim(self):
         return get_table_model("covid19", "boletim")
@@ -27,6 +41,10 @@ class Covid19Stats:
     @cached_property
     def Caso(self):
         return get_table_model("covid19", "caso")
+
+    @cached_property
+    def CasoFull(self):
+        return get_table_model("covid19", "caso_full")
 
     @cached_property
     def city_cases(self):
@@ -213,3 +231,52 @@ class Covid19Stats:
             result = result[0]
 
         return result
+
+    def aggregate_state_data(self, select_columns, groupby_columns, state=None):
+        qs = self.CasoFull.objects.filter(place_type="state")
+        if state is not None:
+            qs = qs.filter(state=state)
+        annotate_dict = {alias: Function(column) for alias, (Function, column) in select_columns.items()}
+        return list(qs.order_by(*groupby_columns).values(*groupby_columns).annotate(**annotate_dict))
+
+    @property
+    def historical_data_per_day(self):
+        return self.aggregate_state_data(groupby_columns=["date"], select_columns=self.graph_daily_columns,)
+
+    def aggregate_epiweek(self, data):
+        row_key = lambda row: row["epidemiological_week"]
+        result = []
+        data.sort(key=row_key)
+        for epiweek, group in groupby(data, key=row_key):
+            epidata = Counter()
+            for row in group:
+                for key in row:
+                    if key in ("epidemiological_week", "state"):
+                        continue
+                    epidata[key] += row[key]
+            result.append({"epidemiological_week": epiweek, **epidata})
+        return result
+
+    @property
+    def historical_data_per_epiweek(self):
+        return self.aggregate_epiweek(
+            self.aggregate_state_data(
+                groupby_columns=["epidemiological_week", "state"], select_columns=self.graph_weekly_columns,
+            )
+        )
+
+    @property
+    def historical_for_state_data_per_day(self, state):
+        return self.aggregate_state_data(
+            groupby_columns=["date"], select_columns=self.graph_daily_columns, state=state,
+        )
+
+    @property
+    def historical_data_for_state_per_epiweek(self, state):
+        return self.aggregate_epiweek(
+            self.aggregate_state_data(
+                groupby_columns=["epidemiological_week", "state"],
+                select_columns=self.graph_weekly_columns,
+                state=state,
+            )
+        )

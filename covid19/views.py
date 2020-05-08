@@ -9,9 +9,10 @@ from core.middlewares import disable_non_logged_user_cache
 from core.util import cached_http_get_json
 from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.geo import city_geojson, state_geojson
+from covid19.models import StateSpreadsheet
 from covid19.spreadsheet import create_merged_state_spreadsheet
 from covid19.stats import Covid19Stats, max_values
-from covid19.models import StateSpreadsheet
+from covid19.util import row_to_column
 
 stats = Covid19Stats()
 
@@ -42,6 +43,26 @@ def cities(request):
         "total": total_row,
     }
     return JsonResponse(result)
+
+
+def historical_data(request):
+    state = request.GET.get("state", None)
+    if state is not None and not get_state_info(state):
+        raise Http404
+
+    if state is None:
+        per_day = stats.historical_data_per_day
+        per_week = stats.historical_data_per_epiweek
+    else:
+        per_day = stats.historical_data_for_state_per_day(state)
+        per_week = stats.historical_data_for_state_per_epiweek(state)
+
+    # We remove last row since it won't be accurate
+    data = {
+        "daily": row_to_column(per_day[:-1]),
+        "weekly": row_to_column(per_week[:-1]),
+    }
+    return JsonResponse(data)
 
 
 def states_geojson(request):
