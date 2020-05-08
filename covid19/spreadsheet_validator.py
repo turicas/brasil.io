@@ -74,19 +74,18 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state, skip_sum_cases=Fals
             validation_errors.new_error(f"Dados de casos ou óbitos incompletos na linha {city}")
         if confirmed is None or deaths is None:
             continue
-
-        try:
-            if deaths > confirmed:
-                if is_undefined:
-                    warnings.append(f"{city} com número óbitos maior que de casos confirmados.")
-                else:
-                    msg = f"Valor de óbitos maior que casos confirmados na linha {city} da planilha"
-                    validation_errors.new_error(msg)
-            elif deaths < 0 or confirmed < 0:
-                validation_errors.new_error(f"Valores negativos na linha {city} da planilha")
-        except TypeError:
+        elif not isinstance(deaths, int) or not isinstance(confirmed, int):
             validation_errors.new_error(f"Provavelmente há uma fórmula na linha {city} da planilha")
             continue
+
+        if deaths > confirmed:
+            if is_undefined:
+                warnings.append(f"{city} com número óbitos maior que de casos confirmados.")
+            else:
+                msg = f"Valor de óbitos maior que casos confirmados na linha {city} da planilha"
+                validation_errors.new_error(msg)
+        elif deaths < 0 or confirmed < 0:
+            validation_errors.new_error(f"Valores negativos na linha {city} da planilha")
 
         result = _parse_city_data(city, confirmed, deaths, date, state)
         if result["city_ibge_code"] == INVALID_CITY_CODE:

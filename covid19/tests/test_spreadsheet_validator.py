@@ -390,6 +390,16 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         exception = execinfo.value
         assert "Provavelmente há uma fórmula na linha Abatiá da planilha" in exception.error_messages
 
+    def test_validation_error_if_the_whole_entry_is_formula(self):
+        self.content = self.content.replace("Abatiá,9,1", "Abatiá,'=SUM(A1:A3)','=SUM(A1:A3)")
+
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(SpreadsheetValidationErrors) as execinfo:
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        exception = execinfo.value
+        assert "Provavelmente há uma fórmula na linha Abatiá da planilha" in exception.error_messages
+
     @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=["db warning"]))
     def test_undefined_entry_can_have_more_deaths_than_cases(self):
         self.content = self.content.replace("TOTAL NO ESTADO,102,32", "TOTAL NO ESTADO,102,33")
