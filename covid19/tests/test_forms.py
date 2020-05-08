@@ -161,11 +161,44 @@ class StateSpreadsheetFormTests(Covid19DatasetTestCase):
 
         assert expected == spreadsheet.data
         assert 1 == mocked_format.call_count
-        data, import_date, state = mocked_format.call_args_list[0][0]
+        method_call = mocked_format.call_args_list[0]
+        data, import_date, state = method_call[0]
+        kwargs = method_call[1]
         assert date.today() == import_date
         assert state == "PR"
         for entry, expected_entry in zip(data, rows.import_from_csv(self.file_data["file"])):
             assert entry._asdict() == expected_entry._asdict()
+        assert not kwargs["skip_sum_cases"]
+        assert not kwargs["skip_sum_deaths"]
+
+    @patch("covid19.forms.format_spreadsheet_rows_as_dict", autospec=True)
+    def test_skip_sum_validations_if_flagged_in_the_form_data(self, mocked_format):
+        mocked_format.return_value = (["results", "list"], ["warnings", "list"])
+        self.data.update(
+            {"skip_sum_cases": True, "skip_sum_deaths": True,}
+        )
+        form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
+        assert form.is_valid(), form.errors
+        expected = {
+            "table": ["results", "list"],
+            "errors": [],
+            "warnings": ["warnings", "list"],
+        }
+
+        spreadsheet = form.save()
+        spreadsheet.refresh_from_db()
+
+        assert expected == spreadsheet.data
+        assert 1 == mocked_format.call_count
+        method_call = mocked_format.call_args_list[0]
+        data, import_date, state = method_call[0]
+        kwargs = method_call[1]
+        assert date.today() == import_date
+        assert state == "PR"
+        for entry, expected_entry in zip(data, rows.import_from_csv(self.file_data["file"])):
+            assert entry._asdict() == expected_entry._asdict()
+        assert kwargs["skip_sum_cases"] is True
+        assert kwargs["skip_sum_deaths"] is True
 
     @patch("covid19.forms.format_spreadsheet_rows_as_dict", autospec=True)
     def test_list_all_errors_fom_the_import_process(self, mocked_format):
