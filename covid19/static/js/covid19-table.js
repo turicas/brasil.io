@@ -28,6 +28,7 @@ jQuery(document).ready(function() {
     "autoWidth": false,
     "columns": columns,
     "scrollY":        "650px",
+    "scrollX": true,
     "scrollCollapse": true,
     "paging":         false,
     "searching":      true,
