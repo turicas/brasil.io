@@ -164,3 +164,30 @@ h1, h2, h3, h4, h5, h6 {
 
 strong { font-weight: bold !important; }
 em { font-style: italic !important; }
+
+
+#dashboard-menu {
+  margin-bottom: 30px;
+  overflow: auto;
+  white-space: nowrap;
+}
+
+#dashboard-menu li {
+  display: inline-block;
+  margin: 0 8px;
+}
+
+#dashboard-menu li:first-child {
+  margin-left: 0;
+}
+
+@media only screen and (min-width: 601px) {
+  #dashboard-menu {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  #dashboard-menu li {
+    margin-bottom: 15px;
+  }
+}
