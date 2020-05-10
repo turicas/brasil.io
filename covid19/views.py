@@ -6,6 +6,7 @@ from django.shortcuts import render
 from rest_framework import views
 from rest_framework.response import Response
 from rest_framework import permissions
+from rest_framework.parsers import FileUploadParser, FormParser, MultiPartParser, JSONParser
 
 from brazil_data.cities import get_state_info
 from brazil_data.states import STATES, STATE_BY_ACRONYM
@@ -17,6 +18,7 @@ from covid19.geo import city_geojson, state_geojson
 from covid19.spreadsheet import create_merged_state_spreadsheet
 from covid19.stats import Covid19Stats, max_values
 from covid19.models import StateSpreadsheet
+from covid19.serializers import StateSpreadsheetSerializer
 
 stats = Covid19Stats()
 
@@ -238,29 +240,35 @@ def status(request):
 
 
 class StateSpreadsheetViewList(views.APIView):
-    def get(self, request, *args, **kwargs):
-        return Response({'message': 'ok'})
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [JSONParser, FormParser, MultiPartParser]
 
     def post(self, request, *args, **kwargs):
         data = {
-                'state': kwargs.get('state'),
-                'date': kwargs.get('date'),
-                'boletim_urls': kwargs.get('boletim_urls'),
-                'boletim_notes': kwargs.get('boletim_notes'),
-                }
-        file_data = kwargs.get('file_data')
+            "state": self.kwargs['state'],  # sempre terá um state dado que ele está na URL
+            "date": request.data.get('date'),
+            "boletim_urls": '\n'.join(request.data.get('boletim_urls', [])),
+            "boletim_notes": request.data.get('boletim_notes'),
+        }
+        
+        files = {
+            'file': request.data.get('file'),
+        }
+        
+        form = StateSpreadsheetForm(data, files, user=request.user)
 
-        form = StateSpreadsheetForm(data, file_data, user=request.user)
         if form.is_valid():
-            spreadsheet = form.save()
-            spreadsheet.refresh_from_db()
             transaction.on_commit(
                     lambda: new_spreadsheet_imported_signal.send(
                         sender=self,
                         spreadsheet=spreadsheet
                         )
                     )
-
+            
+            spreadsheet = form.save()
+            spreadsheet.refresh_from_db()
             state = data['state']
-            return Response({'success': True, 'errors': []})
-        return Response({'success': False, 'errors': form.errors}, status=400)
+
+            return Response({"warnings": spreadsheet.warnings, "detail_url": spreadsheet.admin_url})
+
+        return Response({'errors': form.errors}, status=400)

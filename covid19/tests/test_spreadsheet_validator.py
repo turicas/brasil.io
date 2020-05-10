@@ -4,6 +4,7 @@ from datetime import date, timedelta
 from io import BytesIO
 from model_bakery import baker
 from unittest.mock import patch, Mock
+from pathlib import Path
 
 from django.conf import settings
 from django.test import TestCase
