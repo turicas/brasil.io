@@ -66,9 +66,8 @@
   <div style="clear: both"></div>
 </div>
 
-<div id="dashboard-state-selector" class="row" style="clear: both">
-  <nav>
-  <div class="nav-wrapper indigo">
+<div id="dashboard-state-selector">
+  <nav class="indigo">
     <ul>
       <li{% if not state %} class="active"{% endif %}>
         <a class="state-option" href="{% url 'covid19:dashboard' %}">BR</a>
@@ -79,7 +78,6 @@
       </li>
       {% endfor %}
     </ul>
-  </div>
   </nav>
 </div>
 
