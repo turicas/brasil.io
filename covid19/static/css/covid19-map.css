@@ -63,18 +63,48 @@
 
 #map-col {
   padding: 0 2px 0 0;
+  overflow: auto;
 }
 #table-col {
   padding: 0 0 0 0;
+  overflow: auto;
 }
 
 .state-option {
   font-size: 1em;
-  padding: 0 1em;
+  padding: 0 0.75em;
 }
-@media screen and (max-width: 1280px) {
-  .state-option {
-    font-size: 1em;
-    padding: 0 0.25em;
+
+#dashboard-state-selector nav {
+  height: auto;
+  margin: 30px 0 15px 0;
+}
+#dashboard-state-selector nav ul {
+  overflow: auto;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+@media screen and (min-width: 601px) {
+  #dashboard-state-selector nav ul {
+    flex-wrap: wrap;
   }
+}
+
+@media screen and (min-width: 992px) {
+  .state-option {
+    padding: 0 0.33em;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .state-option {
+    padding: 0 0.537em;
+  }
+}
+
+div.dataTables_wrapper {
+  min-width: 800px;
+  margin: 0 auto;
 }
