@@ -104,12 +104,6 @@
 }
 
 div.dataTables_wrapper {
-  width: 800px;
+  min-width: 800px;
   margin: 0 auto;
-}
-
-@media only screen and (min-width: 601px) {
-  div.dataTables_wrapper {
-    width: auto;
-  }
 }
