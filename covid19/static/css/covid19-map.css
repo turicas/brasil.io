@@ -63,6 +63,7 @@
 
 #map-col {
   padding: 0 2px 0 0;
+  overflow: auto;
 }
 #table-col {
   padding: 0 0 0 0;
