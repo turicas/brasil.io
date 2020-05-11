@@ -45,24 +45,37 @@ def cities(request):
     return JsonResponse(result)
 
 
-def historical_data(request):
+def historical_data(request, period):
     state = request.GET.get("state", None)
-    if state is not None and not get_state_info(state):
+    if period not in ("daily", "weekly"):
+        raise Http404
+    elif state is not None and not get_state_info(state):
         raise Http404
 
-    if state is None:
-        per_day = stats.historical_data_per_day
-        per_week = stats.historical_data_per_epiweek
-    else:
-        per_day = stats.historical_data_for_state_per_day(state)
-        per_week = stats.historical_data_for_state_per_epiweek(state)
+    if period == "daily":
+        from_states = stats.historical_case_data_for_state_per_day(state)
+        from_registries = stats.historical_registry_data_for_state_per_day(state)
+    elif period == "weekly":
+        from_states = stats.historical_case_data_for_state_per_epiweek(state)
+        from_registries = stats.historical_registry_data_for_state_per_epiweek(state)
 
-    # We remove last row since it won't be accurate
-    data = {
-        "daily": row_to_column(per_day[:-1]),
-        "weekly": row_to_column(per_week[:-1]),
-    }
+    # Remove last period since it won't be complete
+    from_states = from_states[:-1]
+    from_registries = from_registries[:-1]
+
+    state_data = row_to_column(from_states)
+    registry_data = row_to_column(from_registries)
+    registry_data["epidemiological_week"] = registry_data.pop("epidemiological_week_2020")
+    data = {"from_states": state_data, "from_registries": registry_data}
     return JsonResponse(data)
+
+
+def historical_daily(request):
+    return historical_data(request, "daily")
+
+
+def historical_weekly(request):
+    return historical_data(request, "weekly")
 
 
 def states_geojson(request):
