@@ -60,12 +60,17 @@ def historical_data(request, period):
         from_registries = stats.historical_registry_data_for_state_per_epiweek(state)
 
     # Remove last period since it won't be complete
-    from_states = from_states[:-1]
-    from_registries = from_registries[:-1]
+    if period == "daily":
+        from_states = from_states[:-1]
+        from_registries = from_registries[:-14]
+    if period == "weekly":
+        from_states = from_states[:-1]
+        from_registries = from_registries[:-3]
 
     state_data = row_to_column(from_states)
     registry_data = row_to_column(from_registries)
-    registry_data["epidemiological_week"] = registry_data.pop("epidemiological_week_2020")
+    if period == "weekly":
+        registry_data["epidemiological_week"] = registry_data.pop("epidemiological_week_2020")
     data = {"from_states": state_data, "from_registries": registry_data}
     return JsonResponse(data)
 
@@ -211,6 +216,7 @@ def dashboard(request, state=None):
             "city_data": city_data,
             "state": state,
             "state_id": state_id,
+            "city_slug": None,  # TODO: change
             "state_name": state_name,
             "states": STATES,
         },

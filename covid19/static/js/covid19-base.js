@@ -1,3 +1,6 @@
+function placeType() {
+  return selectedStateId === undefined ? "country" : "state";
+}
 function linearOpacityFromValue(value, maxValue) {
   return value / maxValue;
 }

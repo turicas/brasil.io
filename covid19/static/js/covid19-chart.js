@@ -1,3 +1,5 @@
+var caseDailyTotalChart, caseDailyNewChart, deathDailyTotalChart, deathDailyNewChart;
+
 function hexToRGBA(hex, rgba) {
   parts = hex.split("");
   parts.shift();
@@ -11,127 +13,177 @@ function hexToRGBA(hex, rgba) {
   return `rgba(${red}, ${green}, ${blue}, ${rgba})`;
 }
 
-class LineBarChart {
 
-  constructor(context, lineTitle, lineColor, barTitle, barColor) {
-    this.animationDuration = 50;
-    this.barColor = barColor;
-    this.barTitle = barTitle;
-    this.context = context;
-    this.lineColor = lineColor;
-    this.lineTitle = lineTitle;
-    this.options = {
+class MultiLineChart {
+
+  chartType() {
+    return "line";
+  }
+
+  constructor(options) {
+    this.animationDuration = options.animationDuration || 0;
+    this.colors = options.colors;
+    this.canvasElement = document.getElementById(options.divId)
+    this.context = this.canvasElement.getContext("2d");
+    this.options = options;
+    this.title = options.title;
+    this.xData = options.xData;
+    this.yLabels = options.yLabels;
+    this.yData = options.yData;
+    this.chartOptions = {
+      title: {
+        display: true,
+        text: options.title,
+      },
       animation: {duration: this.animationDuration},
       bezierCurve: false,
       scales: {
-        yAxes: [
-          {id: 1, labelString: this.lineTitle, stacked: false, beginAtZero: true, position: "left", type: "linear"},
-          {id: 2, labelString: this.barTitle, stacked: false, beginAtZero: true, position: "right", type: "linear"},
-        ],
+        yAxes: this.yAxes(),
       },
     };
   }
 
-  setData(xLabels, lineData, barData) {
-    this.xLabels = xLabels;
-    this.lineData = lineData;
-    this.barData = barData;
+  yAxes() {
+    return [
+      {
+        id: 1,
+        scaleLabel: {
+          labelString: this.title,
+          display: true,
+        },
+        stacked: false,
+        beginAtZero: true,
+        position: "left",
+        type: "linear",
+      },
+    ];
   }
 
-  lineDataset() {
-    return {
-      borderColor: this.lineColor,
-      data: this.lineData,
-      fill: false,
-      label: this.lineTitle,
-      type: "line",
-      yAxisID: 1,
-    };
-  }
-
-  barDataset() {
-    return {
-      backgroundColor: this.barColor,
-      data: this.barData,
-      label: this.barTitle,
-      type: "bar",
-      yAxisID: 2,
-    };
+  datasets() {
+    var result = new Array();
+    for (var index = 0; index < this.yLabels.length; index++) {
+      result.push({
+        borderColor: this.colors[index],
+        data: this.yData[index],
+        fill: false,
+        label: this.yLabels[index],
+        type: this.chartType(),
+        yAxisID: 1,
+      });
+    }
+    return result;
   }
 
   draw() {
     this.chart = new Chart(this.context, {
       data: {
-        datasets: [
-          this.lineDataset(),
-          this.barDataset(),
-        ],
-        labels: this.xLabels,
+        datasets: this.datasets(),
+        labels: this.xData,
       },
-      options: this.options,
-      type: "bar",
+      options: this.chartOptions,
+      type: this.chartType(),
     });
+    if (this.options.source !== undefined) {
+      this.canvasElement.parentNode.appendChild(document.createTextNode(this.options.source));
+    }
   }
 }
 
-var caseChart, deathChart;
+class MultiBarChart extends MultiLineChart {
+
+  chartType() {
+    return "bar";
+  }
+
+  datasets() {
+    var result = new Array();
+    for (var index = 0; index < this.yLabels.length; index++) {
+      result.push({
+        backgroundColor: this.colors[index],
+        data: this.yData[index],
+        label: this.yLabels[index],
+        type: this.chartType(),
+        yAxisID: 1,
+      });
+    }
+    return result;
+  }
+
+}
 
 jQuery(document).ready(function(){
-  jQuery.getJSON(dataURL.historicalData, function (data) {
-    caseDailyChart = new LineBarChart(
-      jQuery("#case-daily-chart")[0].getContext("2d"),
-      "Casos confirmados acumulados",
-      dataConfig.confirmed.color,
-      "Novos casos no dia",
-      hexToRGBA(dataConfig.confirmed.color, 0.5),
-    );
-    caseDailyChart.setData(
-      data.from_states.daily.date,
-      data.from_states.daily.confirmed,
-      data.from_states.daily.new_confirmed
-    );
-    caseDailyChart.draw();
+  jQuery.getJSON(dataURL.historicalDaily, function (data) {
+    var source;
+    if (placeType() == "country") {
+      source = "Fonte: Secretarias Estaduais de Saúde/Consolidação por Brasil.IO";
+    }
+    else if (placeType() == "state" || placeType() == "city") {
+      source = `Fonte: SES-${selectedStateAcronym}/Consolidação por Brasil.IO`;
+    }
 
-    deathDailyChart = new LineBarChart(
-      jQuery("#death-daily-chart")[0].getContext("2d"),
-      "Óbitos confirmados acumulados",
-      dataConfig.deaths.color,
-      "Novos óbitos no dia",
-      hexToRGBA(dataConfig.deaths.color, 0.5),
-    );
-    deathDailyChart.setData(
-      data.from_states.daily.date,
-      data.from_states.daily.deaths,
-      data.from_states.daily.new_deaths
-    );
-    deathDailyChart.draw();
+    caseDailyTotalChart = new MultiLineChart({
+      colors: [dataConfig.confirmed.color],
+      divId: "case-daily-chart-1",
+      title: "Casos confirmados por dia",
+      xData: data.from_states.date,
+      yLabels: ["Casos confirmados"],
+      yData: [data.from_states.confirmed],
+      source: source,
+    }).draw();
+    caseDailyNewChart = new MultiBarChart({
+      colors: [hexToRGBA(dataConfig.confirmed.color, 0.5)],
+      divId: "case-daily-chart-2",
+      title: "Novos casos confirmados por dia",
+      xData: data.from_states.date,
+      yLabels: ["Casos confirmados"],
+      yData: [data.from_states.new_confirmed],
+      source: source,
+    }).draw();
+    deathDailyTotalChart = new MultiLineChart({
+      colors: [dataConfig.deaths.color],
+      divId: "death-daily-chart-1",
+      title: "Óbitos confirmados acumulados por dia",
+      xData: data.from_states.date,
+      yLabels: ["Óbitos confirmados"],
+      yData: [data.from_states.deaths],
+      source: source,
+    }).draw();
+    deathDailyNewChart = new MultiBarChart({
+      colors: [hexToRGBA(dataConfig.deaths.color, 0.5)],
+      divId: "death-daily-chart-2",
+      title: "Novos óbitos confirmados por dia",
+      xData: data.from_states.date,
+      yLabels: ["Óbitos confirmados"],
+      yData: [data.from_states.new_deaths],
+      source: source,
+    }).draw();
+  });
 
-    caseWeeklyChart = new LineBarChart(
-      jQuery("#case-weekly-chart")[0].getContext("2d"),
-      "Casos confirmados acumulados",
-      dataConfig.confirmed.color,
-      "Novos casos na semana",
-      hexToRGBA(dataConfig.confirmed.color, 0.5),
-    );
-    caseWeeklyChart.setData(
-      data.from_states.weekly.epidemiological_week,
-      data.from_states.weekly.confirmed,
-      data.from_states.weekly.new_confirmed
-    );
-    caseWeeklyChart.draw();
-
-    deathWeeklyChart = new LineBarChart(
-      jQuery("#death-weekly-chart")[0].getContext("2d"),
-      "Óbitos confirmados acumulados",
-      dataConfig.deaths.color,
-      "Novos óbitos na semana",
-      hexToRGBA(dataConfig.deaths.color, 0.5),
-    );
-    deathWeeklyChart.setData(
-      data.from_states.weekly.epidemiological_week,
-      data.from_states.weekly.deaths,
-      data.from_states.weekly.new_deaths
-    );
-    deathWeeklyChart.draw();
+  jQuery.getJSON(dataURL.historicalWeekly, function (data) {
+    deathWeeklyChart = new MultiLineChart({
+      colors: ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#C0C0C0"],
+      divId: "death-weekly-chart",
+      title: "Óbitos totais por causa",
+      source: "Fonte: Portral da Transparência do Registro Civil",
+      xData: data.from_registries.epidemiological_week,
+      yLabels: [
+        "COVID-19 (confirmada ou suspeita)",
+        "Indeterminada",
+        "Outras",
+        "Pneumonia",
+        "Insuf. Respiratória",
+        "SRAG",
+        "Septicemia",
+      ],
+      yData: [
+        data.from_registries.new_deaths_covid19,
+        data.from_registries.new_deaths_indeterminate,
+        data.from_registries.new_deaths_others,
+        data.from_registries.new_deaths_pneumonia,
+        data.from_registries.new_deaths_respiratory_failure,
+        data.from_registries.new_deaths_sars,
+        data.from_registries.new_deaths_septicemia,
+      ],
+    }).draw();
   });
 });

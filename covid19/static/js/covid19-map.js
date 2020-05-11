@@ -18,9 +18,6 @@ totalId = 0; // Brasil or state
 selectedPlace = totalId;
 selectedVar = Object.keys(dataConfig)[0];
 
-function mapType() {
-  return selectedStateId === undefined ? "country" : "state";
-}
 function getPlaceData(place) {
   return place == totalId ? totalData : cityData[place];
 }
@@ -103,8 +100,8 @@ function updateVarControl() {
 }
 
 function createMap() {
-  var minZoom = mapType() == "country" ? 4.5 : 6;
-  var maxZoom = mapType() == "country" ? 8 : 12;
+  var minZoom = placeType() == "country" ? 4.5 : 6;
+  var maxZoom = placeType() == "country" ? 8 : 12;
   map = L.map("map", {
     zoomSnap: 0.25,
     zoomDelta: 0.25,
@@ -131,10 +128,10 @@ function mapFit() {
 }
 function updateMap() {
   if (hasToAddStateLayer()) {
-    if (mapType() == "country") {
+    if (placeType() == "country") {
       stateLayer = L.geoJSON(stateGeoJSON, {style: stateStyle}).addTo(map);
     }
-    else if (mapType() == "state") {
+    else if (placeType() == "state") {
       var filteredStateGeoJSON = stateGeoJSON;
       filteredStateGeoJSON.features = filteredStateGeoJSON.features.filter(function (item) {
         return item.properties.CD_GEOCUF == selectedStateId;

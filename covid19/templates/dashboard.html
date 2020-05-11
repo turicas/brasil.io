@@ -156,19 +156,27 @@
 
 </div>
 
+<div style="clear: both">
+</div>
+
 <div class="row">
-  <div class="col xl6 l12 m12 s12">
-    <canvas id="case-daily-chart"></canvas>
+  <div class="col xl6 l6 m12 s12">
+    <canvas id="case-daily-chart-1"></canvas>
   </div>
-  <div class="col xl6 l12 m12 s12">
-    <canvas id="death-daily-chart"></canvas>
+  <div class="col xl6 l6 m12 s12">
+    <canvas id="death-daily-chart-1"></canvas>
   </div>
 </div>
 <div class="row">
-  <div class="col xl6 l12 m12 s12">
-    <canvas id="case-weekly-chart"></canvas>
+  <div class="col xl6 l6 m12 s12">
+    <canvas id="case-daily-chart-2"></canvas>
   </div>
-  <div class="col xl6 l12 m12 s12">
+  <div class="col xl6 l6 m12 s12">
+    <canvas id="death-daily-chart-2"></canvas>
+  </div>
+</div>
+<div class="row">
+  <div class="col xl12 l12 m12 s12">
     <canvas id="death-weekly-chart"></canvas>
   </div>
 </div>
@@ -182,9 +190,12 @@ var dataURL = {
   cities: "{% url 'covid19:cities-cases' %}{% if state %}?state={{ state }}{% endif %}",
   stateGeoJSON: "{% url 'covid19:states-geo' %}{% if state %}?state={{ state }}{% endif %}",
   cityGeoJSON: "{% url 'covid19:cities-geo' %}{% if state %}?state={{ state }}{% endif %}",
-  historicalData: "{% url 'covid19:historical-data' %}{% if state %}?state={{ state }}{% endif %}",
+  historicalDaily: "{% url 'covid19:historical-daily' %}{% if state %}?state={{ state }}{% endif %}",
+  historicalWeekly: "{% url 'covid19:historical-weekly' %}{% if state %}?state={{ state }}{% endif %}",
 };
 var selectedStateId = {% if not state_id %}undefined{% else %}{{ state_id }}{% endif %};
+var selectedStateAcronym = {% if not state_id %}undefined{% else %}"{{ state }}"{% endif %};
+var selectedCitySlug = {% if not city_id %}undefined{% else %}"{{ city_slug }}"{% endif %};
 
 jQuery(document).ready(function(){
   jQuery('.tooltipped').tooltip();
