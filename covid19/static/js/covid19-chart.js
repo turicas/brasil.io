@@ -121,13 +121,15 @@ class MultiBarChart extends MultiLineChart {
 }
 
 jQuery(document).ready(function(){
-  var deathsTitle, graphSource;
+  var deathsCompareTitle, deathsTitle, graphSource;
   if (placeType() == "country") {
     deathsTitle = "Causas de óbitos por semana epidemiológica (Brasil)";
+    deathsCompareTitle = "Óbitos novos por semana epidemiológica 2019 vs 2020 (Brasil)";
     graphSource = "Fonte: Secretarias Estaduais de Saúde/Consolidação por Brasil.IO";
   }
   else if (placeType() == "state" || placeType() == "city") {
     deathsTitle = `Causas de óbitos por semana epidemiológica (${selectedStateAcronym})`;
+    deathsCompareTitle = `Óbitos novos por semana epidemiológica 2019 vs 2020 (${selectedStateAcronym})`;
     graphSource = `Fonte: SES-${selectedStateAcronym}/Consolidação por Brasil.IO`;
   }
   var deathsSource = 'Fonte: <a href="https://transparencia.registrocivil.org.br/registral-covid">Registro Civil</a>. *Nota: as últimas 2 semanas não estão representadas pois os dados estão em processamento pelos cartórios.';
@@ -202,12 +204,12 @@ jQuery(document).ready(function(){
     deathWeeklyCompareChart = new MultiLineChart({
       colors: ["#0000FF", "#FF0000"],
       divId: "death-weekly-years-chart",
-      title: "xxx 2019 vs 2020",
+      title: deathsCompareTitle,
       source: deathsSource,
       xData: data.from_registries.epidemiological_week,
       yLabels: [
-        "Óbitos totais 2019",
-        "Óbitos totais 2020",
+        "Óbitos na semana 2019",
+        "Óbitos na semana 2020",
       ],
       yData: [
         data.from_registries.new_deaths_total_2019,
