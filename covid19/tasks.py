@@ -2,9 +2,7 @@ from django_rq import job
 
 from covid19.exceptions import OnlyOneSpreadsheetException
 from covid19.models import StateSpreadsheet
-from covid19.notifications import (notify_import_success,
-                                   notify_new_spreadsheet,
-                                   notify_spreadsheet_mismatch)
+from covid19.notifications import notify_import_success, notify_new_spreadsheet, notify_spreadsheet_mismatch
 
 
 @job

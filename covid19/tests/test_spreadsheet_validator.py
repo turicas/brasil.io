@@ -12,8 +12,7 @@ from brazil_data.cities import get_city_info
 from core.models import Table
 from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.models import StateSpreadsheet
-from covid19.spreadsheet_validator import (format_spreadsheet_rows_as_dict,
-                                           validate_historical_data)
+from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict, validate_historical_data
 from covid19.tests.utils import Covid19DatasetTestCase
 
 

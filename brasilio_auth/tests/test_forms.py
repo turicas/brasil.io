@@ -1,6 +1,5 @@
 from django.conf import settings
-from django.contrib.auth.forms import \
-    UserCreationForm as DjangoUserCreationForm
+from django.contrib.auth.forms import UserCreationForm as DjangoUserCreationForm
 from django.test import TestCase
 from model_bakery import baker
 
