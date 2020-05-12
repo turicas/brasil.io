@@ -1,8 +1,8 @@
 from copy import deepcopy
-from rest_framework import serializers
 from urllib.parse import urlencode
 
 from django.urls import reverse
+from rest_framework import serializers
 
 from graphs import graph_extractor
 

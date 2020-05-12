@@ -14,7 +14,6 @@ from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
 from core.util import cached_http_get_json
 
-
 max_export_rows = 350_000
 
 

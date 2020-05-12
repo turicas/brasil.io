@@ -8,7 +8,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.db.utils import ProgrammingError
 from django.utils import timezone
-from rows.utils import pgimport, ProgressBar, open_compressed
+from rows.utils import ProgressBar, open_compressed, pgimport
 
 from core.models import Field, Table
 

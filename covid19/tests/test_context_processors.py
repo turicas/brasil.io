@@ -1,8 +1,7 @@
-from model_bakery import baker
-
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, Group
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory, TestCase
+from model_bakery import baker
 
 from covid19.context_processors import is_covid19_contributor
 

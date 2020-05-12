@@ -1,8 +1,8 @@
-import pytest
 from unittest.mock import patch
 
-from django.test import TestCase
+import pytest
 from django.core.cache import cache
+from django.test import TestCase
 
 from covid19 import google_data
 

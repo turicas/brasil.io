@@ -6,8 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 
-from core.models import Dataset, Link, Version, Table, Field
-
+from core.models import Dataset, Field, Link, Table, Version
 
 DATASETS, VERSIONS, TABLES = {}, {}, {}
 

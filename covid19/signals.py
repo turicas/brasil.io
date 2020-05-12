@@ -1,4 +1,4 @@
-from django.dispatch import receiver, Signal
+from django.dispatch import Signal, receiver
 
 from covid19.models import StateSpreadsheet
 from covid19.tasks import process_new_spreadsheet_task

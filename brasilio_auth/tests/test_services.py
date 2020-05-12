@@ -1,11 +1,9 @@
-from model_bakery import baker
-
-from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.test import TestCase
+from model_bakery import baker
 
 from brasilio_auth.models import NewsletterSubscriber
 from brasilio_auth.services import subscribers_as_csv_rows
-
 
 User = get_user_model()
 

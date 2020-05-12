@@ -1,8 +1,8 @@
-from model_bakery import baker
-
-from django.contrib.auth.forms import UserCreationForm as DjangoUserCreationForm
 from django.conf import settings
+from django.contrib.auth.forms import \
+    UserCreationForm as DjangoUserCreationForm
 from django.test import TestCase
+from model_bakery import baker
 
 from brasilio_auth.forms import UserCreationForm
 from brasilio_auth.models import NewsletterSubscriber

@@ -1,6 +1,5 @@
-from localflavor.br.br_states import STATE_CHOICES
-
 from django.conf import settings
+from localflavor.br.br_states import STATE_CHOICES
 
 
 def _format_perm_code(uf):

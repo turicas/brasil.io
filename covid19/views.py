@@ -1,10 +1,10 @@
 import random
 
-from django.http import JsonResponse, HttpResponse, Http404
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render
 
 from brazil_data.cities import get_state_info
-from brazil_data.states import STATES, STATE_BY_ACRONYM
+from brazil_data.states import STATE_BY_ACRONYM, STATES
 from core.middlewares import disable_non_logged_user_cache
 from core.util import cached_http_get_json
 from covid19.exceptions import SpreadsheetValidationErrors

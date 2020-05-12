@@ -1,12 +1,12 @@
-from model_bakery import baker
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 from django.test import TestCase
+from model_bakery import baker
 
-from covid19.models import StateSpreadsheet
-from covid19.tasks import process_new_spreadsheet_task
 from covid19.exceptions import OnlyOneSpreadsheetException
+from covid19.models import StateSpreadsheet
 from covid19.notifications import notify_import_success
+from covid19.tasks import process_new_spreadsheet_task
 
 
 class ProcessNewSpreadsheetTaskTests(TestCase):

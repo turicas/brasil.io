@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from urllib.parse import urljoin
+
 import requests
 
 #######

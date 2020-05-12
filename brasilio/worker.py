@@ -1,7 +1,8 @@
 import rq
+from rq.contrib.sentry import register_sentry
+
 from raven import Client
 from raven.transport import HTTPTransport
-from rq.contrib.sentry import register_sentry
 
 
 class SentryAwareWorker(rq.Worker):

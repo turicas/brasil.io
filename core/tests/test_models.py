@@ -1,8 +1,8 @@
 from collections import OrderedDict
-from model_bakery import baker, seq
-from rows import fields
 
 from django.test import TestCase
+from model_bakery import baker, seq
+from rows import fields
 
 from core.models import Table
 

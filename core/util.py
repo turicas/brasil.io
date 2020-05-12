@@ -2,10 +2,10 @@ import gzip
 import json
 import socket
 from textwrap import dedent
-from urllib.request import urlopen, Request, URLError
+from urllib.request import Request, URLError, urlopen
 
 import django.db.models.fields
-from cachetools import cached, TTLCache
+from cachetools import TTLCache, cached
 
 from core.models import Table
 

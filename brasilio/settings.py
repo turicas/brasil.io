@@ -6,7 +6,6 @@ from django.urls import reverse_lazy
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.rq import RqIntegration
 
-
 root = environ.Path(__file__) - 2
 env = environ.Env(DEBUG=(bool, False))
 environ.Env.read_env(".env")

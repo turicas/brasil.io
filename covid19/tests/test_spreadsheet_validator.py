@@ -1,18 +1,19 @@
-import pytest
-import rows
 from datetime import date, timedelta
 from io import BytesIO
-from model_bakery import baker
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
+import pytest
+import rows
 from django.conf import settings
 from django.test import TestCase
+from model_bakery import baker
 
 from brazil_data.cities import get_city_info
 from core.models import Table
 from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.models import StateSpreadsheet
-from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict, validate_historical_data
+from covid19.spreadsheet_validator import (format_spreadsheet_rows_as_dict,
+                                           validate_historical_data)
 from covid19.tests.utils import Covid19DatasetTestCase
 
 
