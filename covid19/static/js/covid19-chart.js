@@ -39,30 +39,44 @@ class MultiLineChart {
       bezierCurve: false,
       scales: {
         yAxes: this.yAxes(),
+        xAxes: this.xAxes(),
       },
     };
   }
 
+  xAxes() {
+    if (this.options.xLabel === undefined) {
+      return [{}];
+    }
+    return [
+      {
+        scaleLabel: {
+          labelString: this.options.xLabel,
+          display: true,
+        },
+      },
+    ];
+  }
+
   yAxes() {
+    var beginAtZero;
+    if (this.options.beginAtZero === undefined) {
+      beginAtZero = true;
+    }
+    else {
+      beginAtZero = false;
+    }
     var data = [
       {
         id: 1,
         position: "left",
-        scaleLabel: {
-          labelString: this.title,
-          display: true,
-        },
         stacked: false,
         ticks: {
-          beginAtZero: true,
+          beginAtZero: beginAtZero,
         },
         type: "linear",
       },
     ];
-    if (this.options.minY !== undefined) {
-      data[0].ticks.beginAtZero = false;
-      data[0].ticks.min = this.options.minY;
-    }
     return data;
   }
 
@@ -121,17 +135,17 @@ class MultiBarChart extends MultiLineChart {
 }
 
 jQuery(document).ready(function(){
-  var deathsCompareTitle, deathsTitle, graphSource;
+  var graphSource, titleAppend;
   if (placeType() == "country") {
-    deathsTitle = "Causas de óbitos por semana epidemiológica (Brasil)";
-    deathsCompareTitle = "Óbitos novos por semana epidemiológica 2019 vs 2020 (Brasil)";
     graphSource = "Fonte: Secretarias Estaduais de Saúde/Consolidação por Brasil.IO";
+    titleAppend = " (Brasil)";
   }
   else if (placeType() == "state" || placeType() == "city") {
-    deathsTitle = `Causas de óbitos por semana epidemiológica (${selectedStateAcronym})`;
-    deathsCompareTitle = `Óbitos novos por semana epidemiológica 2019 vs 2020 (${selectedStateAcronym})`;
     graphSource = `Fonte: SES-${selectedStateAcronym}/Consolidação por Brasil.IO`;
+    titleAppend = ` (${selectedStateAcronym})`;
   }
+  var deathsTitle = `Causas de óbitos por semana epidemiológica${titleAppend}`;
+  var deathsCompareTitle = `Óbitos novos por semana epidemiológica 2019 vs 2020${titleAppend}`;
   var deathsSource = 'Fonte: <a href="https://transparencia.registrocivil.org.br/registral-covid">Registro Civil</a>. *Nota: as últimas 2 semanas não estão representadas pois os dados estão em processamento pelos cartórios.';
 
   graphSource += ". *Nota: dados sendo consolidados para os últimos dias.";
@@ -139,7 +153,7 @@ jQuery(document).ready(function(){
     caseDailyTotalChart = new MultiLineChart({
       colors: [dataConfig.confirmed.color],
       divId: "case-daily-chart-1",
-      title: "Casos confirmados acumulados por dia",
+      title: `Casos confirmados acumulados por dia${titleAppend}`,
       xData: data.from_states.date,
       yLabels: ["Casos confirmados"],
       yData: [data.from_states.confirmed],
@@ -148,7 +162,7 @@ jQuery(document).ready(function(){
     caseDailyNewChart = new MultiBarChart({
       colors: [hexToRGBA(dataConfig.confirmed.color, 0.5)],
       divId: "case-daily-chart-2",
-      title: "Novos casos confirmados por dia",
+      title: `Novos casos confirmados por dia${titleAppend}`,
       xData: data.from_states.date,
       yLabels: ["Casos confirmados"],
       yData: [data.from_states.new_confirmed],
@@ -157,7 +171,7 @@ jQuery(document).ready(function(){
     deathDailyTotalChart = new MultiLineChart({
       colors: [dataConfig.deaths.color],
       divId: "death-daily-chart-1",
-      title: "Óbitos confirmados acumulados por dia",
+      title: `Óbitos confirmados acumulados por dia${titleAppend}`,
       xData: data.from_states.date,
       yLabels: ["Óbitos confirmados"],
       yData: [data.from_states.deaths],
@@ -166,7 +180,7 @@ jQuery(document).ready(function(){
     deathDailyNewChart = new MultiBarChart({
       colors: [hexToRGBA(dataConfig.deaths.color, 0.5)],
       divId: "death-daily-chart-2",
-      title: "Novos óbitos confirmados por dia",
+      title: `Novos óbitos confirmados por dia${titleAppend}`,
       xData: data.from_states.date,
       yLabels: ["Óbitos confirmados"],
       yData: [data.from_states.new_deaths],
@@ -178,9 +192,10 @@ jQuery(document).ready(function(){
     deathWeeklyChart = new MultiLineChart({
       colors: ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#C0C0C0"],
       divId: "death-weekly-2020-chart",
-      title: deathsTitle,
       source: deathsSource,
+      title: deathsTitle,
       xData: data.from_registries.epidemiological_week,
+      xLabel: "Semana epidemiológica 2020",
       yLabels: [
         "COVID-19 (confirmada ou suspeita)",
         "Indeterminada",
@@ -202,20 +217,21 @@ jQuery(document).ready(function(){
     }).draw();
 
     deathWeeklyCompareChart = new MultiLineChart({
+      beginAtZero: false,
       colors: ["#0000FF", "#FF0000"],
       divId: "death-weekly-years-chart",
-      title: deathsCompareTitle,
       source: deathsSource,
+      title: deathsCompareTitle,
       xData: data.from_registries.epidemiological_week,
-      yLabels: [
-        "Óbitos na semana 2019",
-        "Óbitos na semana 2020",
-      ],
+      xLabel: "Semana epidemiológica",
       yData: [
         data.from_registries.new_deaths_total_2019,
         data.from_registries.new_deaths_total,
       ],
-      minY: 5000,
+      yLabels: [
+        "Óbitos na semana 2019",
+        "Óbitos na semana 2020",
+      ],
     }).draw();
   });
 });
