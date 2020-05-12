@@ -27,7 +27,7 @@ jQuery(document).ready(function() {
   dt = jQuery('.mdl-data-table').DataTable({
     "autoWidth": false,
     "columns": columns,
-    "scrollY":        "650px",
+    "scrollY":        "600px",
     "scrollCollapse": true,
     "paging":         false,
     "searching":      true,
