@@ -106,7 +106,7 @@ class Covid19Stats:
 
     @cached_property
     def city_cases(self):
-        return self.Caso.objects.filter(is_last=True, place_type="city")
+        return self.Caso.objects.filter(is_last=True, place_type="city", confirmed__gt=0)
 
     @cached_property
     def state_cases(self):
