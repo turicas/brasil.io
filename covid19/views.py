@@ -62,15 +62,13 @@ def historical_data(request, period):
     # Remove last period since it won't be complete
     if period == "daily":
         from_states = from_states[:-1]
-        from_registries = from_registries[:-14]
+        from_registries = from_registries[7:-14]
     if period == "weekly":
         from_states = from_states[:-1]
-        from_registries = from_registries[:-3]
+        from_registries = from_registries[1:-3]
 
     state_data = row_to_column(from_states)
     registry_data = row_to_column(from_registries)
-    if period == "weekly":
-        registry_data["epidemiological_week"] = registry_data.pop("epidemiological_week_2020")
     data = {"from_states": state_data, "from_registries": registry_data}
     return JsonResponse(data)
 
