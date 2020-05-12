@@ -9,9 +9,10 @@ from core.middlewares import disable_non_logged_user_cache
 from core.util import cached_http_get_json
 from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.geo import city_geojson, state_geojson
+from covid19.models import StateSpreadsheet
 from covid19.spreadsheet import create_merged_state_spreadsheet
 from covid19.stats import Covid19Stats, max_values
-from covid19.models import StateSpreadsheet
+from covid19.util import row_to_column
 
 stats = Covid19Stats()
 
@@ -42,6 +43,42 @@ def cities(request):
         "total": total_row,
     }
     return JsonResponse(result)
+
+
+def historical_data(request, period):
+    state = request.GET.get("state", None)
+    if period not in ("daily", "weekly"):
+        raise Http404
+    elif state is not None and not get_state_info(state):
+        raise Http404
+
+    if period == "daily":
+        from_states = stats.historical_case_data_for_state_per_day(state)
+        from_registries = stats.historical_registry_data_for_state_per_day(state)
+    elif period == "weekly":
+        from_states = stats.historical_case_data_for_state_per_epiweek(state)
+        from_registries = stats.historical_registry_data_for_state_per_epiweek(state)
+
+    # Remove last period since it won't be complete
+    if period == "daily":
+        from_states = from_states[:-1]
+        from_registries = from_registries[7:-14]
+    if period == "weekly":
+        from_states = from_states[:-1]
+        from_registries = from_registries[1:-3]
+
+    state_data = row_to_column(from_states)
+    registry_data = row_to_column(from_registries)
+    data = {"from_states": state_data, "from_registries": registry_data}
+    return JsonResponse(data)
+
+
+def historical_daily(request):
+    return historical_data(request, "daily")
+
+
+def historical_weekly(request):
+    return historical_data(request, "weekly")
 
 
 def states_geojson(request):
@@ -177,6 +214,7 @@ def dashboard(request, state=None):
             "city_data": city_data,
             "state": state,
             "state_id": state_id,
+            "city_slug": None,  # TODO: change
             "state_name": state_name,
             "states": STATES,
         },

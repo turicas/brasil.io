@@ -1,6 +1,7 @@
-from cached_property import cached_property
+from collections import Counter
 from itertools import groupby
 
+from cached_property import cached_property
 from django.db.models import Max, Sum
 
 from brazil_data.cities import brazilian_cities_per_state
@@ -20,6 +21,73 @@ def max_values(data):
 
 
 class Covid19Stats:
+    graph_daily_cases_columns = {
+        "confirmed": (Sum, "last_available_confirmed"),
+        "deaths": (Sum, "last_available_deaths"),
+        "new_confirmed": (Sum, "new_confirmed"),
+        "new_deaths": (Sum, "new_deaths"),
+    }
+    graph_weekly_cases_columns = {
+        "confirmed": (Max, "last_available_confirmed"),
+        "deaths": (Max, "last_available_deaths"),
+        "new_confirmed": (Sum, "new_confirmed"),
+        "new_deaths": (Sum, "new_deaths"),
+    }
+    graph_daily_registry_deaths_columns = {
+        "deaths_covid19": (Sum, "deaths_covid19"),
+        "deaths_indeterminate": (Sum, "deaths_indeterminate_2020"),
+        "deaths_others": (Sum, "deaths_others_2020"),
+        "deaths_pneumonia": (Sum, "deaths_pneumonia_2020"),
+        "deaths_respiratory_failure": (Sum, "deaths_respiratory_failure_2020"),
+        "deaths_sars": (Sum, "deaths_sars_2020"),
+        "deaths_septicemia": (Sum, "deaths_septicemia_2020"),
+        "deaths_total": (Sum, "deaths_total_2020"),
+        "new_deaths_covid19": (Sum, "new_deaths_covid19"),
+        "new_deaths_indeterminate": (Sum, "new_deaths_indeterminate_2020"),
+        "new_deaths_others": (Sum, "new_deaths_others_2020"),
+        "new_deaths_pneumonia": (Sum, "new_deaths_pneumonia_2020"),
+        "new_deaths_respiratory_failure": (Sum, "new_deaths_respiratory_failure_2020"),
+        "new_deaths_sars": (Sum, "new_deaths_sars_2020"),
+        "new_deaths_septicemia": (Sum, "new_deaths_septicemia_2020"),
+        "new_deaths_total": (Sum, "new_deaths_total_2020"),
+    }
+    graph_weekly_registry_deaths_columns = {
+        "deaths_covid19": (Max, "deaths_covid19"),
+        "deaths_indeterminate": (Max, "deaths_indeterminate_2020"),
+        "deaths_others": (Max, "deaths_others_2020"),
+        "deaths_pneumonia": (Max, "deaths_pneumonia_2020"),
+        "deaths_respiratory_failure": (Max, "deaths_respiratory_failure_2020"),
+        "deaths_sars": (Max, "deaths_sars_2020"),
+        "deaths_septicemia": (Max, "deaths_septicemia_2020"),
+        "deaths_total": (Max, "deaths_total_2020"),
+        "new_deaths_covid19": (Sum, "new_deaths_covid19"),
+        "new_deaths_indeterminate": (Sum, "new_deaths_indeterminate_2020"),
+        "new_deaths_others": (Sum, "new_deaths_others_2020"),
+        "new_deaths_pneumonia": (Sum, "new_deaths_pneumonia_2020"),
+        "new_deaths_respiratory_failure": (Sum, "new_deaths_respiratory_failure_2020"),
+        "new_deaths_sars": (Sum, "new_deaths_sars_2020"),
+        "new_deaths_septicemia": (Sum, "new_deaths_septicemia_2020"),
+        "new_deaths_total": (Sum, "new_deaths_total_2020"),
+    }
+    graph_weekly_registry_deaths_2019_columns = {
+        "deaths_covid19": (Max, "deaths_covid19"),
+        "deaths_indeterminate": (Max, "deaths_indeterminate_2019"),
+        "deaths_others": (Max, "deaths_others_2019"),
+        "deaths_pneumonia": (Max, "deaths_pneumonia_2019"),
+        "deaths_respiratory_failure": (Max, "deaths_respiratory_failure_2019"),
+        "deaths_sars": (Max, "deaths_sars_2019"),
+        "deaths_septicemia": (Max, "deaths_septicemia_2019"),
+        "deaths_total": (Max, "deaths_total_2019"),
+        "new_deaths_covid19": (Sum, "new_deaths_covid19"),
+        "new_deaths_indeterminate": (Sum, "new_deaths_indeterminate_2019"),
+        "new_deaths_others": (Sum, "new_deaths_others_2019"),
+        "new_deaths_pneumonia": (Sum, "new_deaths_pneumonia_2019"),
+        "new_deaths_respiratory_failure": (Sum, "new_deaths_respiratory_failure_2019"),
+        "new_deaths_sars": (Sum, "new_deaths_sars_2019"),
+        "new_deaths_septicemia": (Sum, "new_deaths_septicemia_2019"),
+        "new_deaths_total": (Sum, "new_deaths_total_2019"),
+    }
+
     @cached_property
     def Boletim(self):
         return get_table_model("covid19", "boletim")
@@ -27,6 +95,14 @@ class Covid19Stats:
     @cached_property
     def Caso(self):
         return get_table_model("covid19", "caso")
+
+    @cached_property
+    def CasoFull(self):
+        return get_table_model("covid19", "caso_full")
+
+    @cached_property
+    def ObitoCartorio(self):
+        return get_table_model("covid19", "obito_cartorio")
 
     @cached_property
     def city_cases(self):
@@ -197,7 +273,7 @@ class Covid19Stats:
         return self._get_latest_cases(state, date, "state")
 
     def _get_latest_cases(self, state, date, place_type):
-        cases = self.Caso.objects.filter(state=state, date__lt=date, place_type=place_type,).iterator()
+        cases = self.Caso.objects.filter(state=state, date__lt=date, place_type=place_type).iterator()
 
         place_key_func = lambda row: (row.place_type, row.state, row.city)  # noqa
         order_func = lambda row: row.order_for_place  # noqa
@@ -212,4 +288,87 @@ class Covid19Stats:
             assert len(result) == 1
             result = result[0]
 
+        return result
+
+    def aggregate_state_data(self, select_columns, groupby_columns, state=None):
+        qs = self.CasoFull.objects.filter(place_type="state")
+        if state is not None:
+            qs = qs.filter(state=state)
+        annotate_dict = {alias: Function(column) for alias, (Function, column) in select_columns.items()}
+        return list(qs.order_by(*groupby_columns).values(*groupby_columns).annotate(**annotate_dict))
+
+    def aggregate_epiweek(self, data, group_key="epidemiological_week"):
+        row_key = lambda row: row[group_key]
+        result = []
+        data.sort(key=row_key)
+        for epiweek, group in groupby(data, key=row_key):
+            epidata = Counter()
+            for row in group:
+                for key in row:
+                    if key in (group_key, "state"):
+                        continue
+                    epidata[key] += row[key]
+            result.append({group_key: epiweek, **epidata})
+        return result
+
+    def historical_case_data_for_state_per_day(self, state):
+        return self.aggregate_state_data(
+            groupby_columns=["date"], select_columns=self.graph_daily_cases_columns, state=state
+        )
+
+    def historical_case_data_for_state_per_epiweek(self, state):
+        return self.aggregate_epiweek(
+            self.aggregate_state_data(
+                groupby_columns=["epidemiological_week", "state"],
+                select_columns=self.graph_weekly_cases_columns,
+                state=state,
+            )
+        )
+
+    def aggregate_registry_data(self, select_columns, groupby_columns, state=None):
+        qs = self.ObitoCartorio.objects
+        if state is not None:
+            qs = qs.filter(state=state)
+        annotate_dict = {alias: Function(column) for alias, (Function, column) in select_columns.items()}
+        return list(qs.order_by(*groupby_columns).values(*groupby_columns).annotate(**annotate_dict))
+
+    def historical_registry_data_for_state_per_day(self, state=None):
+        # If state = None, return data for Brazil
+        return self.aggregate_registry_data(
+            groupby_columns=["date"], select_columns=self.graph_daily_registry_deaths_columns, state=state
+        )
+
+    def historical_registry_data_for_state_per_epiweek(self, state):
+        # If state = None, return data for Brazil
+        data_2020 = self.aggregate_epiweek(
+            self.aggregate_registry_data(
+                groupby_columns=["epidemiological_week_2020", "state"],
+                select_columns=self.graph_weekly_registry_deaths_columns,
+                state=state,
+            ),
+            group_key="epidemiological_week_2020",
+        )
+        data_2020 = {row["epidemiological_week_2020"]: row for row in data_2020}
+        data_2019 = self.aggregate_epiweek(
+            self.aggregate_registry_data(
+                groupby_columns=["epidemiological_week_2019", "state"],
+                select_columns=self.graph_weekly_registry_deaths_2019_columns,
+                state=state,
+            ),
+            group_key="epidemiological_week_2019",
+        )
+        data_2019 = {row["epidemiological_week_2019"]: row for row in data_2019}
+        epiweeks = sorted(set(data_2020.keys()) | set(data_2019.keys()))
+        result = []
+        for epiweek in epiweeks:
+            new = {"epidemiological_week": epiweek}
+            for key, value in data_2020.get(epiweek, {}).items():
+                if key.startswith("epidemiological_week"):
+                    continue
+                new[key] = value
+            for key, value in data_2019.get(epiweek, {}).items():
+                if key.startswith("epidemiological_week") or "covid19" in key:
+                    continue
+                new[f"{key}_2019"] = value
+            result.append(new)
         return result
