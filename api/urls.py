@@ -1,8 +1,8 @@
 from django.urls import path
 
-from . import views
 from graphs import views as graph_views
 
+from . import views
 
 app_name = "api"
 urlpatterns = [
