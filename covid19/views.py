@@ -55,21 +55,30 @@ def historical_data(request, period):
     if period == "daily":
         from_states = stats.historical_case_data_for_state_per_day(state)
         from_registries = stats.historical_registry_data_for_state_per_day(state)
+        from_registries_excess = stats.excess_deaths_registry_data_for_state_per_day(state)
     elif period == "weekly":
         from_states = stats.historical_case_data_for_state_per_epiweek(state)
         from_registries = stats.historical_registry_data_for_state_per_epiweek(state)
+        from_registries_excess = stats.excess_deaths_registry_data_for_state_per_epiweek(state)
 
     # Remove last period since it won't be complete
     if period == "daily":
         from_states = from_states[:-1]
         from_registries = from_registries[7:-14]
+        from_registries_excess = from_registries_excess[7:-14]
     if period == "weekly":
         from_states = from_states[:-1]
         from_registries = from_registries[1:-3]
+        from_registries_excess = from_registries_excess[1:-3]
 
     state_data = row_to_column(from_states)
     registry_data = row_to_column(from_registries)
-    data = {"from_states": state_data, "from_registries": registry_data}
+    registry_excess_data = row_to_column(from_registries_excess)
+    data = {
+        "from_states": state_data,
+        "from_registries": registry_data,
+        "from_registries_excess": registry_excess_data,
+    }
     return JsonResponse(data)
 
 

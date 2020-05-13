@@ -20,6 +20,31 @@ def max_values(data):
     return {key: max(row[key] for row in data) for key in desired_keys}
 
 
+def group_deaths(data):
+    key_map = {
+        "deathgroup_other": ("deaths_septicemia", "deaths_indeterminate", "deaths_others",),
+        "deathgroup_other_respiratory": ("deaths_pneumonia", "deaths_respiratory_failure", "deaths_sars",),
+        "deathgroup_covid19": ("deaths_covid19",),
+    }
+    result = []
+    for row in data:
+        new = {
+            "excess_deaths": row.get("deaths_total", 0) - row.get("deaths_total_2019", 0),
+            "new_excess_deaths": row.get("new_deaths_total", 0) - row.get("new_deaths_total_2019", 0),
+        }
+        if "date" in row:
+            new["date"] = row["date"]
+        elif "epidemiological_week" in row:
+            new["epidemiological_week"] = row["epidemiological_week"]
+        for new_key, sum_keys in key_map.items():
+            new[f"{new_key}_2020"] = sum(row.get(key, 0) for key in sum_keys)
+            new[f"new_{new_key}_2020"] = sum(row.get(f"new_{key}", 0) for key in sum_keys)
+            new[f"{new_key}_2019"] = sum(row.get(f"{key}_2019", 0) for key in sum_keys)
+            new[f"new_{new_key}_2019"] = sum(row.get(f"new_{key}_2019", 0) for key in sum_keys)
+        result.append(new)
+    return result
+
+
 class Covid19Stats:
     graph_daily_cases_columns = {
         "confirmed": (Sum, "last_available_confirmed"),
@@ -50,6 +75,20 @@ class Covid19Stats:
         "new_deaths_sars": (Sum, "new_deaths_sars_2020"),
         "new_deaths_septicemia": (Sum, "new_deaths_septicemia_2020"),
         "new_deaths_total": (Sum, "new_deaths_total_2020"),
+        "deaths_indeterminate_2019": (Sum, "deaths_indeterminate_2019"),
+        "deaths_others_2019": (Sum, "deaths_others_2019"),
+        "deaths_pneumonia_2019": (Sum, "deaths_pneumonia_2019"),
+        "deaths_respiratory_failure_2019": (Sum, "deaths_respiratory_failure_2019"),
+        "deaths_sars_2019": (Sum, "deaths_sars_2019"),
+        "deaths_septicemia_2019": (Sum, "deaths_septicemia_2019"),
+        "deaths_total_2019": (Sum, "deaths_total_2019"),
+        "new_deaths_indeterminate_2019": (Sum, "new_deaths_indeterminate_2019"),
+        "new_deaths_others_2019": (Sum, "new_deaths_others_2019"),
+        "new_deaths_pneumonia_2019": (Sum, "new_deaths_pneumonia_2019"),
+        "new_deaths_respiratory_failure_2019": (Sum, "new_deaths_respiratory_failure_2019"),
+        "new_deaths_sars_2019": (Sum, "new_deaths_sars_2019"),
+        "new_deaths_septicemia_2019": (Sum, "new_deaths_septicemia_2019"),
+        "new_deaths_total_2019": (Sum, "new_deaths_total_2019"),
     }
     graph_weekly_registry_deaths_columns = {
         "deaths_covid19": (Max, "deaths_covid19"),
@@ -338,7 +377,11 @@ class Covid19Stats:
             groupby_columns=["date"], select_columns=self.graph_daily_registry_deaths_columns, state=state
         )
 
-    def historical_registry_data_for_state_per_epiweek(self, state):
+    def excess_deaths_registry_data_for_state_per_day(self, state=None):
+        data = self.historical_registry_data_for_state_per_day(state=state)
+        return group_deaths(data)
+
+    def historical_registry_data_for_state_per_epiweek(self, state=None):
         # If state = None, return data for Brazil
         data_2020 = self.aggregate_epiweek(
             self.aggregate_registry_data(
@@ -372,3 +415,7 @@ class Covid19Stats:
                 new[f"{key}_2019"] = value
             result.append(new)
         return result
+
+    def excess_deaths_registry_data_for_state_per_epiweek(self, state=None):
+        data = self.historical_registry_data_for_state_per_epiweek(state=state)
+        return group_deaths(data)

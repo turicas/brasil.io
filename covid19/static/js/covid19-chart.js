@@ -1,4 +1,11 @@
-var caseDailyTotalChart, caseDailyNewChart, deathDailyTotalChart, deathDailyNewChart;
+var caseDailyNewChart,
+  caseDailyTotalChart,
+  deathDailyNewChart,
+  deathDailyTotalChart,
+  deathWeeklyChart,
+  deathWeeklyCompareChart,
+  deathWeeklyExcessChart,
+  excessDeathsWeeklyChart;
 
 function hexToRGBA(hex, rgba) {
   parts = hex.split("");
@@ -12,7 +19,6 @@ function hexToRGBA(hex, rgba) {
   blue = hexNumber & 255;
   return `rgba(${red}, ${green}, ${blue}, ${rgba})`;
 }
-
 
 class MultiLineChart {
 
@@ -31,53 +37,54 @@ class MultiLineChart {
     this.yLabels = options.yLabels;
     this.yData = options.yData;
     this.chartOptions = {
-      title: {
-        display: true,
-        text: options.title,
-      },
       animation: {duration: this.animationDuration},
       bezierCurve: false,
+      legend: {
+        display: this.options.showYLabels === undefined ? true : this.options.showYLabels,
+        labels: {
+          filter: function (legendItem, data) { return legendItem.text !== undefined; },
+        },
+      },
       scales: {
         yAxes: this.yAxes(),
         xAxes: this.xAxes(),
       },
+      title: {
+        display: true,
+        text: options.title,
+      },
     };
   }
 
+  getYLabel(index) {
+    return this.yLabels[index];
+  }
+
   xAxes() {
-    if (this.options.xLabel === undefined) {
-      return [{}];
+    var axes = [{
+      stacked: this.options.stacked === undefined ? false : this.options.stacked,
+    }];
+    if (this.options.xLabel !== undefined) {
+      axes[0].scaleLabel = {
+        labelString: this.options.xLabel,
+        display: true,
+      };
     }
-    return [
-      {
-        scaleLabel: {
-          labelString: this.options.xLabel,
-          display: true,
-        },
-      },
-    ];
+    return axes;
   }
 
   yAxes() {
-    var beginAtZero;
-    if (this.options.beginAtZero === undefined) {
-      beginAtZero = true;
-    }
-    else {
-      beginAtZero = false;
-    }
-    var data = [
+    return [
       {
         id: 1,
         position: "left",
-        stacked: false,
+        stacked: this.options.stacked === undefined ? false : this.options.stacked,
         ticks: {
-          beginAtZero: beginAtZero,
+          beginAtZero: this.options.beginAtZero === undefined ? true : this.options.beginAtZero,
         },
         type: "linear",
       },
     ];
-    return data;
   }
 
   datasets() {
@@ -87,7 +94,7 @@ class MultiLineChart {
         borderColor: this.colors[index],
         data: this.yData[index],
         fill: false,
-        label: this.yLabels[index],
+        label: this.getYLabel(index),
         type: this.chartType(),
         yAxisID: 1,
       });
@@ -109,6 +116,7 @@ class MultiLineChart {
       newNode.innerHTML = this.options.source;
       this.canvasElement.parentNode.appendChild(newNode);
     }
+    return this;
   }
 }
 
@@ -124,10 +132,31 @@ class MultiBarChart extends MultiLineChart {
       result.push({
         backgroundColor: this.colors[index],
         data: this.yData[index],
-        label: this.yLabels[index],
+        label: this.getYLabel(index),
         type: this.chartType(),
         yAxisID: 1,
       });
+    }
+    return result;
+  }
+
+}
+
+class StackedBarChart extends MultiBarChart {
+
+  datasets() {
+    var result = new Array();
+    for (var stackIndex = 0; stackIndex < this.yData.length; stackIndex++) {
+      for (var index = 0; index < this.yData[stackIndex].length; index++) {
+        result.push({
+          backgroundColor: this.colors[stackIndex][index],
+          data: this.yData[stackIndex][index],
+          label: this.yLabels[stackIndex][index],
+          stack: stackIndex,
+          type: this.chartType(),
+          yAxisID: 1,
+        });
+      }
     }
     return result;
   }
@@ -146,7 +175,11 @@ jQuery(document).ready(function(){
   }
   var deathsTitle = `Causas de óbitos por semana epidemiológica${titleAppend}`;
   var deathsCompareTitle = `Óbitos novos por semana epidemiológica 2019 vs 2020${titleAppend}`;
-  var deathsSource = 'Fonte: <a href="https://transparencia.registrocivil.org.br/registral-covid">Registro Civil</a>. *Nota: as últimas 2 semanas não estão representadas pois os dados estão em processamento pelos cartórios.';
+  var deathsSourceLink = 'Fonte: <a href="https://transparencia.registrocivil.org.br/registral-covid">Registro Civil</a>.';
+  var deathsSourceNote = " *Nota: as últimas 2 semanas não estão representadas pois os dados estão em processamento pelos cartórios.";
+  var deathsSource = deathsSourceLink + deathsSourceNote;
+  var deathsGroupSource = deathsSourceLink + " Grupos: COVID-19 (suspeita ou confirmação por COVID-19), Outras respiratórias (pneumonia + insuf. resp. + SRAG), Outras (septicemia + indeterminada + outras causas naturais não externas)." + deathsSourceNote;
+  var deathsExcessSource = deathsSourceLink + " Excesso por semana = novos óbitos totais na semana em 2020 - novos óbitos totais na semana em 2019." + deathsSourceNote;
 
   graphSource += ". *Nota: dados sendo consolidados para os últimos dias.";
   jQuery.getJSON(dataURL.historicalDaily, function (data) {
@@ -195,7 +228,7 @@ jQuery(document).ready(function(){
       source: deathsSource,
       title: deathsTitle,
       xData: data.from_registries.epidemiological_week,
-      xLabel: "Semana epidemiológica 2020",
+      xLabel: "Semana epidemiológica (2020)",
       yLabels: [
         "COVID-19 (confirmada ou suspeita)",
         "Indeterminada",
@@ -215,7 +248,6 @@ jQuery(document).ready(function(){
         data.from_registries.new_deaths_septicemia,
       ],
     }).draw();
-
     deathWeeklyCompareChart = new MultiLineChart({
       beginAtZero: false,
       colors: ["#0000FF", "#FF0000"],
@@ -229,9 +261,65 @@ jQuery(document).ready(function(){
         data.from_registries.new_deaths_total,
       ],
       yLabels: [
-        "Óbitos na semana 2019",
-        "Óbitos na semana 2020",
+        "Óbitos na semana (2019)",
+        "Óbitos na semana (2020)",
       ],
     }).draw();
+
+    deathWeeklyExcessChart = new StackedBarChart({
+      colors: [
+        [
+          "rgba(0,     0, 255, 0.3)",
+          "rgba(0,   255,   0, 0.3)",
+          "rgba(255,   0,   0, 0.3)",
+        ],
+        [
+          "rgba(0,     0, 255, 1.0)",
+          "rgba(0,   255,   0, 1.0)",
+          "rgba(255,   0,   0, 1.0)",
+        ],
+      ],
+      divId: "death-weekly-excess-chart-1",
+      source: deathsGroupSource,
+      stacked: true,
+      title: `Novos óbitos (causas agrupadas) por semana epidemiológica${titleAppend}`,
+      xData: data.from_registries_excess.epidemiological_week,
+      xLabel: "Semana epidemiológica",
+      yLabels: [
+        [
+          "Outras (2019)",
+          "Outras respiratórias (2019)",
+          undefined,
+        ],
+        [
+          "Outras (2020)",
+          "Outras respiratórias (2020)",
+          "COVID-19 (2020)",
+        ],
+      ],
+      yData: [
+        [
+          data.from_registries_excess.new_deathgroup_other_2019,
+          data.from_registries_excess.new_deathgroup_other_respiratory_2019,
+          data.from_registries_excess.new_deathgroup_covid19_2019,
+        ],
+        [
+          data.from_registries_excess.new_deathgroup_other_2020,
+          data.from_registries_excess.new_deathgroup_other_respiratory_2020,
+          data.from_registries_excess.new_deathgroup_covid19_2020,
+        ],
+      ]
+    }).draw();
+    excessDeathsWeeklyChart = new MultiBarChart({
+      colors: [(row) => row.dataset.data[row.dataIndex] >= 0 ? "#FF0000" : "#0000FF" ],
+      divId: "death-weekly-excess-chart-2",
+      title: `Excesso de novos óbitos por semana epidemiológica${titleAppend}`,
+      xData: data.from_registries_excess.epidemiological_week,
+      yLabels: ["Óbitos em excesso"],
+      yData: [data.from_registries_excess.new_excess_deaths],
+      showYLabels: false,
+      source: deathsExcessSource,
+    }).draw();
+
   });
 });
