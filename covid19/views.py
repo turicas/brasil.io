@@ -1,3 +1,4 @@
+import datetime
 import random
 
 from django.http import Http404, HttpResponse, JsonResponse
@@ -13,6 +14,7 @@ from covid19.models import StateSpreadsheet
 from covid19.spreadsheet import create_merged_state_spreadsheet
 from covid19.stats import Covid19Stats, max_values
 from covid19.util import row_to_column
+from covid19.epiweek import get_epiweek
 
 stats = Covid19Stats()
 
@@ -45,20 +47,24 @@ def cities(request):
     return JsonResponse(result)
 
 
-def clean_data_daily(data, skip=0, diff=-1):
+def clean_daily_data(data, skip=0, diff=-1):
     now = datetime.datetime.now()
     today = datetime.date(now.year, now.month, now.day)
-    first_data = min(row["date"] for row in data)
-    until_date = today + datetime.timedelta(days=diff)
-    from_date = first_date + datetime.timedelta(days=skip)
+    first_date = min(row["date"] for row in data).split("-")
+    first_date = datetime.date(*[int(item) for item in first_date])
+    until_date = str(today + datetime.timedelta(days=diff))
+    from_date = str(first_date + datetime.timedelta(days=skip))
     return [row for row in data if from_date <= row["date"] <= until_date]
 
 
-def clean_data_weekly(data, skip=0, diff=-1):
+def clean_weekly_data(data, skip=0, diff_days=-14):
+    now = datetime.datetime.now()
+    today = datetime.date(now.year, now.month, now.day)
+    _, until_epiweek = get_epiweek(today + datetime.timedelta(days=diff_days))
     return [
         row
         for index, row in enumerate(data)
-        if index >= skip and row["epidemiological_week"] <= 17
+        if index >= skip and row["epidemiological_week"] < until_epiweek
     ]
 
 
@@ -84,9 +90,9 @@ def historical_data(request, period):
         from_registries = clean_daily_data(from_registries, skip=7, diff=-14)
         from_registries_excess = clean_daily_data(from_registries_excess, skip=7, diff=-14)
     if period == "weekly":
-        from_states = clean_data_weekly(from_states, diff=-1)
-        from_registries = clean_data_weekly(from_registries, skip=1, diff=-3)
-        from_registries_excess = clean_data_weekly(from_registries_excess, skip=1, diff=-3)
+        from_states = clean_weekly_data(from_states, diff_days=-7)
+        from_registries = clean_weekly_data(from_registries, skip=1, diff_days=-14)
+        from_registries_excess = clean_weekly_data(from_registries_excess, skip=1, diff_days=-14)
 
     state_data = row_to_column(from_states)
     registry_data = row_to_column(from_registries)
