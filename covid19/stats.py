@@ -37,10 +37,10 @@ def group_deaths(data):
         elif "epidemiological_week" in row:
             new["epidemiological_week"] = row["epidemiological_week"]
         for new_key, sum_keys in key_map.items():
-            new[f"{new_key}_2020"] = sum(row.get(key, 0) for key in sum_keys)
-            new[f"new_{new_key}_2020"] = sum(row.get(f"new_{key}", 0) for key in sum_keys)
-            new[f"{new_key}_2019"] = sum(row.get(f"{key}_2019", 0) for key in sum_keys)
-            new[f"new_{new_key}_2019"] = sum(row.get(f"new_{key}_2019", 0) for key in sum_keys)
+            new[f"{new_key}_2020"] = sum(row.get(key, 0) or 0 for key in sum_keys)
+            new[f"new_{new_key}_2020"] = sum(row.get(f"new_{key}", 0) or 0 for key in sum_keys)
+            new[f"{new_key}_2019"] = sum(row.get(f"{key}_2019", 0) or 0 for key in sum_keys)
+            new[f"new_{new_key}_2019"] = sum(row.get(f"new_{key}_2019", 0) or 0 for key in sum_keys)
         result.append(new)
     return result
 
@@ -346,7 +346,7 @@ class Covid19Stats:
                 for key in row:
                     if key in (group_key, "state"):
                         continue
-                    epidata[key] += row[key]
+                    epidata[key] += row[key] or 0
             result.append({group_key: epiweek, **epidata})
         return result
 
