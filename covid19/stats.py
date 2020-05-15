@@ -213,7 +213,7 @@ class Covid19Stats:
             "date_str": str(state_totals["last_date"]),
             "death_rate_percent": 100 * (deaths / confirmed),
             "deaths": deaths,
-            "deaths_per_100k_inhabitants": 100 * (deaths / population),
+            "deaths_per_100k_inhabitants": 100_000 * (deaths / population),
             "estimated_population_2019": population,
             "state": "BR",
         }
@@ -240,7 +240,7 @@ class Covid19Stats:
             "date_str": str(case.date),
             "death_rate_percent": 100 * (deaths / confirmed),
             "deaths": deaths,
-            "deaths_per_100k_inhabitants": 100 * (deaths / population),
+            "deaths_per_100k_inhabitants": 100_000 * (deaths / population),
             "estimated_population_2019": population,
             "state": state,
         }
