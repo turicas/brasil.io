@@ -45,6 +45,23 @@ def cities(request):
     return JsonResponse(result)
 
 
+def clean_data_daily(data, skip=0, diff=-1):
+    now = datetime.datetime.now()
+    today = datetime.date(now.year, now.month, now.day)
+    first_data = min(row["date"] for row in data)
+    until_date = today + datetime.timedelta(days=diff)
+    from_date = first_date + datetime.timedelta(days=skip)
+    return [row for row in data if from_date <= row["date"] <= until_date]
+
+
+def clean_data_weekly(data, skip=0, diff=-1):
+    return [
+        row
+        for index, row in enumerate(data)
+        if index >= skip and row["epidemiological_week"] <= 17
+    ]
+
+
 def historical_data(request, period):
     state = request.GET.get("state", None)
     if period not in ("daily", "weekly"):
@@ -63,13 +80,13 @@ def historical_data(request, period):
 
     # Remove last period since it won't be complete
     if period == "daily":
-        from_states = from_states[:-1]
-        from_registries = from_registries[7:-14]
-        from_registries_excess = from_registries_excess[7:-14]
+        from_states = clean_daily_data(from_states, skip=0, diff=-1)
+        from_registries = clean_daily_data(from_registries, skip=7, diff=-14)
+        from_registries_excess = clean_daily_data(from_registries_excess, skip=7, diff=-14)
     if period == "weekly":
-        from_states = from_states[:-1]
-        from_registries = from_registries[1:-3]
-        from_registries_excess = from_registries_excess[1:-3]
+        from_states = clean_data_weekly(from_states, diff=-1)
+        from_registries = clean_data_weekly(from_registries, skip=1, diff=-3)
+        from_registries_excess = clean_data_weekly(from_registries_excess, skip=1, diff=-3)
 
     state_data = row_to_column(from_states)
     registry_data = row_to_column(from_registries)
