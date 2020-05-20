@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_extensions",
     "rest_framework",
+    "rest_framework.authtoken",
     "markdownx",
     "django_rq",
     # Project apps

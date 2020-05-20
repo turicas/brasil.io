@@ -1,20 +1,23 @@
 import shutil
-import io
 from unittest.mock import patch, Mock
 from datetime import date, timedelta
 from pathlib import Path
 from model_bakery import baker
+import requests
+from urllib import request  # to build absolute url.
 
 from django.conf import settings
-from django.test import TestCase
 from django.urls import reverse
-from django.contrib.auth.models import Permission, Group
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User, Group
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.contrib.auth import login
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.test import Client
 from rest_framework.test import APITestCase
+from rest_framework.test import force_authenticate, RequestsClient
+from rest_framework.authtoken.models import Token
 
 from covid19.exceptions import SpreadsheetValidationErrors
-from covid19.forms import StateSpreadsheetForm
 
 
 class ImportSpreadsheetByDateAPIViewTests(APITestCase):
@@ -29,14 +32,19 @@ class ImportSpreadsheetByDateAPIViewTests(APITestCase):
         }
 
         self.filename = f'sample.csv'
-        
-        self.file_data = {"file": self.gen_file(self.filename, valid_csv.read_bytes())}
-        self.data['file'] = self.file_data
 
-        self.user = baker.make(settings.AUTH_USER_MODEL)
+        self.file_data = self.gen_file(self.filename, valid_csv.read_bytes())
+        self.data['file'] = self.file_data
+        self.setUp_user_credentials()
+
+    def setUp_user_credentials(self):
+        self.user = baker.make(get_user_model())
         self.user.groups.add(Group.objects.get(name__endswith="Rio de Janeiro"))
         self.user.groups.add(Group.objects.get(name__endswith="Paraná"))
 
+        self.token = baker.make(Token, user=self.user)
+        self.headers = {'Authorization': f'Token {self.token.key}'}
+        self.client.credentials(HTTP_AUTHORIZATION=self.headers['Authorization'])
         self.client.force_login(user=self.user)
 
     def gen_file(self, name, content):
@@ -50,6 +58,11 @@ class ImportSpreadsheetByDateAPIViewTests(APITestCase):
 
     @patch("covid19.forms.format_spreadsheet_rows_as_dict", autospec=True)
     def test_400_if_spreadsheet_error_on_import_data(self, mock_merge):
+        expected_response = {
+            'errors': ["error 1", "error 2"]
+        }
+        expected_status = 400
+
         exception = SpreadsheetValidationErrors()
         exception.new_error("error 1")
         exception.new_error("error 2")
@@ -63,37 +76,36 @@ class ImportSpreadsheetByDateAPIViewTests(APITestCase):
 
         self.url = reverse(reverse_name, args=["RJ"])
 
-        response = self.client.post(self.url, data=self.data, format='json')
+        breakpoint()
+        response = self.client.post(self.url, data=self.data)
 
         assert len(exception.errors) == 2
-        assert 400 == response.status_code
-        assert {
-                'errors': ["error 1", "error 2"]
-                } == response.json()
+        assert expected_status == response.status_code
+        assert expected_response == response.json()
 
     @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=["warning"]))
     def test_import_data_from_a_valid_state_spreadsheet_request(self):
-        reverse_name = "covid19:statespreadsheet-list"
+        expected_response = {
+            "warnings": ["warning 1", "warning 2"],
+            "detail_url": "https://brasil.io/covid19/dataset/RJ"
+        }
 
+        expected_status = 200
+
+        reverse_name = "covid19:statespreadsheet-list"
         self.url = reverse(reverse_name, args=["RJ"])
 
-        response = self.client.get(reverse('covid19:dashboard'))
-        assert response.status_code == 200
-        csrftoken = response.cookies['csrftoken']
+        response = self.client.post(self.url, data=self.data)
 
-        response = self.client.post(self.url, data=self.data, format='json', headers={'X-CSRFToken': csrftoken})
-
-        assert 200 == response.status_code
-        assert {
-                "warnings": ["warning 1", "warning 2"],
-                "detail_url": "https://brasil.io/covid19/dataset/RJ"
-                } == response.json()
+        assert expected_status == response.status_code
+        assert expected_response == response.json()
 
     def test_login_required(self):
+        expected_status = 403
         reverse_name = "covid19:statespreadsheet-list"
 
         self.url = reverse(reverse_name, args=["RJ"])
 
-        self.client.logout()
-        response = self.client.post(self.url, self.data, format='json')
-        assert 403 == response.status_code
+        self.client.credentials()
+        response = self.client.post(self.url, data=self.data)
+        assert expected_status == response.status_code

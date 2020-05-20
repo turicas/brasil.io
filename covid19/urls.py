@@ -14,6 +14,6 @@ urlpatterns = [
     path("cities/geo/", views.cities_geojson, name="cities-geo"),
     path("states/geo/", views.states_geojson, name="states-geo"),
     path("import-data/<str:state>/", views.import_spreadsheet_proxy, name="spreadsheet_proxy"),
-    path('api/import-data/<str:state>/', views.StateSpreadsheetViewList.as_view(), name='statespreadsheet-list'),
+    path('api/import-data/<str:state>/', views.state_spreadsheet_view_list, name='statespreadsheet-list'),
     path("<str:state>/", views.dashboard, name="dashboard"),
 ]

@@ -1,13 +1,15 @@
 import datetime
 import random
+import json
 
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.db import transaction
 
 from rest_framework import views
 from rest_framework.response import Response
 from rest_framework import permissions
-from rest_framework.parsers import FileUploadParser, FormParser, MultiPartParser, JSONParser
+from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 
 from brazil_data.cities import get_state_info
 from brazil_data.states import STATE_BY_ACRONYM, STATES
@@ -22,7 +24,7 @@ from covid19.stats import Covid19Stats, max_values
 from covid19.util import row_to_column
 from covid19.epiweek import get_epiweek
 from covid19.models import StateSpreadsheet
-from covid19.serializers import StateSpreadsheetSerializer
+from covid19.signals import new_spreadsheet_imported_signal
 
 stats = Covid19Stats()
 
@@ -310,36 +312,39 @@ def status(request):
     return render(request, "covid-status.html", {"import_data": data})
 
 
-class StateSpreadsheetViewList(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [JSONParser, FormParser, MultiPartParser]
-
-    def post(self, request, *args, **kwargs):
+def state_spreadsheet_view_list(request, *args, **kwargs):
+    if request.method == 'POST':
         data = {
-            "state": self.kwargs['state'],  # sempre terá um state dado que ele está na URL
-            "date": request.data.get('date'),
-            "boletim_urls": '\n'.join(request.data.get('boletim_urls', [])),
-            "boletim_notes": request.data.get('boletim_notes'),
+            "state": kwargs['state'],  # sempre terá um state dado que ele está na URL
+            "date": request.POST.get('date'),
+            "boletim_urls": '\n'.join(request.POST.get('boletim_urls', [])),
+            "boletim_notes": request.POST.get('boletim_notes'),
         }
-        
+
+        breakpoint()
+        # XXX Remove
+        boletim_urls = request.POST.get('boletim_urls', [])
+        # XXX
+
+        data["state"] = kwargs['state']  # sempre terá um state dado que ele está na URL
+
         files = {
-            'file': request.data.get('file'),
+            'file': data.get('file'),
         }
-        
+
         form = StateSpreadsheetForm(data, files, user=request.user)
 
         if form.is_valid():
             transaction.on_commit(
-                    lambda: new_spreadsheet_imported_signal.send(
-                        sender=self,
-                        spreadsheet=spreadsheet
-                        )
-                    )
-            
+                lambda: new_spreadsheet_imported_signal.send(
+                    sender=self,
+                    spreadsheet=spreadsheet
+                )
+            )
+
             spreadsheet = form.save()
             spreadsheet.refresh_from_db()
-            state = data['state']
 
-            return Response({"warnings": spreadsheet.warnings, "detail_url": spreadsheet.admin_url})
+            return JsonResponse({"warnings": spreadsheet.warnings, "detail_url": spreadsheet.admin_url})
 
-        return Response({'errors': form.errors}, status=400)
+        return JsonResponse({'errors': form.errors}, status=400)
