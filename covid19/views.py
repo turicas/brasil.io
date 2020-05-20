@@ -7,9 +7,10 @@ from django.shortcuts import render
 from django.db import transaction
 
 from rest_framework import views
-from rest_framework.response import Response
 from rest_framework import permissions
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
+from rest_framework.response import Response
 
 from brazil_data.cities import get_state_info
 from brazil_data.states import STATE_BY_ACRONYM, STATES
@@ -311,26 +312,18 @@ def status(request):
 
     return render(request, "covid-status.html", {"import_data": data})
 
-
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
 def state_spreadsheet_view_list(request, *args, **kwargs):
     if request.method == 'POST':
         data = {
             "state": kwargs['state'],  # sempre terá um state dado que ele está na URL
-            "date": request.POST.get('date'),
-            "boletim_urls": '\n'.join(request.POST.get('boletim_urls', [])),
-            "boletim_notes": request.POST.get('boletim_notes'),
         }
 
-        breakpoint()
-        # XXX Remove
-        boletim_urls = request.POST.get('boletim_urls', [])
-        # XXX
+        data = json.loads(request.body)
 
-        data["state"] = kwargs['state']  # sempre terá um state dado que ele está na URL
-
-        files = {
-            'file': data.get('file'),
-        }
+        return JsonResponse(data)
+        files = {'file': data['file']}
 
         form = StateSpreadsheetForm(data, files, user=request.user)
 
