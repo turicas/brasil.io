@@ -1,5 +1,5 @@
-from django.urls import path, reverse_lazy
 from django.contrib.auth.decorators import login_required
+from django.urls import path, reverse_lazy
 
 from . import views, views_special
 

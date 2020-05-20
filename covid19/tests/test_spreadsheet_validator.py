@@ -1,13 +1,12 @@
-import pytest
-import rows
 from datetime import date, timedelta
 from io import BytesIO
-from model_bakery import baker
-from unittest.mock import patch, Mock
-from pathlib import Path
+from unittest.mock import Mock, patch
 
+import pytest
+import rows
 from django.conf import settings
 from django.test import TestCase
+from model_bakery import baker
 
 from brazil_data.cities import get_city_info
 from core.models import Table

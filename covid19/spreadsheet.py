@@ -1,13 +1,13 @@
 import io
-import rows
 from collections import defaultdict
 
-from brazil_data.cities import get_city_info
+import rows
 
+from brazil_data.cities import get_city_info
 from covid19 import google_data
+from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.models import StateSpreadsheet
 from covid19.spreadsheet_validator import TOTAL_LINE_DISPLAY, UNDEFINED_DISPLAY
-from covid19.exceptions import SpreadsheetValidationErrors
 
 
 def get_state_data_from_db(state):

@@ -3,7 +3,6 @@ import functools
 from django.middleware.cache import FetchFromCacheMiddleware
 from django.urls import resolve
 
-
 DISABLE_CACHE_ATTR = "_disable_non_logged_user_cache"
 
 

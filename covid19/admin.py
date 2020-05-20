@@ -1,18 +1,18 @@
 import csv
 
-from django.urls import path
 from django.contrib import admin
 from django.db import transaction
-from django.http import HttpResponse, Http404
+from django.http import Http404, HttpResponse
 from django.templatetags.static import static
+from django.urls import path
 from django.utils.html import format_html
 
-from brazil_data.states import STATES
 from brazil_data.cities import brazilian_cities_per_state
-from covid19.forms import state_choices_for_user, StateSpreadsheetForm
+from brazil_data.states import STATES
+from covid19.forms import StateSpreadsheetForm, state_choices_for_user
 from covid19.models import StateSpreadsheet
-from covid19.signals import new_spreadsheet_imported_signal
 from covid19.permissions import user_has_state_permission
+from covid19.signals import new_spreadsheet_imported_signal
 from covid19.spreadsheet_validator import TOTAL_LINE_DISPLAY, UNDEFINED_DISPLAY
 
 

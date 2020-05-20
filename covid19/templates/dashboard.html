@@ -10,8 +10,11 @@
 <link rel="stylesheet" type="text/css" href="{% static 'css/covid19-map.css' %}"/>
 <script type="text/javascript" language="javascript" src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
 <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" language="javascript" src="https://www.chartjs.org/dist/2.9.3/Chart.min.js"></script>
+<script type="text/javascript" language="javascript" src="{% static 'js/covid19-base.js' %}"></script>
 <script type="text/javascript" language="javascript" src="{% static 'js/covid19-table.js' %}"></script>
 <script type="text/javascript" language="javascript" src="{% static 'js/covid19-map.js' %}"></script>
+<script type="text/javascript" language="javascript" src="{% static 'js/covid19-chart.js' %}"></script>
 {% endblock %}
 
 {% block content %}{% localize on %}
@@ -114,7 +117,7 @@
     Nota: casos importados não estão representados no mapa.
   </div>
 
-  <div id="table-col" class="col xl12 l12 m12 s12">
+  <div id="table-col" class="col xl12 l12 m12 s12" style="height: 850px; overflow: hidden">
     <table class="table mdl-data-table">
       <thead>
         <tr>
@@ -151,9 +154,45 @@
     </p>
   </div>
 
-  <p style="clear: both"></p>
 </div>
+
+<div style="clear: both">
 </div>
+
+<div class="row" style="height: 415px">
+  <div class="col xl6 l6 m12 s12">
+    <canvas id="case-daily-chart-1"></canvas>
+  </div>
+  <div class="col xl6 l6 m12 s12">
+    <canvas id="death-daily-chart-1"></canvas>
+  </div>
+</div>
+<div class="row" style="height: 415px">
+  <div class="col xl6 l6 m12 s12">
+    <canvas id="case-daily-chart-2"></canvas>
+  </div>
+  <div class="col xl6 l6 m12 s12">
+    <canvas id="death-daily-chart-2"></canvas>
+  </div>
+</div>
+<div class="row" style="height: 415px">
+  <div class="col xl6 l6 m12 s12">
+    <canvas id="death-weekly-2020-chart"></canvas>
+  </div>
+  <div class="col xl6 l6 m12 s12">
+    <canvas id="death-weekly-years-chart"></canvas>
+  </div>
+</div>
+<div class="row" style="height: 415px">
+  <div class="col xl6 l6 m12 s12">
+    <canvas id="death-weekly-excess-chart-1"></canvas>
+  </div>
+  <div class="col xl6 l6 m12 s12">
+    <canvas id="death-weekly-excess-chart-2"></canvas>
+  </div>
+</div>
+
+<div style="clear: both"></div>
 {% endlocalize %}
 {% endblock %}
 
@@ -164,8 +203,12 @@ var dataURL = {
   cities: "{% url 'covid19:cities-cases' %}{% if state %}?state={{ state }}{% endif %}",
   stateGeoJSON: "{% url 'covid19:states-geo' %}{% if state %}?state={{ state }}{% endif %}",
   cityGeoJSON: "{% url 'covid19:cities-geo' %}{% if state %}?state={{ state }}{% endif %}",
+  historicalDaily: "{% url 'covid19:historical-daily' %}{% if state %}?state={{ state }}{% endif %}",
+  historicalWeekly: "{% url 'covid19:historical-weekly' %}{% if state %}?state={{ state }}{% endif %}",
 };
 var selectedStateId = {% if not state_id %}undefined{% else %}{{ state_id }}{% endif %};
+var selectedStateAcronym = {% if not state_id %}undefined{% else %}"{{ state }}"{% endif %};
+var selectedCitySlug = {% if not city_id %}undefined{% else %}"{{ city_slug }}"{% endif %};
 
 jQuery(document).ready(function(){
   jQuery('.tooltipped').tooltip();

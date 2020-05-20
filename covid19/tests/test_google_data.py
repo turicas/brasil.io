@@ -1,13 +1,16 @@
-import pytest
 from unittest.mock import patch
+from unittest import skip
 
-from django.test import TestCase
+import pytest
 from django.core.cache import cache
+from django.test import TestCase
 
 from covid19 import google_data
 
 
 class TestGoogleDataIntegration(TestCase):
+
+    @skip("This test won't work with Django's DummyCache, which is enabled for development")
     def test_cache_general_spreadsheet(self):
         cache.clear()
         assert not cache.keys("*")

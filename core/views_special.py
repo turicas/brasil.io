@@ -6,11 +6,10 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from core.forms import TracePathForm, CompanyGroupsForm
+from core.forms import CompanyGroupsForm, TracePathForm
 from core.models import get_table, get_table_model
 from core.util import get_company_by_document
-from graphs.serializers import PathSerializer, CNPJCompanyGroupsSerializer
-
+from graphs.serializers import CNPJCompanyGroupsSerializer, PathSerializer
 
 cipher_suite = Fernet(settings.FERNET_KEY)
 

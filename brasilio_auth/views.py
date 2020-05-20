@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model, login
-from django.views.generic.edit import CreateView
 from django.shortcuts import redirect
+from django.views.generic.edit import CreateView
 
 from brasilio_auth.forms import UserCreationForm
 

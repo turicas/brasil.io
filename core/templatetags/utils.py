@@ -1,8 +1,6 @@
-from django.template import Context, Library, Template
-from django.conf import settings
-
 from cryptography.fernet import Fernet
-
+from django.conf import settings
+from django.template import Context, Library, Template
 
 cipher_suite = Fernet(settings.FERNET_KEY)
 register = Library()

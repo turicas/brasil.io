@@ -1,12 +1,12 @@
 import io
-import rows
-from cache_memoize import cache_memoize
 from collections import namedtuple
-from retry import retry
 from urllib.parse import parse_qs, urlparse
 
-from core.util import http_get
+import rows
+from cache_memoize import cache_memoize
+from retry import retry
 
+from core.util import http_get
 
 STATE_LINKS_SPREADSHEET_ID = "1S77CvorwQripFZjlWTOZeBhK42rh3u57aRL1XZGhSdI"
 FIELDS_BOLETIM = {

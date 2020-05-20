@@ -1,11 +1,9 @@
 from rows.fields import IntegerField
 
 from brazil_data.cities import get_city_info, get_state_info
-
 from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.models import StateSpreadsheet
 from covid19.stats import Covid19Stats
-
 
 TOTAL_LINE_DISPLAY = "TOTAL NO ESTADO"
 UNDEFINED_DISPLAY = "Importados/Indefinidos"

@@ -1,7 +1,7 @@
 import time
-from tqdm import tqdm
 
 from django.core.management.base import BaseCommand
+from tqdm import tqdm
 
 from core.models import Table
 from graphs.connection import get_graph_db_connection

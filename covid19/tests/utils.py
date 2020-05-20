@@ -1,7 +1,6 @@
-from model_bakery import baker
-
 from django.db.utils import ProgrammingError
 from django.test import TestCase
+from model_bakery import baker
 
 from core.models import Dataset, Table
 

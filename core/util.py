@@ -2,10 +2,10 @@ import gzip
 import json
 import socket
 from textwrap import dedent
-from urllib.request import urlopen, Request, URLError
+from urllib.request import Request, URLError, urlopen
 
 import django.db.models.fields
-from cachetools import cached, TTLCache
+from cachetools import TTLCache, cached
 
 from core.models import Table
 
@@ -167,3 +167,25 @@ def create_table_documentation(table):
         🔍 = colunas que podem ser filtrados via query string na API e na interface.
         """
     ).replace("FIELDS_STR", fields_str)
+
+
+# Brasil.IO on apoiase: "5ab97be3c3f083c623a26742"
+def get_apoiase_donors(campain_id):
+    limit = 25  # Max per page
+    url = "https://apoia.se/api/v1/users/public-supporters"
+    data = {"campaignId": campain_id, "limit": limit, "skip": 0}
+    finished = False
+    donors = []
+    while not finished:
+        data["skip"] = len(donors)
+        request = Request(
+            url,
+            data=json.dumps(data).encode("utf-8"),
+            method="POST",
+            headers={"content-type": "application/json;charset=UTF-8"},
+        )
+        response = urlopen(request)
+        new = json.loads(response.read())
+        donors.extend(new)
+        finished = len(new) < limit
+    return donors

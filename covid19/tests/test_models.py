@@ -1,14 +1,14 @@
 import json
-import pytest
 import shutil
 from copy import deepcopy
 from datetime import date, timedelta
-from model_bakery import baker
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
 from django.conf import settings
 from django.test import TestCase
+from model_bakery import baker
 
 from covid19.exceptions import OnlyOneSpreadsheetException
 from covid19.models import StateSpreadsheet

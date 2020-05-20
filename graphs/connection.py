@@ -1,6 +1,6 @@
-from py2neo import authenticate, Graph as Py2NeoGraph
-
 from django.conf import settings
+from py2neo import Graph as Py2NeoGraph
+from py2neo import authenticate
 
 graph_kwargs = {
     "host": settings.NEO4J_CONF["HOST"],

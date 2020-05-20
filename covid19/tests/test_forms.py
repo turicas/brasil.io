@@ -1,22 +1,21 @@
-import rows
 import shutil
 from datetime import date, timedelta
-from localflavor.br.br_states import STATE_CHOICES
-from model_bakery import baker
 from pathlib import Path
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
+import rows
 from django.conf import settings
-from django.contrib.auth.models import Permission, Group
+from django.contrib.auth.models import Group, Permission
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models import Q
 from django.test import TestCase
+from localflavor.br.br_states import STATE_CHOICES
+from model_bakery import baker
 
 from covid19.exceptions import SpreadsheetValidationErrors
-from covid19.forms import state_choices_for_user, StateSpreadsheetForm
+from covid19.forms import StateSpreadsheetForm, state_choices_for_user
 from covid19.models import StateSpreadsheet
 from covid19.tests.utils import Covid19DatasetTestCase
-
 
 SAMPLE_SPREADSHEETS_DATA_DIR = Path(settings.BASE_DIR).joinpath("covid19", "tests", "data")
 

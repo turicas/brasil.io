@@ -1,12 +1,12 @@
-from cached_property import cached_property
 from copy import deepcopy
 from pathlib import Path
-from localflavor.br.br_states import STATE_CHOICES
 
+from cached_property import cached_property
 from django.contrib.auth import get_user_model
-from django.db import models
 from django.contrib.postgres.fields import ArrayField, JSONField
+from django.db import models
 from django.urls import reverse
+from localflavor.br.br_states import STATE_CHOICES
 
 from covid19.exceptions import OnlyOneSpreadsheetException
 

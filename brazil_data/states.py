@@ -1,6 +1,5 @@
 from collections import namedtuple
 
-
 State = namedtuple("State", ["name", "acronym", "ibge_code", "capital_city"])
 STATES = [
     State(name="Acre", acronym="AC", ibge_code=12, capital_city="Rio Branco"),

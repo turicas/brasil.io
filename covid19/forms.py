@@ -1,13 +1,13 @@
 import io
 import os
-import rows
 from datetime import date
-from localflavor.br.br_states import STATE_CHOICES
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
+import rows
 from django import forms
 from django.core.validators import URLValidator
+from localflavor.br.br_states import STATE_CHOICES
 
 from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.models import StateSpreadsheet
