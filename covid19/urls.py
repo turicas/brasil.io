@@ -1,5 +1,4 @@
-from django.urls import include, path, register_converter
-from datetime import datetime
+from django.urls import path
 
 from . import views
 

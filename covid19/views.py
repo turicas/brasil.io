@@ -7,11 +7,8 @@ from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.db import transaction
 
-from rest_framework import views
 from rest_framework import permissions
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
-from rest_framework.response import Response
 
 from brazil_data.cities import get_state_info
 from brazil_data.states import STATE_BY_ACRONYM, STATES
@@ -25,7 +22,6 @@ from covid19.spreadsheet import create_merged_state_spreadsheet
 from covid19.stats import Covid19Stats, max_values
 from covid19.util import row_to_column
 from covid19.epiweek import get_epiweek
-from covid19.models import StateSpreadsheet
 from covid19.signals import new_spreadsheet_imported_signal
 
 stats = Covid19Stats()
@@ -312,6 +308,7 @@ def status(request):
         data.append(table_entry)
 
     return render(request, "covid-status.html", {"import_data": data})
+
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])

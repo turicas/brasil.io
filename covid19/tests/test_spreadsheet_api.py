@@ -3,18 +3,13 @@ from unittest.mock import patch, Mock, PropertyMock
 from datetime import date, timedelta
 from pathlib import Path
 from model_bakery import baker
-import requests
-from urllib import request  # to build absolute url.
 
 from django.conf import settings
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.test import Client
 from rest_framework.test import APITestCase
-from rest_framework.test import force_authenticate, RequestsClient
 from rest_framework.authtoken.models import Token
 
 from covid19.exceptions import SpreadsheetValidationErrors
