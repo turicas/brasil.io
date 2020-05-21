@@ -2,6 +2,7 @@ import datetime
 import random
 import json
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.db import transaction
@@ -315,17 +316,24 @@ def status(request):
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def state_spreadsheet_view_list(request, *args, **kwargs):
-    if request.method == 'POST':
-        data = {
-            "state": kwargs['state'],  # sempre terá um state dado que ele está na URL
-        }
 
+    def gen_file(name, content):
+        if isinstance(content, str):
+            content = str.encode(content)
+        return SimpleUploadedFile(name, content)
+
+    if request.method == 'POST':
         data = json.loads(request.body)
 
-        return JsonResponse(data)
-        files = {'file': data['file']}
+        data["state"] = kwargs['state']  # sempre terá um state dado que ele está na URL
 
-        form = StateSpreadsheetForm(data, files, user=request.user)
+        state = data['state']
+        date = data['date']
+        filename = f"{state}-{date}-import.csv"
+
+        file_data = {"file": gen_file(filename, ''.join(data['file']))}
+
+        form = StateSpreadsheetForm(data, file_data, user=request.user)
 
         if form.is_valid():
             transaction.on_commit(

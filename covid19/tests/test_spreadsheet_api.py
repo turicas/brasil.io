@@ -1,5 +1,5 @@
 import shutil
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, PropertyMock
 from datetime import date, timedelta
 from pathlib import Path
 from model_bakery import baker
@@ -27,7 +27,7 @@ class ImportSpreadsheetByDateAPIViewTests(APITestCase):
 
         self.data = {
             "date": date.today(),
-            "boletim_urls": ["http://google.com", "http://brasil.io"],
+            "boletim_urls": "http://google.com\r\n\r http://brasil.io",
             "boletim_notes": "notes",
         }
 
@@ -56,45 +56,30 @@ class ImportSpreadsheetByDateAPIViewTests(APITestCase):
         if Path(settings.MEDIA_ROOT).exists():
             shutil.rmtree(settings.MEDIA_ROOT)
 
-    @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=["warning"]))
-    def test_import_data_from_a_valid_state_spreadsheet_request(self):
-        # XXX: not sure if it is working.
-        expected_response = {
-            "warnings": ["warning 1", "warning 2"],
-            "detail_url": "https://brasil.io/covid19/dataset/RJ"
-        }
+    @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=["warning 1", "warning 2"]))
+    @patch("covid19.models.StateSpreadsheet.admin_url", new_callable=PropertyMock)
+    def test_import_data_from_a_valid_state_spreadsheet_request(self, mock_admin_url):
+        mock_admin_url.return_value = "https://brasil.io/covid19/dataset/PR"
 
         expected_status = 200
+        expected_response = {
+            "warnings": ["warning 1", "warning 2"],
+            "detail_url": "https://brasil.io/covid19/dataset/PR"
+        }
 
         reverse_name = "covid19:statespreadsheet-list"
-        self.url = reverse(reverse_name, args=["RJ"])
+        self.url = reverse(reverse_name, args=["PR"])
 
         response = self.client.post(self.url, data=self.data, format='json')
 
         assert expected_status == response.status_code
-        #assert expected_response == response.json()
-        assert {
-                'date': '2020-05-20',
-                'boletim_urls': ['http://google.com', 'http://brasil.io'],
-                'boletim_notes': 'notes',
-                'file': [
-                    'municipio,confirmados,mortes\r\n',
-                    'TOTAL NO ESTADO,102,32\r\n',
-                    'Importados/Indefinidos,2,2\r\n',
-                    'Abatiá,9,1\r\n',
-                    'Adrianópolis,11,2\r\n',
-                    'Agudos do Sul,12,3\r\n',
-                    'Almirante Tamandaré,8,4\r\n',
-                    'Altamira do Paraná,13,5\r\n',
-                    'Alto Paraíso,47,15\r\n'
-                ]
-            } == response.json()
+        assert expected_response == response.json()
 
     def test_login_required(self):
         expected_status = 403
         reverse_name = "covid19:statespreadsheet-list"
 
-        self.url = reverse(reverse_name, args=["RJ"])
+        self.url = reverse(reverse_name, args=["PR"])
 
         self.client.force_authenticate(user=None)
 
