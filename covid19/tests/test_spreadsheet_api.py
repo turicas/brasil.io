@@ -75,7 +75,7 @@ class ImportSpreadsheetByDateAPIViewTests(APITestCase):
         assert expected_status == response.status_code
         assert expected_response == response.json()
 
-    def test_login_required(self):
+    def test_403_login_required(self):
         expected_status = 403
         reverse_name = "covid19:statespreadsheet-list"
 
@@ -85,3 +85,29 @@ class ImportSpreadsheetByDateAPIViewTests(APITestCase):
 
         response = self.client.post(self.url, data=self.data, format='json')
         assert expected_status == response.status_code
+
+    @patch("covid19.spreadsheet_validator.validate_historical_data", autospec=True)
+    def test_400_if_spreadsheet_error_on_import_data(self, mock_merge):
+        exception = SpreadsheetValidationErrors()
+        exception.new_error("error 1")
+        exception.new_error("error 2")
+        mock_merge.side_effect = exception
+
+        expected_status = 400
+        expected_exception_messages = ["error 1", "error 2"]
+        expected_response = {'errors': {'date': ['Campo não aceita datas futuras.']}}
+
+        tomorrow = date.today() + timedelta(days=1)
+        tomorrow = tomorrow.isoformat()
+        self.data['date'] = tomorrow
+
+        reverse_name = "covid19:statespreadsheet-list"
+
+        self.url = reverse(reverse_name, args=["RJ"])
+
+        response = self.client.post(self.url, data=self.data, format='json')
+
+        assert len(exception.error_messages) == 2
+        assert expected_exception_messages == sorted(exception.error_messages)
+        assert expected_status == response.status_code
+        assert expected_response == response.json()
