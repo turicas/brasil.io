@@ -69,11 +69,7 @@ def clean_weekly_data(data, skip=0, diff_days=-14):
     now = datetime.datetime.now()
     today = datetime.date(now.year, now.month, now.day)
     _, until_epiweek = get_epiweek(today + datetime.timedelta(days=diff_days))
-    return [
-        row
-        for index, row in enumerate(data)
-        if index >= skip and row["epidemiological_week"] < until_epiweek
-    ]
+    return [row for index, row in enumerate(data) if index >= skip and row["epidemiological_week"] < until_epiweek]
 
 
 def historical_data(request, period):
@@ -310,39 +306,33 @@ def status(request):
     return render(request, "covid-status.html", {"import_data": data})
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([permissions.IsAuthenticated])
 def state_spreadsheet_view_list(request, *args, **kwargs):
-
     def gen_file(name, content):
         if isinstance(content, str):
             content = str.encode(content)
         return SimpleUploadedFile(name, content)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         data = json.loads(request.body)
 
-        data["state"] = kwargs['state']  # sempre terá um state dado que ele está na URL
+        data["state"] = kwargs["state"]  # sempre terá um state dado que ele está na URL
 
-        state = data['state']
-        date = data['date']
+        state = data["state"]
+        date = data["date"]
         filename = f"{state}-{date}-import.csv"
 
-        file_data = {"file": gen_file(filename, ''.join(data['file']))}
+        file_data = {"file": gen_file(filename, "".join(data["file"]))}
 
         form = StateSpreadsheetForm(data, file_data, user=request.user)
 
         if form.is_valid():
-            transaction.on_commit(
-                lambda: new_spreadsheet_imported_signal.send(
-                    sender=self,
-                    spreadsheet=spreadsheet
-                )
-            )
+            transaction.on_commit(lambda: new_spreadsheet_imported_signal.send(sender=self, spreadsheet=spreadsheet))
 
             spreadsheet = form.save()
             spreadsheet.refresh_from_db()
 
             return JsonResponse({"warnings": spreadsheet.warnings, "detail_url": spreadsheet.admin_url})
 
-        return JsonResponse({'errors': form.errors}, status=400)
+        return JsonResponse({"errors": form.errors}, status=400)

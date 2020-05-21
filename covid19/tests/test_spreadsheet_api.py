@@ -26,10 +26,10 @@ class ImportSpreadsheetByDateAPIViewTests(APITestCase):
             "boletim_notes": "notes",
         }
 
-        self.filename = f'sample.csv'
+        self.filename = f"sample.csv"
 
         self.file_data = self.gen_file(self.filename, valid_csv.read_bytes())
-        self.data['file'] = self.file_data
+        self.data["file"] = self.file_data
         self.setUp_user_credentials()
 
     def setUp_user_credentials(self):
@@ -38,8 +38,8 @@ class ImportSpreadsheetByDateAPIViewTests(APITestCase):
         self.user.groups.add(Group.objects.get(name__endswith="Paraná"))
 
         self.token = baker.make(Token, user=self.user)
-        self.headers = {'Authorization': f'Token {self.token.key}'}
-        self.client.credentials(HTTP_AUTHORIZATION=self.headers['Authorization'])
+        self.headers = {"Authorization": f"Token {self.token.key}"}
+        self.client.credentials(HTTP_AUTHORIZATION=self.headers["Authorization"])
         self.client.force_login(user=self.user)
 
     def gen_file(self, name, content):
@@ -51,7 +51,9 @@ class ImportSpreadsheetByDateAPIViewTests(APITestCase):
         if Path(settings.MEDIA_ROOT).exists():
             shutil.rmtree(settings.MEDIA_ROOT)
 
-    @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=["warning 1", "warning 2"]))
+    @patch(
+        "covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=["warning 1", "warning 2"]),
+    )
     @patch("covid19.models.StateSpreadsheet.admin_url", new_callable=PropertyMock)
     def test_import_data_from_a_valid_state_spreadsheet_request(self, mock_admin_url):
         mock_admin_url.return_value = "https://brasil.io/covid19/dataset/PR"
@@ -59,13 +61,13 @@ class ImportSpreadsheetByDateAPIViewTests(APITestCase):
         expected_status = 200
         expected_response = {
             "warnings": ["warning 1", "warning 2"],
-            "detail_url": "https://brasil.io/covid19/dataset/PR"
+            "detail_url": "https://brasil.io/covid19/dataset/PR",
         }
 
         reverse_name = "covid19:statespreadsheet-list"
         self.url = reverse(reverse_name, args=["PR"])
 
-        response = self.client.post(self.url, data=self.data, format='json')
+        response = self.client.post(self.url, data=self.data, format="json")
 
         assert expected_status == response.status_code
         assert expected_response == response.json()
@@ -78,7 +80,7 @@ class ImportSpreadsheetByDateAPIViewTests(APITestCase):
 
         self.client.force_authenticate(user=None)
 
-        response = self.client.post(self.url, data=self.data, format='json')
+        response = self.client.post(self.url, data=self.data, format="json")
         assert expected_status == response.status_code
 
     @patch("covid19.spreadsheet_validator.validate_historical_data", autospec=True)
@@ -90,17 +92,17 @@ class ImportSpreadsheetByDateAPIViewTests(APITestCase):
 
         expected_status = 400
         expected_exception_messages = ["error 1", "error 2"]
-        expected_response = {'errors': {'date': ['Campo não aceita datas futuras.']}}
+        expected_response = {"errors": {"date": ["Campo não aceita datas futuras."]}}
 
         tomorrow = date.today() + timedelta(days=1)
         tomorrow = tomorrow.isoformat()
-        self.data['date'] = tomorrow
+        self.data["date"] = tomorrow
 
         reverse_name = "covid19:statespreadsheet-list"
 
         self.url = reverse(reverse_name, args=["RJ"])
 
-        response = self.client.post(self.url, data=self.data, format='json')
+        response = self.client.post(self.url, data=self.data, format="json")
 
         assert len(exception.error_messages) == 2
         assert expected_exception_messages == sorted(exception.error_messages)

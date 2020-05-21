@@ -85,7 +85,7 @@ class Covid19Stats:
         "new_deaths_indeterminate_2019": (Sum, "new_deaths_indeterminate_2019"),
         "new_deaths_others_2019": (Sum, "new_deaths_others_2019"),
         "new_deaths_pneumonia_2019": (Sum, "new_deaths_pneumonia_2019"),
-        "new_deaths_respiratory_failure_2019": (Sum, "new_deaths_respiratory_failure_2019"),
+        "new_deaths_respiratory_failure_2019": (Sum, "new_deaths_respiratory_failure_2019",),
         "new_deaths_sars_2019": (Sum, "new_deaths_sars_2019"),
         "new_deaths_septicemia_2019": (Sum, "new_deaths_septicemia_2019"),
         "new_deaths_total_2019": (Sum, "new_deaths_total_2019"),
@@ -339,6 +339,7 @@ class Covid19Stats:
     def aggregate_epiweek(self, data, group_key="epidemiological_week"):
         def row_key(row):
             return row[group_key]
+
         result = []
         data.sort(key=row_key)
         for epiweek, group in groupby(data, key=row_key):
@@ -353,7 +354,7 @@ class Covid19Stats:
 
     def historical_case_data_for_state_per_day(self, state):
         return self.aggregate_state_data(
-            groupby_columns=["date"], select_columns=self.graph_daily_cases_columns, state=state
+            groupby_columns=["date"], select_columns=self.graph_daily_cases_columns, state=state,
         )
 
     def historical_case_data_for_state_per_epiweek(self, state):
@@ -375,7 +376,7 @@ class Covid19Stats:
     def historical_registry_data_for_state_per_day(self, state=None):
         # If state = None, return data for Brazil
         return self.aggregate_registry_data(
-            groupby_columns=["date"], select_columns=self.graph_daily_registry_deaths_columns, state=state
+            groupby_columns=["date"], select_columns=self.graph_daily_registry_deaths_columns, state=state,
         )
 
     def excess_deaths_registry_data_for_state_per_day(self, state=None):
