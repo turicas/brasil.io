@@ -8,8 +8,9 @@ import django.contrib.postgres.indexes as pg_indexes
 import django.db.models.indexes as django_indexes
 from cachalot.api import invalidate
 from django.contrib.postgres.fields import ArrayField, JSONField
-from django.contrib.postgres.search import SearchQuery, SearchVectorField
+from django.contrib.postgres.search import SearchRank, SearchQuery, SearchVectorField
 from django.db import connection, models
+from django.db.models import F
 from markdownx.models import MarkdownxField
 from rows import fields as rows_fields
 
@@ -184,7 +185,14 @@ class DynamicModelQuerySet(models.QuerySet):
                     query = SearchQuery(word, config=config)
                 else:
                     query = query & SearchQuery(word, config=config)
-            qs = qs.filter(search_data=query)
+            qs = (
+                qs
+                .annotate(search_rank=SearchRank(F("search_data"), query))
+                .filter(search_data=query)
+            )
+            # Using `qs.query.add_ordering` will APPEND ordering fields instead
+            # of OVERWRITTING (as in `qs.order_by`).
+            qs.query.add_ordering("-search_rank")
         return qs
 
     def apply_filters(self, filtering):
@@ -199,10 +207,12 @@ class DynamicModelQuerySet(models.QuerySet):
         allowed_fields = set(model_ordering + model_filtering)
         clean_allowed = [field.replace("-", "").strip().lower() for field in allowed_fields]
         ordering_query = [field for field in query if field.replace("-", "") in clean_allowed]
+        # Using `qs.query.add_ordering` will APPEND ordering fields instead of
+        # OVERWRITTING (as in `qs.order_by`).
         if ordering_query:
-            qs = qs.order_by(*ordering_query)
+            qs.query.add_ordering(*ordering_query)
         elif model_ordering:
-            qs = qs.order_by(*model_ordering)
+            qs.query.add_ordering(*model_ordering)
 
         return qs
 
