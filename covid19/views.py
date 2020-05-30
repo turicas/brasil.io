@@ -1,20 +1,28 @@
 import datetime
 import random
+import json
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.db import transaction
+
+from rest_framework import permissions
+from rest_framework.decorators import api_view, permission_classes
 
 from brazil_data.cities import get_state_info
 from brazil_data.states import STATE_BY_ACRONYM, STATES
 from core.middlewares import disable_non_logged_user_cache
 from core.util import cached_http_get_json
 from covid19.exceptions import SpreadsheetValidationErrors
+from covid19.forms import StateSpreadsheetForm
 from covid19.geo import city_geojson, state_geojson
 from covid19.models import StateSpreadsheet
 from covid19.spreadsheet import create_merged_state_spreadsheet
 from covid19.stats import Covid19Stats, max_values
 from covid19.util import row_to_column
 from covid19.epiweek import get_epiweek
+from covid19.signals import new_spreadsheet_imported_signal
 
 stats = Covid19Stats()
 
@@ -61,11 +69,7 @@ def clean_weekly_data(data, skip=0, diff_days=-14):
     now = datetime.datetime.now()
     today = datetime.date(now.year, now.month, now.day)
     _, until_epiweek = get_epiweek(today + datetime.timedelta(days=diff_days))
-    return [
-        row
-        for index, row in enumerate(data)
-        if index >= skip and row["epidemiological_week"] < until_epiweek
-    ]
+    return [row for index, row in enumerate(data) if index >= skip and row["epidemiological_week"] < until_epiweek]
 
 
 def historical_data(request, period):
@@ -300,3 +304,35 @@ def status(request):
         data.append(table_entry)
 
     return render(request, "covid-status.html", {"import_data": data})
+
+
+@api_view(["POST"])
+@permission_classes([permissions.IsAuthenticated])
+def state_spreadsheet_view_list(request, *args, **kwargs):
+    def gen_file(name, content):
+        if isinstance(content, str):
+            content = str.encode(content)
+        return SimpleUploadedFile(name, content)
+
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        data["state"] = kwargs["state"]  # sempre terá um state dado que ele está na URL
+
+        state = data["state"]
+        date = data["date"]
+        filename = f"{state}-{date}-import.csv"
+
+        file_data = {"file": gen_file(filename, "".join(data["file"]))}
+
+        form = StateSpreadsheetForm(data, file_data, user=request.user)
+
+        if form.is_valid():
+            transaction.on_commit(lambda: new_spreadsheet_imported_signal.send(sender=self, spreadsheet=spreadsheet))
+
+            spreadsheet = form.save()
+            spreadsheet.refresh_from_db()
+
+            return JsonResponse({"warnings": spreadsheet.warnings, "detail_url": spreadsheet.admin_url})
+
+        return JsonResponse({"errors": form.errors}, status=400)

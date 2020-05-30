@@ -1,4 +1,5 @@
 from urllib.parse import urlparse
+from pathlib import Path
 
 import environ
 import sentry_sdk
@@ -35,6 +36,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_extensions",
     "rest_framework",
+    "rest_framework.authtoken",
     "markdownx",
     "django_rq",
     # Project apps
@@ -224,6 +226,7 @@ if not DEBUG:
 
 # Covid19 import settings
 COVID_IMPORT_PERMISSION_PREFIX = "can_import_covid_state_"
+SAMPLE_SPREADSHEETS_DATA_DIR = Path(BASE_DIR).joinpath("covid19", "tests", "data")
 
 # RockecChat config
 ROCKETCHAT_BASE_URL = env("ROCKETCHAT_BASE_URL")
