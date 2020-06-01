@@ -201,18 +201,23 @@
 
 {% block script %}
 {{ block.super }}
-<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+
 <script type="text/javascript">
-  $(document).ready(function() {
+  document.addEventListener('DOMContentLoaded', function () {
     M.Tabs.init(document.getElementById('tabs'));
+
     $('select').formSelect();
 
-    $('.mdl-data-table').DataTable({
-        "paging":         false,
-        "searching":      false,
-        "ordering":       false,
-        "bInfo":          false,
-    });
-  });
+    var component = $('.mdl-data-table')
+
+    if (component) {
+      component.DataTable({
+        "paging": false,
+        "searching": false,
+        "ordering": false,
+        "bInfo": false,
+      })
+    }
+  })
 </script>
 {% endblock %}
