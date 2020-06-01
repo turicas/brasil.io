@@ -130,22 +130,22 @@
       var selectedCitySlug = {% if not city_id %}undefined{% else %} "{{ city_slug }}"{% endif %}
     </script>
 
-    <script src="{% static 'js/jquery.js' %}"></script>
-    <script src="{% static 'js/materialize.min.js' %}"></script>
-    <script src="{% static 'js/jquery.tabletocsv.js' %}"></script>
-    <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
-    <script src="{% static 'js/Chart.min.js' %}"></script>
-    <script src="{% static 'js/leaflet.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.tabletocsv.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/Chart.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/leaflet.js' %}"></script>
     
-    <script src="{% static 'js/application.js' %}"></script>
-    <script src="{% static 'js/covid19-base.js' %}"></script>
-    <script src="{% static 'js/covid19-table.js' %}"></script>
-    <script src="{% static 'js/covid19-map.js' %}"></script>
-    <script src="{% static 'js/covid19-chart.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/application.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/covid19-base.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/covid19-table.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/covid19-map.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/covid19-chart.js' %}"></script>
 
     <script async defer src="https://www.googletagmanager.com/gtag/js?id=UA-117698282-1"></script>
 
-    <script>
+    <script type="text/javascript">
       window.dataLayer = window.dataLayer || [];
       function gtag() { dataLayer.push(arguments); }
       gtag('js', new Date());
