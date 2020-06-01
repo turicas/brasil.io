@@ -17,22 +17,10 @@
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
+
     <title>{% block title %}Brasil.IO{% endblock %}</title>
 
-    {% block script %}
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117698282-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-117698282-1');
-    </script>
-    <script src="{% static 'js/jquery.js' %}"></script>
-    <script src="{% static 'js/materialize.min.js' %}"></script>
-    <script src="{% static 'js/application.js' %}"></script>
     {% endblock %}
-    {% endblock %}
-
   </head>
 
   <body>
@@ -124,5 +112,45 @@
       </div>
     </div>
 
+    {% block script %}
+    <script type="text/javascript">
+      // sharing variables and data through pages
+      window.app = {}
+
+      var dataURL = {
+        cities: "{% url 'covid19:cities-cases' %}{% if state %}?state={{ state }}{% endif %}",
+        stateGeoJSON: "{% url 'covid19:states-geo' %}{% if state %}?state={{ state }}{% endif %}",
+        cityGeoJSON: "{% url 'covid19:cities-geo' %}{% if state %}?state={{ state }}{% endif %}",
+        historicalDaily: "{% url 'covid19:historical-daily' %}{% if state %}?state={{ state }}{% endif %}",
+        historicalWeekly: "{% url 'covid19:historical-weekly' %}{% if state %}?state={{ state }}{% endif %}",
+      };
+
+      var selectedStateId = {% if not state_id %}undefined{% else %} "{{ state_id }}"{% endif %};
+      var selectedStateAcronym = {% if not state_id %}undefined{% else %} "{{ state }}"{% endif %};
+      var selectedCitySlug = {% if not city_id %}undefined{% else %} "{{ city_slug }}"{% endif %}
+    </script>
+
+    <script src="{% static 'js/jquery.js' %}"></script>
+    <script src="{% static 'js/materialize.min.js' %}"></script>
+    <script src="{% static 'js/jquery.tabletocsv.js' %}"></script>
+    <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'js/Chart.min.js' %}"></script>
+    <script src="{% static 'js/leaflet.js' %}"></script>
+    
+    <script src="{% static 'js/application.js' %}"></script>
+    <script src="{% static 'js/covid19-base.js' %}"></script>
+    <script src="{% static 'js/covid19-table.js' %}"></script>
+    <script src="{% static 'js/covid19-map.js' %}"></script>
+    <script src="{% static 'js/covid19-chart.js' %}"></script>
+
+    <script async defer src="https://www.googletagmanager.com/gtag/js?id=UA-117698282-1"></script>
+
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'UA-117698282-1');
+    </script>
+    {% endblock %}
   </body>
 </html>
