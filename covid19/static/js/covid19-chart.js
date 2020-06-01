@@ -163,8 +163,9 @@ class StackedBarChart extends MultiBarChart {
 
 }
 
-jQuery(document).ready(function(){
+function startCovid19Chart() {
   var graphSource, titleAppend;
+
   if (placeType() == "country") {
     graphSource = "Fonte: Secretarias Estaduais de Saúde/Consolidação por Brasil.IO";
     titleAppend = " (Brasil)";
@@ -173,6 +174,7 @@ jQuery(document).ready(function(){
     graphSource = `Fonte: SES-${selectedStateAcronym}/Consolidação por Brasil.IO`;
     titleAppend = ` (${selectedStateAcronym})`;
   }
+
   var deathsTitle = `Causas de óbitos por semana epidemiológica${titleAppend}`;
   var deathsCompareTitle = `Óbitos novos por semana epidemiológica 2019 vs 2020${titleAppend}`;
   var deathsSourceLink = 'Fonte: <a href="https://transparencia.registrocivil.org.br/registral-covid">Registro Civil</a>.';
@@ -180,8 +182,9 @@ jQuery(document).ready(function(){
   var deathsSource = deathsSourceLink + deathsSourceNote;
   var deathsGroupSource = deathsSourceLink + " Grupos: COVID-19 (suspeita ou confirmação por COVID-19), Outras respiratórias (pneumonia + insuf. resp. + SRAG), Outras (septicemia + indeterminada + outras causas naturais não externas)." + deathsSourceNote;
   var deathsExcessSource = deathsSourceLink + " Excesso por semana = novos óbitos totais na semana em 2020 - novos óbitos totais na semana em 2019." + deathsSourceNote;
-
+  
   graphSource += ". *Nota: dados sendo consolidados para os últimos dias.";
+  
   jQuery.getJSON(dataURL.historicalDaily, function (data) {
     caseDailyTotalChart = new MultiLineChart({
       colors: [dataConfig.confirmed.color],
@@ -220,7 +223,7 @@ jQuery(document).ready(function(){
       source: graphSource,
     }).draw();
   });
-
+  
   jQuery.getJSON(dataURL.historicalWeekly, function (data) {
     deathWeeklyChart = new MultiLineChart({
       colors: ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#C0C0C0"],
@@ -265,7 +268,7 @@ jQuery(document).ready(function(){
         "Óbitos na semana (2020)",
       ],
     }).draw();
-
+  
     deathWeeklyExcessChart = new StackedBarChart({
       colors: [
         [
@@ -320,6 +323,13 @@ jQuery(document).ready(function(){
       showYLabels: false,
       source: deathsExcessSource,
     }).draw();
-
+  
   });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  var url = window.location.href.split('/')[3]
+  if (url === 'covid19') {
+    startCovid19Chart()
+  }
 });
