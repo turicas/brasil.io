@@ -1,7 +1,6 @@
 from collections import namedtuple
 from functools import lru_cache
 from itertools import groupby
-from pathlib import Path
 
 import rows
 import rows.utils
