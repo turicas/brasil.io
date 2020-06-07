@@ -20,14 +20,14 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Copy env file
       run: cp env.example .env
-    - name: Setup Docker
-      run: |
-        source "$ENV_FILE"
-        docker-compose up -d
-      env:
-        ENV_FILE: .env
-        PROJECT_NAME: brasil.io
-        DOCKER_COMPOSE_FILE: docker-compose.yml
+    # - name: Setup Docker
+    #   run: |
+    #     source "$ENV_FILE"
+    #     docker-compose up -d
+    #   env:
+    #     ENV_FILE: .env
+    #     PROJECT_NAME: brasil.io
+    #     DOCKER_COMPOSE_FILE: docker-compose.yml
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
