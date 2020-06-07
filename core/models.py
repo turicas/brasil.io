@@ -185,11 +185,7 @@ class DynamicModelQuerySet(models.QuerySet):
                     query = SearchQuery(word, config=config)
                 else:
                     query = query & SearchQuery(word, config=config)
-            qs = (
-                qs
-                .annotate(search_rank=SearchRank(F("search_data"), query))
-                .filter(search_data=query)
-            )
+            qs = qs.annotate(search_rank=SearchRank(F("search_data"), query)).filter(search_data=query)
             # Using `qs.query.add_ordering` will APPEND ordering fields instead
             # of OVERWRITTING (as in `qs.order_by`).
             qs.query.add_ordering("-search_rank")
