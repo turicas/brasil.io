@@ -61,7 +61,7 @@ class StateSpreadsheetFormTests(Covid19DatasetTestCase):
             "boletim_urls": "http://google.com\r\n\r http://brasil.io",
             "boletim_notes": "notes",
         }
-        self.file_data = {"file": self.gen_file(f"sample.csv", valid_csv.read_bytes())}
+        self.file_data = {"file": self.gen_file("sample.csv", valid_csv.read_bytes())}
         self.user = baker.make(settings.AUTH_USER_MODEL)
         self.user.groups.add(Group.objects.get(name__endswith="Rio de Janeiro"))
         self.user.groups.add(Group.objects.get(name__endswith="Paraná"))
@@ -140,7 +140,7 @@ class StateSpreadsheetFormTests(Covid19DatasetTestCase):
             form = StateSpreadsheetForm(self.data, self.file_data)
             assert form.is_valid(), form.errors
 
-        self.file_data["file"] = self.gen_file(f"sample.txt", "col1,col2")
+        self.file_data["file"] = self.gen_file("sample.txt", "col1,col2")
         form = StateSpreadsheetForm(self.data, self.file_data)
         assert "__all__" in form.errors
 
@@ -217,7 +217,7 @@ class StateSpreadsheetFormTests(Covid19DatasetTestCase):
         valid_xls = SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR.xls"
         assert valid_xls.exists()
 
-        self.file_data["file"] = self.gen_file(f"sample.xls", valid_xls.read_bytes())
+        self.file_data["file"] = self.gen_file("sample.xls", valid_xls.read_bytes())
         form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
 
         assert form.is_valid(), form.errors
@@ -226,7 +226,7 @@ class StateSpreadsheetFormTests(Covid19DatasetTestCase):
         valid_xlsx = SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR.xlsx"
         assert valid_xlsx.exists()
 
-        self.file_data["file"] = self.gen_file(f"sample.xlsx", valid_xlsx.read_bytes())
+        self.file_data["file"] = self.gen_file("sample.xlsx", valid_xlsx.read_bytes())
         form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
 
         assert form.is_valid(), form.errors
@@ -235,7 +235,7 @@ class StateSpreadsheetFormTests(Covid19DatasetTestCase):
         valid_ods = SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR.ods"
         assert valid_ods.exists()
 
-        self.file_data["file"] = self.gen_file(f"sample.ods", valid_ods.read_bytes())
+        self.file_data["file"] = self.gen_file("sample.ods", valid_ods.read_bytes())
         form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
 
         assert form.is_valid(), form.errors
@@ -245,7 +245,7 @@ class StateSpreadsheetFormTests(Covid19DatasetTestCase):
         assert valid_xls.exists()
 
         # wrong file extension
-        self.file_data["file"] = self.gen_file(f"sample.csv", valid_xls.read_bytes())
+        self.file_data["file"] = self.gen_file("sample.csv", valid_xls.read_bytes())
         form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
 
         assert not form.is_valid()

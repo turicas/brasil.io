@@ -569,7 +569,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         undefined_name = self.undefined_data["city"]
         expected = [
             f"Números de confirmados ou óbitos em {undefined_name} é menor que o anterior.",
-            f"Números de confirmados ou óbitos totais é menor que o total anterior.",
+            "Números de confirmados ou óbitos totais é menor que o total anterior.",
         ]
         warnings = validate_historical_data(self.spreadsheet)
 

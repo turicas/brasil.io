@@ -202,10 +202,10 @@ def validate_historical_data(spreadsheet):
                 f"Planilha importada somente com dados totais. Dados de cidades foram reutilizados da importação do dia {state_entry.date}."
             )
         else:
-            warnings.append(f"Planilha importada somente com dados totais.")
+            warnings.append("Planilha importada somente com dados totais.")
 
     if lower_numbers(state_entry, total_data):
-        warnings.append(f"Números de confirmados ou óbitos totais é menor que o total anterior.")
+        warnings.append("Números de confirmados ou óbitos totais é menor que o total anterior.")
 
     validation_errors.raise_if_errors()
 
