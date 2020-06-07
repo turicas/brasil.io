@@ -39,9 +39,10 @@
       <thead>
         <tr>
           <th> Estado </th>
-          <th> Data mais Recente </th>
+          <th> Data </th>
           <th> Status </th>
-          <th> Data mais Recente (Deployed) </th>
+          <th> Confirmados </th>
+          <th> Óbitos </th>
         </tr>
       </thead>
 
@@ -49,9 +50,10 @@
         {% for row in import_data %}
         <tr>
           <td data-order="{{ row.state }}"> <a class="state-option" href="{% url 'covid19:dashboard' row.uf %}">{{ row.state }}</a> </td>
-          <td data-order="{% localize off %}{{ row.report_date_str }}{% endlocalize %}"> {{ row.report_date|default:'------' }} </td>
-          <td data-order="{{ row.status}}"> {{ row.status|default:'------' }} </td>
-          <td data-order="{% localize off %}{{ row.deployed_date_str }}{% endlocalize %}"> {{ row.deployed_date|default:'------' }} </td>
+          <td data-order="{% localize off %}{{ row.report_date_str }}{% endlocalize %}"> {{ row.report_date|default:'' }} </td>
+          <td data-order="{{ row.status }}"> {{ row.status|default:'' }} </td>
+          <td data-order="{% localize off %}{{ row.total_confirmed }}{% endlocalize %}"> {% localize off %} {{ row.total_confirmed|default:'' }} {% endlocalize %} </td>
+          <td data-order="{% localize off %}{{ row.total_deaths }}{% endlocalize %}"> {% localize off %} {{ row.total_deaths|default:'' }} {% endlocalize %} </td>
         </tr>
         {% endfor %}
       </tbody>
@@ -72,7 +74,7 @@ jQuery(document).ready(function() {
     "paging":         false,
     "searching":      false,
     "bInfo":          false,
-    "order": [1, "desc"],
+    "order":          [1, "asc"],
   });
 });
 

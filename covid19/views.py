@@ -6,15 +6,15 @@ from django.shortcuts import render
 
 from brazil_data.cities import get_state_info
 from brazil_data.states import STATE_BY_ACRONYM, STATES
+from brazil_data.util import row_to_column
 from core.middlewares import disable_non_logged_user_cache
 from core.util import cached_http_get_json
+from covid19.epiweek import get_epiweek
 from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.geo import city_geojson, state_geojson
 from covid19.models import StateSpreadsheet
 from covid19.spreadsheet import create_merged_state_spreadsheet
 from covid19.stats import Covid19Stats, max_values
-from covid19.util import row_to_column
-from covid19.epiweek import get_epiweek
 
 stats = Covid19Stats()
 
@@ -277,22 +277,28 @@ def status(request):
             "status": "",
             "report_date": None,
             "report_date_str": "",
-            "deployed_date": None,
-            "deployed_date_str": "",
             "spreadsheet": None,
         }
 
-        most_recet = qs.first()
-        if most_recet:
-            table_entry["spreadsheet"] = most_recet
-            table_entry["status"] = most_recet.get_status_display()
-            table_entry["report_date"] = most_recet.date
-            table_entry["report_date_str"] = str(most_recet.date)
-            last_deployed = qs.deployed().first()
-            if last_deployed:
-                table_entry["deployed_date"] = last_deployed.date
-                table_entry["deployed_date_str"] = str(last_deployed.date)
+        most_recent = qs.first()
+        if most_recent:
+            table_entry["spreadsheet"] = most_recent
+            table_entry["status"] = most_recent.get_status_display()
+            table_entry["report_date"] = most_recent.date
+            table_entry["report_date_str"] = str(most_recent.date)
+            state_totals = [
+                item
+                for item in most_recent.table_data
+                if item["city"] is None
+            ][0]
+            table_entry["total_confirmed"] = state_totals["confirmed"]
+            table_entry["total_deaths"] = state_totals["deaths"]
 
         data.append(table_entry)
 
+    def row_sort(row):
+        date = row["report_date"] or datetime.date(1970, 1, 1)
+        return (date, row["state"])
+
+    data.sort(key=row_sort)
     return render(request, "covid-status.html", {"import_data": data})
