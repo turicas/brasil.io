@@ -1,5 +1,4 @@
 import io
-from urllib.request import urlopen
 
 import rows
 from django.conf import settings
@@ -7,6 +6,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 
 from core.models import Dataset, Field, Link, Table, Version
+from core.util import http_get
+
 
 DATASETS, VERSIONS, TABLES = {}, {}, {}
 
@@ -46,26 +47,15 @@ def get_table(dataset, version, name):
 
 
 def dataset_update_data(row):
-    return {
-        "slug": row["slug"],
-        "defaults": row,
-    }
+    return {"slug": row["slug"], "defaults": row}
 
 
 def link_update_data(row):
-    return {
-        "dataset": row["dataset"],
-        "url": row["url"],
-        "defaults": row,
-    }
+    return {"dataset": row["dataset"], "url": row["url"], "defaults": row}
 
 
 def version_update_data(row):
-    return {
-        "dataset": row["dataset"],
-        "name": row["name"],
-        "defaults": row,
-    }
+    return {"dataset": row["dataset"], "name": row["name"], "defaults": row}
 
 
 def str_to_list(data):
@@ -77,12 +67,7 @@ def table_update_data(row):
     row["ordering"] = str_to_list(row["ordering"])
     row["filtering"] = str_to_list(row["filtering"])
     row["search"] = str_to_list(row["search"])
-    return {
-        "dataset": row["dataset"],
-        "version": row["version"],
-        "name": row["name"],
-        "defaults": row,
-    }
+    return {"dataset": row["dataset"], "version": row["version"], "name": row["name"], "defaults": row}
 
 
 def field_update_data(row):
@@ -152,10 +137,11 @@ class Command(BaseCommand):
             )
 
         self.datasets, self.tables, self.versions = {}, {}, {}
-        response = urlopen(settings.DATA_URL)
-        data = response.read()
+        response_data = http_get(settings.DATA_URL)
+        if response_data is None:
+            raise RuntimeError(f"Cannot download {settings.DATA_URL}")
         for Model, update_data_function in update_functions:
             table = rows.import_from_xlsx(
-                io.BytesIO(data), sheet_name=Model.__name__, workbook_kwargs={"read_only": False},
+                io.BytesIO(response_data), sheet_name=Model.__name__, workbook_kwargs={"read_only": False}
             )
             self._update_data(Model, table, update_data_function)

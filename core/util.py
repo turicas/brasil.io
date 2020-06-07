@@ -10,6 +10,9 @@ from cachetools import TTLCache, cached
 from core.models import Table
 
 
+USER_AGENT = "brasil.io-backend"
+
+
 def create_object(Model, data):
     special_fields = (
         django.db.models.fields.DateField,
@@ -61,7 +64,7 @@ def http_get(url, timeout):
     This function is capable of decompressing data automatically from HTTP
     server."""
 
-    request = Request(url, headers={"Accept-Encoding": "gzip, deflate"})
+    request = Request(url, headers={"Accept-Encoding": "gzip, deflate", "User-Agent": USER_AGENT})
     try:
         response = urlopen(request, timeout=timeout)
     except (URLError, socket.timeout):
@@ -182,7 +185,7 @@ def get_apoiase_donors(campain_id):
             url,
             data=json.dumps(data).encode("utf-8"),
             method="POST",
-            headers={"content-type": "application/json;charset=UTF-8"},
+            headers={"Content-Type": "application/json;charset=UTF-8", "User-Agent": USER_AGENT},
         )
         response = urlopen(request)
         new = json.loads(response.read())
