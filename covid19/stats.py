@@ -337,7 +337,7 @@ class Covid19Stats:
         return list(qs.order_by(*groupby_columns).values(*groupby_columns).annotate(**annotate_dict))
 
     def aggregate_epiweek(self, data, group_key="epidemiological_week"):
-        row_key = lambda row: row[group_key]
+        row_key = lambda row: row[group_key]  # noqa
         result = []
         data.sort(key=row_key)
         for epiweek, group in groupby(data, key=row_key):

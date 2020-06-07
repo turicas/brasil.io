@@ -15,7 +15,7 @@ django-minio-storage==0.3.7
 django-naomi
 django-recaptcha
 django-redis
-django-rq==2.3.1
+django-rq==2.3.2
 django-storages==1.9.1
 django>=2.0
 djangorestframework

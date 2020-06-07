@@ -61,11 +61,7 @@ def clean_weekly_data(data, skip=0, diff_days=-14):
     now = datetime.datetime.now()
     today = datetime.date(now.year, now.month, now.day)
     _, until_epiweek = get_epiweek(today + datetime.timedelta(days=diff_days))
-    return [
-        row
-        for index, row in enumerate(data)
-        if index >= skip and row["epidemiological_week"] < until_epiweek
-    ]
+    return [row for index, row in enumerate(data) if index >= skip and row["epidemiological_week"] < until_epiweek]
 
 
 def historical_data(request, period):
