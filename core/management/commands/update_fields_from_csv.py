@@ -29,6 +29,7 @@ class Command(BaseCommand):
                 # since if there are errors, the script will raise exception inside
                 # this first `for`.
                 row = row._asdict()
+                row["version_name"] = str(row["version_name"])
                 row["dataset"] = Dataset.objects.get(slug=row.pop("dataset_slug"))
                 row["version"] = Version.objects.get(dataset=row["dataset"], name=row.pop("version_name"))
                 row["table"] = Table.with_hidden.get(
