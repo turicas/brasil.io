@@ -1,5 +1,6 @@
 import io
 from collections import defaultdict
+from functools import lru_cache
 
 import rows
 
@@ -49,9 +50,14 @@ def get_state_data_from_db(state):
     }
 
 
+@lru_cache(maxsize=27)
+def get_cached_state_data_from_google(state):
+    return google_data.get_state_data_from_google_spreadsheets(state)
+
+
 def merge_state_data(state):
     # Get data from Google Spreadsheets and DB
-    gs_data = google_data.get_state_data_from_google_spreadsheets(state)
+    gs_data = get_cached_state_data_from_google(state)
     original_reports = gs_data["reports"]
     original_cases = gs_data["cases"]
     db_data = get_state_data_from_db(state)

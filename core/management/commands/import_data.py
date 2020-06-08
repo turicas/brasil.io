@@ -127,7 +127,7 @@ class Command(BaseCommand):
             # TODO: warn if field has_choices but not in Table.filtering
             print("Creating filter indexes...", end="", flush=True)
             start = time.time()
-            Model.create_indexes()
+            Model.create_indexes()  # TODO: add "IF NOT EXISTS"
             end = time.time()
             print("  done in {:.3f}s.".format(end - start))
 
