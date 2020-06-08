@@ -33,14 +33,16 @@
 </table>
 
 <script type="text/javascript">
-  $(".download-button").off('click');
-  $(".download-button").click(function (event) {
-      event.preventDefault();
-
-      var $table = $('#' + $(this).attr('data-table-id'));
-      var options = {
-         fileName: $table.attr('data-filename'),
-      };
-      $table.tableToCsv(options);
-  });
+  document.addEventListener('DOMContentLoaded', function () {
+    $(".download-button").off('click');
+    $(".download-button").click(function (event) {
+        event.preventDefault();
+  
+        var $table = $('#' + $(this).attr('data-table-id'));
+        var options = {
+           fileName: $table.attr('data-filename'),
+        };
+        $table.tableToCsv(options);
+    });
+  })
 </script>

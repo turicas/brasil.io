@@ -6,7 +6,6 @@
 {% block head %}
 {{ block.super }}
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
-<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'css/covid19-status.css' %}"/>
 {% endblock %}
 
@@ -66,16 +65,14 @@
 {% block script %}
 {{ block.super }}
 <script type="text/javascript">
-
-jQuery(document).ready(function() {
-  jQuery('#status-data-table').DataTable({
-    "paging":         false,
-    "searching":      false,
-    "bInfo":          false,
-    "order": [1, "desc"],
+  document.addEventListener('DOMContentLoaded', function () {
+    jQuery('#status-data-table').DataTable({
+      "paging":         false,
+      "searching":      false,
+      "bInfo":          false,
+      "order": [1, "desc"],
+    });
   });
-});
-
 </script>
 
 {% endblock %}

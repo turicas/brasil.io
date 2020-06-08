@@ -99,10 +99,10 @@ function updateVarControl() {
   });
 }
 
-function createMap() {
+function createMap(container) {
   var minZoom = placeType() == "country" ? 4.5 : 6;
   var maxZoom = placeType() == "country" ? 8 : 12;
-  map = L.map("map", {
+  map = L.map(container, {
     zoomSnap: 0.25,
     zoomDelta: 0.25,
     minZoom: minZoom,
@@ -235,9 +235,13 @@ function retrieveData() {
   );
 }
 
-jQuery(document).ready(function() {
-  createMap();
-  retrieveData();
+function startCovid19Map() {
+  var mapElement = document.querySelector('#map')
+
+  if (mapElement) {
+    createMap(mapElement);
+    retrieveData();
+  }
 
   jQuery(window).resize(function() {
     if (jQuery(window).width() > 1840) {
@@ -248,7 +252,16 @@ jQuery(document).ready(function() {
       jQuery("#table-col").removeClass("xl6").addClass("xl12");
       jQuery("#map-col").removeClass("xl6").addClass("xl12");
     }
-    dt.columns.adjust();
+
+    if (window.app.dt) window.app.dt.columns.adjust();
   });
+
   window.dispatchEvent(new Event("resize"));
-});
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var url = window.location.href.split('/')[3]
+  if (url === 'covid19') {
+    startCovid19Map();
+  }
+})

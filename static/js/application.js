@@ -4,6 +4,8 @@
  *
  */
 
-$(document).ready(function(){
-  $('.sidenav').sidenav();
-});
+document.addEventListener('DOMContentLoaded', function() {
+  $(".sidenav").sidenav();
+  $(".dropdown-trigger").dropdown();
+  $(".tooltipped").tooltip();
+})
