@@ -118,6 +118,10 @@ class StateSpreadsheet(models.Model):
         return not self.cancelled
 
     @property
+    def deployed(self):
+        return self.status == self.DEPLOYED
+
+    @property
     def table_data(self):
         return deepcopy(self.data["table"])
 
@@ -142,7 +146,7 @@ class StateSpreadsheet(models.Model):
         self.data["errors"] = data
         self.status = StateSpreadsheet.CHECK_FAILED
 
-    @cached_property
+    @property
     def sibilings(self):
         qs = StateSpreadsheet.objects.filter_active().from_state(self.state).filter(date=self.date)
         return qs.pending_review().exclude(pk=self.pk, user_id=self.user_id).order_by("-created_at")
