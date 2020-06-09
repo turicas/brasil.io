@@ -9,10 +9,10 @@ from django.http import StreamingHttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
+from core import util
 from core.forms import ContactForm, DatasetSearchForm
 from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
-from core.util import cached_http_get_json
 
 max_export_rows = 350_000
 
@@ -188,5 +188,10 @@ def collaborate(request):
 
 def contributors(request):
     url = "https://data.brasil.io/meta/contribuidores.json"
-    data = cached_http_get_json(url, 5)
+    data = util.cached_http_get_json(url, 5)
     return render(request, "contributors.html", {"contributors": data})
+
+
+def donors(request):
+    data = util.get_cached_apoiase_donors()
+    return render(request, "donors.html", {"donors": data})

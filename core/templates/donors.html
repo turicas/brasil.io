@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Apoiadores - Brasil.IO{% endblock %}
+{% block content %}
+<div class="section">
+  <h4>Apoiadores</h4>
+  <div class="divider"></div>
+
+  <div class="row text-center m-t-5">
+    <p>
+        A lista abaixo é de pessoas que apoiam o projeto por meio de doações feitas na campanha de financiamento coletivo <a href="https://apoia.se/brasilio" target="blank">apoia.se/brasilio</a>.
+    </p>
+
+      {% for donor in donors %}
+      <div class="col s12 m3 m-t-5 m-b-10">
+        <span class="fa-stack fa-4x text-center">
+            <img width="120" class="circle responsive-img" src="{{ donor.image }}" alt="">
+        </span>
+        <p>{{ donor.name }}</p>
+      </div>
+      {% endfor %}
+
+    </div>
+</div>
+{% endblock %}

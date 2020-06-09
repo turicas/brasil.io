@@ -20,6 +20,7 @@ urlpatterns = [
     path("colabore/", views.collaborate, name="collaborate"),
     path("doe/", views.donate, name="donate"),
     path("contribuidores/", views.contributors, name="contributors"),
+    path("apoiadores/", views.donors, name="donors"),
     # Dataset-specific pages (specials)
     path("especiais/", views_special.index, name="specials"),
     path(
