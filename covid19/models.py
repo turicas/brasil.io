@@ -52,7 +52,7 @@ class StateSpreadsheetQuerySet(models.QuerySet):
         return self.filter(status__in=[self.model.UPLOADED, self.model.CHECK_FAILED])
 
     def deployable_for_state(self, state, avoid_peer_review_dupes=True):
-        qs = self.filter_active().from_state(state).deployed().order_by("-date")
+        qs = self.filter_active().from_state(state).deployed().order_by("-date", "-created_at")
         if avoid_peer_review_dupes:
             qs = qs.distinct("date")
         return qs

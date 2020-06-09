@@ -28,10 +28,11 @@ def get_state_data_from_db(state):
             city = row["city"]
             if city is None:
                 city = TOTAL_LINE_DISPLAY
-            cases[date][city] = {
-                "confirmed": row["confirmed"],
-                "deaths": row["deaths"],
-            }
+            if city not in cases[date]:
+                cases[date][city] = {
+                    "confirmed": row["confirmed"],
+                    "deaths": row["deaths"],
+                }
 
     # reports entries should be returned as a list
     reports_as_list = []
