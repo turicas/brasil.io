@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+cd /app
+python manage.py rqworker --sentry-dsn=""
