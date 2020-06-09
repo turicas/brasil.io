@@ -1,4 +1,4 @@
-from brazil_data.cities import get_city_info, get_state_info
+from brazil_data.cities import get_city_info, get_state_info, row_to_column
 
 
 def test_get_info_from_city_if_correct_data():
@@ -32,3 +32,13 @@ def test_get_state_info():
 def test_no_state_if_unexisting_uf():
     info = get_state_info("XX")
     assert info is None
+
+
+def test_row_to_column():
+    result = row_to_column([{"a": 1, "b": 2}, {"a": 3, "b": 4}])
+    expected = {"a": [1, 3], "b": [2, 4]}
+    assert result == expected
+
+    result = row_to_column([{"a": 1, "b": 2}, {"a": 3, "b": 4}, {"a": 5}])
+    expected = {"a": [1, 3, 5], "b": [2, 4, None]}
+    assert result == expected

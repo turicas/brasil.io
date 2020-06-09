@@ -339,7 +339,6 @@ class Covid19Stats:
     def aggregate_epiweek(self, data, group_key="epidemiological_week"):
         def row_key(row):
             return row[group_key]
-
         result = []
         data.sort(key=row_key)
         for epiweek, group in groupby(data, key=row_key):
