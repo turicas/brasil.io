@@ -27,10 +27,6 @@ def debug(message):
     print(message)
 
 
-def has_deployed_spreadsheet(state, date):
-    return StateSpreadsheet.objects.filter(state=state, date=date, status=StateSpreadsheet.DEPLOYED,).exists()
-
-
 class Command(BaseCommand):
     help = "Update state totals based on custom spreadsheet"
 
@@ -63,11 +59,14 @@ class Command(BaseCommand):
             confirmed = row.confirmed
             deaths = row.deaths
 
-            if has_deployed_spreadsheet(state, date):
-                s = StateSpreadsheet.objects.filter(state=state, date=date, status=3)
-                data = [x for x in s.first().table_data if x["city"] is None][0]
+            recent_deploy = StateSpreadsheet.objects.filter(date=date).deployable_for_state(state).first()
+            if recent_deploy:
+                data = recent_deploy.get_total_data()
 
-                if confirmed <= data["confirmed"] or deaths <= data["deaths"]:
+                if confirmed == data["confirmed"] and deaths == data["deaths"]:
+                    debug(f"Skipping {state} because it has the same total for deaths and confirmed")
+                    continue
+                elif confirmed < data["confirmed"] or deaths < data["deaths"]:
                     debug(f"Skipping {state} (already deployed for {date} and numbers of deployed are greater than ours: (ours vs deployed) {confirmed} vs {data['confirmed']}, {deaths} vs {data['deaths']})")
                     continue
 
@@ -93,10 +92,8 @@ class Command(BaseCommand):
             os.unlink(filename)
 
             obj = form.save()
-            obj.peer_review = obj
-            obj.status = StateSpreadsheet.UPLOADED
-            obj.save()
+            StateSpreadsheet.objects.cancel_older_versions(obj)
+            obj.link_to(obj)
             obj.import_to_final_dataset()
             obj.refresh_from_db()
-            StateSpreadsheet.objects.filter(state=state, date=date).exclude(id=obj.id).update(cancelled=True)
             debug(f"  Spreadsheet created for {state}, id = {obj.id}")
