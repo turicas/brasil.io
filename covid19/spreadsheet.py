@@ -16,6 +16,8 @@ def get_state_data_from_db(state):
     spreadsheets = StateSpreadsheet.objects.deployable_for_state(state, avoid_peer_review_dupes=False)
     for spreadsheet in spreadsheets:
         date = spreadsheet.date
+        if date in cases:
+            continue
 
         # Group all notes for a same URL to avoid repeated entries for date/url
         report_data = reports.get(date, defaultdict(list))
@@ -28,11 +30,10 @@ def get_state_data_from_db(state):
             city = row["city"]
             if city is None:
                 city = TOTAL_LINE_DISPLAY
-            if city not in cases[date]:
-                cases[date][city] = {
-                    "confirmed": row["confirmed"],
-                    "deaths": row["deaths"],
-                }
+            cases[date][city] = {
+                "confirmed": row["confirmed"],
+                "deaths": row["deaths"],
+            }
 
     # reports entries should be returned as a list
     reports_as_list = []
