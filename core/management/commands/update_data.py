@@ -137,7 +137,7 @@ class Command(BaseCommand):
             )
 
         self.datasets, self.tables, self.versions = {}, {}, {}
-        response_data = http_get(settings.DATA_URL)
+        response_data = http_get(settings.DATA_URL, 5)
         if response_data is None:
             raise RuntimeError(f"Cannot download {settings.DATA_URL}")
         for Model, update_data_function in update_functions:
