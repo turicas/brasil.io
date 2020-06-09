@@ -270,7 +270,7 @@ def status(request):
     data = []
     for state in STATES:
         uf = state.acronym
-        qs = StateSpreadsheet.objects.from_state(uf).order_by("-date")
+        qs = StateSpreadsheet.objects.deployable_for_state(uf)
         table_entry = {
             "uf": uf,
             "state": state.name,
