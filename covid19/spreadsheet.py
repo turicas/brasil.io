@@ -16,6 +16,8 @@ def get_state_data_from_db(state):
     spreadsheets = StateSpreadsheet.objects.deployable_for_state(state, avoid_peer_review_dupes=False)
     for spreadsheet in spreadsheets:
         date = spreadsheet.date
+        if date in cases:
+            continue
 
         # Group all notes for a same URL to avoid repeated entries for date/url
         report_data = reports.get(date, defaultdict(list))
