@@ -312,7 +312,7 @@ class Covid19Stats:
         return self._get_latest_cases(state, date, "state")
 
     def _get_latest_cases(self, state, date, place_type):
-        cases = self.Caso.objects.filter(state=state, date__lt=date, place_type=place_type).iterator()
+        cases = self.Caso.objects.filter(state=state, date__lte=date, place_type=place_type).iterator()
 
         place_key_func = lambda row: (row.place_type, row.state, row.city)  # noqa
         order_func = lambda row: row.order_for_place  # noqa
