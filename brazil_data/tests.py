@@ -1,4 +1,5 @@
-from brazil_data.cities import get_city_info, get_state_info, row_to_column
+from brazil_data.cities import get_city_info, get_state_info
+from brazil_data.util import row_to_column
 
 
 def test_get_info_from_city_if_correct_data():
