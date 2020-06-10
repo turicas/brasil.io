@@ -13,7 +13,9 @@ class Command(BaseCommand):
 
         updated = 0
         for sp in only_with_total_qs:
-            previous_deployed = StateSpreadsheet.objects.exclude(id=sp.id).most_recent_deployed(sp.state, sp.date)
+            previous_deployed = StateSpreadsheet.objects.exclude(
+                id__gte=sp.id,
+            ).most_recent_deployed(sp.state, sp.date)
             if not previous_deployed:
                 continue
 
