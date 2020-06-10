@@ -35,8 +35,8 @@ class Command(BaseCommand):
                 ready, errors = sp.link_to_matching_spreadsheet_peer()
                 if ready:
                     sp.import_to_final_dataset()
-                    print(f"Ativada e atualizada para deployed com sucesso")
+                    print("Ativada e atualizada para deployed com sucesso")
                 else:
                     print(f"Ativada com erros de importação: {errors}")
             else:
-                print(f"Ativada sem dados para dar match")
+                print("Ativada sem dados para dar match")
