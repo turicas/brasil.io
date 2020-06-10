@@ -113,7 +113,6 @@
 }
 
 /* Colors */
-
 .dark-blue {
   color: #3f51b5 !important;
 }
@@ -123,13 +122,29 @@
 }
 
 .btn-dark-blue {
-  background-color: #3f51b5;
+  background-color: #3f51b5 !important;
   color: #fff !important;
 }
-
 .btn-dark-blue:hover {
-  background-color: #fff ;
+  background-color: #fff !important;
   color: #1A237E !important;
+}
+
+/* Closest AA compatible for color contrast (a11y) */
+a {
+  color: #007db6;
+}
+.btn, .btn-large, .btn-small, .btn-floating {
+  background-color: #008376;
+}
+.btn:hover, .btn-large:hover, .btn-small:hover, .btn-floating:hover {
+  background-color: #00897b;
+}
+.teal-text {
+  color: #008376 !important;
+}
+.dropdown-content li > a, .dropdown-content li > span {
+  color: #008376;
 }
 
 .email-newsletter {
