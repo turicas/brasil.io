@@ -1,4 +1,6 @@
+import gzip
 import io
+import json
 from collections import namedtuple
 from urllib.parse import parse_qs, urlparse
 
@@ -8,6 +10,7 @@ from retry import retry
 
 from core.util import http_get
 
+
 STATE_LINKS_SPREADSHEET_ID = "1S77CvorwQripFZjlWTOZeBhK42rh3u57aRL1XZGhSdI"
 FIELDS_BOLETIM = {
     "date": rows.fields.DateField,
@@ -16,6 +19,15 @@ FIELDS_BOLETIM = {
 }
 BOLETIM_SPREADSHEET = "Boletins (FINAL)"
 CASOS_SPREADSHEET = "Casos (FINAL)"
+
+
+@retry(tries=3, delay=5)
+@cache_memoize(24 * 3600)
+def get_base_data():
+    result = http_get("https://data.brasil.io/meta/covid19-base-data.json.gz", timeout=5)
+    json_data = gzip.decompress(result)
+    data = json.loads(json_data)
+    return data
 
 
 def spreadsheet_download_url(url_or_id, file_format):

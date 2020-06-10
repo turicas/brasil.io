@@ -50,17 +50,12 @@ def get_state_data_from_db(state):
     }
 
 
-@lru_cache(maxsize=27)
-def get_cached_state_data_from_google(state):
-    return google_data.get_state_data_from_google_spreadsheets(state)
-
-
 def merge_state_data(state):
-    # Get data from Google Spreadsheets and DB
-    gs_data = get_cached_state_data_from_google(state)
+    gs_data = google_data.get_base_data()[state]  # Get data from old Google Spreadsheets
     original_reports = gs_data["reports"]
     original_cases = gs_data["cases"]
-    db_data = get_state_data_from_db(state)
+
+    db_data = get_state_data_from_db(state)  # Get data from database
     new_reports = db_data["reports"]
     new_cases = db_data["cases"]
 
