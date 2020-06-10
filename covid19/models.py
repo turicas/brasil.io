@@ -57,6 +57,12 @@ class StateSpreadsheetQuerySet(models.QuerySet):
             qs = qs.distinct("date")
         return qs
 
+    def most_recent_deployed(self, state, date=None):
+        qs = self.deployable_for_state(state)
+        if date:
+            qs = qs.filter(date__lte=date)
+        return qs.first()
+
 
 def default_data_json():
     return {

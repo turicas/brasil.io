@@ -1,6 +1,5 @@
 import csv
 import io
-import logging
 import os
 import socket
 
@@ -59,7 +58,7 @@ class Command(BaseCommand):
             confirmed = row.confirmed
             deaths = row.deaths
 
-            recent_deploy = StateSpreadsheet.objects.filter(date=date).deployable_for_state(state).first()
+            recent_deploy = StateSpreadsheet.objects.most_recent_deployed(state, date)
             if recent_deploy:
                 data = recent_deploy.get_total_data()
 
