@@ -26,3 +26,5 @@ reg_settings.py
 .vscode/
 population.csv
 schema-population.csv
+data-populacao-estimada-2019.csv
+schema-populacao-estimada-2019.csv
