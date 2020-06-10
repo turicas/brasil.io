@@ -305,30 +305,6 @@ class Covid19Stats:
     def city_data_for_state(self, state):
         return [row for row in self.city_data if row["state"] == state]
 
-    def most_recent_city_entries_for_state(self, state, date):
-        return self._get_latest_cases(state, date, "city")
-
-    def most_recent_state_entry(self, state, date):
-        return self._get_latest_cases(state, date, "state")
-
-    def _get_latest_cases(self, state, date, place_type):
-        cases = self.Caso.objects.filter(state=state, date__lte=date, place_type=place_type).iterator()
-
-        place_key_func = lambda row: (row.place_type, row.state, row.city)  # noqa
-        order_func = lambda row: row.order_for_place  # noqa
-        cases = sorted(cases, key=place_key_func)
-
-        result = []
-        for place_key, entries in groupby(cases, key=place_key_func):
-            entries = sorted(entries, key=order_func, reverse=True)
-            result.append(entries[0])
-
-        if place_type == "state" and result:
-            assert len(result) == 1
-            result = result[0]
-
-        return result
-
     def aggregate_state_data(self, select_columns, groupby_columns, state=None):
         qs = self.CasoFull.objects.filter(place_type="state")
         if state is not None:

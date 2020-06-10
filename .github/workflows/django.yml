@@ -32,12 +32,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -I -r dev-requirements.txt
-    - name: Run black
-      run: |
-        black . --exclude "docker" -l 120 --check
-    - name: Run flake8
-      run: |
-        flake8 --config setup.cfg
     - name: Migrate and Update Data
       run: |
         python manage.py migrate --no-input
@@ -47,3 +41,9 @@ jobs:
     - name: Run Tests
       run: |
         pytest
+    - name: Run black
+      run: |
+        black . --exclude "docker" -l 120 --check
+    - name: Run flake8
+      run: |
+        flake8 --config setup.cfg
