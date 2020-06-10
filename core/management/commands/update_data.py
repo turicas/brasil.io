@@ -8,7 +8,6 @@ from django.core.management.base import BaseCommand
 from core.models import Dataset, Field, Link, Table, Version
 from core.util import http_get
 
-
 DATASETS, VERSIONS, TABLES = {}, {}, {}
 
 

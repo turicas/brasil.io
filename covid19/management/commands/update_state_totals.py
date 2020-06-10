@@ -66,7 +66,9 @@ class Command(BaseCommand):
                     debug(f"Skipping {state} because it has the same total for deaths and confirmed")
                     continue
                 elif confirmed < data["confirmed"] or deaths < data["deaths"]:
-                    debug(f"Skipping {state} (already deployed for {date} and numbers of deployed are greater than ours: (ours vs deployed) {confirmed} vs {data['confirmed']}, {deaths} vs {data['deaths']})")
+                    debug(
+                        f"Skipping {state} (already deployed for {date} and numbers of deployed are greater than ours: (ours vs deployed) {confirmed} vs {data['confirmed']}, {deaths} vs {data['deaths']})"
+                    )
                     continue
 
             debug(f"Creating spreadsheet for {state} on {date}")

@@ -19,11 +19,7 @@ def index(request):
 
 
 def _get_fields(table, remove):
-    return [
-        field
-        for field in table.field_set.all()
-        if field.show_on_frontend and field.name not in remove
-    ]
+    return [field for field in table.field_set.all() if field.show_on_frontend and field.name not in remove]
 
 
 def unaccent(text):

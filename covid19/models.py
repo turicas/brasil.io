@@ -1,7 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
 
-from cached_property import cached_property
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db import models

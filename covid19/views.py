@@ -286,11 +286,7 @@ def status(request):
             table_entry["status"] = most_recent.get_status_display()
             table_entry["report_date"] = most_recent.date
             table_entry["report_date_str"] = str(most_recent.date)
-            state_totals = [
-                item
-                for item in most_recent.table_data
-                if item["city"] is None
-            ][0]
+            state_totals = [item for item in most_recent.table_data if item["city"] is None][0]
             table_entry["total_confirmed"] = state_totals["confirmed"]
             table_entry["total_deaths"] = state_totals["deaths"]
 

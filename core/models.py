@@ -8,7 +8,7 @@ import django.contrib.postgres.indexes as pg_indexes
 import django.db.models.indexes as django_indexes
 from cachalot.api import invalidate
 from django.contrib.postgres.fields import ArrayField, JSONField
-from django.contrib.postgres.search import SearchRank, SearchQuery, SearchVectorField
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
 from django.db import connection, models
 from django.db.models import F
 from markdownx.models import MarkdownxField

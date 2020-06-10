@@ -1,5 +1,5 @@
-from unittest.mock import patch
 from unittest import skip
+from unittest.mock import patch
 
 import pytest
 from django.core.cache import cache

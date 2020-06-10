@@ -9,7 +9,6 @@ from cachetools import TTLCache, cached
 
 from core.models import Table
 
-
 USER_AGENT = "brasil.io-backend"
 
 

@@ -166,12 +166,12 @@ def validate_historical_data(spreadsheet):
     def lower_numbers(previous, data):
         if not previous:
             return False
-        return data["confirmed"] < previous['confirmed'] or data["deaths"] < previous['deaths']
+        return data["confirmed"] < previous["confirmed"] or data["deaths"] < previous["deaths"]
 
     warnings = []
     clean_results = spreadsheet.table_data
     validation_errors = SpreadsheetValidationErrors()
-    covid19_stats = Covid19Stats()
+    Covid19Stats()
     s_date = spreadsheet.date
     has_only_total = False
     total_data = spreadsheet.get_total_data()
@@ -185,12 +185,12 @@ def validate_historical_data(spreadsheet):
         city_entries = most_recent.table_data_by_city.values()
 
     for entry in city_entries:
-        city_data = spreadsheet.get_data_from_city(entry['city_ibge_code'])
-        if not has_only_total and not city_data and (entry['confirmed'] or entry['deaths']):
+        city_data = spreadsheet.get_data_from_city(entry["city_ibge_code"])
+        if not has_only_total and not city_data and (entry["confirmed"] or entry["deaths"]):
             validation_errors.new_error(f"{entry['city']} possui dados históricos e não está presente na planilha.")
             continue
         elif not city_data:  # previous entry for the city has 0 deaths and 0 confirmed
-            data = _parse_city_data(entry['city'], entry['confirmed'], entry['deaths'], s_date, entry['state'])
+            data = _parse_city_data(entry["city"], entry["confirmed"], entry["deaths"], s_date, entry["state"])
             clean_results.append(data)
             if not has_only_total:
                 warnings.append(
