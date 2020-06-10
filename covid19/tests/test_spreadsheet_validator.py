@@ -464,7 +464,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
 
         table_data = [d.copy() for d in table_data]
         for t in table_data:
-            t['date'] = sp.date.isoformat()
+            t["date"] = sp.date.isoformat()
         sp.table_data = table_data
         sp.save()
 
@@ -498,12 +498,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             date=self.today - timedelta(days=8),
             state=self.uf,
             status=StateSpreadsheet.DEPLOYED,
-            table_data = [{
-                'place_type': "city",
-                'confirmed': 1000,
-                'deaths': 1000,
-                'city': "bar",
-            }]
+            table_data=[{"place_type": "city", "confirmed": 1000, "deaths": 1000, "city": "bar",}],
         )
 
         # report with date greater than the spreadsheet's one shouldn't be considered
@@ -511,12 +506,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             date=self.today + timedelta(days=8),
             state=self.uf,
             status=StateSpreadsheet.DEPLOYED,
-            table_data = [{
-                'place_type': "city",
-                'confirmed': 500,
-                'deaths': 500,
-                'city': "bar",
-            }]
+            table_data=[{"place_type": "city", "confirmed": 500, "deaths": 500, "city": "bar",}],
         )
 
         with pytest.raises(SpreadsheetValidationErrors) as execinfo:
@@ -548,10 +538,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             cases_data["confirmed"] = 200
             table_data.append(cases_data)
         self.new_spreadsheet_with_data(
-            date=self.today - timedelta(days=2),
-            state=self.uf,
-            status=StateSpreadsheet.DEPLOYED,
-            table_data=table_data
+            date=self.today - timedelta(days=2), state=self.uf, status=StateSpreadsheet.DEPLOYED, table_data=table_data
         )
 
         warnings = validate_historical_data(self.spreadsheet)
@@ -568,10 +555,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             cases_data["deaths"] = 200
             table_data.append(cases_data)
         self.new_spreadsheet_with_data(
-            date=self.today - timedelta(days=2),
-            state=self.uf,
-            status=StateSpreadsheet.DEPLOYED,
-            table_data=table_data
+            date=self.today - timedelta(days=2), state=self.uf, status=StateSpreadsheet.DEPLOYED, table_data=table_data
         )
 
         warnings = validate_historical_data(self.spreadsheet)
@@ -588,10 +572,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             cases_data["deaths"] = 200
             table_data.append(cases_data)
         self.new_spreadsheet_with_data(
-            date=self.today - timedelta(days=2),
-            state=self.uf,
-            status=StateSpreadsheet.DEPLOYED,
-            table_data=table_data,
+            date=self.today - timedelta(days=2), state=self.uf, status=StateSpreadsheet.DEPLOYED, table_data=table_data,
         )
 
         undefined_name = self.undefined_data["city"]
@@ -609,10 +590,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         city_data["confirmed"] = 0
         table_data = [self.total_data, self.undefined_data, city_data]
         self.new_spreadsheet_with_data(
-            date=self.today - timedelta(days=2),
-            state=self.uf,
-            status=StateSpreadsheet.DEPLOYED,
-            table_data=table_data,
+            date=self.today - timedelta(days=2), state=self.uf, status=StateSpreadsheet.DEPLOYED, table_data=table_data,
         )
         self.spreadsheet.table_data = [self.total_data, self.undefined_data] + self.cities_data
 
@@ -630,10 +608,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
     def test_reuse_past_data_if_city_not_present_in_data_with_only_total_sum(self):
         table_data = self.cities_data + [self.total_data, self.undefined_data]
         recent = self.new_spreadsheet_with_data(
-            date=self.today - timedelta(days=2),
-            state=self.uf,
-            status=StateSpreadsheet.DEPLOYED,
-            table_data=table_data,
+            date=self.today - timedelta(days=2), state=self.uf, status=StateSpreadsheet.DEPLOYED, table_data=table_data,
         )
 
         self.total_data["deaths"] = 2
@@ -649,7 +624,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
 
         assert 2 == len(warnings)
         assert (
-            f'Planilha importada somente com dados totais. Dados de cidades foram reutilizados da importação do dia {recent.date.isoformat()}.'
+            f"Planilha importada somente com dados totais. Dados de cidades foram reutilizados da importação do dia {recent.date.isoformat()}."
             in warnings
         )
         assert "Números de confirmados ou óbitos totais é menor que o total anterior." in warnings
