@@ -9,7 +9,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         only_with_total_qs = StateSpreadsheet.objects.filter(
             data__warnings__icontains='Planilha importada somente com dados totais'
-        ).exclude(status=StateSpreadsheet.CHECK_FAILED)
+        )
 
         updated = 0
         for sp in only_with_total_qs:
