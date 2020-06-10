@@ -10,7 +10,6 @@ from retry import retry
 
 from core.util import http_get
 
-
 STATE_LINKS_SPREADSHEET_ID = "1S77CvorwQripFZjlWTOZeBhK42rh3u57aRL1XZGhSdI"
 FIELDS_BOLETIM = {
     "date": rows.fields.DateField,
