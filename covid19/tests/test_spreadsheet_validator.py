@@ -457,7 +457,18 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             }
             for c in self.cities_cases
         ]
-        self.spreadsheet = baker.make(StateSpreadsheet, state=self.uf, date=self.today)
+        self.spreadsheet = baker.prepare(StateSpreadsheet, state=self.uf, date=self.today)
+
+    def new_spreadsheet_with_data(self, table_data, **kwargs):
+        sp = baker.make(StateSpreadsheet, **kwargs)
+
+        table_data = [d.copy() for d in table_data]
+        for t in table_data:
+            t['date'] = sp.date.isoformat()
+        sp.table_data = table_data
+        sp.save()
+
+        return sp
 
     def test_can_create_covid_19_cases_entries(self):
         table = Table.objects.for_dataset("covid19").named("caso")
@@ -474,36 +485,39 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         assert cases_entry.city
 
     def test_raise_validation_error_previous_city_not_present_in_data(self):
-        Covid19Cases = self.Covid19Cases
         self.spreadsheet.table_data = [self.total_data, self.undefined_data]  # no cities
-        for cases_data in [c.copy() for c in self.cities_data]:
-            cases_data["date"] = self.today - timedelta(days=2)
-            baker.make(Covid19Cases, **cases_data)
+        self.new_spreadsheet_with_data(
+            date=self.today - timedelta(days=2),
+            state=self.uf,
+            status=StateSpreadsheet.DEPLOYED,
+            table_data=[self.total_data, self.undefined_data] + self.cities_data,
+        )
 
         # older city from the same state is not considered
-        baker.make(
-            Covid19Cases,
+        self.new_spreadsheet_with_data(
             date=self.today - timedelta(days=8),
             state=self.uf,
-            place_type="city",
-            confirmed=1000,
-            deaths=1000,
-            city="bar",
+            status=StateSpreadsheet.DEPLOYED,
+            table_data = [{
+                'place_type': "city",
+                'confirmed': 1000,
+                'deaths': 1000,
+                'city': "bar",
+            }]
         )
 
         # report with date greater than the spreadsheet's one shouldn't be considered
-        baker.make(
-            Covid19Cases,
+        self.new_spreadsheet_with_data(
             date=self.today + timedelta(days=8),
             state=self.uf,
-            place_type="city",
-            confirmed=1000,
-            deaths=1000,
-            city="foo",
+            status=StateSpreadsheet.DEPLOYED,
+            table_data = [{
+                'place_type': "city",
+                'confirmed': 500,
+                'deaths': 500,
+                'city': "bar",
+            }]
         )
-
-        # a more recent report, but from other state
-        baker.make(Covid19Cases, date=self.today, state="RR", place_type="city")
 
         with pytest.raises(SpreadsheetValidationErrors) as execinfo:
             validate_historical_data(self.spreadsheet)
@@ -515,24 +529,30 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             assert msg in exception.error_messages
 
     def test_is_valid_if_historical_data_has_the_same_values_as_the_new_import(self):
-        Covid19Cases = self.Covid19Cases
         self.spreadsheet.table_data = [self.total_data, self.undefined_data] + self.cities_data
-        for cases_data in [c.copy() for c in self.cities_data]:
-            cases_data["date"] = self.today - timedelta(days=1)
-            baker.make(Covid19Cases, **cases_data)
+        self.new_spreadsheet_with_data(
+            date=self.today - timedelta(days=2),
+            state=self.uf,
+            status=StateSpreadsheet.DEPLOYED,
+            table_data=[self.total_data, self.undefined_data] + self.cities_data,
+        )
 
         warnings = validate_historical_data(self.spreadsheet)
 
         assert not warnings
 
     def test_return_warning_message_if_number_of_cases_is_lower_than_previous_day(self):
-        Covid19Cases = self.Covid19Cases
         self.spreadsheet.table_data = [self.total_data, self.undefined_data] + self.cities_data
+        table_data = [self.total_data, self.undefined_data]
         for cases_data in [c.copy() for c in self.cities_data]:
-            cases_data["date"] = self.today - timedelta(days=1)
-            baker.make(Covid19Cases, **cases_data)
-
-        Covid19Cases.objects.all().update(confirmed=200)
+            cases_data["confirmed"] = 200
+            table_data.append(cases_data)
+        self.new_spreadsheet_with_data(
+            date=self.today - timedelta(days=2),
+            state=self.uf,
+            status=StateSpreadsheet.DEPLOYED,
+            table_data=table_data
+        )
 
         warnings = validate_historical_data(self.spreadsheet)
 
@@ -542,13 +562,17 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             assert msg in warnings
 
     def test_return_warning_message_if_number_of_deaths_is_lower_than_previous_day(self):
-        Covid19Cases = self.Covid19Cases
         self.spreadsheet.table_data = [self.total_data, self.undefined_data] + self.cities_data
+        table_data = [self.total_data, self.undefined_data]
         for cases_data in [c.copy() for c in self.cities_data]:
-            cases_data["date"] = self.today - timedelta(days=1)
-            baker.make(Covid19Cases, **cases_data)
-
-        Covid19Cases.objects.all().update(deaths=200)
+            cases_data["deaths"] = 200
+            table_data.append(cases_data)
+        self.new_spreadsheet_with_data(
+            date=self.today - timedelta(days=2),
+            state=self.uf,
+            status=StateSpreadsheet.DEPLOYED,
+            table_data=table_data
+        )
 
         warnings = validate_historical_data(self.spreadsheet)
 
@@ -558,14 +582,18 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             assert msg in warnings
 
     def test_guarantee_warnings_for_new_lower_total_and_undefined_numbers(self):
-        Covid19Cases = self.Covid19Cases
         self.spreadsheet.table_data = [self.total_data.copy(), self.undefined_data.copy()]
-        self.total_data["date"] = self.today - timedelta(days=1)
-        baker.make(Covid19Cases, **self.total_data)
-        self.undefined_data["date"] = self.today - timedelta(days=1)
-        baker.make(Covid19Cases, **self.undefined_data)
+        table_data = []
+        for cases_data in [c.copy() for c in [self.total_data, self.undefined_data]]:
+            cases_data["deaths"] = 200
+            table_data.append(cases_data)
+        self.new_spreadsheet_with_data(
+            date=self.today - timedelta(days=2),
+            state=self.uf,
+            status=StateSpreadsheet.DEPLOYED,
+            table_data=table_data,
+        )
 
-        Covid19Cases.objects.all().update(deaths=200)
         undefined_name = self.undefined_data["city"]
         expected = [
             f"Números de confirmados ou óbitos em {undefined_name} é menor que o anterior.",
@@ -576,12 +604,16 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         assert expected == warnings
 
     def test_if_city_is_not_present_and_previous_report_has_0_for_both_counters_add_the_entry(self):
-        Covid19Cases = self.Covid19Cases
         city_data = self.cities_data.pop(0)
         city_data["deaths"] = 0
         city_data["confirmed"] = 0
-        city_data["date"] = self.today - timedelta(days=2)
-        baker.make(Covid19Cases, **city_data)
+        table_data = [self.total_data, self.undefined_data, city_data]
+        self.new_spreadsheet_with_data(
+            date=self.today - timedelta(days=2),
+            state=self.uf,
+            status=StateSpreadsheet.DEPLOYED,
+            table_data=table_data,
+        )
         self.spreadsheet.table_data = [self.total_data, self.undefined_data] + self.cities_data
 
         expected = city_data.copy()
@@ -596,11 +628,13 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         assert expected in self.spreadsheet.table_data
 
     def test_reuse_past_data_if_city_not_present_in_data_with_only_total_sum(self):
-        Covid19Cases = self.Covid19Cases
-        previous_entries = self.cities_data + [self.total_data, self.undefined_data]
-        for cases_data in [c.copy() for c in previous_entries]:
-            cases_data["date"] = self.today - timedelta(days=2)
-            baker.make(Covid19Cases, **cases_data)
+        table_data = self.cities_data + [self.total_data, self.undefined_data]
+        recent = self.new_spreadsheet_with_data(
+            date=self.today - timedelta(days=2),
+            state=self.uf,
+            status=StateSpreadsheet.DEPLOYED,
+            table_data=table_data,
+        )
 
         self.total_data["deaths"] = 2
         self.total_data["confirmed"] = 5
@@ -615,7 +649,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
 
         assert 2 == len(warnings)
         assert (
-            f'Planilha importada somente com dados totais. Dados de cidades foram reutilizados da importação do dia {cases_data["date"]}.'
+            f'Planilha importada somente com dados totais. Dados de cidades foram reutilizados da importação do dia {recent.date.isoformat()}.'
             in warnings
         )
         assert "Números de confirmados ou óbitos totais é menor que o total anterior." in warnings
