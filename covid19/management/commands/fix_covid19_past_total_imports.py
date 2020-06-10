@@ -21,8 +21,8 @@ class Command(BaseCommand):
 
             if sp.table_data_by_city != previous_deployed.table_data_by_city:
                 updated += 1
-                print(f"Planilha ({sp.id}) somente com totais para {sp.state} - {sp.date}.", end=" ")
-                print(f"Corrigindo os números para as cidades usando os dados da planilha anterior.")
+                print(f"Planilha ({sp.id} em {sp.created_at}) somente com totais para {sp.state} - {sp.date}.", end=" ")
+                print(f"Usando números das cidades usando a planilha anterior ({previous_deployed.id} e {previous_deployed.created_at}).")
 
                 sp.table_data = [sp.get_total_data()] + list(previous_deployed.table_data_by_city.values())
                 sp.save()
