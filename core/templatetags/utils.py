@@ -41,7 +41,7 @@ def render(template_text, obj):
 @register.filter(name="obfuscate")
 def obfuscate(document):
     if document and len(document) == 11:
-        document = "***{}***".format(document[3:8])
+        document = "***{}**".format(document[3:9])
     return document
 
 
