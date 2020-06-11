@@ -29,7 +29,21 @@ def debug(message):
 class Command(BaseCommand):
     help = "Update state totals based on custom spreadsheet"
 
+    def add_arguments(self, parser):
+        parser.add_argument("--force", help="Força estados a serem atualizados (separados por vírgula)")
+        parser.add_argument("--only", help="Execute comando apenas para esses estados (separados por vírgula)")
+
+    def get_state_option(self, kwargs, name):
+        return [
+            state.strip().upper()
+            for state in (kwargs.get(name, "") or "").split(",")
+            if state.strip()
+        ]
+
     def handle(self, *args, **kwargs):
+        force = self.get_state_option(kwargs, "force")
+        only = self.get_state_option(kwargs, "only")
+
         username = "turicas"
         debug(f"Getting user object for {username}")
         user = get_user_model().objects.get(username=username)
@@ -49,11 +63,11 @@ class Command(BaseCommand):
         )
 
         for row in spreadsheet:
-            if str(row.origem or "").lower() != "ses":
-                debug(f"Skipping {row.state} (source = {row.origem})")
+            state = str(row.state or "").upper()
+            if only and state not in only:
+                debug(f"Skipping {state} because of: not in --only")
                 continue
 
-            state = str(row.state or "").upper()
             date = row.data_dados
             confirmed = row.confirmed
             deaths = row.deaths
@@ -66,10 +80,15 @@ class Command(BaseCommand):
                     debug(f"Skipping {state} because it has the same total for deaths and confirmed")
                     continue
                 elif confirmed < data["confirmed"] or deaths < data["deaths"]:
-                    debug(
-                        f"Skipping {state} (already deployed for {date} and numbers of deployed are greater than ours: (ours vs deployed) {confirmed} vs {data['confirmed']}, {deaths} vs {data['deaths']})"
-                    )
-                    continue
+                    if force and state in force:
+                        debug(
+                            f"WARNING: would skip {state} (already deployed for {date} and numbers of deployed are greater than ours: (ours vs deployed) {confirmed} vs {data['confirmed']}, {deaths} vs {data['deaths']}), but forcing because of --force"
+                        )
+                    else:
+                        debug(
+                            f"Skipping {state} (already deployed for {date} and numbers of deployed are greater than ours: (ours vs deployed) {confirmed} vs {data['confirmed']}, {deaths} vs {data['deaths']})"
+                        )
+                        continue
 
             debug(f"Creating spreadsheet for {state} on {date}")
 
