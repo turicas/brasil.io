@@ -1,4 +1,5 @@
 import io
+import json
 from unittest.mock import patch
 
 from django.test import TestCase
@@ -11,14 +12,15 @@ class ImportSpreadsheetProxyViewTests(TestCase):
     def setUp(self):
         self.url = reverse("covid19:spreadsheet_proxy", args=["RJ"])
 
-    @patch("covid19.views.create_merged_state_spreadsheet", autospec=True)
+    @patch("covid19.views.merge_state_data", autospec=True)
     def test_return_spreadsheet_for_state(self, mock_merge):
-        mock_merge.return_value = io.BytesIO(b"content")
+        fake_data = {"cases": [], "reports": []}
+        mock_merge.return_value = fake_data
 
         response = self.client.get(self.url)
 
         assert 200 == response.status_code
-        assert b"content" == response.content
+        assert fake_data == json.loads(response.content)
         mock_merge.assert_called_once_with("RJ")
 
     def test_404_if_invalid_state(self):
@@ -26,7 +28,7 @@ class ImportSpreadsheetProxyViewTests(TestCase):
         response = self.client.get(self.url)
         assert 404 == response.status_code
 
-    @patch("covid19.views.create_merged_state_spreadsheet", autospec=True)
+    @patch("covid19.views.merge_state_data", autospec=True)
     def test_400_if_spreadsheet_validation_error(self, mock_merge):
         exception = SpreadsheetValidationErrors()
         exception.new_error("error 1")
