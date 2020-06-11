@@ -13,7 +13,7 @@ from covid19.epiweek import get_epiweek
 from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.geo import city_geojson, state_geojson
 from covid19.models import StateSpreadsheet
-from covid19.spreadsheet import create_merged_state_spreadsheet
+from covid19.spreadsheet import merge_state_data
 from covid19.stats import Covid19Stats, max_values
 
 stats = Covid19Stats()
@@ -256,11 +256,26 @@ def import_spreadsheet_proxy(request, state):
         raise Http404
 
     try:
-        content = create_merged_state_spreadsheet(state)
-        response = HttpResponse(content)
-        response["Content-Type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        response["Content-Disposition"] = f"attachment; filename={state}.xlsx"
-        return response
+        data = merge_state_data(state)
+        # Filter out empty reports and cases
+        data["reports"] = [
+            # Here we export the `report` again, including only the fields we
+            # want (the old JSON can come with other columns).
+            {
+                "date": report["date"],
+                "notes": report["notes"],
+                "state": state_info.state,
+                "url": report["url"],
+            }
+            for report in data["reports"]
+            if any(report.values())
+        ]
+        data["cases"] = [
+            case
+            for case in data["cases"]
+            if any(value for key, value in case.items() if key != "municipio" and value not in ("", None))
+        ]
+        return JsonResponse(data, safe=False)
     except SpreadsheetValidationErrors as e:
         return JsonResponse({"errors": e.error_messages}, status=400)
 
