@@ -1,3 +1,9 @@
+@import url('https://rsms.me/inter/inter.css');
+html { font-family: 'Inter', sans-serif; }
+@supports (font-variation-settings: normal) {
+  html { font-family: 'Inter var', sans-serif; }
+}
+
 html {
   height: 100%;
   box-sizing: border-box;
@@ -13,7 +19,7 @@ body {
   position: relative;
   margin: 0;
   min-height: 100%;
-  font-family: Roboto, sans-serif;
+  font-family: 'Inter var', sans-serif;
   font-weight: 300;
 }
 
