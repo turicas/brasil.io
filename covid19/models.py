@@ -132,6 +132,7 @@ class StateSpreadsheet(models.Model):
         (CHECK_FAILED, "check-failed"),
         (DEPLOYED, "deployed"),
     )
+    ONLY_WITH_TOTAL_WARNING = 'Planilha importada somente com dados totais.'
 
     objects = StateSpreadsheetManager.from_queryset(StateSpreadsheetQuerySet)()
 
@@ -221,6 +222,10 @@ class StateSpreadsheet(models.Model):
     @property
     def admin_url(self):
         return reverse("admin:covid19_statespreadsheet_change", args=[self.pk])
+
+    @property
+    def only_with_total_entry(self):
+        return any([w for w in self.warnings if w.startswith(self.ONLY_WITH_TOTAL_WARNING)])
 
     def get_data_from_city(self, ibge_code):
         if ibge_code:  # ibge_code = None match for undefined data

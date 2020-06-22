@@ -581,8 +581,10 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             "Números de confirmados ou óbitos totais é menor que o total anterior.",
         ]
         warnings = validate_historical_data(self.spreadsheet)
+        self.spreadsheet.warnings = warnings
 
         assert expected == warnings
+        assert self.spreadsheet.only_with_total_entry is False
 
     def test_if_city_is_not_present_and_previous_report_has_0_for_both_counters_add_the_entry(self):
         city_data = self.cities_data.pop(0)
@@ -616,6 +618,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         self.spreadsheet.table_data = [self.total_data]  # only total
 
         warnings = validate_historical_data(self.spreadsheet)
+        self.spreadsheet.warnings = warnings
 
         assert self.total_data in self.spreadsheet.table_data
         assert self.undefined_data in self.spreadsheet.table_data
@@ -630,12 +633,15 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         assert "Números de confirmados ou óbitos totais é menor que o total anterior." in warnings
         assert self.spreadsheet.get_total_data()["deaths"] == 2
         assert self.spreadsheet.get_total_data()["confirmed"] == 5
+        assert self.spreadsheet.only_with_total_entry is True
 
     def test_accept_first_spreadsheet_only_with_total_tada(self):
         self.spreadsheet.table_data = [self.total_data]  # only total
 
         warnings = validate_historical_data(self.spreadsheet)
+        self.spreadsheet.warnings = warnings
 
         assert 1 == len(self.spreadsheet.table_data)
         assert self.total_data in self.spreadsheet.table_data
         assert ["Planilha importada somente com dados totais."] == warnings
+        assert self.spreadsheet.only_with_total_entry is True
