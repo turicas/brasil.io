@@ -1,5 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
+from collections import defaultdict
 
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField, JSONField
@@ -63,6 +64,59 @@ class StateSpreadsheetQuerySet(models.QuerySet):
         return qs.first()
 
 
+class StateSpreadsheetManager(models.Manager):
+
+    def get_state_data(self, state):
+        """Return all state cases, grouped by date"""
+        from covid19.spreadsheet_validator import TOTAL_LINE_DISPLAY
+
+        cases, reports = {}, {}
+        qs = self.get_queryset()
+        spreadsheets = qs.deployable_for_state(state, avoid_peer_review_dupes=False)
+        for spreadsheet in spreadsheets:
+            date = spreadsheet.date
+            # TODO: test 1: quando para a data no estado só tem a planilha de total,
+            # devolve apenas o valor total
+            # TODO: test 2: quando para a data no estado tem a planilha de total e outras
+            # de município, devolve os dados completos usando as informações mais novas.
+            # TODO: test 2a: planilha total mais atualizada que deployed (total + deployed)
+            # TODO: test 2b: planilha deployed mais atualizada que total (deployed)
+            if date in cases:
+                # TODO: se a data já estiver no cases mas for só total e essa
+                # spreadsheet não for total, não pular (mas só sobrescrever dados
+                # do município)
+                continue
+
+            # Group all notes for a same URL to avoid repeated entries for date/url
+            report_data = reports.get(date, defaultdict(list))
+            for url in spreadsheet.boletim_urls:
+                report_data[url].append(spreadsheet.boletim_notes or '')
+            reports[date] = report_data
+
+            cases[date] = {}
+            for row in spreadsheet.data["table"]:
+                city = row["city"]
+                if city is None:
+                    city = TOTAL_LINE_DISPLAY
+                cases[date][city] = {
+                    "confirmed": row["confirmed"],
+                    "deaths": row["deaths"],
+                }
+
+        # reports entries should be returned as a list
+        reports_as_list = []
+        for date, urls in reports.items():
+            for url, notes in urls.items():
+                reports_as_list.append(
+                    {"date": date, "url": url, "notes": "\n".join([n.strip() for n in notes if n.strip()])}
+                )
+
+        return {
+            "reports": reports_as_list,
+            "cases": cases,
+        }
+
+
 def default_data_json():
     return {
         "table": [],
@@ -79,7 +133,7 @@ class StateSpreadsheet(models.Model):
         (DEPLOYED, "deployed"),
     )
 
-    objects = StateSpreadsheetQuerySet.as_manager()
+    objects = StateSpreadsheetManager.from_queryset(StateSpreadsheetQuerySet)()
 
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(get_user_model(), null=False, blank=False, on_delete=models.PROTECT)

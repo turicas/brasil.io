@@ -10,60 +10,12 @@ from covid19.models import StateSpreadsheet
 from covid19.spreadsheet_validator import TOTAL_LINE_DISPLAY, UNDEFINED_DISPLAY
 
 
-def get_state_data_from_db(state):
-    """Return all state cases from DB, grouped by date"""
-    cases, reports = {}, {}
-    spreadsheets = StateSpreadsheet.objects.deployable_for_state(state, avoid_peer_review_dupes=False)
-    for spreadsheet in spreadsheets:
-        date = spreadsheet.date
-        # TODO: test 1: quando para a data no estado só tem a planilha de total,
-        # devolve apenas o valor total
-        # TODO: test 2: quando para a data no estado tem a planilha de total e outras
-        # de município, devolve os dados completos usando as informações mais novas.
-        # TODO: test 2a: planilha total mais atualizada que deployed (total + deployed)
-        # TODO: test 2b: planilha deployed mais atualizada que total (deployed)
-        if date in cases:
-            # TODO: se a data já estiver no cases mas for só total e essa
-            # spreadsheet não for total, não pular (mas só sobrescrever dados
-            # do município)
-            continue
-
-        # Group all notes for a same URL to avoid repeated entries for date/url
-        report_data = reports.get(date, defaultdict(list))
-        for url in spreadsheet.boletim_urls:
-            report_data[url].append(spreadsheet.boletim_notes)
-        reports[date] = report_data
-
-        cases[date] = {}
-        for row in spreadsheet.data["table"]:
-            city = row["city"]
-            if city is None:
-                city = TOTAL_LINE_DISPLAY
-            cases[date][city] = {
-                "confirmed": row["confirmed"],
-                "deaths": row["deaths"],
-            }
-
-    # reports entries should be returned as a list
-    reports_as_list = []
-    for date, urls in reports.items():
-        for url, notes in urls.items():
-            reports_as_list.append(
-                {"date": date, "url": url, "notes": "\n".join([n.strip() for n in notes if n.strip()])}
-            )
-
-    return {
-        "reports": reports_as_list,
-        "cases": cases,
-    }
-
-
 def merge_state_data(state):
     gs_data = google_data.get_base_data()[state]  # Get data from old Google Spreadsheets
     original_reports = gs_data["reports"]
     original_cases = gs_data["cases"]
 
-    db_data = get_state_data_from_db(state)  # Get data from database
+    db_data = StateSpreadsheet.objects.get_state_data(state)  # Get data from database
     new_reports = db_data["reports"]
     new_cases = db_data["cases"]
 
