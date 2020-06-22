@@ -1,7 +1,7 @@
 import datetime
 import random
 
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import render
 
 from brazil_data.cities import get_state_info
@@ -261,12 +261,7 @@ def import_spreadsheet_proxy(request, state):
         data["reports"] = [
             # Here we export the `report` again, including only the fields we
             # want (the old JSON can come with other columns).
-            {
-                "date": report["date"],
-                "notes": report["notes"],
-                "state": state_info.state,
-                "url": report["url"],
-            }
+            {"date": report["date"], "notes": report["notes"], "state": state_info.state, "url": report["url"],}
             for report in data["reports"]
             if any(report.values())
         ]

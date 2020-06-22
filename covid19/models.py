@@ -1,3 +1,4 @@
+from collections import defaultdict
 from copy import deepcopy
 from pathlib import Path
 
@@ -63,6 +64,59 @@ class StateSpreadsheetQuerySet(models.QuerySet):
         return qs.first()
 
 
+class StateSpreadsheetManager(models.Manager):
+    def get_state_data(self, state):
+        """Return all state cases, grouped by date"""
+        from covid19.spreadsheet_validator import TOTAL_LINE_DISPLAY
+
+        cases, reports = defaultdict(dict), {}
+        qs = self.get_queryset()
+        spreadsheets = qs.deployable_for_state(state, avoid_peer_review_dupes=False)
+        dates_only_with_total = set()
+
+        for spreadsheet in spreadsheets:
+            date = spreadsheet.date
+            if date in cases and date not in dates_only_with_total:
+                continue
+
+            # Group all notes for a same URL to avoid repeated entries for date/url
+            report_data = reports.get(date, defaultdict(list))
+            for url in spreadsheet.boletim_urls:
+                report_data[url].append(spreadsheet.boletim_notes or "")
+            reports[date] = report_data
+
+            if spreadsheet.only_with_total_entry:
+                rows = [spreadsheet.get_total_data()]
+                dates_only_with_total.add(date)
+            elif date in dates_only_with_total:
+                rows = spreadsheet.table_data_by_city.values()
+                dates_only_with_total.remove(date)
+            else:
+                rows = spreadsheet.table_data
+
+            for row in rows:
+                city = row["city"]
+                if city is None:
+                    city = TOTAL_LINE_DISPLAY
+                cases[date][city] = {
+                    "confirmed": row["confirmed"],
+                    "deaths": row["deaths"],
+                }
+
+        # reports entries should be returned as a list
+        reports_as_list = []
+        for date, urls in reports.items():
+            for url, notes in urls.items():
+                reports_as_list.append(
+                    {"date": date, "url": url, "notes": "\n".join([n.strip() for n in notes if n.strip()])}
+                )
+
+        return {
+            "reports": reports_as_list,
+            "cases": cases,
+        }
+
+
 def default_data_json():
     return {
         "table": [],
@@ -78,8 +132,9 @@ class StateSpreadsheet(models.Model):
         (CHECK_FAILED, "check-failed"),
         (DEPLOYED, "deployed"),
     )
+    ONLY_WITH_TOTAL_WARNING = "Planilha importada somente com dados totais."
 
-    objects = StateSpreadsheetQuerySet.as_manager()
+    objects = StateSpreadsheetManager.from_queryset(StateSpreadsheetQuerySet)()
 
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(get_user_model(), null=False, blank=False, on_delete=models.PROTECT)
@@ -167,6 +222,10 @@ class StateSpreadsheet(models.Model):
     @property
     def admin_url(self):
         return reverse("admin:covid19_statespreadsheet_change", args=[self.pk])
+
+    @property
+    def only_with_total_entry(self):
+        return any([w for w in self.warnings if w.startswith(self.ONLY_WITH_TOTAL_WARNING)])
 
     def get_data_from_city(self, ibge_code):
         if ibge_code:  # ibge_code = None match for undefined data

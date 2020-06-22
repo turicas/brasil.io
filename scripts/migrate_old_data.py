@@ -15,7 +15,7 @@ for state in STATES:
             data[state] = get_state_data_from_google_spreadsheets(state, timeout=10)
         except KeyboardInterrupt:
             break
-        except:
+        except Exception:
             print("  error, trying again")
             continue
         else:
