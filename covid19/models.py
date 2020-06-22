@@ -1,6 +1,6 @@
+from collections import defaultdict
 from copy import deepcopy
 from pathlib import Path
-from collections import defaultdict
 
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField, JSONField
@@ -65,7 +65,6 @@ class StateSpreadsheetQuerySet(models.QuerySet):
 
 
 class StateSpreadsheetManager(models.Manager):
-
     def get_state_data(self, state):
         """Return all state cases, grouped by date"""
         from covid19.spreadsheet_validator import TOTAL_LINE_DISPLAY
@@ -83,7 +82,7 @@ class StateSpreadsheetManager(models.Manager):
             # Group all notes for a same URL to avoid repeated entries for date/url
             report_data = reports.get(date, defaultdict(list))
             for url in spreadsheet.boletim_urls:
-                report_data[url].append(spreadsheet.boletim_notes or '')
+                report_data[url].append(spreadsheet.boletim_notes or "")
             reports[date] = report_data
 
             if spreadsheet.only_with_total_entry:
@@ -133,7 +132,7 @@ class StateSpreadsheet(models.Model):
         (CHECK_FAILED, "check-failed"),
         (DEPLOYED, "deployed"),
     )
-    ONLY_WITH_TOTAL_WARNING = 'Planilha importada somente com dados totais.'
+    ONLY_WITH_TOTAL_WARNING = "Planilha importada somente com dados totais."
 
     objects = StateSpreadsheetManager.from_queryset(StateSpreadsheetQuerySet)()
 

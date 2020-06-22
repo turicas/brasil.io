@@ -34,11 +34,7 @@ class Command(BaseCommand):
         parser.add_argument("--only", help="Execute comando apenas para esses estados (separados por vírgula)")
 
     def get_state_option(self, kwargs, name):
-        return [
-            state.strip().upper()
-            for state in (kwargs.get(name, "") or "").split(",")
-            if state.strip()
-        ]
+        return [state.strip().upper() for state in (kwargs.get(name, "") or "").split(",") if state.strip()]
 
     def handle(self, *args, **kwargs):
         force = self.get_state_option(kwargs, "force")

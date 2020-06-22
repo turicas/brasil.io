@@ -372,21 +372,20 @@ class StateSpreadsheetTests(TestCase):
 
 
 class StateSpreadsheetManagerTests(TestCase):
-
     def setUp(self):
-        self.state = 'PR'
+        self.state = "PR"
         self.date = date.today()
 
     def assertDataEntry(self, cases, date, label, confirmed, deaths):
-        assert date in cases, f'No cases for date {date}'
-        assert label in cases[date], f'No entry for {label} on date {date}'
-        assert {'confirmed': confirmed, 'deaths': deaths} == cases[date][label]
+        assert date in cases, f"No cases for date {date}"
+        assert label in cases[date], f"No entry for {label} on date {date}"
+        assert {"confirmed": confirmed, "deaths": deaths} == cases[date][label]
 
     def test_get_report_data_from_state(self):
         sp = baker.make(
             StateSpreadsheet,
-            boletim_urls=['https://brasil.io/', 'https://saude.gov.br/'],
-            boletim_notes='foo',
+            boletim_urls=["https://brasil.io/", "https://saude.gov.br/"],
+            boletim_notes="foo",
             status=StateSpreadsheet.DEPLOYED,
             state=self.state,
             date=self.date,
@@ -423,24 +422,19 @@ class StateSpreadsheetManagerTests(TestCase):
         ]
         sp.save()
 
-        report_data = StateSpreadsheet.objects.get_state_data('PR')
-        reports, cases = report_data['reports'], report_data['cases']
+        report_data = StateSpreadsheet.objects.get_state_data("PR")
+        reports, cases = report_data["reports"], report_data["cases"]
 
         assert 2 == len(reports)
-        assert {'date': self.date, 'url': 'https://brasil.io/', 'notes': 'foo'} in reports
-        assert {'date': self.date, 'url': 'https://saude.gov.br/', 'notes': 'foo'} in reports
+        assert {"date": self.date, "url": "https://brasil.io/", "notes": "foo"} in reports
+        assert {"date": self.date, "url": "https://saude.gov.br/", "notes": "foo"} in reports
         assert 1 == len(cases)
-        self.assertDataEntry(cases, self.date, 'TOTAL NO ESTADO', 12, 7)
-        self.assertDataEntry(cases, self.date, 'Importados/Indefinidos', 2, 2)
-        self.assertDataEntry(cases, self.date, 'Curitiba', 10, 5)
+        self.assertDataEntry(cases, self.date, "TOTAL NO ESTADO", 12, 7)
+        self.assertDataEntry(cases, self.date, "Importados/Indefinidos", 2, 2)
+        self.assertDataEntry(cases, self.date, "Curitiba", 10, 5)
 
     def test_report_data_should_exclude_city_entries_if_spreadsheet_only_with_total(self):
-        sp = baker.make(
-            StateSpreadsheet,
-            status=StateSpreadsheet.DEPLOYED,
-            state=self.state,
-            date=self.date,
-        )
+        sp = baker.make(StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date,)
         sp_date = self.date.isoformat()
         sp.warnings = [StateSpreadsheet.ONLY_WITH_TOTAL_WARNING]
         sp.table_data = [
@@ -465,18 +459,15 @@ class StateSpreadsheetManagerTests(TestCase):
         ]
         sp.save()
 
-        cases = StateSpreadsheet.objects.get_state_data('PR')['cases']
+        cases = StateSpreadsheet.objects.get_state_data("PR")["cases"]
 
-        self.assertDataEntry(cases, self.date, 'TOTAL NO ESTADO', 12, 7)
+        self.assertDataEntry(cases, self.date, "TOTAL NO ESTADO", 12, 7)
         assert 1 == len(cases[self.date])
 
     def test_report_data_should_list_previous_deployed_city_entries_if_spreadsheet_only_with_total(self):
         sp_date = self.date.isoformat()
         previous_deployed = baker.make(
-            StateSpreadsheet,
-            status=StateSpreadsheet.DEPLOYED,
-            state=self.state,
-            date=self.date,
+            StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date,
         )
         previous_deployed.table_data = [
             {
@@ -509,12 +500,7 @@ class StateSpreadsheetManagerTests(TestCase):
         ]
         previous_deployed.save()
 
-        total_sp = baker.make(
-            StateSpreadsheet,
-            status=StateSpreadsheet.DEPLOYED,
-            state=self.state,
-            date=self.date,
-        )
+        total_sp = baker.make(StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date,)
         total_sp_date = self.date.isoformat()
         total_sp.warnings = [StateSpreadsheet.ONLY_WITH_TOTAL_WARNING]
         total_sp.table_data = [
@@ -539,19 +525,16 @@ class StateSpreadsheetManagerTests(TestCase):
         ]
         total_sp.save()
 
-        cases = StateSpreadsheet.objects.get_state_data('PR')['cases']
+        cases = StateSpreadsheet.objects.get_state_data("PR")["cases"]
 
-        self.assertDataEntry(cases, self.date, 'TOTAL NO ESTADO', 50, 20)
-        self.assertDataEntry(cases, self.date, 'Importados/Indefinidos', 2, 2)
-        self.assertDataEntry(cases, self.date, 'Curitiba', 10, 5)
+        self.assertDataEntry(cases, self.date, "TOTAL NO ESTADO", 50, 20)
+        self.assertDataEntry(cases, self.date, "Importados/Indefinidos", 2, 2)
+        self.assertDataEntry(cases, self.date, "Curitiba", 10, 5)
 
     def test_report_data_should_ignore_previous_if_city_data_was_already_exported(self):
         sp_date = self.date.isoformat()
         previous_total = baker.make(
-            StateSpreadsheet,
-            status=StateSpreadsheet.DEPLOYED,
-            state=self.state,
-            date=self.date,
+            StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date,
         )
         previous_total.warnings = [StateSpreadsheet.ONLY_WITH_TOTAL_WARNING]
         previous_total.table_data = [
@@ -567,12 +550,7 @@ class StateSpreadsheetManagerTests(TestCase):
         ]
         previous_total.save()
 
-        sp = baker.make(
-            StateSpreadsheet,
-            status=StateSpreadsheet.DEPLOYED,
-            state=self.state,
-            date=self.date,
-        )
+        sp = baker.make(StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date,)
         sp_date = self.date.isoformat()
         sp.table_data = [
             {
@@ -605,19 +583,16 @@ class StateSpreadsheetManagerTests(TestCase):
         ]
         sp.save()
 
-        cases = StateSpreadsheet.objects.get_state_data('PR')['cases']
+        cases = StateSpreadsheet.objects.get_state_data("PR")["cases"]
 
-        self.assertDataEntry(cases, self.date, 'TOTAL NO ESTADO', 20, 10)
-        self.assertDataEntry(cases, self.date, 'Importados/Indefinidos', 12, 9)
-        self.assertDataEntry(cases, self.date, 'Curitiba', 8, 1)
+        self.assertDataEntry(cases, self.date, "TOTAL NO ESTADO", 20, 10)
+        self.assertDataEntry(cases, self.date, "Importados/Indefinidos", 12, 9)
+        self.assertDataEntry(cases, self.date, "Curitiba", 8, 1)
 
     def test_ensure_previous_city_data_is_always_using_the_most_recent_one(self):
         sp_date = self.date.isoformat()
         older_previous_deployed = baker.make(
-            StateSpreadsheet,
-            status=StateSpreadsheet.DEPLOYED,
-            state=self.state,
-            date=self.date,
+            StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date,
         )
         older_previous_deployed.table_data = [
             {
@@ -651,10 +626,7 @@ class StateSpreadsheetManagerTests(TestCase):
         older_previous_deployed.save()
 
         previous_deployed = baker.make(
-            StateSpreadsheet,
-            status=StateSpreadsheet.DEPLOYED,
-            state=self.state,
-            date=self.date,
+            StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date,
         )
         previous_deployed.table_data = [
             {
@@ -687,12 +659,7 @@ class StateSpreadsheetManagerTests(TestCase):
         ]
         previous_deployed.save()
 
-        total_sp = baker.make(
-            StateSpreadsheet,
-            status=StateSpreadsheet.DEPLOYED,
-            state=self.state,
-            date=self.date,
-        )
+        total_sp = baker.make(StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date,)
         total_sp_date = self.date.isoformat()
         total_sp.warnings = [StateSpreadsheet.ONLY_WITH_TOTAL_WARNING]
         total_sp.table_data = [
@@ -708,8 +675,8 @@ class StateSpreadsheetManagerTests(TestCase):
         ]
         total_sp.save()
 
-        cases = StateSpreadsheet.objects.get_state_data('PR')['cases']
+        cases = StateSpreadsheet.objects.get_state_data("PR")["cases"]
 
-        self.assertDataEntry(cases, self.date, 'TOTAL NO ESTADO', 50, 20)
-        self.assertDataEntry(cases, self.date, 'Importados/Indefinidos', 2, 2)
-        self.assertDataEntry(cases, self.date, 'Curitiba', 10, 5)
+        self.assertDataEntry(cases, self.date, "TOTAL NO ESTADO", 50, 20)
+        self.assertDataEntry(cases, self.date, "Importados/Indefinidos", 2, 2)
+        self.assertDataEntry(cases, self.date, "Curitiba", 10, 5)
