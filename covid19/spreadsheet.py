@@ -111,25 +111,3 @@ def row_with_sorted_columns(row):
         new[deaths] = row[deaths]
 
     return new
-
-
-def create_merged_state_spreadsheet(state):
-    state_data = merge_state_data(state)
-    reports = rows.import_from_dicts(state_data["reports"])
-    cases = rows.import_from_dicts(state_data["cases"])
-
-    data = io.BytesIO()
-    rows.export_to_xlsx(reports, data, sheet_name=google_data.BOLETIM_SPREADSHEET)
-    data.seek(0)
-    rows.export_to_xlsx(cases, data, sheet_name=google_data.CASOS_SPREADSHEET)
-    data.seek(0)
-    return data
-
-
-if __name__ == "__main__":
-    # XXX: Run this on `manage.py shell`:
-    from covid19.spreadsheet import create_merged_state_spreadsheet  # noqa
-
-    data = create_merged_state_spreadsheet("AC")
-    with open("acre.xlsx", mode="wb") as fobj:
-        fobj.write(data.read())
