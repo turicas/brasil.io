@@ -469,3 +469,144 @@ class StateSpreadsheetManagerTests(TestCase):
 
         self.assertDataEntry(cases, self.date, 'TOTAL NO ESTADO', 12, 7)
         assert 1 == len(cases[self.date])
+
+    def test_report_data_should_list_previous_deployed_city_entries_if_spreadsheet_only_with_total(self):
+        sp_date = self.date.isoformat()
+        previous_deployed = baker.make(
+            StateSpreadsheet,
+            status=StateSpreadsheet.DEPLOYED,
+            state=self.state,
+            date=self.date,
+        )
+        previous_deployed.table_data = [
+            {
+                "city": None,
+                "city_ibge_code": 41,
+                "confirmed": 12,
+                "date": sp_date,
+                "deaths": 7,
+                "place_type": "state",
+                "state": self.state,
+            },
+            {
+                "city": "Importados/Indefinidos",
+                "city_ibge_code": None,
+                "confirmed": 2,
+                "date": sp_date,
+                "deaths": 2,
+                "place_type": "city",
+                "state": self.state,
+            },
+            {
+                "city": "Curitiba",
+                "city_ibge_code": 4321,
+                "confirmed": 10,
+                "date": sp_date,
+                "deaths": 5,
+                "place_type": "city",
+                "state": self.state,
+            },
+        ]
+        previous_deployed.save()
+
+        total_sp = baker.make(
+            StateSpreadsheet,
+            status=StateSpreadsheet.DEPLOYED,
+            state=self.state,
+            date=self.date,
+        )
+        total_sp_date = self.date.isoformat()
+        total_sp.warnings = [StateSpreadsheet.ONLY_WITH_TOTAL_WARNING]
+        total_sp.table_data = [
+            {
+                "city": None,
+                "city_ibge_code": 41,
+                "confirmed": 50,
+                "date": total_sp_date,
+                "deaths": 20,
+                "place_type": "state",
+                "state": self.state,
+            },
+            {
+                "city": "Curitiba",
+                "city_ibge_code": 4321,
+                "confirmed": 8,
+                "date": total_sp_date,
+                "deaths": 1,
+                "place_type": "city",
+                "state": self.state,
+            },
+        ]
+        total_sp.save()
+
+        cases = StateSpreadsheet.objects.get_state_data('PR')['cases']
+
+        self.assertDataEntry(cases, self.date, 'TOTAL NO ESTADO', 50, 20)
+        self.assertDataEntry(cases, self.date, 'Importados/Indefinidos', 2, 2)
+        self.assertDataEntry(cases, self.date, 'Curitiba', 10, 5)
+
+    def test_report_data_should_ignore_previous_if_city_data_was_already_exported(self):
+        sp_date = self.date.isoformat()
+        previous_total = baker.make(
+            StateSpreadsheet,
+            status=StateSpreadsheet.DEPLOYED,
+            state=self.state,
+            date=self.date,
+        )
+        previous_total.warnings = [StateSpreadsheet.ONLY_WITH_TOTAL_WARNING]
+        previous_total.table_data = [
+            {
+                "city": None,
+                "city_ibge_code": 41,
+                "confirmed": 12,
+                "date": sp_date,
+                "deaths": 7,
+                "place_type": "state",
+                "state": self.state,
+            },
+        ]
+        previous_total.save()
+
+        sp = baker.make(
+            StateSpreadsheet,
+            status=StateSpreadsheet.DEPLOYED,
+            state=self.state,
+            date=self.date,
+        )
+        sp_date = self.date.isoformat()
+        sp.table_data = [
+            {
+                "city": None,
+                "city_ibge_code": 41,
+                "confirmed": 20,
+                "date": sp_date,
+                "deaths": 10,
+                "place_type": "state",
+                "state": self.state,
+            },
+            {
+                "city": "Importados/Indefinidos",
+                "city_ibge_code": None,
+                "confirmed": 12,
+                "date": sp_date,
+                "deaths": 9,
+                "place_type": "city",
+                "state": self.state,
+            },
+            {
+                "city": "Curitiba",
+                "city_ibge_code": 4321,
+                "confirmed": 8,
+                "date": sp_date,
+                "deaths": 1,
+                "place_type": "city",
+                "state": self.state,
+            },
+        ]
+        sp.save()
+
+        cases = StateSpreadsheet.objects.get_state_data('PR')['cases']
+
+        self.assertDataEntry(cases, self.date, 'TOTAL NO ESTADO', 20, 10)
+        self.assertDataEntry(cases, self.date, 'Importados/Indefinidos', 12, 9)
+        self.assertDataEntry(cases, self.date, 'Curitiba', 8, 1)
