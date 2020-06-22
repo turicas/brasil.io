@@ -389,7 +389,7 @@ class StateSpreadsheetManagerTests(TestCase):
             boletim_notes='foo',
             status=StateSpreadsheet.DEPLOYED,
             state=self.state,
-            date=date.today()
+            date=self.date,
         )
         sp_date = self.date.isoformat()
         sp.table_data = [
@@ -433,3 +433,39 @@ class StateSpreadsheetManagerTests(TestCase):
         self.assertDataEntry(cases, self.date, 'TOTAL NO ESTADO', 12, 7)
         self.assertDataEntry(cases, self.date, 'Importados/Indefinidos', 2, 2)
         self.assertDataEntry(cases, self.date, 'Curitiba', 10, 5)
+
+    def test_report_data_should_exclude_city_entries_if_spreadsheet_only_with_total(self):
+        sp = baker.make(
+            StateSpreadsheet,
+            status=StateSpreadsheet.DEPLOYED,
+            state=self.state,
+            date=self.date,
+        )
+        sp_date = self.date.isoformat()
+        sp.warnings = [StateSpreadsheet.ONLY_WITH_TOTAL_WARNING]
+        sp.table_data = [
+            {
+                "city": None,
+                "city_ibge_code": 41,
+                "confirmed": 12,
+                "date": sp_date,
+                "deaths": 7,
+                "place_type": "state",
+                "state": self.state,
+            },
+            {
+                "city": "Curitiba",
+                "city_ibge_code": 4321,
+                "confirmed": 10,
+                "date": sp_date,
+                "deaths": 5,
+                "place_type": "city",
+                "state": self.state,
+            },
+        ]
+        sp.save()
+
+        cases = StateSpreadsheet.objects.get_state_data('PR')['cases']
+
+        self.assertDataEntry(cases, self.date, 'TOTAL NO ESTADO', 12, 7)
+        assert 1 == len(cases[self.date])

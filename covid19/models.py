@@ -93,8 +93,13 @@ class StateSpreadsheetManager(models.Manager):
                 report_data[url].append(spreadsheet.boletim_notes or '')
             reports[date] = report_data
 
+            if spreadsheet.only_with_total_entry:
+                rows = [spreadsheet.get_total_data()]
+            else:
+                rows = spreadsheet.table_data
+
             cases[date] = {}
-            for row in spreadsheet.data["table"]:
+            for row in rows:
                 city = row["city"]
                 if city is None:
                     city = TOTAL_LINE_DISPLAY
