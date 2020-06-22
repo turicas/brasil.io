@@ -1,8 +1,3 @@
-import io
-from collections import defaultdict
-
-import rows
-
 from brazil_data.cities import get_city_info
 from covid19 import google_data
 from covid19.exceptions import SpreadsheetValidationErrors
