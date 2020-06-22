@@ -369,3 +369,67 @@ class StateSpreadsheetTests(TestCase):
             "Número de casos confirmados ou óbitos diferem para Vicência.",
         ]
         assert sp2.compare_to_spreadsheet(sp1) == expected
+
+
+class StateSpreadsheetManagerTests(TestCase):
+
+    def setUp(self):
+        self.state = 'PR'
+        self.date = date.today()
+
+    def assertDataEntry(self, cases, date, label, confirmed, deaths):
+        assert date in cases, f'No cases for date {date}'
+        assert label in cases[date], f'No entry for {label} on date {date}'
+        assert {'confirmed': confirmed, 'deaths': deaths} == cases[date][label]
+
+    def test_get_report_data_from_state(self):
+        sp = baker.make(
+            StateSpreadsheet,
+            boletim_urls=['https://brasil.io/', 'https://saude.gov.br/'],
+            boletim_notes='foo',
+            status=StateSpreadsheet.DEPLOYED,
+            state=self.state,
+            date=date.today()
+        )
+        sp_date = self.date.isoformat()
+        sp.table_data = [
+            {
+                "city": None,
+                "city_ibge_code": 41,
+                "confirmed": 12,
+                "date": sp_date,
+                "deaths": 7,
+                "place_type": "state",
+                "state": self.state,
+            },
+            {
+                "city": "Importados/Indefinidos",
+                "city_ibge_code": None,
+                "confirmed": 2,
+                "date": sp_date,
+                "deaths": 2,
+                "place_type": "city",
+                "state": self.state,
+            },
+            {
+                "city": "Curitiba",
+                "city_ibge_code": 4321,
+                "confirmed": 10,
+                "date": sp_date,
+                "deaths": 5,
+                "place_type": "city",
+                "state": self.state,
+            },
+        ]
+        sp.save()
+
+        report_data = StateSpreadsheet.objects.get_state_data('PR')
+        reports, cases = report_data['reports'], report_data['cases']
+
+        assert 2 == len(reports)
+        assert {'date': self.date, 'url': 'https://brasil.io/', 'notes': 'foo'} in reports
+        assert {'date': self.date, 'url': 'https://saude.gov.br/', 'notes': 'foo'} in reports
+        assert 1 == len(cases)
+        self.assertDataEntry(cases, self.date, 'TOTAL NO ESTADO', 12, 7)
+        self.assertDataEntry(cases, self.date, 'Importados/Indefinidos', 2, 2)
+        self.assertDataEntry(cases, self.date, 'Curitiba', 10, 5)
