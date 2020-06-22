@@ -88,12 +88,12 @@ class StateSpreadsheetManager(models.Manager):
 
             if spreadsheet.only_with_total_entry:
                 rows = [spreadsheet.get_total_data()]
-                dates_only_with_total.add(spreadsheet.date)
-            elif spreadsheet.date in dates_only_with_total:
+                dates_only_with_total.add(date)
+            elif date in dates_only_with_total:
                 rows = spreadsheet.table_data_by_city.values()
+                dates_only_with_total.remove(date)
             else:
                 rows = spreadsheet.table_data
-
 
             for row in rows:
                 city = row["city"]
