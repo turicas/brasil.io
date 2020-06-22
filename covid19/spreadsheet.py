@@ -16,7 +16,16 @@ def get_state_data_from_db(state):
     spreadsheets = StateSpreadsheet.objects.deployable_for_state(state, avoid_peer_review_dupes=False)
     for spreadsheet in spreadsheets:
         date = spreadsheet.date
+        # TODO: test 1: quando para a data no estado só tem a planilha de total,
+        # devolve apenas o valor total
+        # TODO: test 2: quando para a data no estado tem a planilha de total e outras
+        # de município, devolve os dados completos usando as informações mais novas.
+        # TODO: test 2a: planilha total mais atualizada que deployed (total + deployed)
+        # TODO: test 2b: planilha deployed mais atualizada que total (deployed)
         if date in cases:
+            # TODO: se a data já estiver no cases mas for só total e essa
+            # spreadsheet não for total, não pular (mas só sobrescrever dados
+            # do município)
             continue
 
         # Group all notes for a same URL to avoid repeated entries for date/url
