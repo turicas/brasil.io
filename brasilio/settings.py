@@ -149,6 +149,14 @@ DATA_URL = env("DATA_URL")
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle"
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": env("THROTTLING_RATE"),
+        "user": env("THROTTLING_RATE"),
+    }
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
