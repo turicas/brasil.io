@@ -33,16 +33,17 @@
   </div>
 </div>
 
-<div id="bulletins" class="row">
-  <div class="center">
+<div class="row">
+  <div class="center" style="display: block">
     {% for bulletin in bulletins %}
-    <img src={{ bulletin.image.url }} alt="Boletim - {{ bulletin.date }}" title="Boletim - {{ bulletin.date }}"/>
+      <div style="display: inline-block; width: 200px; height: auto; margin: 1em">
+      <a href="{{ bulletin.image.url }}" target="_blank">
+      <img src="{{ bulletin.image.url }}" width="200px" height="auto" alt="Boletim - {{ bulletin.date }}" title="Boletim - {{ bulletin.date }}"/>
+      </a>
+      <br><span>{{ bulletin.date }}</span>
+      </div>
     {% endfor %}
   </div>
 </div>
 {% endlocalize %}
-{% endblock %}
-
-{% block script %}
-{{ block.super }}
 {% endblock %}
