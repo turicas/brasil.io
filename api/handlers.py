@@ -1,6 +1,5 @@
-from rest_framework.views import exception_handler
 from rest_framework.exceptions import Throttled
-
+from rest_framework.views import exception_handler
 
 throtthling_msg = """
 Você atingiu o limite de requisições e, por isso, essa requisição foi bloqueada. Caso você precise acessar várias páginas de um dataset, por favor, baixe o dataset completo em vez de percorrer várias páginas na API (o link para baixar o arquivo completo encontra-se na página do dataset, em https://brasil.io/datasets/).
@@ -13,10 +12,7 @@ def api_exception_handler(exc, context):
     response = exception_handler(exc, context)
 
     if isinstance(exc, Throttled):
-        custom_response_data = {
-            'message': throtthling_msg,
-            'available_in': f'{exc.wait} seconds'
-        }
+        custom_response_data = {"message": throtthling_msg, "available_in": f"{exc.wait} seconds"}
         response.data = custom_response_data
 
     return response

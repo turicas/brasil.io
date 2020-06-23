@@ -149,22 +149,21 @@ DATA_URL = env("DATA_URL")
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
-    'EXCEPTION_HANDLER': 'api.handlers.api_exception_handler',
+    "EXCEPTION_HANDLER": "api.handlers.api_exception_handler",
 }
 
 THROTTLING_RATE = env("THROTTLING_RATE")
 
 if THROTTLING_RATE:
-    REST_FRAMEWORK.update({
-        "DEFAULT_THROTTLE_CLASSES": [
-            "rest_framework.throttling.AnonRateThrottle",
-            "rest_framework.throttling.UserRateThrottle"
-        ],
-        "DEFAULT_THROTTLE_RATES": {
-            "anon": THROTTLING_RATE,
-            "user": THROTTLING_RATE,
+    REST_FRAMEWORK.update(
+        {
+            "DEFAULT_THROTTLE_CLASSES": [
+                "rest_framework.throttling.AnonRateThrottle",
+                "rest_framework.throttling.UserRateThrottle",
+            ],
+            "DEFAULT_THROTTLE_RATES": {"anon": THROTTLING_RATE, "user": THROTTLING_RATE,},
         }
-    })
+    )
 
 CORS_ORIGIN_ALLOW_ALL = True
 
