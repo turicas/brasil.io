@@ -342,4 +342,4 @@ class DailyBulletin(models.Model):
     detailed_data = JSONField(default=dict, blank=True)
 
     def __str__(self):
-        return f'Boletim: {self.date.day}/{self.date.month}/{self.date.year}'
+        return f"Boletim: {self.date.day}/{self.date.month}/{self.date.year}"

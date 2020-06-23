@@ -10,7 +10,7 @@ from django.utils.html import format_html
 from brazil_data.cities import brazilian_cities_per_state
 from brazil_data.states import STATES
 from covid19.forms import StateSpreadsheetForm, state_choices_for_user
-from covid19.models import StateSpreadsheet, DailyBulletin
+from covid19.models import DailyBulletin, StateSpreadsheet
 from covid19.permissions import user_has_state_permission
 from covid19.signals import new_spreadsheet_imported_signal
 from covid19.spreadsheet_validator import TOTAL_LINE_DISPLAY, UNDEFINED_DISPLAY

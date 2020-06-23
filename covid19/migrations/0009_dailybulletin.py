@@ -7,19 +7,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('covid19', '0008_auto_20200504_1455'),
+        ("covid19", "0008_auto_20200504_1455"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='DailyBulletin',
+            name="DailyBulletin",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('updated_at', models.DateField(auto_now=True)),
-                ('created_at', models.DateField(auto_now_add=True)),
-                ('date', models.DateField()),
-                ('detailed_data', django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=dict)),
-                ('image', models.ImageField(upload_to='')),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("updated_at", models.DateField(auto_now=True)),
+                ("created_at", models.DateField(auto_now_add=True)),
+                ("date", models.DateField()),
+                ("detailed_data", django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=dict)),
+                ("image", models.ImageField(upload_to="")),
             ],
         ),
     ]

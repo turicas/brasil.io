@@ -12,7 +12,7 @@ from core.util import cached_http_get_json
 from covid19.epiweek import get_epiweek
 from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.geo import city_geojson, state_geojson
-from covid19.models import StateSpreadsheet, DailyBulletin
+from covid19.models import DailyBulletin, StateSpreadsheet
 from covid19.spreadsheet import merge_state_data
 from covid19.stats import Covid19Stats, max_values
 
@@ -312,5 +312,5 @@ def status(request):
 
 @disable_non_logged_user_cache
 def list_bulletins(request):
-    bulletins = DailyBulletin.objects.order_by('-date')
-    return render(request, "covid-bulletins.html", {'bulletins': bulletins})
+    bulletins = DailyBulletin.objects.order_by("-date")
+    return render(request, "covid-bulletins.html", {"bulletins": bulletins})
