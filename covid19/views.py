@@ -3,6 +3,7 @@ import random
 
 from django.http import Http404, JsonResponse
 from django.shortcuts import render
+from django.utils import timezone
 
 from brazil_data.cities import get_state_info
 from brazil_data.states import STATE_BY_ACRONYM, STATES
@@ -312,5 +313,5 @@ def status(request):
 
 @disable_non_logged_user_cache
 def list_bulletins(request):
-    bulletins = DailyBulletin.objects.order_by("-date")
+    bulletins = DailyBulletin.objects.order_by("-date").filter(date__lte=timezone.now().date())
     return render(request, "covid-bulletins.html", {"bulletins": bulletins})
