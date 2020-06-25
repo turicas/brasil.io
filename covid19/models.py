@@ -337,8 +337,8 @@ class StateSpreadsheet(models.Model):
 class DailyBulletin(models.Model):
     updated_at = models.DateField(auto_now=True)
     created_at = models.DateField(auto_now_add=True)
-    date = models.DateField()
-    image = models.ImageField()
+    date = models.DateField(unique=True)
+    image_url = models.URLField()
     detailed_data = JSONField(default=dict, blank=True)
 
     def __str__(self):

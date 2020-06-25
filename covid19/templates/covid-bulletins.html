@@ -37,8 +37,8 @@
   <div class="center" style="display: block">
     {% for bulletin in bulletins %}
       <div style="display: inline-block; width: 200px; height: auto; margin: 1em">
-      <a href="{{ bulletin.image.url }}" target="_blank">
-      <img src="{{ bulletin.image.url }}" width="200px" height="auto" alt="Boletim - {{ bulletin.date }}" title="Boletim - {{ bulletin.date }}"/>
+      <a href="{{ bulletin.image_url }}" target="_blank">
+      <img src="{{ bulletin.image_url }}" width="200px" height="auto" alt="Boletim - {{ bulletin.date }}" title="Boletim - {{ bulletin.date }}"/>
       </a>
       <br><span>{{ bulletin.date }}</span>
       </div>
