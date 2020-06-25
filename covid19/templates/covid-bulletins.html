@@ -14,23 +14,8 @@
 <div id="dashboard-header">
   <h1> ESPECIAL COVID-19 - Boletins Diários </h1>
   {% include 'covid19-text.html' %}
-  <div class="center">
-    <a class="btn"
-      href="https://blog.brasil.io/2020/03/23/dados-coronavirus-por-municipio-mais-atualizados/">
-      Sobre o projeto
-    </a>
-    <a class="btn" href="{% url 'core:dataset-detail' 'covid19' %}">
-      Dados completos
-    </a>
-    <a class="btn" href="https://github.com/turicas/covid19-br/tree/master/api.md">
-      Documentação da API
-    </a>
-    <a class="btn" href="https://github.com/turicas/covid19-br/tree/master/clipping.md">
-      Quem está usando
-    </a>
-    <a class="btn" href="{% url 'core:donate' %}">Apoie o projeto</a>
-    <p>Por questões de viabilidade e metodológicas, coletamos apenas das Secretarias Estaduais de Saúde e, por isso, podem ocorrer divergências com relação às Secretarias Municipais. Não pretendemos mudar essa prática (por favor, não insista).</p>
-  </div>
+  {% include 'covid19-links.html' %}
+  <p>Por questões de viabilidade e metodológicas, coletamos apenas das Secretarias Estaduais de Saúde e, por isso, podem ocorrer divergências com relação às Secretarias Municipais. Não pretendemos mudar essa prática (por favor, não insista).</p>
 </div>
 
 <div class="row">
