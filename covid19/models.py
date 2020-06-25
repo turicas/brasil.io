@@ -332,3 +332,18 @@ class StateSpreadsheet(models.Model):
 
         if notification_callable:
             notification_callable(self)
+
+
+class DailyBulletin(models.Model):
+    updated_at = models.DateField(auto_now=True)
+    created_at = models.DateField(auto_now_add=True)
+    date = models.DateField(unique=True)
+    image_url = models.URLField()
+    detailed_data = JSONField(default=dict, blank=True)
+
+    def __str__(self):
+        return f"Boletim: {self.date.day}/{self.date.month}/{self.date.year}"
+
+    @property
+    def admin_url(self):
+        return reverse("admin:covid19_dailybulletin_change", args=[self.pk])

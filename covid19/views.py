@@ -3,6 +3,7 @@ import random
 
 from django.http import Http404, JsonResponse
 from django.shortcuts import render
+from django.utils import timezone
 
 from brazil_data.cities import get_state_info
 from brazil_data.states import STATE_BY_ACRONYM, STATES
@@ -12,7 +13,7 @@ from core.util import cached_http_get_json
 from covid19.epiweek import get_epiweek
 from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.geo import city_geojson, state_geojson
-from covid19.models import StateSpreadsheet
+from covid19.models import DailyBulletin, StateSpreadsheet
 from covid19.spreadsheet import merge_state_data
 from covid19.stats import Covid19Stats, max_values
 
@@ -308,3 +309,9 @@ def status(request):
 
     data.sort(key=row_sort)
     return render(request, "covid-status.html", {"import_data": data})
+
+
+@disable_non_logged_user_cache
+def list_bulletins(request):
+    bulletins = DailyBulletin.objects.order_by("-date").filter(date__lte=timezone.now().date())
+    return render(request, "covid-bulletins.html", {"bulletins": bulletins})
