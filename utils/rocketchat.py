@@ -26,7 +26,9 @@ class RocketChat:
         kwargs["headers"]["X-User-Id"] = self.user_id
         response = getattr(requests, method)(*args, **kwargs)
         if response.status_code >= 400:
-            raise RuntimeError(f"HTTP {response.status_code} error when processing request to {response.url} (body: {response.content})")
+            raise RuntimeError(
+                f"HTTP {response.status_code} error when processing request to {response.url} (body: {response.content})"
+            )
         return response
 
     def login(self, username, password):
