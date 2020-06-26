@@ -13,11 +13,11 @@ class FakeChat:
 
 @lru_cache(maxsize=1)
 def get_chat():
-    chat = FakeChat()
     if settings.ROCKETCHAT_BASE_URL:
         chat = RocketChat(settings.ROCKETCHAT_BASE_URL)
-        chat.user_id = settings.ROCKETCHAT_USER_ID
-        chat.auth_token = settings.ROCKETCHAT_AUTH_TOKEN
+        chat.login(settings.ROCKETCHAT_USERNAME, settings.ROCKETCHAT_PASSWORD)
+    else:
+        chat = FakeChat()
     return chat
 
 
