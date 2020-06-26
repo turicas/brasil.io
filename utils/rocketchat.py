@@ -24,7 +24,10 @@ class RocketChat:
         kwargs["headers"] = kwargs.get("headers", {})
         kwargs["headers"]["X-Auth-Token"] = self.auth_token
         kwargs["headers"]["X-User-Id"] = self.user_id
-        return getattr(requests, method)(*args, **kwargs)
+        response = getattr(requests, method)(*args, **kwargs)
+        if response.status_code >= 400:
+            raise RuntimeError(f"HTTP {response.status_code} error when processing request to {response.url} (body: {response.content})")
+        return response
 
     def login(self, username, password):
         self.username = username
