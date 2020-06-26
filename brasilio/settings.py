@@ -58,7 +58,6 @@ MIDDLEWARE = [
 ]
 if DEBUG:
     MIDDLEWARE.append("utils.sqlprint.SqlPrintingMiddleware")
-    INSTALLED_APPS += ("naomi",)
 
 ROOT_URLCONF = "brasilio.urls"
 APPEND_SLASH = True
