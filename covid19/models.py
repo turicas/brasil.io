@@ -51,8 +51,12 @@ class StateSpreadsheetQuerySet(models.QuerySet):
     def pending_review(self):
         return self.filter(status__in=[self.model.UPLOADED, self.model.CHECK_FAILED])
 
-    def deployable_for_state(self, state, avoid_peer_review_dupes=True):
-        qs = self.filter_active().from_state(state).deployed().order_by("-date", "-created_at")
+    def deployable_for_state(self, state, avoid_peer_review_dupes=True, only_active=True):
+        qs = self
+        if only_active:
+            qs = qs.filter_active()
+
+        qs = qs.from_state(state).deployed().order_by("-date", "-created_at")
         if avoid_peer_review_dupes:
             qs = qs.distinct("date")
         return qs
@@ -71,7 +75,7 @@ class StateSpreadsheetManager(models.Manager):
 
         cases, reports = defaultdict(dict), {}
         qs = self.get_queryset()
-        spreadsheets = qs.deployable_for_state(state, avoid_peer_review_dupes=False)
+        spreadsheets = qs.deployable_for_state(state, avoid_peer_review_dupes=False, only_active=False)
         dates_only_with_total = set()
 
         for spreadsheet in spreadsheets:

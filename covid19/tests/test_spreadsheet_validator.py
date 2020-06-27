@@ -645,3 +645,68 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         assert self.total_data in self.spreadsheet.table_data
         assert ["Planilha importada somente com dados totais."] == warnings
         assert self.spreadsheet.only_with_total_entry is True
+
+    def assert_case_data_from_db(self, state, date, compare_data):
+        # From a given state and date, checks if `compare_data` is equal to
+        # what is returned by StateSpreadsheet.objects.get_state_data
+
+        def replace_city_name(name):
+            if name is None:
+                return "TOTAL NO ESTADO"
+            else:
+                return name
+
+        db_data = StateSpreadsheet.objects.get_state_data(state)
+        db_cases = db_data["cases"][date]
+        sp_data = {
+            replace_city_name(case["city"]): {
+                "confirmed": case["confirmed"],
+                "deaths": case["deaths"],
+            }
+            for case in compare_data
+            if case["date"] == str(date)
+        }
+        assert db_cases == sp_data
+
+    def test_deployed_cancelled_spreadsheets_should_be_used_if_no_active_is_deployed(self):
+        # First, create a deployed spreadsheet for 2 days ago
+        StateSpreadsheet.objects.filter(state=self.uf).delete()
+        date = self.today
+        data_1 = [self.total_data, self.undefined_data] + self.cities_data
+        data_2 = []
+        for case in data_1:
+            case = case.copy()
+            case["deaths"] = 9999
+            case["confirmed"] = 9999
+            data_2.append(case)
+
+        sp1 = self.new_spreadsheet_with_data(
+            date=date,
+            state=self.uf,
+            status=StateSpreadsheet.DEPLOYED,
+            cancelled=True,
+            table_data=[self.total_data],
+        )
+        sp2 = self.new_spreadsheet_with_data(
+            date=date,
+            state=self.uf,
+            status=StateSpreadsheet.DEPLOYED,
+            cancelled=True,
+            table_data=data_1,
+        )
+        sp3 = self.new_spreadsheet_with_data(
+            date=date,
+            state=self.uf,
+            status=StateSpreadsheet.DEPLOYED,
+            cancelled=False,
+            table_data=data_2,
+        )
+
+        # Data for this state/date should be the same as sp3
+        self.assert_case_data_from_db(self.uf, date, sp3.table_data)
+
+        # Changind sp3 to CHECK_FAILED: data for this state/date should be the
+        # same as sp2
+        sp3.status = StateSpreadsheet.CHECK_FAILED
+        sp3.save()
+        self.assert_case_data_from_db(self.uf, date, sp2.table_data)
