@@ -281,7 +281,7 @@ def status(request):
     data = []
     for state in STATES:
         uf = state.acronym
-        qs = StateSpreadsheet.objects.deployable_for_state(uf)
+        qs = StateSpreadsheet.objects.deployable_for_state(uf, only_active=False)
         table_entry = {
             "uf": uf,
             "state": state.name,
@@ -295,6 +295,8 @@ def status(request):
         if most_recent:
             table_entry["spreadsheet"] = most_recent
             table_entry["status"] = most_recent.get_status_display()
+            if most_recent.cancelled:
+                table_entry["status"] += " (cancelada)"
             table_entry["report_date"] = most_recent.date
             table_entry["report_date_str"] = str(most_recent.date)
             state_totals = [item for item in most_recent.table_data if item["city"] is None][0]
