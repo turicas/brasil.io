@@ -177,6 +177,37 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         assert expected in results
 
     @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=[]))
+    def test_always_use_ibge_data_to_format_the_city_if_unaccented_word(self):
+        self.content = self.content.replace("Abatiá,9,1", "Abatia,9,1")
+        self.content = self.content.replace("Aguados do Sul,12,3", "aguados-do-sul,12,3")
+        file_rows = rows.import_from_csv(self.file_from_content)
+
+        expected = [
+            {
+                "city": "Abatiá",
+                "city_ibge_code": get_city_info("Abatiá", "PR").city_ibge_code,
+                "confirmed": 9,
+                "date": self.date.isoformat(),
+                "deaths": 1,
+                "place_type": "city",
+                "state": "PR",
+            },
+            {
+                "city": "Agudos do Sul",
+                "city_ibge_code": get_city_info("Agudos do Sul", "PR").city_ibge_code,
+                "confirmed": 12,
+                "date": self.date.isoformat(),
+                "deaths": 3,
+                "place_type": "city",
+                "state": "PR",
+            },
+        ]
+        results, warnings = format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        for e in expected:
+            assert e in results
+
+    @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=[]))
     def test_allow_zero_as_a_valid_value(self):
         original_content = self.content
         base = {

@@ -30,6 +30,13 @@ def ibge_data_per_state():
     }
 
 
+def normalize_city_name(city):
+    city = rows.fields.slug(city)
+    for word in ("da", "das", "de", "do", "dos"):
+        city = city.replace(f"_{word}_", "_")
+    return city
+
+
 def brazilian_cities_per_state():
     data = ibge_data_per_state()
     return {state: [city.city for city in state_cities] for state, state_cities in data.items()}
@@ -38,8 +45,8 @@ def brazilian_cities_per_state():
 def get_city_info(city, state):
     data = ibge_data_per_state()
     try:
-        cities = data[state.upper()]
-        return [c for c in cities if c.city.lower() == city.lower()][0]
+        norm_city = normalize_city_name(city)
+        return {normalize_city_name(c.city): c for c in data[state.upper()]}[norm_city]
     except (KeyError, IndexError):
         return None
 
