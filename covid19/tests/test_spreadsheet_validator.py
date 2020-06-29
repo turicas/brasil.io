@@ -711,7 +711,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             case["confirmed"] = 9999
             data_2.append(case)
 
-        sp1 = self.new_spreadsheet_with_data(
+        self.new_spreadsheet_with_data(
             date=date,
             state=self.uf,
             status=StateSpreadsheet.DEPLOYED,
