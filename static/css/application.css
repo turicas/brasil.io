@@ -89,6 +89,9 @@ main {
 .footer {
   text-align: center;
 }
+.footer.indigo a {
+  color: #00a2ec;
+}
 
 .email-newsletter {
   height: 2em !important;
