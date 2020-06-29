@@ -389,7 +389,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
         exception = execinfo.value
         assert (
-            'A coluna "Confirmados" precisa ter somente números inteiros. Chege para ver se a planilha não possui fórmulas ou números que não são inteiros"'
+            'A coluna "Confirmados" precisa ter somente números inteiros. Cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula"'
             in exception.error_messages
         )
 
@@ -425,11 +425,11 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
         exception = execinfo.value
         assert (
-            'A coluna "Confirmados" precisa ter somente números inteiros. Chege para ver se a planilha não possui fórmulas ou números que não são inteiros"'
+            'A coluna "Confirmados" precisa ter somente números inteiros. Cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula"'
             in exception.error_messages
         )
         assert (
-            'A coluna "Mortes" precisa ter somente números inteiros. Chege para ver se a planilha não possui fórmulas ou números que não são inteiros"'
+            'A coluna "Mortes" precisa ter somente números inteiros. Cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula"'
             in exception.error_messages
         )
 
@@ -441,7 +441,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
         exception = execinfo.value
         assert (
-            'A coluna "Confirmados" precisa ter somente números inteiros. Chege para ver se a planilha não possui fórmulas ou números que não são inteiros"'
+            'A coluna "Confirmados" precisa ter somente números inteiros. Cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula"'
             in exception.error_messages
         )
 

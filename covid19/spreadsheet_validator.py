@@ -40,11 +40,11 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state, skip_sum_cases=Fals
 
     if not rows_table.fields[confirmed_attr] == IntegerField:
         validation_errors.new_error(
-            'A coluna "Confirmados" precisa ter somente números inteiros. Chege para ver se a planilha não possui fórmulas ou números que não são inteiros"'
+            'A coluna "Confirmados" precisa ter somente números inteiros. Cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula"'
         )
     if not rows_table.fields[deaths_attr] == IntegerField:
         validation_errors.new_error(
-            'A coluna "Mortes" precisa ter somente números inteiros. Chege para ver se a planilha não possui fórmulas ou números que não são inteiros"'
+            'A coluna "Mortes" precisa ter somente números inteiros. Cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula"'
         )
 
     validation_errors.raise_if_errors()
