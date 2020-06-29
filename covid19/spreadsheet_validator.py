@@ -39,9 +39,15 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state, skip_sum_cases=Fals
     validation_errors.raise_if_errors()
 
     if not rows_table.fields[confirmed_attr] == IntegerField:
-        validation_errors.new_error('A coluna "Confirmados" precisa ter somente números inteiros"')
+        validation_errors.new_error(
+            'A coluna "Confirmados" precisa ter somente números inteiros. Chege para ver se a planilha não possui fórmulas ou números que não são inteiros"'
+        )
     if not rows_table.fields[deaths_attr] == IntegerField:
-        validation_errors.new_error('A coluna "Mortes" precisa ter somente números inteiros"')
+        validation_errors.new_error(
+            'A coluna "Mortes" precisa ter somente números inteiros. Chege para ver se a planilha não possui fórmulas ou números que não são inteiros"'
+        )
+
+    validation_errors.raise_if_errors()
 
     results, warnings = [], []
     has_total, has_undefined = False, False
@@ -73,18 +79,14 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state, skip_sum_cases=Fals
         if confirmed is None or deaths is None:
             continue
 
-        try:
-            if deaths > confirmed:
-                if is_undefined:
-                    warnings.append(f"{city} com número óbitos maior que de casos confirmados.")
-                else:
-                    msg = f"Valor de óbitos maior que casos confirmados na linha {city} da planilha"
-                    validation_errors.new_error(msg)
-            elif deaths < 0 or confirmed < 0:
-                validation_errors.new_error(f"Valores negativos na linha {city} da planilha")
-        except TypeError:
-            validation_errors.new_error(f"Provavelmente há uma fórmula na linha {city} da planilha")
-            continue
+        if deaths > confirmed:
+            if is_undefined:
+                warnings.append(f"{city} com número óbitos maior que de casos confirmados.")
+            else:
+                msg = f"Valor de óbitos maior que casos confirmados na linha {city} da planilha"
+                validation_errors.new_error(msg)
+        elif deaths < 0 or confirmed < 0:
+            validation_errors.new_error(f"Valores negativos na linha {city} da planilha")
 
         result = _parse_city_data(city, confirmed, deaths, date, state)
         if result["city_ibge_code"] == INVALID_CITY_CODE:

@@ -388,7 +388,10 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
         exception = execinfo.value
-        assert "Provavelmente há uma fórmula na linha Abatiá da planilha" in exception.error_messages
+        assert (
+            'A coluna "Confirmados" precisa ter somente números inteiros. Chege para ver se a planilha não possui fórmulas ou números que não são inteiros"'
+            in exception.error_messages
+        )
 
     @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=["db warning"]))
     def test_undefined_entry_can_have_more_deaths_than_cases(self):
@@ -415,10 +418,32 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         assert results[0]["deaths"] == 32
 
     def test_invalidate_spreadsheet_against_VALUE_error(self):
-        self.content = self.content.replace("Abatiá,9,1", "Abatiá,#VALUE!,1")
+        self.content = self.content.replace("Abatiá,9,1", "Abatiá,#VALUE!,3 0")
         file_rows = rows.import_from_csv(self.file_from_content)
-        with pytest.raises(SpreadsheetValidationErrors):
+        with pytest.raises(SpreadsheetValidationErrors) as execinfo:
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        exception = execinfo.value
+        assert (
+            'A coluna "Confirmados" precisa ter somente números inteiros. Chege para ver se a planilha não possui fórmulas ou números que não são inteiros"'
+            in exception.error_messages
+        )
+        assert (
+            'A coluna "Mortes" precisa ter somente números inteiros. Chege para ver se a planilha não possui fórmulas ou números que não são inteiros"'
+            in exception.error_messages
+        )
+
+    def test_invalidate_spreadsheet_against_float_numbers(self):
+        self.content = self.content.replace("Abatiá,9,1", "Abatiá,10.000,1")
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(SpreadsheetValidationErrors) as execinfo:
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        exception = execinfo.value
+        assert (
+            'A coluna "Confirmados" precisa ter somente números inteiros. Chege para ver se a planilha não possui fórmulas ou números que não são inteiros"'
+            in exception.error_messages
+        )
 
 
 class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
