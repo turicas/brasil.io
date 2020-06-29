@@ -15,6 +15,12 @@ body {
   min-height: 100%;
   font-family: Roboto, sans-serif;
   font-weight: 300;
+  flex-direction: column;
+  display: flex;
+}
+
+main {
+  flex: 1 0 auto;
 }
 
 .divider-new:before {
