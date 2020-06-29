@@ -1,4 +1,6 @@
-from rows.fields import IntegerField
+from decimal import Decimal
+
+import rows
 
 from brazil_data.cities import get_city_info, get_state_info
 from covid19.exceptions import SpreadsheetValidationErrors
@@ -37,7 +39,7 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state, skip_sum_cases=Fals
 
     validation_errors.raise_if_errors()
 
-    type_error = ', '.join(_get_cities_with_type_errors(rows_table, confirmed_attr, deaths_attr, city_attr)).strip()
+    type_error = ", ".join(_get_cities_with_type_errors(rows_table, confirmed_attr, deaths_attr, city_attr)).strip()
     if type_error:
         validation_errors.new_error(
             f'Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: {type_error}"'
@@ -215,19 +217,26 @@ def validate_historical_data(spreadsheet):
 
 
 def _get_cities_with_type_errors(table, confirmed_attr, deaths_attr, city_attr):
-    if table.fields[confirmed_attr] == table.fields[deaths_attr] == IntegerField:
+    if table.fields[confirmed_attr] == table.fields[deaths_attr] == rows.fields.IntegerField:
         return []
 
     result = []
+    invalid_number_types = (float, Decimal)
     for row in table:
         city = getattr(row, city_attr, None)
         if city is None:
             continue
         try:
-            confirmed = getattr(row, confirmed_attr, '')
-            deaths = getattr(row, deaths_attr, '')
-            IntegerField.deserialize(getattr(row, confirmed_attr))
-            IntegerField.deserialize(getattr(row, deaths_attr))
+            confirmed = getattr(row, confirmed_attr, "")
+            if type(confirmed) in invalid_number_types:
+                raise ValueError
+            else:
+                rows.fields.IntegerField.deserialize(confirmed)
+            deaths = getattr(row, deaths_attr, "")
+            if type(deaths) in invalid_number_types:
+                raise ValueError
+            else:
+                rows.fields.IntegerField.deserialize(deaths)
         except (TypeError, ValueError):
             result.append(city)
     return result
