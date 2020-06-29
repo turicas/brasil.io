@@ -389,7 +389,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
         exception = execinfo.value
         assert (
-            f'Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: Abatiá"'
+            'Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: Abatiá"'
             in exception.error_messages
         )
 
@@ -426,7 +426,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
         exception = execinfo.value
         assert (
-            f'Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: Abatiá, Adrianópolis"'
+            'Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: Abatiá, Adrianópolis"'
             in exception.error_messages
         )
 
@@ -438,7 +438,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
         exception = execinfo.value
         assert (
-            f"Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: TOTAL NO ESTADO, Importados/Indefinidos, Abatiá, "  # all entries
+            "Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: TOTAL NO ESTADO, Importados/Indefinidos, Abatiá, "  # all entries
             in exception.error_messages[0]
         )
 
