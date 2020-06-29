@@ -388,7 +388,10 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
         exception = execinfo.value
-        assert "Provavelmente há uma fórmula na linha Abatiá da planilha" in exception.error_messages
+        assert (
+            'Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: Abatiá"'
+            in exception.error_messages
+        )
 
     @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=["db warning"]))
     def test_undefined_entry_can_have_more_deaths_than_cases(self):
@@ -413,6 +416,31 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         assert len(results) == 1
         assert results[0]["confirmed"] == 102
         assert results[0]["deaths"] == 32
+
+    def test_invalidate_spreadsheet_against_VALUE_error(self):
+        self.content = self.content.replace("Abatiá,9,1", "Abatiá,#VALUE!,3 0")
+        self.content = self.content.replace("Adrianópolis,11,2", "Adrianópolis,#VALUE!,3 0")
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(SpreadsheetValidationErrors) as execinfo:
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        exception = execinfo.value
+        assert (
+            'Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: Abatiá, Adrianópolis"'
+            in exception.error_messages
+        )
+
+    def test_invalidate_spreadsheet_against_float_numbers(self):
+        self.content = self.content.replace("Abatiá,9,1", "Abatiá,10.000,1")
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(SpreadsheetValidationErrors) as execinfo:
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        exception = execinfo.value
+        assert (
+            "Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: TOTAL NO ESTADO, Importados/Indefinidos, Abatiá, "  # all entries
+            in exception.error_messages[0]
+        )
 
 
 class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
@@ -659,10 +687,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         db_data = StateSpreadsheet.objects.get_state_data(state)
         db_cases = db_data["cases"][date]
         sp_data = {
-            replace_city_name(case["city"]): {
-                "confirmed": case["confirmed"],
-                "deaths": case["deaths"],
-            }
+            replace_city_name(case["city"]): {"confirmed": case["confirmed"], "deaths": case["deaths"],}
             for case in compare_data
             if case["date"] == str(date)
         }
@@ -680,26 +705,14 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             case["confirmed"] = 9999
             data_2.append(case)
 
-        sp1 = self.new_spreadsheet_with_data(
-            date=date,
-            state=self.uf,
-            status=StateSpreadsheet.DEPLOYED,
-            cancelled=True,
-            table_data=[self.total_data],
+        self.new_spreadsheet_with_data(
+            date=date, state=self.uf, status=StateSpreadsheet.DEPLOYED, cancelled=True, table_data=[self.total_data],
         )
         sp2 = self.new_spreadsheet_with_data(
-            date=date,
-            state=self.uf,
-            status=StateSpreadsheet.DEPLOYED,
-            cancelled=True,
-            table_data=data_1,
+            date=date, state=self.uf, status=StateSpreadsheet.DEPLOYED, cancelled=True, table_data=data_1,
         )
         sp3 = self.new_spreadsheet_with_data(
-            date=date,
-            state=self.uf,
-            status=StateSpreadsheet.DEPLOYED,
-            cancelled=False,
-            table_data=data_2,
+            date=date, state=self.uf, status=StateSpreadsheet.DEPLOYED, cancelled=False, table_data=data_2,
         )
 
         # Data for this state/date should be the same as sp3

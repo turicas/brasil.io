@@ -1,4 +1,6 @@
-from rows.fields import IntegerField
+from decimal import Decimal
+
+import rows
 
 from brazil_data.cities import get_city_info, get_state_info
 from covid19.exceptions import SpreadsheetValidationErrors
@@ -35,13 +37,15 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state, skip_sum_cases=Fals
     except ValueError as e:
         validation_errors.new_error(str(e))
 
-    # can't check on field types if any invalid column
     validation_errors.raise_if_errors()
 
-    if not rows_table.fields[confirmed_attr] == IntegerField:
-        validation_errors.new_error('A coluna "Confirmados" precisa ter somente números inteiros"')
-    if not rows_table.fields[deaths_attr] == IntegerField:
-        validation_errors.new_error('A coluna "Mortes" precisa ter somente números inteiros"')
+    type_error = ", ".join(_get_cities_with_type_errors(rows_table, confirmed_attr, deaths_attr, city_attr)).strip()
+    if type_error:
+        validation_errors.new_error(
+            f'Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: {type_error}"'
+        )
+
+    validation_errors.raise_if_errors()
 
     results, warnings = [], []
     has_total, has_undefined = False, False
@@ -73,18 +77,14 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state, skip_sum_cases=Fals
         if confirmed is None or deaths is None:
             continue
 
-        try:
-            if deaths > confirmed:
-                if is_undefined:
-                    warnings.append(f"{city} com número óbitos maior que de casos confirmados.")
-                else:
-                    msg = f"Valor de óbitos maior que casos confirmados na linha {city} da planilha"
-                    validation_errors.new_error(msg)
-            elif deaths < 0 or confirmed < 0:
-                validation_errors.new_error(f"Valores negativos na linha {city} da planilha")
-        except TypeError:
-            validation_errors.new_error(f"Provavelmente há uma fórmula na linha {city} da planilha")
-            continue
+        if deaths > confirmed:
+            if is_undefined:
+                warnings.append(f"{city} com número óbitos maior que de casos confirmados.")
+            else:
+                msg = f"Valor de óbitos maior que casos confirmados na linha {city} da planilha"
+                validation_errors.new_error(msg)
+        elif deaths < 0 or confirmed < 0:
+            validation_errors.new_error(f"Valores negativos na linha {city} da planilha")
 
         result = _parse_city_data(city, confirmed, deaths, date, state)
         if result["city_ibge_code"] == INVALID_CITY_CODE:
@@ -214,3 +214,29 @@ def validate_historical_data(spreadsheet):
 
     spreadsheet.table_data = clean_results
     return warnings
+
+
+def _get_cities_with_type_errors(table, confirmed_attr, deaths_attr, city_attr):
+    if table.fields[confirmed_attr] == table.fields[deaths_attr] == rows.fields.IntegerField:
+        return []
+
+    result = []
+    invalid_number_types = (float, Decimal)
+    for row in table:
+        city = getattr(row, city_attr, None)
+        if city is None:
+            continue
+        try:
+            confirmed = getattr(row, confirmed_attr, "")
+            if type(confirmed) in invalid_number_types:
+                raise ValueError
+            else:
+                rows.fields.IntegerField.deserialize(confirmed)
+            deaths = getattr(row, deaths_attr, "")
+            if type(deaths) in invalid_number_types:
+                raise ValueError
+            else:
+                rows.fields.IntegerField.deserialize(deaths)
+        except (TypeError, ValueError):
+            result.append(city)
+    return result
