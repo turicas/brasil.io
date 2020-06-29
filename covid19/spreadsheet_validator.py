@@ -35,16 +35,12 @@ def format_spreadsheet_rows_as_dict(rows_table, date, state, skip_sum_cases=Fals
     except ValueError as e:
         validation_errors.new_error(str(e))
 
-    # can't check on field types if any invalid column
     validation_errors.raise_if_errors()
 
-    if not rows_table.fields[confirmed_attr] == IntegerField:
+    type_error = ', '.join(_get_cities_with_type_errors(rows_table, confirmed_attr, deaths_attr, city_attr)).strip()
+    if type_error:
         validation_errors.new_error(
-            'A coluna "Confirmados" precisa ter somente números inteiros. Cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula"'
-        )
-    if not rows_table.fields[deaths_attr] == IntegerField:
-        validation_errors.new_error(
-            'A coluna "Mortes" precisa ter somente números inteiros. Cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula"'
+            f'Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: {type_error}"'
         )
 
     validation_errors.raise_if_errors()
@@ -216,3 +212,22 @@ def validate_historical_data(spreadsheet):
 
     spreadsheet.table_data = clean_results
     return warnings
+
+
+def _get_cities_with_type_errors(table, confirmed_attr, deaths_attr, city_attr):
+    if table.fields[confirmed_attr] == table.fields[deaths_attr] == IntegerField:
+        return []
+
+    result = []
+    for row in table:
+        city = getattr(row, city_attr, None)
+        if city is None:
+            continue
+        try:
+            confirmed = getattr(row, confirmed_attr, '')
+            deaths = getattr(row, deaths_attr, '')
+            IntegerField.deserialize(getattr(row, confirmed_attr))
+            IntegerField.deserialize(getattr(row, deaths_attr))
+        except (TypeError, ValueError):
+            result.append(city)
+    return result

@@ -389,7 +389,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
         exception = execinfo.value
         assert (
-            'A coluna "Confirmados" precisa ter somente números inteiros. Cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula"'
+            f'Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: Abatiá"'
             in exception.error_messages
         )
 
@@ -419,17 +419,14 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
     def test_invalidate_spreadsheet_against_VALUE_error(self):
         self.content = self.content.replace("Abatiá,9,1", "Abatiá,#VALUE!,3 0")
+        self.content = self.content.replace("Adrianópolis,11,2", "Adrianópolis,#VALUE!,3 0")
         file_rows = rows.import_from_csv(self.file_from_content)
         with pytest.raises(SpreadsheetValidationErrors) as execinfo:
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
         exception = execinfo.value
         assert (
-            'A coluna "Confirmados" precisa ter somente números inteiros. Cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula"'
-            in exception.error_messages
-        )
-        assert (
-            'A coluna "Mortes" precisa ter somente números inteiros. Cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula"'
+            f'Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: Abatiá, Adrianópolis"'
             in exception.error_messages
         )
 
@@ -441,7 +438,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
         exception = execinfo.value
         assert (
-            'A coluna "Confirmados" precisa ter somente números inteiros. Cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula"'
+            f'Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: Abatiá"'
             in exception.error_messages
         )
 
