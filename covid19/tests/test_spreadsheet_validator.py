@@ -659,10 +659,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         db_data = StateSpreadsheet.objects.get_state_data(state)
         db_cases = db_data["cases"][date]
         sp_data = {
-            replace_city_name(case["city"]): {
-                "confirmed": case["confirmed"],
-                "deaths": case["deaths"],
-            }
+            replace_city_name(case["city"]): {"confirmed": case["confirmed"], "deaths": case["deaths"],}
             for case in compare_data
             if case["date"] == str(date)
         }
@@ -681,25 +678,13 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             data_2.append(case)
 
         sp1 = self.new_spreadsheet_with_data(
-            date=date,
-            state=self.uf,
-            status=StateSpreadsheet.DEPLOYED,
-            cancelled=True,
-            table_data=[self.total_data],
+            date=date, state=self.uf, status=StateSpreadsheet.DEPLOYED, cancelled=True, table_data=[self.total_data],
         )
         sp2 = self.new_spreadsheet_with_data(
-            date=date,
-            state=self.uf,
-            status=StateSpreadsheet.DEPLOYED,
-            cancelled=True,
-            table_data=data_1,
+            date=date, state=self.uf, status=StateSpreadsheet.DEPLOYED, cancelled=True, table_data=data_1,
         )
         sp3 = self.new_spreadsheet_with_data(
-            date=date,
-            state=self.uf,
-            status=StateSpreadsheet.DEPLOYED,
-            cancelled=False,
-            table_data=data_2,
+            date=date, state=self.uf, status=StateSpreadsheet.DEPLOYED, cancelled=False, table_data=data_2,
         )
 
         # Data for this state/date should be the same as sp3
