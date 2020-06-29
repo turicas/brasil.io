@@ -414,6 +414,12 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         assert results[0]["confirmed"] == 102
         assert results[0]["deaths"] == 32
 
+    def test_invalidate_spreadsheet_against_VALUE_error(self):
+        self.content = self.content.replace("Abatiá,9,1", "Abatiá,#VALUE!,1")
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(SpreadsheetValidationErrors):
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
 
 class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
     def setUp(self):
