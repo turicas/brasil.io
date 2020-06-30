@@ -226,10 +226,10 @@ class DynamicModelQuerySet(models.QuerySet):
 
     def composed_query(self, filter_query=None, search_query=None, order_by=None):
         qs = self
-        if filter_query:
-            qs = qs.apply_filters(filter_query)
         if search_query:
             qs = qs.search(search_query)
+        if filter_query:
+            qs = qs.apply_filters(filter_query)
         return qs.apply_ordering(order_by or [])
 
     def count(self):
