@@ -138,6 +138,10 @@ def dataset_detail(request, slug, tablename=""):
     all_data = TableModel.objects.composed_query(query, search_query, order_by)
 
     if download_csv:
+        if not any([query, search_query]):  # user trying to download a CSV without custom filters
+            context = {"message": "PLACEHOLDER_CSV_WITHOUT_FILTERS"}
+            return render(request, "404.html", context, status=400)
+
         if all_data.count() > max_export_rows:
             context = {"message": "Max rows exceeded."}
             return render(request, "404.html", context, status=400)
