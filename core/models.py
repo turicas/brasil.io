@@ -230,7 +230,7 @@ class DynamicModelQuerySet(models.QuerySet):
             qs = qs.apply_filters(filter_query)
         if search_query:
             qs = qs.search(search_query)
-        return qs.apply_ordering(order_by or [''])
+        return qs.apply_ordering(order_by or [""])
 
     def count(self):
         if getattr(self, "_count", None) is not None:
