@@ -1,4 +1,4 @@
-@import url('https://rsms.me/inter/inter.css');
+@import url('https://brasil.io/static/css/inter/inter.css');
 html { font-family: 'Inter', sans-serif; }
 @supports (font-variation-settings: normal) {
   html { font-family: 'Inter var', sans-serif; }
@@ -20,7 +20,7 @@ body {
   margin: 0;
   min-height: 100%;
   font-family: 'Inter var', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 .divider-new:before {
@@ -75,7 +75,7 @@ body {
 
 .card .card-title {
   font-size: 1.5em;
-  font-weight: 300;
+  font-weight: 700;
 }
 
 .card .card-content.card-body {
