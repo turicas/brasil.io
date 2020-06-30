@@ -139,7 +139,10 @@ def dataset_detail(request, slug, tablename=""):
 
     if download_csv:
         if not any([query, search_query]):  # user trying to download a CSV without custom filters
-            context = {"message": "PLACEHOLDER_CSV_WITHOUT_FILTERS"}
+            context = {
+                "html_content": "400-csv-without-filters.html",
+                "download_url": table.version.download_url
+            }
             return render(request, "404.html", context, status=400)
 
         if all_data.count() > max_export_rows:
