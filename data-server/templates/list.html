@@ -23,8 +23,8 @@
   <body>
    <nav>
     <div class="nav-wrapper indigo">
-      <a href="https://brasil.io/" class="brand-logo">
-        <img src="https://data.brasil.io/brasilio-static/img/logo/logo_br-io_fundo-escuro.png" style="max-height:40px;margin-left: 20px; margin-top: 10px;">
+      <a href="https://brasil.io/" class="brand-logo" title="Ir ao Telegram do Brasil.IO">
+        <img src="https://data.brasil.io/brasilio-static/img/logo/logo_br-io_fundo-escuro.png" style="max-height:40px;margin-left: 20px; margin-top: 10px;" alt="Logo do Brasil.IO">
       </a>
     </div>
     </nav>
@@ -43,7 +43,7 @@
                   Colabore!
                 </div>
                 <p>
-                  O <a href="https://brasil.io/">Brasil.IO</a> tem como
+                  O <a href="https://brasil.io/" title="Brasil.IO">Brasil.IO</a> tem como
                   objetivo facilitar o acesso a dados públicos brasileiros. O
                   projeto é desenvolvido de forma colaborativa, <a
                     href="https://github.com/turicas/brasil.io">todo o código
@@ -72,7 +72,7 @@
               {% for file in file_list %}
               <tr>
                 <td>
-                  <a href="../{{ file.filename }}">{{ file.filename }}</a>
+                  <a href="../{{ file.filename }}" title="Baixar arquivo">{{ file.filename }}</a>
                 </td>
                 <td> {{ file.size }} </td>
                 <td> {{ file.sha512sum }} </td>
