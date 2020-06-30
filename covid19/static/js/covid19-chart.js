@@ -175,7 +175,7 @@ jQuery(document).ready(function(){
   }
   var deathsTitle = `Causas de óbitos por semana epidemiológica${titleAppend}`;
   var deathsCompareTitle = `Óbitos novos por semana epidemiológica 2019 vs 2020${titleAppend}`;
-  var deathsSourceLink = 'Fonte: <a href="https://transparencia.registrocivil.org.br/registral-covid">Registro Civil</a>.';
+  var deathsSourceLink = 'Fonte: <a href="https://transparencia.registrocivil.org.br/registral-covid" title="Ver fonte">Registro Civil</a>.';
   var deathsSourceNote = " *Nota: as últimas 2 semanas não estão representadas pois os dados estão em processamento pelos cartórios.";
   var deathsSource = deathsSourceLink + deathsSourceNote;
   var deathsGroupSource = deathsSourceLink + " Grupos: COVID-19 (suspeita ou confirmação por COVID-19), Outras respiratórias (pneumonia + insuf. resp. + SRAG), Outras (septicemia + indeterminada + outras causas naturais não externas)." + deathsSourceNote;

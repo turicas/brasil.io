@@ -14,22 +14,22 @@
     </p>
     <ul>
       <li>
-        Fonte original: <a href="{{ dataset.source_url }}">{{ dataset.source_name }}</a>
+        Fonte original: <a href="{{ dataset.source_url }}" title="Ver fonte original">{{ dataset.source_name }}</a>
       </li>
       <li>
-        Libertado por: <a href="{{ dataset.author_url }}">{{ dataset.author_name }}</a>
+        Libertado por: <a href="{{ dataset.author_url }}" title="Ver liberador">{{ dataset.author_name }}</a>
       </li>
       <li>
-        Código-fonte: <a href="{{ dataset.code_url }}">{{ dataset.code_url }}</a>
+        Código-fonte: <a href="{{ dataset.code_url }}" title="Ver código-fonte">{{ dataset.code_url }}</a>
       </li>
       <li>
-        Licença: <a href="{{ dataset.license_url }}">{{ dataset.license_name }}</a>
+        Licença: <a href="{{ dataset.license_url }}" title="Ver licença">{{ dataset.license_name }}</a>
       </li>
       {% if dataset.link_set.all %}
       <li>
         Links relacionados:
         {% for link in dataset.link_set.all %}
-          <a href="{{ link.url }}" target="_blank">{{ link.title }}</a>{% if not forloop.last %}, {% endif %}
+          <a href="{{ link.url }}" title="Ver mais" target="_blank">{{ link.title }}</a>{% if not forloop.last %}, {% endif %}
         {% endfor %}
       </li>
       {% endif %}
