@@ -11,7 +11,7 @@ env = environ.Env(DEBUG=(bool, False))
 environ.Env.read_env(".env")
 
 ALLOWED_HOSTS = env("ALLOWED_HOSTS", default="").split(",")
-BLOCKED_AGENTS = env("BLOCKED_AGENTS", default="").split(",")
+BLOCKED_AGENTS = env.list("BLOCKED_AGENTS", default=[])
 BASE_DIR = root()
 DEBUG = env("DEBUG")
 PRODUCTION = env("PRODUCTION", bool)
