@@ -11,6 +11,7 @@ env = environ.Env(DEBUG=(bool, False))
 environ.Env.read_env(".env")
 
 ALLOWED_HOSTS = env("ALLOWED_HOSTS", default="").split(",")
+BLOCKED_AGENTS = env.list("BLOCKED_AGENTS", default=[])
 BASE_DIR = root()
 DEBUG = env("DEBUG")
 PRODUCTION = env("PRODUCTION", bool)
@@ -29,6 +30,11 @@ INSTALLED_APPS = [
     "django.contrib.postgres",
     "django.contrib.sessions",
     "django.contrib.staticfiles",
+    # Project apps
+    "core",
+    "graphs",
+    "brasilio_auth",
+    "covid19.apps.Covid19Config",
     # Third-party apps
     "cachalot",
     "captcha",
@@ -37,11 +43,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "markdownx",
     "django_rq",
-    # Project apps
-    "core",
-    "graphs",
-    "brasilio_auth",
-    "covid19.apps.Covid19Config",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
