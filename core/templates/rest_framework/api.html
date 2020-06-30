@@ -1,0 +1,11 @@
+{% extends "rest_framework/base.html" %}
+
+{% block description %}
+<p><b>Importante:</b> Use a API pública com parcimônia para não onerar nossos servidores.</p>
+
+<p>Estamos tendo um volume muito grande de chamadas a API para interagir com datasets completos. Caso você precise manipular volumes muito grandes de dados, baixe o CSV usando os links disponíveis <b><a href="https://brasil.io/datasets/">nos datasets do Brasil.io</a></b>. Esses links usam nosso servidor de arquivos estáticos e são a maneira mais rápida (e correta) de baixar bases de dados completas.</p>
+
+<p>Em breve limitaremos o acesso automatizado ao site, dados esses abusos que vem acontecendo. Peço que acompanhe nossas novidades no <b><a href="https://t.me/brasil_io">Telegram</a></b>.</p>
+
+{{ block.super }}
+{% endblock %}
