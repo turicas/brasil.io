@@ -138,7 +138,10 @@ def dataset_detail(request, slug, tablename=""):
     all_data = TableModel.objects.composed_query(query, search_query, order_by)
 
     if download_csv:
-        if not any([query, search_query]):  # user trying to download a CSV without custom filters
+        agent = request.headers["User-Agent"]
+        block_agent = any((a for a in settings.BLOCKED_AGENTS if agent.startswith(a)))
+
+        if not any([query, search_query]) or block_agent:  # user trying to download a CSV without custom filters
             context = {"html_content": "400-csv-without-filters.html", "download_url": table.version.download_url}
             return render(request, "404.html", context, status=400)
 
