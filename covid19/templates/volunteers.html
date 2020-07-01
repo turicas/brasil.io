@@ -19,11 +19,11 @@
     {% for volunteer in volunteers %}
     <div class="col s12 m3 m-t-5 m-b-10">
       <span class="fa-stack fa-4x text-center">
-        <a href="{{ volunteer.personal_url }}" target="_blank">
-          <img class="circle responsive-img" src="{{ volunteer.avatar_url }}" alt="">
+        <a href="{{ volunteer.personal_url }}" target="_blank" title="Visitar perfil de {{ volunteer.name }}">
+          <img class="circle responsive-img" src="{{ volunteer.avatar_url }}" alt="Imagem de {{ volunteer.name }}">
         </a>
       </span>
-      <h6> <a href="{{  volunteer.personal_url }}">{{ volunteer.name }}</a> </h6>
+      <h6> <a href="{{  volunteer.personal_url }}" title="Visitar perfil de {{ volunteer.name }}">{{ volunteer.name }}</a> </h6>
     </div>
     {% endfor %}
   </div>
@@ -31,8 +31,8 @@
   <div class="row text-center m-t-5">
     <p>
       Além das pessoas que contribuem na coleta de dados, veja também as que <a
-        href="https://apoia.se/brasilio"><b>contribuem financeiramente</b></a>
-      e as que <a href="{% url 'core:contributors' %}"><b>contribuem com
+        href="https://apoia.se/brasilio" title="Apoie o Brasil.IO"><b>contribuem financeiramente</b></a>
+      e as que <a href="{% url 'core:contributors' %}" title="Nossos contribuidores"><b>contribuem com
           código</b></a>. Diversas outras pessoas também colaboram com
       <b>informações, sugestões, correções e na divulgação dos dados</b>.
     </p>

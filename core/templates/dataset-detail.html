@@ -14,22 +14,22 @@
     </p>
     <ul>
       <li>
-        Fonte original: <a href="{{ dataset.source_url }}">{{ dataset.source_name }}</a>
+        Fonte original: <a href="{{ dataset.source_url }}" title="Ver fonte original">{{ dataset.source_name }}</a>
       </li>
       <li>
-        Libertado por: <a href="{{ dataset.author_url }}">{{ dataset.author_name }}</a>
+        Libertado por: <a href="{{ dataset.author_url }}" title="Ver liberador">{{ dataset.author_name }}</a>
       </li>
       <li>
-        Código-fonte: <a href="{{ dataset.code_url }}">{{ dataset.code_url }}</a>
+        Código-fonte: <a href="{{ dataset.code_url }}" title="Ver código-fonte">{{ dataset.code_url }}</a>
       </li>
       <li>
-        Licença: <a href="{{ dataset.license_url }}">{{ dataset.license_name }}</a>
+        Licença: <a href="{{ dataset.license_url }}" title="Ver licença">{{ dataset.license_name }}</a>
       </li>
       {% if dataset.link_set.all %}
       <li>
         Links relacionados:
         {% for link in dataset.link_set.all %}
-          <a href="{{ link.url }}" target="_blank">{{ link.title }}</a>{% if not forloop.last %}, {% endif %}
+          <a href="{{ link.url }}" title="Ver mais" target="_blank">{{ link.title }}</a>{% if not forloop.last %}, {% endif %}
         {% endfor %}
       </li>
       {% endif %}
@@ -119,13 +119,15 @@
 
         {% if total_count > 0 and total_count <= max_export_rows %}
         <div class="col s12 m7 left" style="padding-left: 0px;">
-          <a class="btn" href="{% url 'core:dataset-table-detail' slug table.name %}?{% if querystring %}{{ querystring }}&amp;{% endif %}format=csv">
           {% if querystring %}
+          <a class="btn" href="{% url 'core:dataset-table-detail' slug table.name %}?{% if querystring %}{{ querystring }}&amp;{% endif %}format=csv">
             Baixar resultado em CSV
-          {% else %}
-            Baixar dados em CSV
-          {% endif %}
           </a>
+          {% else %}
+          <a class="btn" href="{{ version.download_url }}" target="_blank">
+            Baixar dados completos em CSV
+          </a>
+          {% endif %}
         </div>
         {% endif %}
 

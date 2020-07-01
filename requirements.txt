@@ -12,7 +12,6 @@ django-extensions
 django-localflavor==3.0.1
 django-markdownx
 django-minio-storage==0.3.7
-django-naomi
 django-recaptcha
 django-redis
 django-rq==2.3.2

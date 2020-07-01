@@ -11,6 +11,7 @@ env = environ.Env(DEBUG=(bool, False))
 environ.Env.read_env(".env")
 
 ALLOWED_HOSTS = env("ALLOWED_HOSTS", default="").split(",")
+BLOCKED_AGENTS = env.list("BLOCKED_AGENTS", default=[])
 BASE_DIR = root()
 DEBUG = env("DEBUG")
 PRODUCTION = env("PRODUCTION", bool)
@@ -29,6 +30,11 @@ INSTALLED_APPS = [
     "django.contrib.postgres",
     "django.contrib.sessions",
     "django.contrib.staticfiles",
+    # Project apps
+    "core",
+    "graphs",
+    "brasilio_auth",
+    "covid19.apps.Covid19Config",
     # Third-party apps
     "cachalot",
     "captcha",
@@ -37,11 +43,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "markdownx",
     "django_rq",
-    # Project apps
-    "core",
-    "graphs",
-    "brasilio_auth",
-    "covid19.apps.Covid19Config",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -58,7 +59,6 @@ MIDDLEWARE = [
 ]
 if DEBUG:
     MIDDLEWARE.append("utils.sqlprint.SqlPrintingMiddleware")
-    INSTALLED_APPS += ("naomi",)
 
 ROOT_URLCONF = "brasilio.urls"
 APPEND_SLASH = True
@@ -149,7 +149,21 @@ DATA_URL = env("DATA_URL")
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
+    "EXCEPTION_HANDLER": "api.handlers.api_exception_handler",
 }
+
+THROTTLING_RATE = env("THROTTLING_RATE")
+
+if THROTTLING_RATE:
+    REST_FRAMEWORK.update(
+        {
+            "DEFAULT_THROTTLE_CLASSES": [
+                "rest_framework.throttling.AnonRateThrottle",
+                "rest_framework.throttling.UserRateThrottle",
+            ],
+            "DEFAULT_THROTTLE_RATES": {"anon": THROTTLING_RATE, "user": THROTTLING_RATE,},
+        }
+    )
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -228,8 +242,8 @@ COVID_IMPORT_PERMISSION_PREFIX = "can_import_covid_state_"
 
 # RockecChat config
 ROCKETCHAT_BASE_URL = env("ROCKETCHAT_BASE_URL")
-ROCKETCHAT_USER_ID = env("ROCKETCHAT_USER_ID")
-ROCKETCHAT_AUTH_TOKEN = env("ROCKETCHAT_AUTH_TOKEN")
+ROCKETCHAT_USERNAME = env("ROCKETCHAT_USERNAME")
+ROCKETCHAT_PASSWORD = env("ROCKETCHAT_PASSWORD")
 
 # Sentry config
 SENTRY_DSN = env("SENTRY_DSN")

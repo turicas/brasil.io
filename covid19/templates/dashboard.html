@@ -21,22 +21,7 @@
 <div id="dashboard-header">
   <h1> ESPECIAL COVID-19 - Dados por Município </h1>
   {% include 'covid19-text.html' %}
-  <div class="center">
-    <a class="btn"
-      href="https://blog.brasil.io/2020/03/23/dados-coronavirus-por-municipio-mais-atualizados/">
-      Sobre o projeto
-    </a>
-    <a class="btn" href="{% url 'core:dataset-detail' 'covid19' %}">
-      Dados completos
-    </a>
-    <a class="btn" href="https://github.com/turicas/covid19-br/tree/master/api.md">
-      Documentação da API
-    </a>
-    <a class="btn" href="https://github.com/turicas/covid19-br/tree/master/clipping.md">
-      Quem está usando
-    </a>
-    <a class="btn" href="{% url 'core:donate' %}">Apoie o projeto</a>
-  </div>
+  {% include 'covid19-links.html' %}
 </div>
 
 <div id="dashboard-country-aggregate" class="row card" style="height: 100%">
@@ -137,7 +122,7 @@
         <tr>
           <td data-search="{{ row.date|date:"d/m/Y" }}" data-order="{% localize off %}{{ row.date_str }}{% endlocalize %}"> {{ row.date|date:"d/m/Y" }} </td>
           <td data-search="{{ row.city_str }} {{ row.city }}" data-order="{{ row.city_str }}"> {{ row.city }} </td>
-          {% if not state %}<td data-search="{{ row.state }}"> <a href="{% url 'covid19:dashboard' row.state %}">{{ row.state }}</a> </td>{% endif %}
+          {% if not state %}<td data-search="{{ row.state }}"> <a href="{% url 'covid19:dashboard' row.state %}" title="{{ row.state }}">{{ row.state }}</a> </td>{% endif %}
           <td data-order="{% localize off %}{{ row.confirmed }}{% endlocalize %}"> {{ row.confirmed }} </td>
           <td data-order="{% localize off %}{{ row.confirmed_per_100k_inhabitants }}{% endlocalize %}"> {{ row.confirmed_per_100k_inhabitants|floatformat:2 }} </td>
           <td data-order="{% localize off %}{{ row.deaths }}{% endlocalize %}"> {{ row.deaths }} </td>

@@ -38,10 +38,10 @@
   <body>
     <nav>
         <div class="nav-wrapper indigo">
-          <a href="/" class="brand-logo">
-            <img src="{% static 'img/logo/logo_br-io_fundo-escuro.png' %}" style="max-height:40px;margin-left: 20px; margin-top: 10px;">
+          <a href="/" class="brand-logo" title="Ir à página inicial">
+            <img src="{% static 'img/logo/logo_br-io_fundo-escuro.png' %}" style="max-height:40px;margin-left: 20px; margin-top: 10px;" alt="Logo da Brasil.IO">
           </a>
-            <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+            <a href="#" data-target="mobile-demo" class="sidenav-trigger" title="Menu"><i class="material-icons">menu</i></a>
             <ul class="right hide-on-med-and-down">
               {% include 'menu.html' with id_prefix='desktop' %}
             </ul>
@@ -54,10 +54,10 @@
 
     {% block top %}{% endblock %}
 
-    <div class="container">
+    <main class="container">
       {% block content %}{% endblock %}
-    </div>
-    <div class="footer indigo darken-4">
+    </main>
+    <footer class="footer indigo darken-4">
 
       <div class="container">
         <section id="newsletter">
@@ -96,8 +96,8 @@
                     </label>
                   </div>
                   <div class="col m4">
-                    <a class="valign-wrapper" href="https://t.me/brasil_io">
-                      <img style="height: 2em" src="{% static 'img/logo-telegram.png' %}" alt="Logo Telgram">
+                    <a class="valign-wrapper" href="https://t.me/brasil_io" title="Ir ao Telegram do Brasil.IO">
+                      <img style="height: 2em" src="{% static 'img/logo-telegram.png' %}" alt="Logo Telegram">
                       &nbsp;
                       t.me/brasil_io
                     </a>
@@ -113,7 +113,7 @@
         <div class="section indigo-text text-lighten-5" style="padding-top: 0 !important;">
           <p>
             O <b>Brasil.IO</b> é mantido com muito carinho por
-            <a href="https://twitter.com/turicas">Álvaro Justen</a> e
+            <a href="https://twitter.com/turicas" title="Twitter do Álvaro Justen">Álvaro Justen</a> e
             <a href="{% url 'core:contributors' %}">contribuidores</a>.
           </p>
         </div>
@@ -122,7 +122,7 @@
             | <a href="{% url 'core:collaborate' %}">Colabore</a>
         </div>
       </div>
-    </div>
+    </footer>
 
   </body>
 </html>

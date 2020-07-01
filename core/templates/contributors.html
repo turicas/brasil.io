@@ -12,31 +12,31 @@
         código</i> com o projeto nos vários repositórios de código que
       temos no GitHub (tanto da plataforma, quanto dos programas de captura de
       dados). Além disso, também contribui com a plataforma <a
-        href="https://apoia.se/brasilio">quem doa em nossa campanha de
+        href="https://apoia.se/brasilio" title="Apoie nossa campanha">quem doa em nossa campanha de
         financiamento coletivo</a> e também
       voluntários que desempenham outras tarefas (como <a
-        href="https://blog.brasil.io/2020/03/23/dados-coronavirus-por-municipio-mais-atualizados/">os
+        href="https://blog.brasil.io/2020/03/23/dados-coronavirus-por-municipio-mais-atualizados/" title="Veja nossos voluntários">os
         voluntários que coletam dados do COVID19</a>).
     </p>
 
       {% for contributor in contributors %}
       <div class="col s12 m3 m-t-5 m-b-10">
         <span class="fa-stack fa-4x text-center">
-          <a href="http://github.com/{{ contributor.login }}" target="_blank">
-            <img class="circle responsive-img" src="{{ contributor.avatar_url }}" alt="">
+          <a href="http://github.com/{{ contributor.login }}" target="_blank" title="Visitar @{{ contributor.login }}">
+            <img class="circle responsive-img" src="{{ contributor.avatar_url }}" alt="Imagem de {{ contributor.login }}">
           </a>
         </span>
-        <h6> <a href="{{  contributor.html_url }}">@{{ contributor.login }}</a> </h6>
+        <h6> <a href="{{  contributor.html_url }}" title="Visitar página do contribuidor">@{{ contributor.login }}</a> </h6>
         <span class="social-buttons-container text-center">
           <ul class="social-buttons">
             <li>
-              <a href="http://github.com/{{ contributor.login }}" target="_blank">
+              <a href="http://github.com/{{ contributor.login }}" title="Visitar @{{ contributor.login }}" target="_blank">
                 <i class="fa fa-github" aria-hidden="true"></i>
               </a>
             </li>
             {% if contributor.blog %}
             <li>
-              <a href="{{ contributor.blog }}" target="_blank">
+              <a href="{{ contributor.blog }}" title="Visitar blog" target="_blank">
                 <i class="fa fa-link" aria-hidden="true"></i>
               </a>
             </li>

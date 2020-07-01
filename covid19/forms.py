@@ -103,6 +103,7 @@ class StateSpreadsheetForm(forms.ModelForm):
 
         if all([fobj, spreadsheet_date, state]):
             path = Path(fobj.name)
+            suffix = path.suffix.lower()
             import_func_per_suffix = {
                 ".csv": rows.import_from_csv,
                 ".xls": import_xls,
@@ -110,7 +111,7 @@ class StateSpreadsheetForm(forms.ModelForm):
                 ".ods": rows.import_from_ods,
             }
 
-            import_func = import_func_per_suffix.get(path.suffix.lower())
+            import_func = import_func_per_suffix.get(suffix)
             if not import_func:
                 valid = import_func_per_suffix.keys()
                 msg = f"Formato de planilha inválida. O arquivo precisa estar formatado como {valid}."  # noqa
@@ -121,7 +122,8 @@ class StateSpreadsheetForm(forms.ModelForm):
             try:
                 file_rows = import_func(file_data)
             except Exception as e:
-                raise forms.ValidationError(e)
+                msg = f"Incoerência no formato do arquivo e sua extensão. Confirme se o conteúdo arquivo de fato corresponde a um {suffix} válido."
+                raise forms.ValidationError(f"{msg} ERRO: {e}")
 
             try:
                 self.file_data_as_json, self.data_warnings = format_spreadsheet_rows_as_dict(

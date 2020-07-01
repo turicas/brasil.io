@@ -169,7 +169,7 @@ function updateMap() {
     notesControl.onAdd = function (map) {
       var div = L.DomUtil.create("div", "info legend");
       div.innerHTML = 'Fonte: Secretarias Estaduais de Saúde'
-      div.innerHTML += '<br>Coleta e análise: <a href="https://brasil.io/">Brasil.IO</a>';
+      div.innerHTML += '<br>Coleta e análise: <a href="https://brasil.io/" title="Brasil.IO">Brasil.IO</a>';
       return div;
     };
     notesControl.addTo(map);

@@ -388,7 +388,10 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
             format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
 
         exception = execinfo.value
-        assert "Provavelmente há uma fórmula na linha Abatiá da planilha" in exception.error_messages
+        assert (
+            'Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: Abatiá"'
+            in exception.error_messages
+        )
 
     @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=["db warning"]))
     def test_undefined_entry_can_have_more_deaths_than_cases(self):
@@ -413,6 +416,31 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         assert len(results) == 1
         assert results[0]["confirmed"] == 102
         assert results[0]["deaths"] == 32
+
+    def test_invalidate_spreadsheet_against_VALUE_error(self):
+        self.content = self.content.replace("Abatiá,9,1", "Abatiá,#VALUE!,3 0")
+        self.content = self.content.replace("Adrianópolis,11,2", "Adrianópolis,#VALUE!,3 0")
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(SpreadsheetValidationErrors) as execinfo:
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        exception = execinfo.value
+        assert (
+            'Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: Abatiá, Adrianópolis"'
+            in exception.error_messages
+        )
+
+    def test_invalidate_spreadsheet_against_float_numbers(self):
+        self.content = self.content.replace("Abatiá,9,1", "Abatiá,10.000,1")
+        file_rows = rows.import_from_csv(self.file_from_content)
+        with pytest.raises(SpreadsheetValidationErrors) as execinfo:
+            format_spreadsheet_rows_as_dict(file_rows, self.date, self.uf)
+
+        exception = execinfo.value
+        assert (
+            "Erro no formato de algumas entradas dados: cheque para ver se a planilha não possui fórmulas ou números com ponto ou vírgula nas linhas: TOTAL NO ESTADO, Importados/Indefinidos, Abatiá, "  # all entries
+            in exception.error_messages[0]
+        )
 
 
 class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
@@ -581,8 +609,10 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             "Números de confirmados ou óbitos totais é menor que o total anterior.",
         ]
         warnings = validate_historical_data(self.spreadsheet)
+        self.spreadsheet.warnings = warnings
 
         assert expected == warnings
+        assert self.spreadsheet.only_with_total_entry is False
 
     def test_if_city_is_not_present_and_previous_report_has_0_for_both_counters_add_the_entry(self):
         city_data = self.cities_data.pop(0)
@@ -616,6 +646,7 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         self.spreadsheet.table_data = [self.total_data]  # only total
 
         warnings = validate_historical_data(self.spreadsheet)
+        self.spreadsheet.warnings = warnings
 
         assert self.total_data in self.spreadsheet.table_data
         assert self.undefined_data in self.spreadsheet.table_data
@@ -630,12 +661,65 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         assert "Números de confirmados ou óbitos totais é menor que o total anterior." in warnings
         assert self.spreadsheet.get_total_data()["deaths"] == 2
         assert self.spreadsheet.get_total_data()["confirmed"] == 5
+        assert self.spreadsheet.only_with_total_entry is True
 
     def test_accept_first_spreadsheet_only_with_total_tada(self):
         self.spreadsheet.table_data = [self.total_data]  # only total
 
         warnings = validate_historical_data(self.spreadsheet)
+        self.spreadsheet.warnings = warnings
 
         assert 1 == len(self.spreadsheet.table_data)
         assert self.total_data in self.spreadsheet.table_data
         assert ["Planilha importada somente com dados totais."] == warnings
+        assert self.spreadsheet.only_with_total_entry is True
+
+    def assert_case_data_from_db(self, state, date, compare_data):
+        # From a given state and date, checks if `compare_data` is equal to
+        # what is returned by StateSpreadsheet.objects.get_state_data
+
+        def replace_city_name(name):
+            if name is None:
+                return "TOTAL NO ESTADO"
+            else:
+                return name
+
+        db_data = StateSpreadsheet.objects.get_state_data(state)
+        db_cases = db_data["cases"][date]
+        sp_data = {
+            replace_city_name(case["city"]): {"confirmed": case["confirmed"], "deaths": case["deaths"],}
+            for case in compare_data
+            if case["date"] == str(date)
+        }
+        assert db_cases == sp_data
+
+    def test_deployed_cancelled_spreadsheets_should_be_used_if_no_active_is_deployed(self):
+        # First, create a deployed spreadsheet for 2 days ago
+        StateSpreadsheet.objects.filter(state=self.uf).delete()
+        date = self.today
+        data_1 = [self.total_data, self.undefined_data] + self.cities_data
+        data_2 = []
+        for case in data_1:
+            case = case.copy()
+            case["deaths"] = 9999
+            case["confirmed"] = 9999
+            data_2.append(case)
+
+        self.new_spreadsheet_with_data(
+            date=date, state=self.uf, status=StateSpreadsheet.DEPLOYED, cancelled=True, table_data=[self.total_data],
+        )
+        sp2 = self.new_spreadsheet_with_data(
+            date=date, state=self.uf, status=StateSpreadsheet.DEPLOYED, cancelled=True, table_data=data_1,
+        )
+        sp3 = self.new_spreadsheet_with_data(
+            date=date, state=self.uf, status=StateSpreadsheet.DEPLOYED, cancelled=False, table_data=data_2,
+        )
+
+        # Data for this state/date should be the same as sp3
+        self.assert_case_data_from_db(self.uf, date, sp3.table_data)
+
+        # Changind sp3 to CHECK_FAILED: data for this state/date should be the
+        # same as sp2
+        sp3.status = StateSpreadsheet.CHECK_FAILED
+        sp3.save()
+        self.assert_case_data_from_db(self.uf, date, sp2.table_data)

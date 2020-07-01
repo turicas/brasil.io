@@ -3,7 +3,7 @@ version: '3.2'
 services:
 
     db:
-        image: postgres:11
+        image: postgres:11.3
         shm_size: 256m
         container_name: brasilio_postgres
         env_file: .env

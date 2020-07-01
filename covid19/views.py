@@ -1,8 +1,9 @@
 import datetime
 import random
 
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import render
+from django.utils import timezone
 
 from brazil_data.cities import get_state_info
 from brazil_data.states import STATE_BY_ACRONYM, STATES
@@ -12,7 +13,7 @@ from core.util import cached_http_get_json
 from covid19.epiweek import get_epiweek
 from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.geo import city_geojson, state_geojson
-from covid19.models import StateSpreadsheet
+from covid19.models import DailyBulletin, StateSpreadsheet
 from covid19.spreadsheet import merge_state_data
 from covid19.stats import Covid19Stats, max_values
 
@@ -261,12 +262,7 @@ def import_spreadsheet_proxy(request, state):
         data["reports"] = [
             # Here we export the `report` again, including only the fields we
             # want (the old JSON can come with other columns).
-            {
-                "date": report["date"],
-                "notes": report["notes"],
-                "state": state_info.state,
-                "url": report["url"],
-            }
+            {"date": report["date"], "notes": report["notes"], "state": state_info.state, "url": report["url"],}
             for report in data["reports"]
             if any(report.values())
         ]
@@ -285,7 +281,7 @@ def status(request):
     data = []
     for state in STATES:
         uf = state.acronym
-        qs = StateSpreadsheet.objects.deployable_for_state(uf)
+        qs = StateSpreadsheet.objects.deployable_for_state(uf, only_active=False)
         table_entry = {
             "uf": uf,
             "state": state.name,
@@ -299,6 +295,8 @@ def status(request):
         if most_recent:
             table_entry["spreadsheet"] = most_recent
             table_entry["status"] = most_recent.get_status_display()
+            if most_recent.cancelled:
+                table_entry["status"] += " (cancelada)"
             table_entry["report_date"] = most_recent.date
             table_entry["report_date_str"] = str(most_recent.date)
             state_totals = [item for item in most_recent.table_data if item["city"] is None][0]
@@ -313,3 +311,9 @@ def status(request):
 
     data.sort(key=row_sort)
     return render(request, "covid-status.html", {"import_data": data})
+
+
+@disable_non_logged_user_cache
+def list_bulletins(request):
+    bulletins = DailyBulletin.objects.order_by("-date").filter(date__lte=timezone.now().date())
+    return render(request, "covid-bulletins.html", {"bulletins": bulletins})

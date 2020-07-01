@@ -28,9 +28,9 @@
   {% for node in nodes %}
     <div>
       {% if node.tipo == 'PessoaJuridica' or node.tipo == 'EmpresaMae' %}
-      <a href="{% url 'core:special-document-detail' document=node.cnpj %}">{{ node.nome }}</a>
+      <a href="{% url 'core:special-document-detail' document=node.cnpj %}" title="Ver documento">{{ node.nome }}</a>
       {% else %}
-      <a href="{% url 'core:dataset-table-detail' 'socios-brasil' 'socios' %}?nome_socio={{ node.nome }}">{{ node.nome }}</a>
+      <a href="{% url 'core:dataset-table-detail' 'socios-brasil' 'socios' %}?nome_socio={{ node.nome }}" title="Ver documento">{{ node.nome }}</a>
       {% endif %}
     </div>
     {% endfor %}
