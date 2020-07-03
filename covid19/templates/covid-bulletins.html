@@ -2,12 +2,15 @@
 {% load l10n %}
 {% load static %}
 {% block title %}Covid19 Boletins Diários - Brasil.IO{% endblock %}
+{% load thumbnail %}
 
 {% block head %}
 {{ block.super }}
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
-<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'css/covid19-status.css' %}"/>
+  <!-- cdnjs -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
+  <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.9/jquery.lazy.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/covid19-status.css' %}"/>
 {% endblock %}
 
 {% block content %}{% localize on %}
@@ -17,18 +20,50 @@
   {% include 'covid19-links.html' %}
   <p>Por questões de viabilidade e metodológicas, coletamos apenas das Secretarias Estaduais de Saúde e, por isso, podem ocorrer divergências com relação às Secretarias Municipais. Não pretendemos mudar essa prática (por favor, não insista).</p>
 </div>
+<div class="container">
+  <div class="row">
+    <div class="center" style="display: block">
+      {% regroup bulletins by date.month as bulletins_list %}    
 
-<div class="row">
-  <div class="center" style="display: block">
-    {% for bulletin in bulletins %}
-      <div style="display: inline-block; width: 200px; height: auto; margin: 1em">
-      <a href="{{ bulletin.image_url }}" target="_blank">
-      <img src="{{ bulletin.image_url }}" width="200px" height="auto" alt="Boletim - {{ bulletin.date }}" title="Boletim - {{ bulletin.date }}"/>
-      </a>
-      <br><span>{{ bulletin.date }}</span>
-      </div>
-    {% endfor %}
+      {% for month in bulletins_list %}
+        <div class="divider"></div>
+        <h2 class="monthYearBulletins">{{ month.list.0.date|date:"F" }} {{ month.list.0.date|date:"Y" }}</h2>
+        {% for bulletin in month.list %}
+          <div style="display: inline-block; width: 200px; height: auto; margin: 1em">
+            <a href="{{ bulletin.image_url }}" target="_blank">
+            {% thumbnail bulletin.image_url "170x170" as im %}
+              <img class="lazy hoverable z-depth-2" id="{{ bulletin.pk }}" data-src="{{ im.url }}" width="200px" height="auto" name="Boletim - {{ bulletin.date }}"/>
+            {% endthumbnail %}
+            </a>
+            <div class="dateBulletins">
+              <span class="bDate">{{ bulletin.date }}</span>
+            </div>
+          </div>
+        {% endfor %}
+        <br><br>
+      {% endfor %}
+    </div>
   </div>
 </div>
+
 {% endlocalize %}
+{% endblock %}
+
+{% block script %}
+{{ block.super }}
+<script type="text/javascript">
+   $(function() {
+      $('.lazy').Lazy({
+        scrollDirection: 'vertical',
+        effect: 'fadeIn',
+        effectTime: 1000,
+        visibleOnly: true,
+        defaultImage: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAALGPC/xhBQAAAM9QTFRFzdLVvcLFwMTHxMjL0tbZzNDTztPWv8TH5Ons1NncyMzPwsbJ29/i1dncwcXIz9TWyc3QzNHU2+Dj19veys7RztLVxsvO2d7g1drd0NTX1tveyc7R19zfy9DT2Nzf4ebpz9TX4+jrw8jLyM3Qx8vO1Njb2t/ix8zPzdHU2t7h0dbZ4OXo09fau7/Cy8/SvsLF5+zv3uPm5ertvMDD4+fqv8PG0NXY6O3w2d7h3+TnvcHE09jb5uvuw8fKwsfK4ufpxcrN2N3g1trdur7B6e7xW2uF7AAAA8FJREFUeNrt3WlT01AYBlDc931fAQVEQJYiJl1EIP3/v0m0VbskbcokcZJ7nq+ZyZ33zLS9e5f6kjtLCGDBggULFiwEsGDBggULFgJYsGDBggULASxYsGDBgoUAFixYsGDBQgALFixYsGAhgAULFixYsBDAggULFixYCGDBggULFiwEsGDBggULFgJYsGDBggULASxYsGDBgoUAFixYsGDBQgALFixYsGAhgAULFixYsBDAggULFixYCGDBggULFiwEsGDBgjWZg0f3vySlpXOy3moM1s3bSdnpvI6agbV8lFSQzagJWK0bSSW52gSsa0lF2a4/1mpVVsnT+mPtVIb1Zb/2WB8HlVzaWP5RUrY3h1oHtcf6MChkvcQmouHP7YvaYx0PCjkts43vFbQBCxYsWLDyYLXeLn38tLvTjmDNw1rd/TNfc2cD1mys94cj3e43PVgzsLrjg5QPPViZWJ8nh3RrEawMrFZnagB8BisD69X0bMHePqxUrGgvZW4lhpWKdZA2EfUOVirWyzSs47kvudUOEWsrDWtv3ju6SacNKx/Wr57ZTC0fw4le7CwtX/CTPf4ZWroOU6OjbC2d0umRZKZWQMOd1zmtsrXCGUh/ivJaZWqZokmxytIy+ZdmlaEVxrTy8UZ/Mat0raYvWDybu2DRzdrk1w4MK0e62Vsi27DyWqVoBY7Vnb3dtg0rr9WUVtBY3bm7/Ma1Qsbq5tgTOaYVDNb+hazGtULBii9/vZBVkhwehIYVJ8nR1wtZjWqFgRX/ejSmld9qRCsIrHjwbERrEatzrf1wsOI/Rf/VWswqSXrBYMX/ih5qLWoVDlY8WvVvrYWtgsGKx8s+17rAKZ9AsOLJuo9WEljpWHExB8GCwCrIKgisoqxCwCrMKgCs4qyaj1WgVeOxirRqOlahVg3HepzAyo31DRYsWLBgwYIFCxYsWDXCap8VmoAWWQsLLFiwYMH6D1hXBoWslNhEb3gs73PtsXaHXaLrZ2Xl3veKrsAtH+tJZZe6dqLaY/UOq8J60K89VmX3BXdaDcCKnleDdbffAKx+b62KW6hP+43A6kfrnbKtTrb7DcE6P3Nyurl2UloebrUrqcJfycCCBQsWLIEFCxYsWLAEFixYsGDBEliwYMGCBUtgwYIFCxYsgQULFixYsAQWLFiwYMESWLBgwYIFS2DBggULFiyBBQsWLFiwBBYsWLBgwRJYsGDBggVLYMGCBQsWLIEFCxYsWLAEFixYsGDBEliwYMGCBUtgwYIFCxYsgQULFixYDc1PDWw0OlbmweEAAAAASUVORK5CYII=",
+        afterLoad: function(element) {
+            $("#" + element[0].id).attr('title', element[0].name )
+            $("#" + element[0].id).attr('alt', element[0].name )
+        }
+      });
+   });
+</script>
 {% endblock %}
