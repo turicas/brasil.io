@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "rest_framework",
     "markdownx",
+    "django_rq",
     "sorl.thumbnail",
 ]
 MIDDLEWARE = [
