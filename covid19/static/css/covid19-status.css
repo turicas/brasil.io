@@ -2,3 +2,14 @@
     margin-top: 2em;
     margin-bottom: 4em;
 }
+
+.monthYearBulletins {
+    margin: 1.2em;
+    font-size: 1.5em;
+}
+
+.dateBulletins {
+    margin-top: 0.2em;
+    font-size: 1.1em;
+}
+

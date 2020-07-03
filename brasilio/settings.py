@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "markdownx",
     "django_rq",
+    "sorl.thumbnail",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
