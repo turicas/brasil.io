@@ -251,3 +251,6 @@ SENTRY_DSN = env("SENTRY_DSN")
 sentry_sdk.init(
     SENTRY_DSN, integrations=[DjangoIntegration(), RqIntegration()], send_default_pii=True,
 )
+
+
+CSV_EXPORT_MAX_ROWS = env.int("CSV_EXPORT_MAX_ROWS", default=10_000)

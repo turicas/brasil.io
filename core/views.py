@@ -14,8 +14,6 @@ from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
 from core.util import cached_http_get_json
 
-max_export_rows = 350_000
-
 
 class Echo:
     def write(self, value):
@@ -147,7 +145,7 @@ def dataset_detail(request, slug, tablename=""):
             context = {"html_content": "400-csv-without-filters.html", "download_url": table.version.download_url}
             return render(request, "404.html", context, status=400)
 
-        if all_data.count() > max_export_rows:
+        if all_data.count() > settings.CSV_EXPORT_MAX_ROWS:
             context = {"message": "Max rows exceeded."}
             return render(request, "404.html", context, status=400)
 
@@ -173,7 +171,7 @@ def dataset_detail(request, slug, tablename=""):
         "data": data,
         "dataset": dataset,
         "fields": fields,
-        "max_export_rows": max_export_rows,
+        "max_export_rows": settings.CSV_EXPORT_MAX_ROWS,
         "query_dict": querystring,
         "querystring": querystring.urlencode(),
         "slug": slug,

@@ -117,19 +117,21 @@
           {% endif %}
         </p>
 
-        {% if total_count > 0 and total_count <= max_export_rows %}
         <div class="col s12 m7 left" style="padding-left: 0px;">
-          {% if querystring %}
+          {% if total_count > 0 and total_count <= max_export_rows and querystring %}
           <a class="btn" href="{% url 'core:dataset-table-detail' slug table.name %}?{% if querystring %}{{ querystring }}&amp;{% endif %}format=csv">
-            Baixar resultado em CSV
+            Baixar resultado em CSV*
           </a>
+          <br>
+          * No máximo {{ max_export_rows|localize }} registros serão
+          exportados. Caso você necessite de mais dados, considere
+          <a href="{{ version.download_url }}">baixar o dataset completo</a>.
           {% else %}
           <a class="btn" href="{{ version.download_url }}" target="_blank">
             Baixar dados completos em CSV
           </a>
           {% endif %}
         </div>
-        {% endif %}
 
         <div class="col s12 m5 right">
           <ul class="pagination right">
