@@ -101,4 +101,4 @@ class ContactForm(forms.Form):
 
 
 class DatasetSearchForm(forms.Form):
-    search = forms.CharField(label="Titulo ou Descrição")
+    search = forms.CharField(label="Pesquisa",  widget=forms.TextInput(attrs={"placeholder" : "Titulo ou Descrição"}))

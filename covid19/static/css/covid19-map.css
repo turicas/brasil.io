@@ -17,7 +17,21 @@
   background-attachment: local, local, scroll, scroll;
 }
 
-.container {
+.brasil-states-select ul::-webkit-scrollbar {
+  height: 10px;
+  background-color: #F5F5F5;
+} 
+
+.brasil-states-select ul::-webkit-scrollbar-thumb {
+  background-color: #959595;
+}
+
+.brasil-states-select ul::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  background-color: #F5F5F5;
+}
+
+/* .container {
   padding: 10px;
 }
 
@@ -51,7 +65,8 @@
   margin: 0 auto;
   width: 90%;
   max-width: 100%;
-}
+} */
+
 @media only screen and (min-width: 601px) {
   .container {
     width: 90%;
@@ -137,9 +152,35 @@
   font-size: 1em;
   padding: 0 1em;
 }
+
 @media screen and (max-width: 1280px) {
   .state-option {
     font-size: 1em;
     padding: 0 0.25em;
   }
+}
+
+.title-cards-data{
+  min-height: 30px;
+  font-size: 1em;
+}
+
+.card-title.number{
+  font-size: 1.4em;
+  font-weight: bolder;
+}
+
+.number-per{
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+.dashboard-aggregate{
+  border: solid 1px rgba(51,51,51,0.12);
+  padding:20px;
+  background-color: rgba(51, 51, 51, 0.035);
+}
+
+.panorama{
+  margin-left: 10px;
 }

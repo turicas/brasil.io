@@ -1,19 +1,32 @@
-  <div class="center">
-    <a class="btn"
-      href="https://blog.brasil.io/2020/03/23/dados-coronavirus-por-municipio-mais-atualizados/">
-      Sobre o projeto
-    </a>
-    <a class="btn" href="{% url 'core:dataset-detail' 'covid19' %}">
-      Dados completos
-    </a>
-    <a class="btn" href="{% url 'covid19:bulletins' %}">
-      Boletins diários
-    </a>
-    <a class="btn" href="https://github.com/turicas/covid19-br/tree/master/api.md">
-      Documentação da API
-    </a>
-    <a class="btn" href="https://github.com/turicas/covid19-br/tree/master/clipping.md">
-      Quem está usando
-    </a>
-    <a class="btn" href="{% url 'core:donate' %}">Apoie o projeto</a>
+  
+  <div class="row center">
+    <div class="col s12 m4 xl2 m-t-10">
+      <a class="btn waves-effect waves-light"
+        href="https://blog.brasil.io/2020/03/23/dados-coronavirus-por-municipio-mais-atualizados/">
+        Sobre o projeto
+      </a>
+    </div>
+    <div class="col s12 m4 xl2 m-t-10">
+      <a class="btn waves-effect waves-light" href="{% url 'core:dataset-detail' 'covid19' %}">
+        Dados completos
+      </a>
+    </div>
+    <div class="col s12 m4 xl2 m-t-10">
+      <a class="btn waves-effect waves-light" href="{% url 'covid19:bulletins' %}">
+        Boletins diários
+      </a>
+    </div>
+    <div class="col s12 m4 xl2 m-t-10">
+      <a class="btn waves-effect waves-light" href="https://github.com/turicas/covid19-br/tree/master/api.md">
+        Documentação da API
+      </a>
+    </div>
+    <div class="col s12 m4 xl2 m-t-10">
+      <a class="btn waves-effect waves-light" href="https://github.com/turicas/covid19-br/tree/master/clipping.md">
+        Quem está usando
+      </a>
+    </div>
+    <div class="col s12 m4 xl2 m-t-10">
+      <a class="btn waves-effect waves-light" href="{% url 'core:donate' %}">Apoie o projeto</a>
+    </div>
   </div>
