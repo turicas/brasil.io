@@ -15,3 +15,7 @@ def user_has_covid19_permissions(user):
     for uf, state in STATE_CHOICES:
         permissions.add(_format_perm_code(uf))
     return bool(user.get_all_permissions() & permissions)
+
+
+def user_has_covid_19_admin_permissions(user):
+    return user.is_superuser or user.groups.filter(name=settings.COVID_19_ADMIN_GROUP_NAME).exists()
