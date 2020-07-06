@@ -241,7 +241,7 @@ class StateSpreadsheetTests(TestCase):
         previous_sp1.refresh_from_db()
         assert sp2 == sp1.peer_review
         assert sp1 == sp2.peer_review
-        assert previous_sp1.peer_review is None
+        assert previous_sp1.peer_review == sp2
         assert sp1.ready_to_import is True
         assert sp2.ready_to_import is True
         assert sp1.errors == []

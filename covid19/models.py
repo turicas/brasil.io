@@ -145,7 +145,7 @@ class StateSpreadsheet(models.Model):
     date = models.DateField(null=False, blank=False)
     state = models.CharField(max_length=2, null=False, blank=False, choices=STATE_CHOICES)
     file = models.FileField(upload_to=format_spreadsheet_name)
-    peer_review = models.OneToOneField("self", null=True, blank=True, on_delete=models.SET_NULL)
+    peer_review = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL)
 
     boletim_urls = ArrayField(models.TextField(), null=False, blank=False, help_text="Lista de URLs do(s) boletim(s)")
     boletim_notes = models.CharField(
@@ -319,7 +319,6 @@ class StateSpreadsheet(models.Model):
         return False, errors
 
     def link_to(self, other):
-        StateSpreadsheet.objects.filter(peer_review=other).update(peer_review=None)
         self.peer_review = other
         self.errors = []
         self.status = StateSpreadsheet.UPLOADED
