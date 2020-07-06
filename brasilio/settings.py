@@ -240,6 +240,7 @@ if not DEBUG:
 
 # Covid19 import settings
 COVID_IMPORT_PERMISSION_PREFIX = "can_import_covid_state_"
+COVID_19_ADMIN_GROUP_NAME = "Admins Covid-19"
 
 # RockecChat config
 ROCKETCHAT_BASE_URL = env("ROCKETCHAT_BASE_URL")
