@@ -241,13 +241,14 @@ class StateSpreadsheetTests(TestCase):
         previous_sp1.refresh_from_db()
         assert sp2 == sp1.peer_review
         assert sp1 == sp2.peer_review
-        assert previous_sp1.peer_review == sp2
+        assert previous_sp1.peer_review == sp1
         assert sp1.ready_to_import is True
         assert sp2.ready_to_import is True
         assert sp1.errors == []
         assert sp2.errors == []
         assert sp1.status == StateSpreadsheet.UPLOADED
         assert sp2.status == StateSpreadsheet.UPLOADED
+        assert bool(previous_sp1.errors) is True
 
     def test_raise_exception_if_single_spreadsheet(self):
         sp1 = baker.make(StateSpreadsheet, date=date.today(), state="RJ")

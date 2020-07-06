@@ -214,7 +214,7 @@ class StateSpreadsheet(models.Model):
     @property
     def sibilings(self):
         qs = StateSpreadsheet.objects.filter_active().from_state(self.state).filter(date=self.date)
-        return qs.pending_review().exclude(pk=self.pk, user_id=self.user_id).order_by("-created_at")
+        return qs.pending_review().exclude(pk=self.pk, user_id=self.user_id).order_by("created_at")
 
     @property
     def table_data_by_city(self):
