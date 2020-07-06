@@ -7,13 +7,15 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('covid19', '0009_dailybulletin'),
+        ("covid19", "0009_dailybulletin"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='statespreadsheet',
-            name='peer_review',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='covid19.StateSpreadsheet'),
+            model_name="statespreadsheet",
+            name="peer_review",
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to="covid19.StateSpreadsheet"
+            ),
         ),
     ]

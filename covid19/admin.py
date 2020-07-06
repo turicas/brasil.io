@@ -105,14 +105,16 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
             return "---"
         else:
             return format_html(f"<ul>{li_tags}</ul>")
+
     warnings_list.short_description = "Warnings"
 
     def peer_link(self, obj):
         if not obj.peer_review:
             return "---"
         else:
-            url = reverse('admin:covid19_statespreadsheet_change', args=[obj.peer_review.id])
+            url = reverse("admin:covid19_statespreadsheet_change", args=[obj.peer_review.id])
             return format_html(f'<a href="{url}">{obj.peer_review}</a>')
+
     peer_link.short_description = "Par de Revisão"
 
     def errors_list(self, obj):
