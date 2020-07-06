@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.templatetags.static import static
-from django.urls import path
+from django.urls import path, reverse
 from django.utils.html import format_html
 
 from brazil_data.cities import brazilian_cities_per_state
@@ -47,7 +47,7 @@ class ActiveFilter(admin.SimpleListFilter):
 
 
 class StateSpreadsheetModelAdmin(admin.ModelAdmin):
-    list_display = ["created_at", "state", "date", "user", "status", "warnings_list", "active"]
+    list_display = ["created_at", "state", "date", "user", "status", "warnings_list", "peer_link", "active"]
     list_filter = [StateFilter, "status", ActiveFilter]
     form = StateSpreadsheetForm
     ordering = ["-created_at"]
@@ -68,7 +68,7 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
         fields = []
         if obj:
             fields.extend(["created_at", "status", "active"])
-            fields.extend(StateSpreadsheetForm.Meta.fields + ["warnings_list", "errors_list"])
+            fields.extend(StateSpreadsheetForm.Meta.fields + ["peer_link", "warnings_list", "errors_list"])
         return fields
 
     def formfield_for_choice_field(self, db_field, request, **kwargs):
@@ -85,7 +85,7 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
     def get_queryset(self, request):
-        qs = super().get_queryset(request).select_related("user")
+        qs = super().get_queryset(request).select_related("user", "peer_review__user")
         if not request.user.is_superuser:
             qs = qs.from_user(request.user)
         return qs
@@ -107,6 +107,15 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
             return format_html(f"<ul>{li_tags}</ul>")
 
     warnings_list.short_description = "Warnings"
+
+    def peer_link(self, obj):
+        if not obj.peer_review:
+            return "---"
+        else:
+            url = reverse("admin:covid19_statespreadsheet_change", args=[obj.peer_review.id])
+            return format_html(f'<a href="{url}">{obj.peer_review}</a>')
+
+    peer_link.short_description = "Par de Revisão"
 
     def errors_list(self, obj):
         li_tags = "".join([f"<li>{w}</li>" for w in obj.errors])

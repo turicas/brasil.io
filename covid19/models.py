@@ -145,7 +145,7 @@ class StateSpreadsheet(models.Model):
     date = models.DateField(null=False, blank=False)
     state = models.CharField(max_length=2, null=False, blank=False, choices=STATE_CHOICES)
     file = models.FileField(upload_to=format_spreadsheet_name)
-    peer_review = models.OneToOneField("self", null=True, blank=True, on_delete=models.SET_NULL)
+    peer_review = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL)
 
     boletim_urls = ArrayField(models.TextField(), null=False, blank=False, help_text="Lista de URLs do(s) boletim(s)")
     boletim_notes = models.CharField(
@@ -208,12 +208,13 @@ class StateSpreadsheet(models.Model):
     @errors.setter
     def errors(self, data):
         self.data["errors"] = data
-        self.status = StateSpreadsheet.CHECK_FAILED
+        if data:
+            self.status = StateSpreadsheet.CHECK_FAILED
 
     @property
     def sibilings(self):
         qs = StateSpreadsheet.objects.filter_active().from_state(self.state).filter(date=self.date)
-        return qs.pending_review().exclude(pk=self.pk, user_id=self.user_id).order_by("-created_at")
+        return qs.pending_review().exclude(pk=self.pk, user_id=self.user_id).order_by("created_at")
 
     @property
     def table_data_by_city(self):
@@ -305,10 +306,10 @@ class StateSpreadsheet(models.Model):
 
         errors = []
         for sibiling_spreadsheet in self.sibilings:
+            self.link_to(sibiling_spreadsheet)
+            sibiling_spreadsheet.link_to(self)
             errors = self.compare_to_spreadsheet(sibiling_spreadsheet)
             if not errors:
-                self.link_to(sibiling_spreadsheet)
-                sibiling_spreadsheet.link_to(self)
                 return True, []
             else:
                 sibiling_spreadsheet.errors = errors
