@@ -40,8 +40,8 @@ class AvailableStatesForUserTests(TestCase):
         covid_perms = Permission.objects.filter(codename__startswith=settings.COVID_IMPORT_PERMISSION_PREFIX)
         assert covid_perms.count() == 27  # this test requires migrations
         perm_1, perm_2 = covid_perms.filter(Q(codename__endswith="SP") | Q(codename__endswith="RJ"))
-        self.user.groups.add(perm_1.group_set.get())
-        self.user.groups.add(perm_2.group_set.get())
+        self.user.groups.add(perm_1.group_set.exclude(name__icontains="Admins").get())
+        self.user.groups.add(perm_2.group_set.exclude(name__icontains="Admins").get())
 
         choices = state_choices_for_user(self.user)
 

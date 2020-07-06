@@ -11,7 +11,7 @@ from brazil_data.cities import brazilian_cities_per_state
 from brazil_data.states import STATES
 from covid19.forms import StateSpreadsheetForm, state_choices_for_user
 from covid19.models import DailyBulletin, StateSpreadsheet
-from covid19.permissions import user_has_state_permission
+from covid19.permissions import user_has_covid_19_admin_permissions, user_has_state_permission
 from covid19.signals import new_spreadsheet_imported_signal
 from covid19.spreadsheet_validator import TOTAL_LINE_DISPLAY, UNDEFINED_DISPLAY
 
@@ -86,7 +86,7 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request).select_related("user", "peer_review__user")
-        if not request.user.is_superuser:
+        if not user_has_covid_19_admin_permissions(request.user):
             qs = qs.from_user(request.user)
         return qs
 
