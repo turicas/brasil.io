@@ -305,10 +305,10 @@ class StateSpreadsheet(models.Model):
 
         errors = []
         for sibiling_spreadsheet in self.sibilings:
+            self.link_to(sibiling_spreadsheet)
+            sibiling_spreadsheet.link_to(self)
             errors = self.compare_to_spreadsheet(sibiling_spreadsheet)
             if not errors:
-                self.link_to(sibiling_spreadsheet)
-                sibiling_spreadsheet.link_to(self)
                 return True, []
             else:
                 sibiling_spreadsheet.errors = errors
@@ -319,6 +319,7 @@ class StateSpreadsheet(models.Model):
         return False, errors
 
     def link_to(self, other):
+        StateSpreadsheet.objects.filter(peer_review=other).update(peer_review=None)
         self.peer_review = other
         self.errors = []
         self.status = StateSpreadsheet.UPLOADED
