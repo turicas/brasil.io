@@ -208,7 +208,8 @@ class StateSpreadsheet(models.Model):
     @errors.setter
     def errors(self, data):
         self.data["errors"] = data
-        self.status = StateSpreadsheet.CHECK_FAILED
+        if data:
+            self.status = StateSpreadsheet.CHECK_FAILED
 
     @property
     def sibilings(self):
