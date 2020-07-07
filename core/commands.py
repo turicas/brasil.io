@@ -105,6 +105,8 @@ class ImportDataCommand:
         table_name, temp_name = TargetModel._meta.db_table, TempModel._meta.db_table
         trigger_name, temp_trigger_name = TargetModel.get_trigger_name(), TempModel.get_trigger_name()
         with transaction.atomic():
+            print("Replacing existing model by the new one...", end="", flush=True)
+            start = time.time()
             try:
                 TargetModel.delete_table()
             except ProgrammingError:  # Does not exist
@@ -117,6 +119,7 @@ class ImportDataCommand:
                         ALTER TRIGGER {temp_trigger_name} ON {table_name} RENAME TO {trigger_name};
                     """.strip()
                     cursor.execute(trigger_rename_sql)
+            print("  done in {:.3f}s.".format(time.time() - start))
 
     def run_vacuum(self, Model):
         print("Running VACUUM ANALYSE...", end="", flush=True)
