@@ -82,6 +82,8 @@ class StateSpreadsheetManager(models.Manager):
             date = spreadsheet.date
             if date in cases and date not in dates_only_with_total:
                 continue
+            elif date in cases and spreadsheet.only_with_total_entry:
+                continue
 
             # Group all notes for a same URL to avoid repeated entries for date/url
             report_data = reports.get(date, defaultdict(list))
