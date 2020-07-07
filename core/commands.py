@@ -7,7 +7,7 @@ from django.db.utils import ProgrammingError
 from django.utils import timezone
 from rows.utils import ProgressBar, open_compressed, pgimport
 
-from core.models import Table
+from core.models import Table, Field
 
 
 class ImportDataCommand:
@@ -34,6 +34,8 @@ class ImportDataCommand:
             self.run_vacuum(Model)
         if self.flag_create_filter_indexes:
             self.create_filter_indexes(Model)
+        if self.flag_fill_choices:
+            self.fill_choices(Model)
 
     def import_data(self, filename, Model):
         # Create the table if not exists
@@ -104,5 +106,19 @@ class ImportDataCommand:
         print("Creating filter indexes...", end="", flush=True)
         start = time.time()
         Model.create_indexes()  # TODO: add "IF NOT EXISTS"
+        end = time.time()
+        print("  done in {:.3f}s.".format(end - start))
+
+    def fill_choices(self, Model):
+        print("Filling choices...")
+        start = time.time()
+        choiceables = Field.objects.for_table(self.table).choiceables()
+        for field in choiceables:
+            print("  {}".format(field.name), end="", flush=True)
+            start_field = time.time()
+            field.update_choices()
+            field.save()
+            end_field = time.time()
+            print(" - done in {:.3f}s.".format(end_field - start_field))
         end = time.time()
         print("  done in {:.3f}s.".format(end - start))

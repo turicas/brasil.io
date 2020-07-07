@@ -70,20 +70,6 @@ class Command(BaseCommand):
             collect_date=collect_date,
         )
 
-        if fill_choices:
-            print("Filling choices...")
-            start = time.time()
-            choiceables = Field.objects.for_table(table).choiceables()
-            for field in choiceables:
-                print("  {}".format(field.name), end="", flush=True)
-                start_field = time.time()
-                field.update_choices()
-                field.save()
-                end_field = time.time()
-                print(" - done in {:.3f}s.".format(end_field - start_field))
-            end = time.time()
-            print("  done in {:.3f}s.".format(end - start))
-
         if clear_view_cache:
             print("Clearing view cache...")
             cache.clear()
