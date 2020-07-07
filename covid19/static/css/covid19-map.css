@@ -1,10 +1,10 @@
-nav ul li {
+nav.nav-state-selector ul li {
   list-style-type: none; 
   display: inline-block; 
   float: none!important;
 }
 
-nav ul {
+nav.nav-state-selector ul {
   white-space: nowrap;
   overflow-x: auto; 
   overflow-y: hidden; 
