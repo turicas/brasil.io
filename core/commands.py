@@ -25,16 +25,18 @@ class ImportDataCommand:
     def execute(cls, dataset_slug, tablename, filename, **options):
         table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
         self = cls(table, **options)
-        if self.flag_import_data:
-            self.import_data(filename)
-        if self.flag_vacuum:
-            self.run_vacuum()
-        if self.flag_create_filter_indexes:
-            self.create_filter_indexes()
-
-    def import_data(self, filename):
-        # Create the table if not exists
         Model = self.table.get_model()
+
+        if self.flag_import_data:
+            self.import_data(filename, Model)
+            Model = self.table.get_model(cache=False)
+        if self.flag_vacuum:
+            self.run_vacuum(Model)
+        if self.flag_create_filter_indexes:
+            self.create_filter_indexes(Model)
+
+    def import_data(self, filename, Model):
+        # Create the table if not exists
         with transaction.atomic():
             try:
                 Model.delete_table()
@@ -90,19 +92,17 @@ class ImportDataCommand:
             )
         self.table.invalidate_cache()
 
-    def run_vacuum(self):
+    def run_vacuum(self, Model):
         print("Running VACUUM ANALYSE...", end="", flush=True)
         start = time.time()
-        Model = self.table.get_model(cache=False)
         Model.analyse_table()
         end = time.time()
         print("  done in {:.3f}s.".format(end - start))
 
-    def create_filter_indexes(self):
+    def create_filter_indexes(self, Model):
         # TODO: warn if field has_choices but not in Table.filtering
         print("Creating filter indexes...", end="", flush=True)
         start = time.time()
-        Model = self.table.get_model(cache=False)
         Model.create_indexes()  # TODO: add "IF NOT EXISTS"
         end = time.time()
         print("  done in {:.3f}s.".format(end - start))
