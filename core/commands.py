@@ -29,6 +29,8 @@ class ImportDataCommand:
             self.import_data(filename)
         if self.flag_vacuum:
             self.run_vacuum()
+        if self.flag_create_filter_indexes:
+            self.create_filter_indexes()
 
     def import_data(self, filename):
         # Create the table if not exists
@@ -93,5 +95,14 @@ class ImportDataCommand:
         start = time.time()
         Model = self.table.get_model(cache=False)
         Model.analyse_table()
+        end = time.time()
+        print("  done in {:.3f}s.".format(end - start))
+
+    def create_filter_indexes(self):
+        # TODO: warn if field has_choices but not in Table.filtering
+        print("Creating filter indexes...", end="", flush=True)
+        start = time.time()
+        Model = self.table.get_model(cache=False)
+        Model.create_indexes()  # TODO: add "IF NOT EXISTS"
         end = time.time()
         print("  done in {:.3f}s.".format(end - start))
