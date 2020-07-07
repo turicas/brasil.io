@@ -25,10 +25,14 @@ class ImportDataCommand:
     def execute(cls, dataset_slug, tablename, filename, **options):
         table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
         self = cls(table, **options)
-        Model = self.table.get_model()
+        db_table_suffix = '_temp'
 
         if self.flag_import_data:
+            Model = self.table.get_model(cache=False, db_table_suffix=db_table_suffix)
             self.import_data(filename, Model)
+            self.replace_old_model(OldModel=self.table.get_model(cache=False), NewModel=Model)
+            Model = self.table.get_model(cache=False)
+        else:
             Model = self.table.get_model(cache=False)
         if self.flag_vacuum:
             self.run_vacuum(Model)
@@ -96,6 +100,18 @@ class ImportDataCommand:
                 )
             )
         self.table.invalidate_cache()
+
+    def replace_old_model(self, OldModel, NewModel):
+        target_name = OldModel._meta.db_table
+        temp_name = NewModel._meta.db_table
+        with transaction.atomic():
+            try:
+                OldModel.delete_table()
+            except ProgrammingError:  # Does not exist
+                pass
+            finally:
+                with connection.schema_editor() as schema_editor:
+                    schema_editor.alter_db_table(NewModel, temp_name, target_name)
 
     def run_vacuum(self, Model):
         print("Running VACUUM ANALYSE...", end="", flush=True)
