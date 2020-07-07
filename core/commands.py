@@ -3,7 +3,7 @@ import time
 from collections import OrderedDict
 
 from django.core.cache import cache
-from django.db import transaction, connection
+from django.db import connection, transaction
 from django.db.utils import ProgrammingError
 from django.utils import timezone
 from rows.utils import ProgressBar, open_compressed, pgimport
@@ -25,7 +25,7 @@ class ImportDataCommand:
     def execute(cls, dataset_slug, tablename, filename, **options):
         table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
         self = cls(table, **options)
-        db_table_suffix = '_temp'
+        db_table_suffix = "_temp"
 
         if self.flag_import_data:
             Model = self.table.get_model(cache=False, db_table_suffix=db_table_suffix)
@@ -104,7 +104,7 @@ class ImportDataCommand:
     def replace_model(self, TargetModel, TempModel):
         table_name, temp_name = TargetModel._meta.db_table, TempModel._meta.db_table
         trigger_name, temp_trigger_name = TargetModel.get_trigger_name(), TempModel.get_trigger_name()
-        seq_name, temp_seq_name = f'{table_name}_id_seq', f'{temp_name}_id_seq'
+        seq_name, temp_seq_name = f"{table_name}_id_seq", f"{temp_name}_id_seq"
         with transaction.atomic():
             print("Replacing existing model by the new one...", end="", flush=True)
             start = time.time()

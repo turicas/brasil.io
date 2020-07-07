@@ -436,7 +436,9 @@ class Table(models.Model):
                 pg_indexes.GinIndex(name=make_index_name(name, "search", ["search_data"]), fields=["search_data"])
             )
 
-        Options = type("Meta", (object,), {"ordering": ordering, "indexes": indexes, "db_table": self.db_table + db_table_suffix,},)
+        Options = type(
+            "Meta", (object,), {"ordering": ordering, "indexes": indexes, "db_table": self.db_table + db_table_suffix,},
+        )
         Model = type(
             model_name,
             (DynamicModelMixin, models.Model,),
