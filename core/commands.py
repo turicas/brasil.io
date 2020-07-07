@@ -104,6 +104,7 @@ class ImportDataCommand:
     def replace_model(self, TargetModel, TempModel):
         table_name, temp_name = TargetModel._meta.db_table, TempModel._meta.db_table
         trigger_name, temp_trigger_name = TargetModel.get_trigger_name(), TempModel.get_trigger_name()
+        seq_name, temp_seq_name = f'{table_name}_id_seq', f'{temp_name}_id_seq'
         with transaction.atomic():
             print("Replacing existing model by the new one...", end="", flush=True)
             start = time.time()
@@ -119,6 +120,8 @@ class ImportDataCommand:
                         ALTER TRIGGER {temp_trigger_name} ON {table_name} RENAME TO {trigger_name};
                     """.strip()
                     cursor.execute(trigger_rename_sql)
+                    seq_rename_sql = f"ALTER SEQUENCE {temp_seq_name} RENAME TO {seq_name}"
+                    cursor.execute(seq_rename_sql)
             print("  done in {:.3f}s.".format(time.time() - start))
 
     def run_vacuum(self, Model):
