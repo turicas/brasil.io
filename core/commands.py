@@ -1,11 +1,12 @@
 import os
 import time
 from collections import OrderedDict
+from rows.utils import ProgressBar, open_compressed, pgimport
 
+from django.core.cache import cache
 from django.db import transaction
 from django.db.utils import ProgrammingError
 from django.utils import timezone
-from rows.utils import ProgressBar, open_compressed, pgimport
 
 from core.models import Table, Field
 
@@ -36,6 +37,9 @@ class ImportDataCommand:
             self.create_filter_indexes(Model)
         if self.flag_fill_choices:
             self.fill_choices(Model)
+        if self.flag_clear_view_cache:
+            print("Clearing view cache...")
+            cache.clear()
 
     def import_data(self, filename, Model):
         # Create the table if not exists

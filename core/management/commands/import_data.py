@@ -69,7 +69,3 @@ class Command(BaseCommand):
             fill_choices=fill_choices,
             collect_date=collect_date,
         )
-
-        if clear_view_cache:
-            print("Clearing view cache...")
-            cache.clear()
