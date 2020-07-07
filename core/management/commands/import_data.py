@@ -11,6 +11,7 @@ from django.utils import timezone
 from rows.utils import ProgressBar, open_compressed, pgimport
 
 from core.models import Field, Table
+from core.commands import ImportDataCommand
 
 
 class Command(BaseCommand):
@@ -58,63 +59,16 @@ class Command(BaseCommand):
         table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
         Model = table.get_model()
 
-        if import_data:
-            # Create the table if not exists
-            with transaction.atomic():
-                try:
-                    Model.delete_table()
-                except ProgrammingError:  # Does not exist
-                    pass
-                finally:
-                    Model.create_table(create_indexes=False)
-                    Model.create_triggers()
-
-            # Get file object, header and set command to run
-            table_name = Model._meta.db_table
-            database_uri = os.environ["DATABASE_URL"]
-            encoding = "utf-8"  # TODO: receive as a parameter
-            timeout = 0.1  # TODO: receive as a parameter
-            start_time = time.time()
-            progress = ProgressBar(prefix="Importing data", unit="bytes")
-
-            # TODO: change the way we do it (CSV dialect may change, encoding
-            # etc.)
-            file_header = open_compressed(filename).readline().strip().split(",")
-            table_schema = table.schema
-            schema = OrderedDict([(field_name, table_schema[field_name]) for field_name in file_header])
-            try:
-                import_meta = pgimport(
-                    filename=filename,
-                    encoding=encoding,
-                    dialect="excel",
-                    database_uri=database_uri,
-                    table_name=table_name,
-                    create_table=False,
-                    timeout=timeout,
-                    callback=progress.update,
-                    schema=schema,
-                )
-            except RuntimeError as exception:
-                progress.close()
-                print("ERROR: {}".format(exception.args[0]))
-                exit(1)
-            else:
-                progress.close()
-                table.import_date = timezone.now()
-                table.save()
-                if collect_date:
-                    table.version.collected_at = collect_date
-                    table.version.save()
-                end_time = time.time()
-                duration = end_time - start_time
-                rows_imported = import_meta["rows_imported"]
-                print(
-                    "  done in {:7.3f}s ({} rows imported, {:.3f} rows/s).".format(
-                        duration, rows_imported, rows_imported / duration
-                    )
-                )
-            Model = table.get_model(cache=False)
-            table.invalidate_cache()
+        #  Step by step replacement
+        ImportDataCommand.execute(
+            dataset_slug, tablename, filename,
+            import_data=import_data,
+            vacuum=vacuum,
+            clear_view_cache=clear_view_cache,
+            create_filter_indexes=create_filter_indexes,
+            fill_choices=fill_choices,
+            collect_date=collect_date,
+        )
 
         if vacuum:
             print("Running VACUUM ANALYSE...", end="", flush=True)
