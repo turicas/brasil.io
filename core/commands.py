@@ -3,7 +3,7 @@ import time
 from collections import OrderedDict
 
 from django.core.cache import cache
-from django.db import transaction
+from django.db import transaction, connection
 from django.db.utils import ProgrammingError
 from django.utils import timezone
 from rows.utils import ProgressBar, open_compressed, pgimport
@@ -102,8 +102,8 @@ class ImportDataCommand:
         self.table.invalidate_cache()
 
     def replace_old_model(self, OldModel, NewModel):
-        target_name = OldModel._meta.db_table
-        temp_name = NewModel._meta.db_table
+        target_name, trigger_name = OldModel._meta.db_table, OldModel.get_trigger_name()
+        temp_name, temp_trigger_name = NewModel._meta.db_table, NewModel.get_trigger_name()
         with transaction.atomic():
             try:
                 OldModel.delete_table()
@@ -112,6 +112,11 @@ class ImportDataCommand:
             finally:
                 with connection.schema_editor() as schema_editor:
                     schema_editor.alter_db_table(NewModel, temp_name, target_name)
+                with connection.cursor() as cursor:
+                    trigger_rename_sql = f"""
+                        ALTER TRIGGER {temp_trigger_name} ON {target_name} RENAME TO {trigger_name};
+                    """.strip()
+                    cursor.execute(trigger_rename_sql)
 
     def run_vacuum(self, Model):
         print("Running VACUUM ANALYSE...", end="", flush=True)

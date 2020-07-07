@@ -115,8 +115,12 @@ class DynamicModelMixin:
             cursor.execute("VACUUM ANALYSE {}".format(cls.tablename()))
 
     @classmethod
+    def get_trigger_name(cls):
+        return f"tgr_tsv_{cls.tablename()}"
+
+    @classmethod
     def create_triggers(cls):
-        trigger_name = f"tgr_tsv_{cls.tablename()}"
+        trigger_name = cls.get_trigger_name()
         fieldnames = ", ".join(cls.extra["search"])
         query = dedent(
             f"""
