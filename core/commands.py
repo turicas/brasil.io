@@ -1,18 +1,17 @@
 import os
 import time
 from collections import OrderedDict
-from rows.utils import ProgressBar, open_compressed, pgimport
 
 from django.core.cache import cache
 from django.db import transaction
 from django.db.utils import ProgrammingError
 from django.utils import timezone
+from rows.utils import ProgressBar, open_compressed, pgimport
 
-from core.models import Table, Field
+from core.models import Field, Table
 
 
 class ImportDataCommand:
-
     def __init__(self, table, **options):
         self.table = table
         self.flag_import_data = options["import_data"]

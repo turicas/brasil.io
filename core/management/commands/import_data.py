@@ -1,16 +1,7 @@
-import os
-import time
-from collections import OrderedDict
 from datetime import date
 
-from django.core.cache import cache
 from django.core.management.base import BaseCommand
-from django.db import transaction
-from django.db.utils import ProgrammingError
-from django.utils import timezone
-from rows.utils import ProgressBar, open_compressed, pgimport
 
-from core.models import Field, Table
 from core.commands import ImportDataCommand
 
 
@@ -56,12 +47,10 @@ class Command(BaseCommand):
             if answer.lower().strip() not in ("y", "yes"):
                 exit()
 
-        table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
-        Model = table.get_model()
-
-        #  Step by step replacement
         ImportDataCommand.execute(
-            dataset_slug, tablename, filename,
+            dataset_slug,
+            tablename,
+            filename,
             import_data=import_data,
             vacuum=vacuum,
             clear_view_cache=clear_view_cache,
