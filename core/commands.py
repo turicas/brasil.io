@@ -30,7 +30,7 @@ class ImportDataCommand:
         if self.flag_import_data:
             Model = self.table.get_model(cache=False, db_table_suffix=db_table_suffix)
             self.import_data(filename, Model)
-            self.replace_old_model(OldModel=self.table.get_model(cache=False), NewModel=Model)
+            self.replace_model(TargetModel=self.table.get_model(cache=False), TempModel=Model)
             Model = self.table.get_model(cache=False)
         else:
             Model = self.table.get_model(cache=False)
@@ -101,20 +101,20 @@ class ImportDataCommand:
             )
         self.table.invalidate_cache()
 
-    def replace_old_model(self, OldModel, NewModel):
-        target_name, trigger_name = OldModel._meta.db_table, OldModel.get_trigger_name()
-        temp_name, temp_trigger_name = NewModel._meta.db_table, NewModel.get_trigger_name()
+    def replace_model(self, TargetModel, TempModel):
+        table_name, temp_name = TargetModel._meta.db_table, TempModel._meta.db_table
+        trigger_name, temp_trigger_name = TargetModel.get_trigger_name(), TempModel.get_trigger_name()
         with transaction.atomic():
             try:
-                OldModel.delete_table()
+                TargetModel.delete_table()
             except ProgrammingError:  # Does not exist
                 pass
             finally:
                 with connection.schema_editor() as schema_editor:
-                    schema_editor.alter_db_table(NewModel, temp_name, target_name)
+                    schema_editor.alter_db_table(TempModel, temp_name, table_name)
                 with connection.cursor() as cursor:
                     trigger_rename_sql = f"""
-                        ALTER TRIGGER {temp_trigger_name} ON {target_name} RENAME TO {trigger_name};
+                        ALTER TRIGGER {temp_trigger_name} ON {table_name} RENAME TO {trigger_name};
                     """.strip()
                     cursor.execute(trigger_rename_sql)
 
