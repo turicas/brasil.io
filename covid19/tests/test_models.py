@@ -685,3 +685,43 @@ class StateSpreadsheetManagerTests(TestCase):
         self.assertDataEntry(cases, self.date, "TOTAL NO ESTADO", 50, 20)
         self.assertDataEntry(cases, self.date, "Importados/Indefinidos", 2, 2)
         self.assertDataEntry(cases, self.date, "Curitiba", 10, 5)
+
+    def test_ensure_only_first_spreadsheet_for_date_only_with_total_is_considered(self):
+        sp_date = self.date.isoformat()
+        older_previous_deployed = baker.make(
+            StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date, cancelled=True,
+        )
+        older_previous_deployed.table_data = [
+            {
+                "city": None,
+                "city_ibge_code": 41,
+                "confirmed": 12,
+                "date": sp_date,
+                "deaths": 7,
+                "place_type": "state",
+                "state": self.state,
+            },
+        ]
+        older_previous_deployed.warnings = [StateSpreadsheet.ONLY_WITH_TOTAL_WARNING]
+        older_previous_deployed.save()
+
+        previous_deployed = baker.make(
+            StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date, cancelled=False
+        )
+        previous_deployed.table_data = [
+            {
+                "city": None,
+                "city_ibge_code": 41,
+                "confirmed": 40,
+                "date": sp_date,
+                "deaths": 30,
+                "place_type": "state",
+                "state": self.state,
+            },
+        ]
+        previous_deployed.warnings = [StateSpreadsheet.ONLY_WITH_TOTAL_WARNING]
+        previous_deployed.save()
+
+        cases = StateSpreadsheet.objects.get_state_data("PR")["cases"]
+
+        self.assertDataEntry(cases, self.date, "TOTAL NO ESTADO", 40, 30)
