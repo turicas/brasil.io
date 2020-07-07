@@ -27,6 +27,8 @@ class ImportDataCommand:
         self = cls(table, **options)
         if self.flag_import_data:
             self.import_data(filename)
+        if self.flag_vacuum:
+            self.run_vacuum()
 
     def import_data(self, filename):
         # Create the table if not exists
@@ -85,3 +87,11 @@ class ImportDataCommand:
                 )
             )
         self.table.invalidate_cache()
+
+    def run_vacuum(self):
+        print("Running VACUUM ANALYSE...", end="", flush=True)
+        start = time.time()
+        Model = self.table.get_model(cache=False)
+        Model.analyse_table()
+        end = time.time()
+        print("  done in {:.3f}s.".format(end - start))
