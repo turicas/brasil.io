@@ -22,6 +22,9 @@ class ImportDataCommand:
         self.flag_clean_after = options["clean_after"]
         self.collect_date = options["collect_date"]
 
+    def log(self, msg, *args, **kwargs):
+        print(msg, *args, **kwargs)
+
     @classmethod
     def execute(cls, dataset_slug, tablename, filename, **options):
         table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
@@ -29,7 +32,7 @@ class ImportDataCommand:
         data_table = DataTable.new_data_table(table)  # in memory instance, not persisted in the DB
 
         if self.flag_import_data:
-            print(f"Importing data to new table {data_table.db_table_name}")
+            self.log(f"Importing data to new table {data_table.db_table_name}")
             Model = self.table.get_model(cache=False, data_table=data_table)
             self.import_data(filename, Model)
         else:
@@ -49,12 +52,12 @@ class ImportDataCommand:
                     table.data_table.deactivate(drop_table=self.flag_clean_after)
                     data_table.activate()
         except Exception as e:
-            print(f"Deleting import table {data_table.db_table_name} due to an error.")
+            self.log(f"Deleting import table {data_table.db_table_name} due to an error.")
             data_table.delete_data_table()
             raise e
 
         if self.flag_clear_view_cache:
-            print("Clearing view cache...")
+            self.log("Clearing view cache...")
             cache.clear()
 
     def import_data(self, filename, Model):
@@ -96,7 +99,7 @@ class ImportDataCommand:
         except RuntimeError as exception:
             progress.close()
             Model.delete_table()
-            print("ERROR: {}".format(exception.args[0]))
+            self.log("ERROR: {}".format(exception.args[0]))
             exit(1)
         else:
             progress.close()
@@ -108,7 +111,7 @@ class ImportDataCommand:
             end_time = time.time()
             duration = end_time - start_time
             rows_imported = import_meta["rows_imported"]
-            print(
+            self.log(
                 "  done in {:7.3f}s ({} rows imported, {:.3f} rows/s).".format(
                     duration, rows_imported, rows_imported / duration
                 )
@@ -116,30 +119,30 @@ class ImportDataCommand:
         self.table.invalidate_cache()
 
     def run_vacuum(self, Model):
-        print("Running VACUUM ANALYSE...", end="", flush=True)
+        self.log("Running VACUUM ANALYSE...", end="", flush=True)
         start = time.time()
         Model.analyse_table()
         end = time.time()
-        print("  done in {:.3f}s.".format(end - start))
+        self.log("  done in {:.3f}s.".format(end - start))
 
     def create_filter_indexes(self, Model):
         # TODO: warn if field has_choices but not in Table.filtering
-        print("Creating filter indexes...", end="", flush=True)
+        self.log("Creating filter indexes...", end="", flush=True)
         start = time.time()
         Model.create_indexes()  # TODO: add "IF NOT EXISTS"
         end = time.time()
-        print("  done in {:.3f}s.".format(end - start))
+        self.log("  done in {:.3f}s.".format(end - start))
 
     def fill_choices(self, Model):
-        print("Filling choices...")
+        self.log("Filling choices...")
         start = time.time()
         choiceables = Field.objects.for_table(self.table).choiceables()
         for field in choiceables:
-            print("  {}".format(field.name), end="", flush=True)
+            self.log("  {}".format(field.name), end="", flush=True)
             start_field = time.time()
             field.update_choices()
             field.save()
             end_field = time.time()
-            print(" - done in {:.3f}s.".format(end_field - start_field))
+            self.log(" - done in {:.3f}s.".format(end_field - start_field))
         end = time.time()
-        print("  done in {:.3f}s.".format(end - start))
+        self.log("  done in {:.3f}s.".format(end - start))
