@@ -431,17 +431,17 @@ class Table(models.Model):
         indexes = []
         # TODO: add has_choices fields also
         if ordering:
-            indexes.append(django_indexes.Index(name=make_index_name(name, "order", ordering), fields=ordering,))
+            indexes.append(django_indexes.Index(name=make_index_name(db_table, "order", ordering), fields=ordering,))
         if filtering:
             for field_name in filtering:
                 if ordering == [field_name]:
                     continue
                 indexes.append(
-                    django_indexes.Index(name=make_index_name(name, "filter", [field_name]), fields=[field_name])
+                    django_indexes.Index(name=make_index_name(db_table, "filter", [field_name]), fields=[field_name])
                 )
         if search:
             indexes.append(
-                pg_indexes.GinIndex(name=make_index_name(name, "search", ["search_data"]), fields=["search_data"])
+                pg_indexes.GinIndex(name=make_index_name(db_table, "search", ["search_data"]), fields=["search_data"])
             )
 
         Options = type("Meta", (object,), {"ordering": ordering, "indexes": indexes, "db_table": db_table,},)
