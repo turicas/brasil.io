@@ -372,8 +372,12 @@ class Table(models.Model):
         return "{}.{}.{}".format(self.dataset.slug, self.version.name, self.name)
 
     @property
+    def data_table(self):
+        return self.data_tables.get_current_active()
+
+    @property
     def db_table(self):
-        return "data_{}_{}".format(self.dataset.slug.replace("-", ""), self.name.replace("_", ""),)
+        return self.data_table.db_table_name
 
     @property
     def fields(self):
@@ -528,6 +532,11 @@ def get_table_model(dataset_slug, tablename):
     ModelClass = table.get_model()
 
     return ModelClass
+
+
+class DataTableQuerySet(models.QuerySet):
+    def get_current_active(self):
+        return self.filter(active=True).order_by("-created_at").first()
 
 
 class DataTable(models.Model):
