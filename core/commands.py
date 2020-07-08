@@ -29,22 +29,33 @@ class ImportDataCommand:
         data_table = DataTable.new_data_table(table)  # in memory instance, not persisted in the DB
 
         if self.flag_import_data:
+            print(f"Importing data to new table {data_table.db_table_name}")
             Model = self.table.get_model(cache=False, data_table=data_table)
             self.import_data(filename, Model)
         else:
             Model = self.table.get_model(cache=False)
+
+        # Vaccum and concurrent index creation cannot run inside a transaction block
         if self.flag_vacuum:
             self.run_vacuum(Model)
         if self.flag_create_filter_indexes:
             self.create_filter_indexes(Model)
-        if self.flag_fill_choices:
-            self.fill_choices(Model)
+
+        try:
+            with transaction.atomic():
+                if self.flag_fill_choices:
+                    self.fill_choices(Model)
+                if self.flag_import_data:
+                    table.data_table.deactivate(drop_table=self.flag_clean_after)
+                    data_table.activate()
+        except Exception as e:
+            print(f"Deleting import table {data_table.db_table_name} due to an error.")
+            data_table.delete_data_table()
+            raise e
+
         if self.flag_clear_view_cache:
             print("Clearing view cache...")
             cache.clear()
-        if self.flag_import_data:
-            table.data_table.deactivate(drop_table=self.flag_clean_after)
-            data_table.activate()
 
     def import_data(self, filename, Model):
         # Create the table if not exists

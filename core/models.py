@@ -13,6 +13,7 @@ from django.contrib.postgres.fields import ArrayField, JSONField
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
 from django.db import connection, models
 from django.db.models import F
+from django.db.utils import ProgrammingError
 from markdownx.models import MarkdownxField
 from rows import fields as rows_fields
 
@@ -563,7 +564,13 @@ class DataTable(models.Model):
 
     def deactivate(self, drop_table=False):
         if drop_table:
-            Model = self.table.get_model(cache=False, data_table=self)
-            Model.delete_table()
+            self.delete_data_table()
         self.active = False
         self.save()
+
+    def delete_data_table(self):
+        Model = self.table.get_model(cache=False, data_table=self)
+        try:
+            Model.delete_table()
+        except ProgrammingError:  # model does not exist
+            pass
