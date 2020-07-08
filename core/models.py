@@ -528,3 +528,12 @@ def get_table_model(dataset_slug, tablename):
     ModelClass = table.get_model()
 
     return ModelClass
+
+
+class DataTable(models.Model):
+    objects = DataTableQuerySet.as_manager()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    table = models.ForeignKey(Table, related_name="data_tables", on_delete=models.SET_NULL, null=True)
+    db_table_name = models.TextField()
+    active = models.BooleanField(default=False)
