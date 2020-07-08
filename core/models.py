@@ -1,4 +1,6 @@
 import hashlib
+import random
+import string
 from collections import OrderedDict
 from functools import lru_cache
 from textwrap import dedent
@@ -409,7 +411,7 @@ class Table(models.Model):
             ]
         )
 
-    def get_model(self, cache=True, db_table_suffix=""):
+    def get_model(self, cache=True, data_table=None):
         if cache and self.id in DYNAMIC_MODEL_REGISTRY:
             return DYNAMIC_MODEL_REGISTRY[self.id]
 
@@ -417,6 +419,8 @@ class Table(models.Model):
         # in DYNAMIC_MODEL_REGISTRY and not cache)
         # TODO: may use Django's internal registry instead of
         # DYNAMIC_MODEL_REGISTRY
+        data_table = data_table or self.data_table
+        db_table = data_table.db_table_name
         name = self.dataset.slug + "-" + self.name.replace("_", "-")
         model_name = "".join([word.capitalize() for word in name.split("-")])
         fields = {field.name: field.field_class for field in self.fields}
@@ -440,9 +444,7 @@ class Table(models.Model):
                 pg_indexes.GinIndex(name=make_index_name(name, "search", ["search_data"]), fields=["search_data"])
             )
 
-        Options = type(
-            "Meta", (object,), {"ordering": ordering, "indexes": indexes, "db_table": self.db_table + db_table_suffix,},
-        )
+        Options = type("Meta", (object,), {"ordering": ordering, "indexes": indexes, "db_table": db_table,},)
         Model = type(
             model_name,
             (DynamicModelMixin, models.Model,),
@@ -546,3 +548,15 @@ class DataTable(models.Model):
     table = models.ForeignKey(Table, related_name="data_tables", on_delete=models.SET_NULL, null=True)
     db_table_name = models.TextField()
     active = models.BooleanField(default=False)
+
+    @classmethod
+    def new_data_table(cls, table, suffix_size=8):
+        db_table_suffix = "".join(random.choice(string.ascii_lowercase) for i in range(suffix_size))
+        db_table_name = "data_{}_{}_{}".format(
+            table.dataset.slug.replace("-", ""), table.name.replace("_", ""), db_table_suffix
+        )
+        return cls(table=table, db_table_name=db_table_name)
+
+    def activate(self):
+        self.active = True
+        self.save()

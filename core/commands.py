@@ -8,7 +8,7 @@ from django.db.utils import ProgrammingError
 from django.utils import timezone
 from rows.utils import ProgressBar, open_compressed, pgimport
 
-from core.models import Field, Table
+from core.models import DataTable, Field, Table
 
 
 class ImportDataCommand:
@@ -25,13 +25,11 @@ class ImportDataCommand:
     def execute(cls, dataset_slug, tablename, filename, **options):
         table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
         self = cls(table, **options)
-        db_table_suffix = "_temp"
+        data_table = DataTable.new_data_table(table)  # in memory instance, not persisted in the DB
 
         if self.flag_import_data:
-            Model = self.table.get_model(cache=False, db_table_suffix=db_table_suffix)
+            Model = self.table.get_model(cache=False, data_table=data_table)
             self.import_data(filename, Model)
-            self.replace_model(TargetModel=self.table.get_model(cache=False), TempModel=Model)
-            Model = self.table.get_model(cache=False)
         else:
             Model = self.table.get_model(cache=False)
         if self.flag_vacuum:
@@ -43,6 +41,8 @@ class ImportDataCommand:
         if self.flag_clear_view_cache:
             print("Clearing view cache...")
             cache.clear()
+        if self.flag_import_data:
+            data_table.activate()
 
     def import_data(self, filename, Model):
         # Create the table if not exists
