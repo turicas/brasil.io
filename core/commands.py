@@ -3,7 +3,7 @@ import time
 from collections import OrderedDict
 
 from django.core.cache import cache
-from django.db import connection, transaction
+from django.db import transaction
 from django.db.utils import ProgrammingError
 from django.utils import timezone
 from rows.utils import ProgressBar, open_compressed, pgimport
@@ -100,33 +100,6 @@ class ImportDataCommand:
                 )
             )
         self.table.invalidate_cache()
-
-    def replace_model(self, TargetModel, TempModel):
-        table_name, temp_name = TargetModel._meta.db_table, TempModel._meta.db_table
-        trigger_name, temp_trigger_name = TargetModel.get_trigger_name(), TempModel.get_trigger_name()
-        seq_name, temp_seq_name = f"{table_name}_id_seq", f"{temp_name}_id_seq"
-        pkey_index, temp_pkey_index = f"{table_name}_pkey", f"{temp_name}_pkey"
-
-        with transaction.atomic():
-            print("Replacing existing model by the new one...", end="", flush=True)
-            start = time.time()
-            try:
-                TargetModel.delete_table()
-            except ProgrammingError:  # Does not exist
-                pass
-            finally:
-                with connection.schema_editor() as schema_editor:
-                    schema_editor.alter_db_table(TempModel, temp_name, table_name)
-                with connection.cursor() as cursor:
-                    trigger_rename_sql = f"""
-                        ALTER TRIGGER {temp_trigger_name} ON {table_name} RENAME TO {trigger_name};
-                    """.strip()
-                    cursor.execute(trigger_rename_sql)
-                    seq_rename_sql = f"ALTER SEQUENCE {temp_seq_name} RENAME TO {seq_name}"
-                    cursor.execute(seq_rename_sql)
-                    pkey_idx_rename_sql = f"ALTER INDEX {temp_pkey_index} RENAME TO {pkey_index}"
-                    cursor.execute(pkey_idx_rename_sql)
-            print("  done in {:.3f}s.".format(time.time() - start))
 
     def run_vacuum(self, Model):
         print("Running VACUUM ANALYSE...", end="", flush=True)
