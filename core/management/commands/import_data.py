@@ -18,6 +18,7 @@ class Command(BaseCommand):
         parser.add_argument("--no-clear-view-cache", required=False, action="store_true")
         parser.add_argument("--no-create-filter-indexes", required=False, action="store_true")
         parser.add_argument("--no-fill-choices", required=False, action="store_true")
+        parser.add_argument("--no-clean-after", required=False, action="store_true")
         parser.add_argument(
             "--collect-date", required=False, action="store", help="collect date in format YYYY-MM-DD",
         )
@@ -39,6 +40,7 @@ class Command(BaseCommand):
         clear_view_cache = not kwargs["no_clear_view_cache"]
         create_filter_indexes = not kwargs["no_create_filter_indexes"]
         fill_choices = not kwargs["no_fill_choices"]
+        clean_after = not kwargs["no_clean_after"]
         collect_date = self.clean_collect_date(kwargs["collect_date"])
 
         if ask_confirmation:
@@ -56,5 +58,6 @@ class Command(BaseCommand):
             clear_view_cache=clear_view_cache,
             create_filter_indexes=create_filter_indexes,
             fill_choices=fill_choices,
+            clean_after=clean_after,
             collect_date=collect_date,
         )

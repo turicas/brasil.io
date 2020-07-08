@@ -560,3 +560,10 @@ class DataTable(models.Model):
     def activate(self):
         self.active = True
         self.save()
+
+    def deactivate(self, drop_table=False):
+        if drop_table:
+            Model = self.table.get_model(cache=False, data_table=self)
+            Model.delete_table()
+        self.active = False
+        self.save()

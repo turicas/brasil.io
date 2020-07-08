@@ -19,6 +19,7 @@ class ImportDataCommand:
         self.flag_clear_view_cache = options["clear_view_cache"]
         self.flag_create_filter_indexes = options["create_filter_indexes"]
         self.flag_fill_choices = options["fill_choices"]
+        self.flag_clean_after = options["clean_after"]
         self.collect_date = options["collect_date"]
 
     @classmethod
@@ -42,6 +43,7 @@ class ImportDataCommand:
             print("Clearing view cache...")
             cache.clear()
         if self.flag_import_data:
+            table.data_table.deactivate(drop_table=self.flag_clean_after)
             data_table.activate()
 
     def import_data(self, filename, Model):
