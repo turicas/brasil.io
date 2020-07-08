@@ -95,6 +95,7 @@ class ImportDataCommand:
             )
         except RuntimeError as exception:
             progress.close()
+            Model.delete_table()
             print("ERROR: {}".format(exception.args[0]))
             exit(1)
         else:
