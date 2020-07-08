@@ -553,9 +553,9 @@ class DataTable(models.Model):
     @classmethod
     def new_data_table(cls, table, suffix_size=8):
         db_table_suffix = "".join(random.choice(string.ascii_lowercase) for i in range(suffix_size))
-        db_table_name = "data_{}_{}_{}".format(
-            table.dataset.slug.replace("-", ""), table.name.replace("_", ""), db_table_suffix
-        )
+        db_table_name = "data_{}_{}".format(table.dataset.slug.replace("-", ""), table.name.replace("_", ""))
+        if db_table_suffix:
+            db_table_name += f"_{db_table_suffix}"
         return cls(table=table, db_table_name=db_table_name)
 
     def activate(self):
