@@ -549,6 +549,9 @@ class DataTableQuerySet(models.QuerySet):
     def active(self):
         return self.filter(active=True)
 
+    def for_dataset(self, dataset_slug):
+        return self.filter(table__dataset__slug=dataset_slug)
+
 
 class DataTable(models.Model):
     objects = DataTableQuerySet.as_manager()
