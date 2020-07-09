@@ -8,7 +8,6 @@ from django.core.cache import cache
 from django.db import transaction
 from django.db.utils import ProgrammingError
 from django.utils import timezone
-from rows.utils import ProgressBar, open_compressed, pgimport
 
 from core.models import DataTable, Field, Table
 
@@ -85,7 +84,9 @@ class ImportDataCommand:
         with rows.utils.open_compressed(filename, mode="rb") as fobj:
             sample = fobj.read(sample_size)
             dialect = rows.plugins.csv.discover_dialect(sample, encoding)
-        file_header = open_compressed(filename).readline().strip().split(",")
+        with rows.utils.open_compressed(filename) as fobj:
+            reader = csv.DictReader(fobj, dialect=dialect)
+            file_header = reader.fieldnames
         table_schema = self.table.schema
         schema = OrderedDict([(field_name, table_schema[field_name]) for field_name in file_header])
         try:
