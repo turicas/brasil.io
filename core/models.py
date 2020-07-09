@@ -413,15 +413,17 @@ class Table(models.Model):
         )
 
     def get_model(self, cache=True, data_table=None):
+        data_table = data_table or self.data_table
+        db_table = data_table.db_table_name
+
+        cache_key = (self.id, db_table)
         if cache and self.id in DYNAMIC_MODEL_REGISTRY:
-            return DYNAMIC_MODEL_REGISTRY[self.id]
+            return DYNAMIC_MODEL_REGISTRY[cache_key]
 
         # TODO: unregister the model in Django if already registered (self.id
         # in DYNAMIC_MODEL_REGISTRY and not cache)
         # TODO: may use Django's internal registry instead of
         # DYNAMIC_MODEL_REGISTRY
-        data_table = data_table or self.data_table
-        db_table = data_table.db_table_name
         name = self.dataset.slug + "-" + self.name.replace("_", "-")
         model_name = "".join([word.capitalize() for word in name.split("-")])
         fields = {field.name: field.field_class for field in self.fields}
@@ -456,7 +458,7 @@ class Table(models.Model):
             "ordering": ordering,
             "search": search,
         }
-        DYNAMIC_MODEL_REGISTRY[self.id] = Model
+        DYNAMIC_MODEL_REGISTRY[cache_key] = Model
         return Model
 
     def get_model_declaration(self):
