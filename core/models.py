@@ -1,4 +1,6 @@
 import hashlib
+import random
+import string
 from collections import OrderedDict
 from functools import lru_cache
 from textwrap import dedent
@@ -11,6 +13,7 @@ from django.contrib.postgres.fields import ArrayField, JSONField
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
 from django.db import connection, models
 from django.db.models import F
+from django.db.utils import ProgrammingError
 from markdownx.models import MarkdownxField
 from rows import fields as rows_fields
 
@@ -115,8 +118,12 @@ class DynamicModelMixin:
             cursor.execute("VACUUM ANALYSE {}".format(cls.tablename()))
 
     @classmethod
+    def get_trigger_name(cls):
+        return f"tgr_tsv_{cls.tablename()}"
+
+    @classmethod
     def create_triggers(cls):
-        trigger_name = f"tgr_tsv_{cls.tablename()}"
+        trigger_name = cls.get_trigger_name()
         fieldnames = ", ".join(cls.extra["search"])
         query = dedent(
             f"""
@@ -368,8 +375,12 @@ class Table(models.Model):
         return "{}.{}.{}".format(self.dataset.slug, self.version.name, self.name)
 
     @property
+    def data_table(self):
+        return self.data_tables.get_current_active()
+
+    @property
     def db_table(self):
-        return "data_{}_{}".format(self.dataset.slug.replace("-", ""), self.name.replace("_", ""),)
+        return self.data_table.db_table_name
 
     @property
     def fields(self):
@@ -401,9 +412,13 @@ class Table(models.Model):
             ]
         )
 
-    def get_model(self, cache=True):
+    def get_model(self, cache=True, data_table=None):
+        data_table = data_table or self.data_table
+        db_table = data_table.db_table_name
+
+        cache_key = (self.id, db_table)
         if cache and self.id in DYNAMIC_MODEL_REGISTRY:
-            return DYNAMIC_MODEL_REGISTRY[self.id]
+            return DYNAMIC_MODEL_REGISTRY[cache_key]
 
         # TODO: unregister the model in Django if already registered (self.id
         # in DYNAMIC_MODEL_REGISTRY and not cache)
@@ -419,20 +434,20 @@ class Table(models.Model):
         indexes = []
         # TODO: add has_choices fields also
         if ordering:
-            indexes.append(django_indexes.Index(name=make_index_name(name, "order", ordering), fields=ordering,))
+            indexes.append(django_indexes.Index(name=make_index_name(db_table, "order", ordering), fields=ordering,))
         if filtering:
             for field_name in filtering:
                 if ordering == [field_name]:
                     continue
                 indexes.append(
-                    django_indexes.Index(name=make_index_name(name, "filter", [field_name]), fields=[field_name])
+                    django_indexes.Index(name=make_index_name(db_table, "filter", [field_name]), fields=[field_name])
                 )
         if search:
             indexes.append(
-                pg_indexes.GinIndex(name=make_index_name(name, "search", ["search_data"]), fields=["search_data"])
+                pg_indexes.GinIndex(name=make_index_name(db_table, "search", ["search_data"]), fields=["search_data"])
             )
 
-        Options = type("Meta", (object,), {"ordering": ordering, "indexes": indexes, "db_table": self.db_table,},)
+        Options = type("Meta", (object,), {"ordering": ordering, "indexes": indexes, "db_table": db_table,},)
         Model = type(
             model_name,
             (DynamicModelMixin, models.Model,),
@@ -443,7 +458,7 @@ class Table(models.Model):
             "ordering": ordering,
             "search": search,
         }
-        DYNAMIC_MODEL_REGISTRY[self.id] = Model
+        DYNAMIC_MODEL_REGISTRY[cache_key] = Model
         return Model
 
     def get_model_declaration(self):
@@ -522,3 +537,51 @@ def get_table_model(dataset_slug, tablename):
     ModelClass = table.get_model()
 
     return ModelClass
+
+
+class DataTableQuerySet(models.QuerySet):
+    def get_current_active(self):
+        return self.active().order_by("-created_at").first()
+
+    def inactive(self):
+        return self.filter(active=False)
+
+    def active(self):
+        return self.filter(active=True)
+
+    def for_dataset(self, dataset_slug):
+        return self.filter(table__dataset__slug=dataset_slug)
+
+
+class DataTable(models.Model):
+    objects = DataTableQuerySet.as_manager()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    table = models.ForeignKey(Table, related_name="data_tables", on_delete=models.SET_NULL, null=True)
+    db_table_name = models.TextField()
+    active = models.BooleanField(default=False)
+
+    @classmethod
+    def new_data_table(cls, table, suffix_size=8):
+        db_table_suffix = "".join(random.choice(string.ascii_lowercase) for i in range(suffix_size))
+        db_table_name = "data_{}_{}".format(table.dataset.slug.replace("-", ""), table.name.replace("_", ""))
+        if db_table_suffix:
+            db_table_name += f"_{db_table_suffix}"
+        return cls(table=table, db_table_name=db_table_name)
+
+    def activate(self):
+        self.active = True
+        self.save()
+
+    def deactivate(self, drop_table=False):
+        if drop_table:
+            self.delete_data_table()
+        self.active = False
+        self.save()
+
+    def delete_data_table(self):
+        Model = self.table.get_model(cache=False, data_table=self)
+        try:
+            Model.delete_table()
+        except ProgrammingError:  # model does not exist
+            pass

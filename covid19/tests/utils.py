@@ -2,7 +2,7 @@ from django.db.utils import ProgrammingError
 from django.test import TestCase
 from model_bakery import baker
 
-from core.models import Dataset, Table
+from core.models import Dataset, DataTable, Table
 
 
 class Covid19DatasetTestCase(TestCase):
@@ -35,6 +35,8 @@ class Covid19DatasetTestCase(TestCase):
         Dataset.objects.filter(slug=cls.DATASET_SLUG).delete()
         cls.covid19 = baker.make(Dataset, slug=cls.DATASET_SLUG)
         cls.cases_table = baker.make(Table, dataset=cls.covid19, name=cls.CASES_TABLE_NAME)
+        cls.data_table = DataTable.new_data_table(cls.cases_table)
+        cls.data_table.activate()
 
         for f_kwargs in cls.FIELDS_KWARGS:
             baker.make("core.Field", dataset=cls.covid19, table=cls.cases_table, **f_kwargs)

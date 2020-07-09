@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 
-from core.models import Dataset, Field, Link, Table, Version
+from core.models import Dataset, DataTable, Field, Link, Table, Version
 from core.util import http_get
 
 DATASETS, VERSIONS, TABLES = {}, {}, {}
@@ -124,6 +124,11 @@ class Command(BaseCommand):
             (Field, field_update_data),
         ]
 
+        data_tables_map = {}
+        for table in Table.with_hidden.all():
+            key = (table.dataset.slug, table.name)
+            data_tables_map[key] = table.data_table
+
         if truncate:
             print("Deleting metadata to create new objects...")
             for Model, _ in update_functions:
@@ -144,3 +149,20 @@ class Command(BaseCommand):
                 io.BytesIO(response_data), sheet_name=Model.__name__, workbook_kwargs={"read_only": False}
             )
             self._update_data(Model, table, update_data_function)
+
+        print("Updating DataTable...", end="", flush=True)
+        total_created, total_updated, total_skipped = 0, 0, 0
+        for table in Table.with_hidden.select_related("dataset"):
+            key = (table.dataset.slug, table.name)
+            data_table = data_tables_map.get(key, None)
+            if data_table is None:  # create DataTable if new Table or if previous was None
+                data_table = DataTable.new_data_table(table, suffix_size=0)
+                data_table.activate()
+                total_created += 1
+            elif data_table.table != table:  # Tables were truncated so previous DataTables get updated
+                total_updated += 1
+                data_table.table = table
+                data_table.save()
+            else:  # Same table as before, so no need to update
+                total_skipped += 1
+        print(" created: {}, updated: {}, skipped: {}.".format(total_created, total_updated, total_skipped))
