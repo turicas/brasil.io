@@ -49,6 +49,7 @@ class ActiveFilter(admin.SimpleListFilter):
 class StateSpreadsheetModelAdmin(admin.ModelAdmin):
     list_display = ["created_at", "state", "date", "user", "status", "warnings_list_truncated", "peer_link", "active"]
     list_filter = [StateFilter, "status", ActiveFilter]
+    search_fields = ["user__username", "date"]
     form = StateSpreadsheetForm
     ordering = ["-created_at"]
     add_form_template = "admin/covid19_add_form.html"
