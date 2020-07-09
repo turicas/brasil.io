@@ -561,6 +561,9 @@ class DataTable(models.Model):
     db_table_name = models.TextField()
     active = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"DataTable: {self.db_table_name}"
+
     @classmethod
     def new_data_table(cls, table, suffix_size=8):
         db_table_suffix = "".join(random.choice(string.ascii_lowercase) for i in range(suffix_size))

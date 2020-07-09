@@ -65,3 +65,25 @@ class FieldAdmin(admin.ModelAdmin):
 
 
 admin.site.register(models.Field, FieldAdmin)
+
+
+class DataTableAdmin(admin.ModelAdmin):
+    ordering = ["-active", "db_table_name"]
+    list_display = ["db_table_name", "dataset", "table", "active"]
+    list_filter = ["active", "table"]
+    readonly_fields = ["db_table_name", "table", "active", "created_at"]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("table__dataset")
+
+    def dataset(self, obj):
+        return obj.table.dataset.slug
+
+    def has_add_permission(self, *args, **kwargs):
+        return False
+
+    def has_delete_permission(self, *args, **kwargs):
+        return False
+
+
+admin.site.register(models.DataTable, DataTableAdmin)
