@@ -541,7 +541,13 @@ def get_table_model(dataset_slug, tablename):
 
 class DataTableQuerySet(models.QuerySet):
     def get_current_active(self):
-        return self.filter(active=True).order_by("-created_at").first()
+        return self.active().order_by("-created_at").first()
+
+    def inactive(self):
+        return self.filter(active=False)
+
+    def active(self):
+        return self.filter(active=True)
 
 
 class DataTable(models.Model):
