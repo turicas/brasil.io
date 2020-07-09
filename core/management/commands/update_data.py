@@ -154,18 +154,15 @@ class Command(BaseCommand):
         total_created, total_updated, total_skipped = 0, 0, 0
         for table in Table.with_hidden.select_related("dataset"):
             key = (table.dataset.slug, table.name)
-            try:
-                data_table = data_tables_map[key]
-                if data_table is None:
-                    raise ValueError
-                if data_table.table != table:  # Tables were truncated so previous DataTables get updated
-                    total_updated += 1
-                    data_table.table = table
-                    data_table.save()
-                else:  # Same table as before, so no need to update
-                    total_skipped += 1
-            except (KeyError, ValueError):  # create DataTable if new Table or if previous was None
+            data_table = data_tables_map.get(key, None)
+            if data_table is None:  # create DataTable if new Table or if previous was None
                 data_table = DataTable.new_data_table(table, suffix_size=0)
                 data_table.activate()
                 total_created += 1
+            elif data_table.table != table:  # Tables were truncated so previous DataTables get updated
+                total_updated += 1
+                data_table.table = table
+                data_table.save()
+            else:  # Same table as before, so no need to update
+                total_skipped += 1
         print(" created: {}, updated: {}, skipped: {}.".format(total_created, total_updated, total_skipped))
