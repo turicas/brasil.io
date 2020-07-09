@@ -1,7 +1,9 @@
+import csv
 import os
 import time
 from collections import OrderedDict
 
+import rows
 from django.core.cache import cache
 from django.db import transaction
 from django.db.utils import ProgrammingError
@@ -77,18 +79,20 @@ class ImportDataCommand:
         encoding = "utf-8"  # TODO: receive as a parameter
         timeout = 0.1  # TODO: receive as a parameter
         start_time = time.time()
-        progress = ProgressBar(prefix="Importing data", unit="bytes")
+        progress = rows.utils.ProgressBar(prefix="Importing data", unit="bytes")
 
-        # TODO: change the way we do it (CSV dialect may change, encoding
-        # etc.)
+        sample_size = 1 * 1024 * 1024  # 1 MiB
+        with rows.utils.open_compressed(filename, mode="rb") as fobj:
+            sample = fobj.read(sample_size)
+            dialect = rows.plugins.csv.discover_dialect(sample, encoding)
         file_header = open_compressed(filename).readline().strip().split(",")
         table_schema = self.table.schema
         schema = OrderedDict([(field_name, table_schema[field_name]) for field_name in file_header])
         try:
-            import_meta = pgimport(
+            import_meta = rows.utils.pgimport(
                 filename=filename,
                 encoding=encoding,
-                dialect="excel",
+                dialect=dialect,
                 database_uri=database_uri,
                 table_name=table_name,
                 create_table=False,
