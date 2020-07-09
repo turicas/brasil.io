@@ -47,7 +47,7 @@ class ActiveFilter(admin.SimpleListFilter):
 
 
 class StateSpreadsheetModelAdmin(admin.ModelAdmin):
-    list_display = ["created_at", "state", "date", "user", "status", "warnings_list", "peer_link", "active"]
+    list_display = ["created_at", "state", "date", "user", "status", "warnings_list_truncated", "peer_link", "active"]
     list_filter = [StateFilter, "status", ActiveFilter]
     form = StateSpreadsheetForm
     ordering = ["-created_at"]
@@ -107,6 +107,23 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
             return format_html(f"<ul>{li_tags}</ul>")
 
     warnings_list.short_description = "Warnings"
+
+    def warnings_list_truncated(self, obj):
+        max_list = 10
+        warnings = obj.warnings[:max_list]
+        extra_warnings = len(obj.warnings) - max_list
+        if extra_warnings > 0:
+            warnings.append(
+                f"Existem outros {extra_warnings} warnings. <a href='{obj.admin_url}'>Clique aqui para vê-los</a>"
+            )
+
+        li_tags = "".join([f"<li>{w}</li>" for w in warnings])
+        if not li_tags:
+            return "---"
+        else:
+            return format_html(f"<ul>{li_tags}</ul>")
+
+    warnings_list_truncated.short_description = "Warnings"
 
     def peer_link(self, obj):
         if not obj.peer_review:
