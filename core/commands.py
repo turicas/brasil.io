@@ -20,7 +20,7 @@ class ImportDataCommand:
         self.flag_clear_view_cache = options["clear_view_cache"]
         self.flag_create_filter_indexes = options["create_filter_indexes"]
         self.flag_fill_choices = options["fill_choices"]
-        self.flag_clean_after = options["clean_after"]
+        self.flag_delete_old_table = options["delete_old_table"]
         self.collect_date = options["collect_date"]
 
     def log(self, msg, *args, **kwargs):
@@ -50,7 +50,7 @@ class ImportDataCommand:
                 if self.flag_fill_choices:
                     self.fill_choices(Model)
                 if self.flag_import_data:
-                    table.data_table.deactivate(drop_table=self.flag_clean_after)
+                    table.data_table.deactivate(drop_table=self.flag_delete_old_table)
                     data_table.activate()
         except Exception as e:
             self.log(f"Deleting import table {data_table.db_table_name} due to an error.")
