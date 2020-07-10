@@ -36,5 +36,12 @@ Gerenciamento Covid19
     </div>
   </div>
 
+{% if action_output %}
+  <div id="action_output">
+    <h2>Output</h2>
+    <div style="font-family: monospace; background:#eeeeee;">{{ action_output|linebreaksbr }}</div>
+  </div>
+{% endif %}
+
 </div>
 {% endblock %}

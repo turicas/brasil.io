@@ -124,3 +124,4 @@ class UpdateStateTotalsCommand:
         self = cls(user, force or [], only or [], stdout or sys.stdout)
         for row in self.get_spreadsheet_rows():
             self.process_state_row(row)
+        self.debug("Finished!")
