@@ -85,12 +85,7 @@ class UpdateStateTotalsCommand:
         if not only_total_spreadsheet:
             return
 
-        StateSpreadsheet.objects.cancel_older_versions(only_total_spreadsheet)
-        only_total_spreadsheet.link_to(only_total_spreadsheet)
-        only_total_spreadsheet.import_to_final_dataset()
-        only_total_spreadsheet.refresh_from_db()
-        message += f", id = {only_total_spreadsheet.id}"
-        self.debug(message)
+        self.deploy_spreadsheet(only_total_spreadsheet, log_prefix=message)
 
     def new_only_total_spreadsheet(self, state, date, confirmed, deaths):
         filename = f"/tmp/{state}-{date}.csv"
@@ -113,6 +108,14 @@ class UpdateStateTotalsCommand:
         os.unlink(filename)
 
         return form.save()
+
+    def deploy_spreadsheet(self, spreadsheet, log_prefix):
+        StateSpreadsheet.objects.cancel_older_versions(spreadsheet)
+        spreadsheet.link_to(spreadsheet)
+        spreadsheet.import_to_final_dataset()
+        spreadsheet.refresh_from_db()
+        message = f"{log_prefix}, id = {spreadsheet.id}"
+        self.debug(message)
 
     @classmethod
     def execute(cls, user, force=None, only=None):
