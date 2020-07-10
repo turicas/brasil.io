@@ -3,6 +3,7 @@ import csv
 from django.contrib import admin
 from django.db import transaction
 from django.http import Http404, HttpResponse
+from django.shortcuts import render
 from django.templatetags.static import static
 from django.urls import path, reverse
 from django.utils.html import format_html
@@ -61,6 +62,11 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
                 "planilha-model/<str:state>/",
                 self.admin_site.admin_view(self.sample_spreadsheet_view),
                 name="sample_covid_spreadsheet",
+            ),
+            path(
+                "gerenciar",
+                self.admin_site.admin_view(self.covid19_management_view),
+                name="covid19_management",
             ),
         ]
         return custom_urls + urls
@@ -178,6 +184,12 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
         writer.writerows(csv_rows)
 
         return response
+
+    def covid19_management_view(self, request):
+        if not user_has_covid_19_admin_permissions(request.user):
+            raise Http404
+        context = self.admin_site.each_context(request)
+        return render(request, 'admin/covid19_admins_page.html', context=context)
 
 
 admin.site.register(StateSpreadsheet, StateSpreadsheetModelAdmin)

@@ -1,0 +1,21 @@
+{% extends "admin/base_site.html" %}
+{% load i18n  %}
+
+{% block title %}
+Gerenciamento Covid19
+{{ block.super }}
+{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">Início</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='covid19' %}">Covid19</a>
+&rsaquo; Gerenciamento Covid19
+</div>
+{% endblock %}
+{% endif %}
+
+{% block content %}
+<p>Template admin</p>
+{% endblock %}
