@@ -16,8 +16,6 @@ STATE_TOTALS_URL = (
     "https://docs.google.com/spreadsheets/d/17mmfgPAcVCeHW3548BlFtuurAvF3jeffRVO1NW7rVgQ/export?format=csv"
 )
 NOTES = "Dados totais coletados da Secretaria Estadual de Saúde"
-STATUS = {value: key for key, value in StateSpreadsheet.STATUS_CHOICES}
-STATUS_DEPLOYED = STATUS["deployed"]
 
 
 class UpdateStateTotalsCommand:
