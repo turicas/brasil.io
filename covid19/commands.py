@@ -7,15 +7,13 @@ import sys
 import requests
 import requests.packages.urllib3.util.connection as urllib3_cn
 import rows
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from covid19.forms import StateSpreadsheetForm
 from covid19.models import StateSpreadsheet
 
 urllib3_cn.allowed_gai_family = lambda: socket.AF_INET  # Force IPv4
-STATE_TOTALS_URL = (
-    "https://docs.google.com/spreadsheets/d/17mmfgPAcVCeHW3548BlFtuurAvF3jeffRVO1NW7rVgQ/export?format=csv"
-)
 NOTES = "Dados totais coletados da Secretaria Estadual de Saúde"
 
 
@@ -30,10 +28,10 @@ class UpdateStateTotalsCommand:
         self.stdout.write(message + end)
 
     def get_spreadsheet_rows(self):
-        self.debug(f"Downloading spreadsheet from {STATE_TOTALS_URL}")
+        self.debug(f"Downloading spreadsheet from {settings.COVID_19_STATE_TOTALS_URL}")
         # Must NOT cache this request since the spreadsheet can change a lot
         # during the bulletin process.
-        response = requests.get(STATE_TOTALS_URL)
+        response = requests.get(settings.COVID_19_STATE_TOTALS_URL)
 
         self.debug("Importing spreadsheet")
         return rows.import_from_csv(
@@ -99,7 +97,12 @@ class UpdateStateTotalsCommand:
         with open(filename, mode="rb") as fobj:
             file_data = fobj.read()
             form = StateSpreadsheetForm(
-                {"date": date, "state": state, "boletim_urls": STATE_TOTALS_URL, "boletim_notes": NOTES,},
+                {
+                    "date": date,
+                    "state": state,
+                    "boletim_urls": settings.COVID_19_STATE_TOTALS_URL,
+                    "boletim_notes": NOTES,
+                },
                 {"file": SimpleUploadedFile(filename, file_data),},
                 user=self.user,
             )
