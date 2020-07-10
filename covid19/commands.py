@@ -2,6 +2,7 @@ import csv
 import io
 import os
 import socket
+import sys
 
 import requests
 import requests.packages.urllib3.util.connection as urllib3_cn
@@ -19,13 +20,14 @@ NOTES = "Dados totais coletados da Secretaria Estadual de Saúde"
 
 
 class UpdateStateTotalsCommand:
-    def __init__(self, user, force, only):
+    def __init__(self, user, force, only, stdout):
         self.user = user
         self.force = force
         self.only = only
+        self.stdout = stdout
 
-    def debug(self, message):
-        print(message)
+    def debug(self, message, end="\n"):
+        self.stdout.write(message + end)
 
     def get_spreadsheet_rows(self):
         self.debug(f"Downloading spreadsheet from {STATE_TOTALS_URL}")
@@ -118,7 +120,7 @@ class UpdateStateTotalsCommand:
         self.debug(message)
 
     @classmethod
-    def execute(cls, user, force=None, only=None):
-        self = cls(user, force or [], only or [])
+    def execute(cls, user, force=None, only=None, stdout=None):
+        self = cls(user, force or [], only or [], stdout or sys.stdout)
         for row in self.get_spreadsheet_rows():
             self.process_state_row(row)
