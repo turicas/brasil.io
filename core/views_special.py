@@ -2,6 +2,7 @@ from unicodedata import normalize
 
 from cryptography.fernet import Fernet, InvalidToken
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -65,7 +66,7 @@ def document_detail(request, document):
         doc_prefix = document[:8]
         try:
             obj = get_company_by_document(document)
-        except Documents.DoesNotExist:
+        except ObjectDoesNotExist:
             raise Http404
         # From here only HQs or companies without HQs
         if document != obj.document:
