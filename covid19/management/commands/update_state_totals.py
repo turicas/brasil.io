@@ -45,6 +45,8 @@ class Command(BaseCommand):
         user = get_user_model().objects.get(username=username)
 
         debug(f"Downloading spreadsheet from {STATE_TOTALS_URL}")
+        # Must NOT cache this request since the spreadsheet can change a lot
+        # during the bulletin process.
         response = requests.get(STATE_TOTALS_URL)
 
         debug("Importing spreadsheet")
@@ -61,7 +63,7 @@ class Command(BaseCommand):
         for row in spreadsheet:
             state = str(row.state or "").upper()
             if only and state not in only:
-                debug(f"Skipping {state} because of: not in --only")
+                debug(f"{state} - SKIPPING - It's not in --only")
                 continue
 
             date = row.data_dados
@@ -69,24 +71,25 @@ class Command(BaseCommand):
             deaths = row.deaths
 
             recent_deploy = StateSpreadsheet.objects.most_recent_deployed(state, date)
+            message = None
             if recent_deploy:
                 data = recent_deploy.get_total_data()
 
                 if confirmed == data["confirmed"] and deaths == data["deaths"]:
-                    debug(f"Skipping {state} because it has the same total for deaths and confirmed")
+                    debug(f"{state} - SKIPPING - Has the same total for deaths and confirmed")
                     continue
                 elif confirmed < data["confirmed"] or deaths < data["deaths"]:
                     if force and state in force:
-                        debug(
-                            f"WARNING: would skip {state} (already deployed for {date} and numbers of deployed are greater than ours: (ours vs deployed) {confirmed} vs {data['confirmed']}, {deaths} vs {data['deaths']}), but forcing because of --force"
-                        )
+                        message = f"{state} - WARNING - Would skip (already deployed for {date} and numbers of deployed are greater than ours: (ours vs deployed) {confirmed} vs {data['confirmed']}, {deaths} vs {data['deaths']}), but updating because of --force"
                     else:
                         debug(
-                            f"Skipping {state} (already deployed for {date} and numbers of deployed are greater than ours: (ours vs deployed) {confirmed} vs {data['confirmed']}, {deaths} vs {data['deaths']})"
+                            f"{state} - SKIPPING - Already deployed for {date} and numbers of deployed are greater than ours: (ours vs deployed) {confirmed} vs {data['confirmed']}, {deaths} vs {data['deaths']}"
                         )
                         continue
-
-            debug(f"Creating spreadsheet for {state} on {date}")
+                else:
+                    message = f"{state} - CREATING - date: {date}"
+            else:
+                message = f"{state} - CREATING - date: {date}"
 
             filename = f"/tmp/{state}-{date}.csv"
             with open(filename, mode="w") as fobj:
@@ -103,7 +106,7 @@ class Command(BaseCommand):
                 )
                 form_valid = form.is_valid()
                 if not form_valid:
-                    debug(f"  Form is NOT valid for {state}! errors = {form.errors}")
+                    debug(f"{state} - ERROR CREATING - Invalid form: {form.errors}")
                     continue
             os.unlink(filename)
 
@@ -112,4 +115,5 @@ class Command(BaseCommand):
             obj.link_to(obj)
             obj.import_to_final_dataset()
             obj.refresh_from_db()
-            debug(f"  Spreadsheet created for {state}, id = {obj.id}")
+            message += f", id = {obj.id}"
+            debug(message)
