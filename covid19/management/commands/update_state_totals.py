@@ -18,7 +18,7 @@ class Command(BaseCommand):
         force = self.get_state_option(kwargs, "force")
         only = self.get_state_option(kwargs, "only")
 
-        username = "admin"
+        username = "turicas"
         print(f"Getting user object for {username}")
         user = get_user_model().objects.get(username=username)
         UpdateStateTotalsCommand.execute(user, force, only)
