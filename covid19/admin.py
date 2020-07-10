@@ -56,6 +56,7 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
     form = StateSpreadsheetForm
     ordering = ["-created_at"]
     add_form_template = "admin/covid19_add_form.html"
+    change_list_template = "admin/covid19_list.html"
 
     def get_urls(self):
         urls = super().get_urls()
@@ -194,6 +195,11 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
             stdout.seek(0)
             context["action_output"] = stdout.read()
         return render(request, "admin/covid19_admins_page.html", context=context)
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context["covid19_admin"] = user_has_covid_19_admin_permissions(request.user)
+        return super().changelist_view(request, extra_context)
 
 
 admin.site.register(StateSpreadsheet, StateSpreadsheetModelAdmin)
