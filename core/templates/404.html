@@ -3,7 +3,9 @@
 {% block content %}
 <div class="container">
   <div class="section indigo-text text-center error-container">
-    {% if message %}
+    {% if html_content %}
+      {% include html_content %}
+    {% else %}
     <h1>Oops! Não encontramos o que você está procurando :(</h1>
     <p>
       <b>
@@ -17,8 +19,6 @@
         href="https://github.com/turicas/brasil.io/issues/new">crie uma issue
         em nosso repositório</a>.
     </p>
-    {% elif html_content %}
-      {% include html_content %}
     {% endif %}
   </div>
 </div>
