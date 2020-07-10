@@ -72,7 +72,12 @@ class Command(BaseCommand):
 
             recent_deploy = StateSpreadsheet.objects.most_recent_deployed(state, date)
             message = None
-            if recent_deploy:
+            status = str(row.status or "").strip().lower()
+            if status != "ok":
+                debug(f"{state} - SKIPPING - status = {status}")
+                continue
+
+            elif recent_deploy:
                 data = recent_deploy.get_total_data()
 
                 if confirmed == data["confirmed"] and deaths == data["deaths"]:
@@ -88,6 +93,7 @@ class Command(BaseCommand):
                         continue
                 else:
                     message = f"{state} - CREATING - date: {date}"
+
             else:
                 message = f"{state} - CREATING - date: {date}"
 
