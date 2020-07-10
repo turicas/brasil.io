@@ -1,14 +1,18 @@
 import csv
+import io
 
+from django.conf import settings
 from django.contrib import admin
 from django.db import transaction
 from django.http import Http404, HttpResponse
+from django.shortcuts import render
 from django.templatetags.static import static
 from django.urls import path, reverse
 from django.utils.html import format_html
 
 from brazil_data.cities import brazilian_cities_per_state
 from brazil_data.states import STATES
+from covid19.commands import UpdateStateTotalsCommand
 from covid19.forms import StateSpreadsheetForm, state_choices_for_user
 from covid19.models import DailyBulletin, StateSpreadsheet
 from covid19.permissions import user_has_covid_19_admin_permissions, user_has_state_permission
@@ -53,6 +57,7 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
     form = StateSpreadsheetForm
     ordering = ["-created_at"]
     add_form_template = "admin/covid19_add_form.html"
+    change_list_template = "admin/covid19_list.html"
 
     def get_urls(self):
         urls = super().get_urls()
@@ -62,6 +67,7 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.sample_spreadsheet_view),
                 name="sample_covid_spreadsheet",
             ),
+            path("gerenciar", self.admin_site.admin_view(self.covid19_management_view), name="covid19_management",),
         ]
         return custom_urls + urls
 
@@ -178,6 +184,24 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
         writer.writerows(csv_rows)
 
         return response
+
+    def covid19_management_view(self, request):
+        if not user_has_covid_19_admin_permissions(request.user):
+            raise Http404
+        context = self.admin_site.each_context(request)
+        context["state_totals_url"] = settings.COVID_19_STATE_TOTALS_URL.split("export")[0]
+
+        if request.GET.get("action", None) == "update_state_totals":
+            stdout = io.StringIO()
+            UpdateStateTotalsCommand.execute(request.user, stdout=stdout)
+            stdout.seek(0)
+            context["action_output"] = stdout.read()
+        return render(request, "admin/covid19_admins_page.html", context=context)
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context["covid19_admin"] = user_has_covid_19_admin_permissions(request.user)
+        return super().changelist_view(request, extra_context)
 
 
 admin.site.register(StateSpreadsheet, StateSpreadsheetModelAdmin)
