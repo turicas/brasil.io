@@ -1,6 +1,7 @@
 import csv
 import io
 
+from django.conf import settings
 from django.contrib import admin
 from django.db import transaction
 from django.http import Http404, HttpResponse
@@ -188,6 +189,7 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
         if not user_has_covid_19_admin_permissions(request.user):
             raise Http404
         context = self.admin_site.each_context(request)
+        context["state_totals_url"] = settings.COVID_19_STATE_TOTALS_URL.split('export')[0]
 
         if request.GET.get("action", None) == "update_state_totals":
             stdout = io.StringIO()

@@ -31,7 +31,14 @@ Gerenciamento Covid19
         <div class="object-tools">
           <a href="{% url 'admin:covid19_management' %}?action=update_state_totals">Atualizar Total dos Estados</a>
         </div>
-        <div class="help">Ao clicar no botão acima, o sistema irá criar novas planilhas para os estados somente com a entrada dos dados totais. Essas planilhas extrairão os dados de acordo com as entradas da planilha <a href="https://docs.google.com/spreadsheets/d/17mmfgPAcVCeHW3548BlFtuurAvF3jeffRVO1NW7rVgQ/edit#gid=0" target="_blank">brio_totais</a>. Somente as entradas que tiverem a coluna <b>status</b> com o valor <b>ok</b> serão consideradas durante a atualização.</div>
+        <div class="help">
+          Ao clicar no botão acima, o sistema irá criar novas planilhas para os estados
+          somente com a entrada dos dados totais.  Essas planilhas extrairão os dados
+          de acordo com as entradas da planilha
+          <a href="{{ state_totals_url }}" target="_blank">brio_totais</a>. Somente as
+          entradas que tiverem a coluna <b>status</b> com o valor <b>ok</b> serão
+          consideradas durante a atualização.
+        </div>
       </div>
     </div>
   </div>
