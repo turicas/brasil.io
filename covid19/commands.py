@@ -81,6 +81,18 @@ class UpdateStateTotalsCommand:
         else:
             message = f"{state} - CREATING - date: {date}"
 
+        only_total_spreadsheet = self.new_only_total_spreadsheet(state, date, confirmed, deaths)
+        if not only_total_spreadsheet:
+            return
+
+        StateSpreadsheet.objects.cancel_older_versions(only_total_spreadsheet)
+        only_total_spreadsheet.link_to(only_total_spreadsheet)
+        only_total_spreadsheet.import_to_final_dataset()
+        only_total_spreadsheet.refresh_from_db()
+        message += f", id = {only_total_spreadsheet.id}"
+        self.debug(message)
+
+    def new_only_total_spreadsheet(self, state, date, confirmed, deaths):
         filename = f"/tmp/{state}-{date}.csv"
         with open(filename, mode="w") as fobj:
             writer = csv.writer(fobj)
@@ -100,13 +112,7 @@ class UpdateStateTotalsCommand:
                 return
         os.unlink(filename)
 
-        obj = form.save()
-        StateSpreadsheet.objects.cancel_older_versions(obj)
-        obj.link_to(obj)
-        obj.import_to_final_dataset()
-        obj.refresh_from_db()
-        message += f", id = {obj.id}"
-        self.debug(message)
+        return form.save()
 
     @classmethod
     def execute(cls, user, force=None, only=None):
