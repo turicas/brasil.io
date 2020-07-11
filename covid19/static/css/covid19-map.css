@@ -15,6 +15,7 @@
   background-color: #3f51b5;
   background-size: 20px 100%, 20px 100%, 10px 100%, 10px 100%;
   background-attachment: local, local, scroll, scroll;
+  scrollbar-width: thin;
 }
 
 .brasil-states-select ul::-webkit-scrollbar {

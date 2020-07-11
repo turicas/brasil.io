@@ -130,6 +130,7 @@ strong { font-weight: bold !important; }
 em { font-style: italic !important; }
 
 /* Home */
+/* Scroll */
 
 /* width */
 .card ::-webkit-scrollbar {
@@ -140,7 +141,7 @@ em { font-style: italic !important; }
 .card ::-webkit-scrollbar-track {
   background: #f1f1f1; 
 }
- 
+
 /* Handle */
 .card ::-webkit-scrollbar-thumb {
   background: #888; 
@@ -180,6 +181,8 @@ em { font-style: italic !important; }
 
 .card-content-horizontal {
   padding: 50px 15px 21px;
+  overflow: hidden; 
+  position: relative;
 }
 
 .card .card-content-horizontal h3 {
@@ -190,11 +193,13 @@ em { font-style: italic !important; }
 
 .card .card-content-horizontal p {
   margin-top: 15px;
+  padding-right: 5px;
   font-size: 0.9em;
   text-align: justify;
   min-height: 120px;
   max-height: 120px;
   overflow: auto;
+  scrollbar-width: thin;
 }
 
 .links {
