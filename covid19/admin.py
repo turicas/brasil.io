@@ -1,5 +1,6 @@
 import csv
 import io
+from itertools import groupby
 
 from django.conf import settings
 from django.contrib import admin
@@ -18,6 +19,28 @@ from covid19.models import DailyBulletin, StateSpreadsheet
 from covid19.permissions import user_has_covid_19_admin_permissions, user_has_state_permission
 from covid19.signals import new_spreadsheet_imported_signal
 from covid19.spreadsheet_validator import TOTAL_LINE_DISPLAY, UNDEFINED_DISPLAY
+
+
+def execute_update_state_totals(user):
+    stdout = io.StringIO()
+    UpdateStateTotalsCommand.execute(user, stdout=stdout)
+    stdout.seek(0)
+    result, to_order = [], []
+    lines = stdout.read().splitlines()
+    for line in lines:
+        if " - " not in line:  # Not a state status line
+            result.append(line)
+        else:
+            to_order.append(line)
+    result.append("")  # Empty line between first messages and state status
+
+    sort_key = lambda line: line.split(" - ")[1]
+    to_order.sort(key=sort_key)
+    for status, group in groupby(to_order, key=sort_key):
+        result.append(status)
+        result.extend(list(group))
+        result.append("")
+    return "\n".join(result)
 
 
 class StateFilter(admin.SimpleListFilter):
@@ -192,10 +215,7 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
         context["state_totals_url"] = settings.COVID_19_STATE_TOTALS_URL.split("export")[0]
 
         if request.GET.get("action", None) == "update_state_totals":
-            stdout = io.StringIO()
-            UpdateStateTotalsCommand.execute(request.user, stdout=stdout)
-            stdout.seek(0)
-            context["action_output"] = stdout.read()
+            context["action_output"] = execute_update_state_totals(request.user)
         return render(request, "admin/covid19_admins_page.html", context=context)
 
     def changelist_view(self, request, extra_context=None):
