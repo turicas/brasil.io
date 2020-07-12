@@ -1,7 +1,6 @@
 from collections import Counter
 from itertools import groupby
 
-from cached_property import cached_property
 from django.db.models import Max, Sum
 
 from brazil_data.cities import brazilian_cities_per_state
@@ -127,27 +126,27 @@ class Covid19Stats:
         "new_deaths_total": (Sum, "new_deaths_total_2019"),
     }
 
-    @cached_property
+    @property
     def Boletim(self):
         return get_table_model("covid19", "boletim")
 
-    @cached_property
+    @property
     def Caso(self):
         return get_table_model("covid19", "caso")
 
-    @cached_property
+    @property
     def CasoFull(self):
         return get_table_model("covid19", "caso_full")
 
-    @cached_property
+    @property
     def ObitoCartorio(self):
         return get_table_model("covid19", "obito_cartorio")
 
-    @cached_property
+    @property
     def city_cases(self):
         return self.Caso.objects.filter(is_last=True, place_type="city", confirmed__gt=0)
 
-    @cached_property
+    @property
     def state_cases(self):
         return self.Caso.objects.filter(is_last=True, place_type="state")
 
