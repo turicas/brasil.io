@@ -416,11 +416,12 @@ class Table(models.Model):
         data_table = data_table or self.data_table
         db_table = data_table.db_table_name
 
+        # TODO: limit the max number of items in DYNAMIC_MODEL_REGISTRY
         cache_key = (self.id, db_table)
-        if cache and self.id in DYNAMIC_MODEL_REGISTRY:
+        if cache and cache_key in DYNAMIC_MODEL_REGISTRY:
             return DYNAMIC_MODEL_REGISTRY[cache_key]
 
-        # TODO: unregister the model in Django if already registered (self.id
+        # TODO: unregister the model in Django if already registered (cache_key
         # in DYNAMIC_MODEL_REGISTRY and not cache)
         # TODO: may use Django's internal registry instead of
         # DYNAMIC_MODEL_REGISTRY
