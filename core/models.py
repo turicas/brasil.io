@@ -527,15 +527,13 @@ class Field(models.Model):
         self.choices = {"data": [str(value) for value in choices]}
 
 
-@lru_cache(maxsize=128)
 def get_table(dataset_slug, tablename):
     return Table.objects.for_dataset(dataset_slug).named(tablename)
 
 
-@lru_cache(maxsize=128)
 def get_table_model(dataset_slug, tablename):
     table = get_table(dataset_slug, tablename)
-    ModelClass = table.get_model()
+    ModelClass = table.get_model(cache=True)
 
     return ModelClass
 
