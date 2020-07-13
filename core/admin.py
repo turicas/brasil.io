@@ -69,7 +69,7 @@ admin.site.register(models.Field, FieldAdmin)
 
 class DataTableAdmin(admin.ModelAdmin):
     ordering = ["-active", "db_table_name"]
-    list_display = ["db_table_name", "dataset", "table", "active"]
+    list_display = ["db_table_name", "dataset", "table", "created_at", "active"]
     list_filter = ["active", "table"]
     readonly_fields = ["db_table_name", "table", "active", "created_at"]
 
