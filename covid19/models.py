@@ -148,6 +148,7 @@ class StateSpreadsheet(models.Model):
     state = models.CharField(max_length=2, null=False, blank=False, choices=STATE_CHOICES)
     file = models.FileField(upload_to=format_spreadsheet_name)
     peer_review = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL)
+    automatically_created = models.BooleanField(default=False)
 
     boletim_urls = ArrayField(models.TextField(), null=False, blank=False, help_text="Lista de URLs do(s) boletim(s)")
     boletim_notes = models.CharField(
