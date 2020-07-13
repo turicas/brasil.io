@@ -1,3 +1,9 @@
+@import url('https://brasil.io/static/css/inter/inter.css');
+html { font-family: 'Inter', sans-serif; }
+@supports (font-variation-settings: normal) {
+  html { font-family: 'Inter var', sans-serif; }
+}
+
 html {
   height: 100%;
   box-sizing: border-box;
@@ -13,14 +19,8 @@ body {
   position: relative;
   margin: 0;
   min-height: 100%;
-  font-family: Roboto, sans-serif;
-  font-weight: 300;
-  flex-direction: column;
-  display: flex;
-}
-
-main {
-  flex: 1 0 auto;
+  font-family: 'Inter var', sans-serif;
+  font-weight: 400;
 }
 
 .divider-new:before {
@@ -75,7 +75,7 @@ main {
 
 .card .card-title {
   font-size: 1.5em;
-  font-weight: 300;
+  font-weight: 700;
 }
 
 .card .card-content.card-body {
