@@ -34,7 +34,7 @@ def execute_update_state_totals(user):
             to_order.append(line)
     result.append("")  # Empty line between first messages and state status
 
-    sort_key = lambda line: line.split(" - ")[1]
+    sort_key = lambda line: line.split(" - ")[1]  # noqa
     to_order.sort(key=sort_key)
     for status, group in groupby(to_order, key=sort_key):
         result.append(status)
