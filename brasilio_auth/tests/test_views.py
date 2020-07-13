@@ -28,7 +28,8 @@ class UserCreationViewTests(TestCase):
         assert bool(response.context["form"].errors) is True
 
     def test_create_and_login_with_user(self):
-        assert 0 == User.objects.count()
+        assert 1 == User.objects.count()  # auto import covid 19 user
+        assert User.objects.filter(username=settings.COVID19_AUTO_IMPORT_USER).exists()
 
         response = self.client.post(self.url, data=self.data)
         user = User.objects.get(username="foo")
