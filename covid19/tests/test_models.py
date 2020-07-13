@@ -288,6 +288,7 @@ class StateSpreadsheetTests(TestCase):
 
         assert StateSpreadsheet.DEPLOYED == spreadsheet.status
         assert StateSpreadsheet.DEPLOYED == spreadsheet.peer_review.status
+        assert spreadsheet.automatically_created is False
         assert spreadsheet.peer_review in StateSpreadsheet.objects.deployed()
 
     def test_import_to_final_dataset_raise_error_if_invalid_status(self):
@@ -374,6 +375,20 @@ class StateSpreadsheetTests(TestCase):
             "Número de casos confirmados ou óbitos diferem para Vicência.",
         ]
         assert sp2.compare_to_spreadsheet(sp1) == expected
+
+    def test_import_to_final_dataset_automatically_created(self):
+        spreadsheet = baker.make(StateSpreadsheet)
+        assert StateSpreadsheet.UPLOADED == spreadsheet.status
+        assert not StateSpreadsheet.objects.deployed().exists()
+
+        spreadsheet.import_to_final_dataset(automatically_created=True)
+        spreadsheet.refresh_from_db()
+
+        assert StateSpreadsheet.DEPLOYED == spreadsheet.status
+        assert StateSpreadsheet.DEPLOYED == spreadsheet.peer_review.status
+        assert spreadsheet.automatically_created is True
+        assert spreadsheet.peer_review in StateSpreadsheet.objects.deployed()
+        assert spreadsheet.peer_review == spreadsheet
 
 
 class StateSpreadsheetManagerTests(TestCase):

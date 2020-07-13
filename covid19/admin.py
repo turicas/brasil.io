@@ -34,7 +34,7 @@ def execute_update_state_totals(user):
             to_order.append(line)
     result.append("")  # Empty line between first messages and state status
 
-    sort_key = lambda line: line.split(" - ")[1]
+    sort_key = lambda line: line.split(" - ")[1]  # noqa
     to_order.sort(key=sort_key)
     for status, group in groupby(to_order, key=sort_key):
         result.append(status)
@@ -74,8 +74,6 @@ class ActiveFilter(admin.SimpleListFilter):
 
 
 class StateSpreadsheetModelAdmin(admin.ModelAdmin):
-    list_display = ["created_at", "state", "date", "user", "status", "warnings_list_truncated", "peer_link", "active"]
-    list_filter = [StateFilter, "status", ActiveFilter]
     search_fields = ["user__username", "date"]
     form = StateSpreadsheetForm
     ordering = ["-created_at"]
@@ -100,6 +98,27 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
             fields.extend(["created_at", "status", "active"])
             fields.extend(StateSpreadsheetForm.Meta.fields + ["peer_link", "warnings_list", "errors_list"])
         return fields
+
+    def get_list_display(self, request):
+        list_display = [
+            "created_at",
+            "state",
+            "date",
+            "user",
+            "status",
+            "warnings_list_truncated",
+            "peer_link",
+            "active",
+        ]
+        if user_has_covid_19_admin_permissions(request.user):
+            list_display.append("automatically_created")
+        return list_display
+
+    def get_list_filter(self, request):
+        list_filter = [StateFilter, "status", ActiveFilter]
+        if user_has_covid_19_admin_permissions(request.user):
+            list_filter.append("automatically_created")
+        return list_filter
 
     def formfield_for_choice_field(self, db_field, request, **kwargs):
         if db_field.name == "state":

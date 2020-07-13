@@ -2,7 +2,6 @@ import hashlib
 import random
 import string
 from collections import OrderedDict
-from functools import lru_cache
 from textwrap import dedent
 from urllib.parse import urlparse
 
