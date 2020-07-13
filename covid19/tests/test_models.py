@@ -7,12 +7,15 @@ from unittest.mock import patch
 
 import pytest
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from model_bakery import baker
 
 from covid19.exceptions import OnlyOneSpreadsheetException
 from covid19.models import StateSpreadsheet
 from covid19.signals import new_spreadsheet_imported_signal
+
+User = get_user_model()
 
 
 class StateSpreadsheetTests(TestCase):
@@ -377,7 +380,10 @@ class StateSpreadsheetTests(TestCase):
         assert sp2.compare_to_spreadsheet(sp1) == expected
 
     def test_import_to_final_dataset_automatically_created(self):
-        spreadsheet = baker.make(StateSpreadsheet)
+        spreadsheet = baker.make(StateSpreadsheet, _fill_optional=["user"])
+        sp_user = spreadsheet.user
+        spreadsheet.warnings = ["Random import warning..."]
+        spreadsheet.save()
         assert StateSpreadsheet.UPLOADED == spreadsheet.status
         assert not StateSpreadsheet.objects.deployed().exists()
 
@@ -389,6 +395,9 @@ class StateSpreadsheetTests(TestCase):
         assert spreadsheet.automatically_created is True
         assert spreadsheet.peer_review in StateSpreadsheet.objects.deployed()
         assert spreadsheet.peer_review == spreadsheet
+        assert spreadsheet.user == User.objects.get(username=settings.COVID19_AUTO_IMPORT_USER)
+        assert spreadsheet.warnings[0] == f"Importação automática disparada por {sp_user.username}"
+        assert spreadsheet.warnings[1] == "Random import warning..."
 
 
 class StateSpreadsheetManagerTests(TestCase):

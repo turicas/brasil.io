@@ -2,6 +2,7 @@ from collections import defaultdict
 from copy import deepcopy
 from pathlib import Path
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db import models
@@ -9,6 +10,8 @@ from django.urls import reverse
 from localflavor.br.br_states import STATE_CHOICES
 
 from covid19.exceptions import OnlyOneSpreadsheetException
+
+User = get_user_model()
 
 
 def format_spreadsheet_name(instance, filename):
@@ -143,7 +146,7 @@ class StateSpreadsheet(models.Model):
     objects = StateSpreadsheetManager.from_queryset(StateSpreadsheetQuerySet)()
 
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(get_user_model(), null=False, blank=False, on_delete=models.PROTECT)
+    user = models.ForeignKey(User, null=False, blank=False, on_delete=models.PROTECT)
     date = models.DateField(null=False, blank=False)
     state = models.CharField(max_length=2, null=False, blank=False, choices=STATE_CHOICES)
     file = models.FileField(upload_to=format_spreadsheet_name)
@@ -330,6 +333,8 @@ class StateSpreadsheet(models.Model):
 
     def import_to_final_dataset(self, notification_callable=None, automatically_created=False):
         if automatically_created:
+            self.data["warnings"].insert(0, f"Importação automática disparada por {self.user.username}")
+            self.user = User.objects.get(username=settings.COVID19_AUTO_IMPORT_USER)
             self.automatically_created = True
             self.link_to(self)
 
