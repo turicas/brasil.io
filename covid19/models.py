@@ -328,10 +328,14 @@ class StateSpreadsheet(models.Model):
         self.status = StateSpreadsheet.UPLOADED
         self.save()
 
-    def import_to_final_dataset(self, notification_callable=None):
+    def import_to_final_dataset(self, notification_callable=None, automatically_created=False):
+        if automatically_created:
+            self.automatically_created = True
+            self.link_to(self)
+
         self.refresh_from_db()
         if not self.ready_to_import:
-            raise ValueError("{self} is not ready to be imported")
+            raise ValueError(f"{self} is not ready to be imported")
 
         self.status = StateSpreadsheet.DEPLOYED
         self.save()
