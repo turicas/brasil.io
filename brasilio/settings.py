@@ -244,6 +244,7 @@ COVID_19_ADMIN_GROUP_NAME = "Admins Covid-19"
 COVID_19_STATE_TOTALS_URL = (
     "https://docs.google.com/spreadsheets/d/17mmfgPAcVCeHW3548BlFtuurAvF3jeffRVO1NW7rVgQ/export?format=csv"
 )
+COVID19_AUTO_IMPORT_USER = "robo_covid19"
 
 # RockecChat config
 ROCKETCHAT_BASE_URL = env("ROCKETCHAT_BASE_URL")
