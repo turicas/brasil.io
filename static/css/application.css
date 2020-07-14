@@ -62,12 +62,20 @@ main {
   font-weight: 300;
 }
 
-.footer {
-  text-align: center;
+.card .card-content.card-body {
+  min-height: 100px;
 }
 
-.footer.indigo a {
-  color: #00a2ec;
+.card.small .card-description {
+  color: rgba(0,0,0,0.87);
+}
+
+footer a{
+  color: #b0bec5
+}
+
+footer a:hover{
+  color: white !important;
 }
 
 .email-newsletter {

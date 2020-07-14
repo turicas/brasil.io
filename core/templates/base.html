@@ -1,80 +1,83 @@
 {% load static %}
 <!DOCTYPE html>
 <html>
-  <head>
-    {% block head %}
-    <meta charset="utf-8">
-    <!--Import Google Icon Font-->
-    <link rel="stylesheet" type="text/css" href="{% static 'css/material_icons.css' %}" >
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/materialize-social.css' %}" >
 
-    <!-- Compiled and minified CSS -->
-    <link rel="stylesheet" type="text/css" href="{% static 'css/materialize.min.css' %}" >
-    <link rel="stylesheet" type="text/css" href="{% static 'css/dataTables.material.min.css' %}" >
-    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}" >
-    <link rel="stylesheet" type="text/css" href="{% static 'css/application.css' %}" >
-    <!--Let browser know website is optimized for mobile-->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
-    <title>{% block title %}Brasil.IO{% endblock %}</title>
+<head>
+  {% block head %}
+  <meta charset="utf-8">
+  <!--Import Google Icon Font-->
+  <link rel="stylesheet" type="text/css" href="{% static 'css/material_icons.css' %}">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/materialize-social.css' %}">
 
-    {% block script %}
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117698282-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-117698282-1');
-    </script>
-    <script src="{% static 'js/jquery.js' %}"></script>
-    <script src="{% static 'js/materialize.min.js' %}"></script>
-    <script src="{% static 'js/application.js' %}"></script>
-    {% endblock %}
-    {% endblock %}
+  <!-- Compiled and minified CSS -->
+  <link rel="stylesheet" type="text/css" href="{% static 'css/materialize.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/dataTables.material.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/application.css' %}">
+  <!--Let browser know website is optimized for mobile-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
+  <title>{% block title %}Brasil.IO{% endblock %}</title>
 
-  </head>
+  {% block script %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117698282-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'UA-117698282-1');
+  </script>
+  <script src="{% static 'js/jquery.js' %}"></script>
+  <script src="{% static 'js/materialize.min.js' %}"></script>
+  <script src="{% static 'js/application.js' %}"></script>
+  {% endblock %}
+  {% endblock %}
 
-  <body>
-    <nav>
-        <div class="nav-wrapper indigo">
-          <a href="/" class="brand-logo" title="Ir à página inicial">
-            <img src="{% static 'img/logo/logo_br-io_fundo-escuro.png' %}" style="max-height:40px;margin-left: 20px; margin-top: 10px;" alt="Logo da Brasil.IO">
-          </a>
-            <a href="#" data-target="mobile-demo" class="sidenav-trigger" title="Menu"><i class="material-icons">menu</i></a>
-            <ul class="right hide-on-med-and-down">
-              {% include 'menu.html' with id_prefix='desktop' %}
-            </ul>
-        </div>
-    </nav>
+</head>
 
-    <ul class="sidenav" id="mobile-demo">
-      {% include 'menu.html' with id_prefix='mobile'%}
-    </ul>
+<body>
+  <nav>
+    <div class="nav-wrapper indigo">
+      <a href="/" class="brand-logo" title="Ir à página inicial">
+        <img src="{% static 'img/logo/logo_br-io_fundo-escuro.png' %}"
+          style="max-height:40px;margin-left: 20px; margin-top: 10px;" alt="Logo da Brasil.IO">
+      </a>
+      <a href="#" data-target="mobile-demo" class="sidenav-trigger" title="Menu"><i class="material-icons">menu</i></a>
+      <ul class="right hide-on-med-and-down">
+        {% include 'menu.html' with id_prefix='desktop' %}
+      </ul>
+    </div>
+  </nav>
 
-    {% block top %}{% endblock %}
+  <ul class="sidenav" id="mobile-demo">
+    {% include 'menu.html' with id_prefix='mobile'%}
+  </ul>
 
-    <main class="container">
-      {% block content %}{% endblock %}
-    </main>
-    <footer class="footer indigo darken-4">
+  {% block top %}{% endblock %}
 
-      <div class="container">
-        <section id="newsletter">
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="page-footer indigo darken-3">
+    <div class="container">
+      <div class="row">
+        <div class="col l6 s12">
+          <h5 class="white-text">Receba nossas novidades</h5>
           <!-- Begin MailChimp Signup Form -->
           <div id="mc_embed_signup">
-            <form action="https://cafe.us18.list-manage.com/subscribe/post?u=80b85fdff0e6a974bff762825&amp;id=ef97ff9b61" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+            <form
+              action="https://cafe.us18.list-manage.com/subscribe/post?u=80b85fdff0e6a974bff762825&amp;id=ef97ff9b61"
+              method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate"
+              target="_blank" novalidate>
 
               <div id="mc_embed_signup_scroll ">
-                <h6 class=" text-center white-text"> Receba nossas novidades! </h6>
                 <div class="row">
-                  <div class="mc-field-group col m4" style="text-align: right;">
-                    <label for="mce-EMAIL">
-                      Newsletter:
-                    </label>
-                  </div>
-                  <div class="mc-field-group col m4">
-                    <input type="email" placeholder="Digite seu e-mail" value="" name="EMAIL" class="required email white-text email-newsletter" id="mce-EMAIL" >
+                  <div class="mc-field-group input-field col m4">
+                    <input type="email" placeholder="Digite seu e-mail" value="" name="EMAIL"
+                      class="required email white-text email-newsletter" id="mce-EMAIL">
+                    <label for="mce-EMAIL">Newsletter</label>
                   </div>
 
                   <div id="mce-responses" class="clear">
@@ -86,21 +89,8 @@
                     <input type="text" name="b_80b85fdff0e6a974bff762825_ef97ff9b61" tabindex="-1" value="">
                   </div>
                   <div class="clear col m4">
-                    <input type="submit" value="Inscrever" name="subscribe" id="mc-embedded-subscribe" class=" btn btn-dark-blue" style="float: left;">
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col m4" style="text-align: right;">
-                    <label>
-                      Telegram:
-                    </label>
-                  </div>
-                  <div class="col m4">
-                    <a class="valign-wrapper" href="https://t.me/brasil_io" title="Ir ao Telegram do Brasil.IO">
-                      <img style="height: 2em" src="{% static 'img/logo-telegram.png' %}" alt="Logo Telegram">
-                      &nbsp;
-                      t.me/brasil_io
-                    </a>
+                    <input type="submit" value="Inscrever" name="subscribe" id="mc-embedded-subscribe"
+                      class=" btn btn-dark-blue" style="float: left;">
                   </div>
                 </div>
               </div>
@@ -108,21 +98,30 @@
             </form>
           </div>
           <!--End mc_embed_signup-->
-        </section>
-
-        <div class="section indigo-text text-lighten-5" style="padding-top: 0 !important;">
-          <p>
-            O <b>Brasil.IO</b> é mantido com muito carinho por
-            <a href="https://twitter.com/turicas" title="Twitter do Álvaro Justen">Álvaro Justen</a> e
-            <a href="{% url 'core:contributors' %}">contribuidores</a>.
-          </p>
         </div>
-        <div class="container">
-            <a href="{% url 'core:contact' %}">Contato</a>
-            | <a href="{% url 'core:collaborate' %}">Colabore</a>
+
+        <div class="col l4 offset-l2 s12">
+          <h5 class="white-text">Links</h5>
+          <ul>
+            <li><a href="https://t.me/brasil_io">
+                Nosso Canal no Telegram
+                <img style="height: 1.2em" src="{% static 'img/logo-telegram.png' %}" alt="Logo Telgram"></a></li>
+            <li><a href="{% url 'core:contact' %}">Entre em contato conosco</a></li>
+            <li><a href="{% url 'core:collaborate' %}">Colabore conosco</a></li>
+
+          </ul>
         </div>
       </div>
-    </footer>
+    </div>
+    <div class="footer-copyright">
+      <div class="container left">
+        O Brasil.io é mantido com muito carinho por
+        <a href="https://twitter.com/turicas">Álvaro Justen</a> e
+        <a href="{% url 'core:contributors' %}">contribuidores.</a>
+      </div>
+    </div>
+  </footer>
 
-  </body>
+</body>
+
 </html>
