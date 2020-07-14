@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}Home - Brasil.IO{% endblock %}
 {% block top %}
-<div class="top-container indigo darken-1">
+<div class="top-container indigo darken-1 m-b-20">
   <div class="container">
     <div class="section indigo-text text-lighten-5">
       <h3>O Brasil em dados libertos</h3>
@@ -18,94 +18,92 @@
   <section id="info">
 
     <div class="row">
-      <div class="col s12 m12 l12">
-        <div class="card">
-          <div class="card-content teal-text">
-            <span class="card-title">ESPECIAL COVID-19: DADOS POR MUNICÍPIO</span>
+
+      <div class="container">
+        <br>
+        <h1 class="header center green-text hide-on-small-only">ESPECIAL COVID-19: DADOS POR MUNICÍPIO</h1>
+        <h1 class="header-small center green-text hide-on-med-and-up">ESPECIAL COVID-19: DADOS POR MUNICÍPIO</h1>
+        <div style="text-align: justify;" class="row center">
+          <p class="col s12 light">{% include 'covid19-text.html' %}</p>
+        </div>
+        <div class="row center">
+          <a href="{% url 'covid19:dashboard' %}" id="download-button"
+            class="btn-large waves-effect waves-light blue">Ver Mais</a>
+        </div>
+        <br><br>
+
+      </div>
+
+  </section>
+  <div class="row center">
+    <div class="col s12 m6 xl3">
+      <a href="{% url 'core:manifesto' %}">
+        <div class="card small green hoverable waves-block  waves-effect waves-light">
+          <div class="card-content center card-home">
+            <span class="card-title bold white-text">Manifesto</span>
           </div>
-          <div class="card-content card-body">
-            {% include 'covid19-text.html' %}
-          </div>
-          <div class="card-action">
-            <a href="{% url 'covid19:dashboard' %}">Ver mais</a>
+          <div class="card-content card-body white-text" style="text-align:justify;">
+            <p>Venha entender o que motivou a criação do <strong>Brasil.IO</strong> e quais
+              são os objetivos do projeto!</p>
           </div>
         </div>
-      </div>
+      </a>
     </div>
 
-    <div class="row">
-      <div class="col s12 m3">
-        <div class="card">
-          <div class="card-content teal-text">
-            <span class="card-title">Manifesto</span>
+    <div class="col s12 m6 xl3">
+      <a href="{% url 'core:dataset-list' %}">
+        <div class="card small yellow hoverable waves-block  waves-effect waves-orange">
+          <div class="card-content center card-home">
+            <span class="card-title bold black-text">Datasets</span>
           </div>
-          <div class="card-content card-body">
-            <p>Venha entender o que motivou a criação do <strong>Brasil.IO</strong> e quais são os objetivos do projeto!</p>
-          </div>
-          <div class="card-action">
-            <a href="{% url 'core:manifesto' %}">Ver mais</a>
+          <div class="card-content card-body black-text" style="text-align:justify;">
+            <p>Confira a lista completa de todas as base de dados liberadas.</p>
           </div>
         </div>
-      </div>
+      </a>
+    </div>
 
-      <div class="col s12 m3">
-        <div class="card">
-          <div class="card-content teal-text">
-            <span class="card-title">Datasets</span>
+    <div class="col s12 m6 xl3">
+      <a href="{% url 'core:dataset-suggestion' %}">
+        <div class="card small blue darken-1 hoverable waves-block  waves-effect waves-light">
+          <div class="card-content center card-home">
+            <span class="card-title bold white-text">Sugira um Dataset</span>
           </div>
-          <div class="card-content card-body">
-            <p>Confira a lista completa de todas as base de dados liberadas. </p>
-          </div>
-          <div class="card-action">
-            <a href="{% url 'core:dataset-list' %}">Ver mais</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col s12 m3">
-        <div class="card">
-          <div class="card-content teal-text">
-            <span class="card-title">Sugira um Dataset</span>
-          </div>
-          <div class="card-content card-body">
+          <div class="card-content card-body white-text" style="text-align:justify;">
             <p>Conhece algum dataset bacana que gostaria de ver aqui? Sugira para nós! =)</p>
           </div>
-          <div class="card-action">
-            <a href="{% url 'core:dataset-suggestion' %}">Ver mais</a>
-          </div>
         </div>
-      </div>
-
-      <div class="col s12 m3">
-        <div class="card">
-          <div class="card-content teal-text">
-            <span class="card-title">Colabore</span>
-          </div>
-          <div class="card-content card-body">
-            <p>Achou o projeto legal e quer contribuir? Veja aqui como. </p>
-          </div>
-          <div class="card-action">
-            <a href="https://github.com/turicas/brasil.io/issues">Ver mais</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="datasets">
-    <div class="divider-new pt-3">
-      <h4 class="text-center m-15 dark-blue">Datasets</h4>
+      </a>
     </div>
 
-    {% for dataset in datasets %}
+    <div class="col s12 m6 xl3">
+      <a href="https://github.com/turicas/brasil.io/issues">
+        <div class="card small hoverable waves-block  waves-effect">
+          <div class="card-content center card-home">
+            <span class="card-title bold black-text">Colabore</span>
+          </div>
+          <div class="card-content card-body" style="text-align:justify;">
+            <p class="black-text">Achou o projeto legal e quer contribuir? Clique aqui e veja aqui como.
+            </p>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <section id="datasets" style="margin-top: 50px;">
+    <h4 class="text-center m-15 green-text">Datasets</h4>
+    <div class="row" style="margin-top: 50px;">
+      {% for dataset in datasets %}
       {% include 'dataset-card.html' %}
-    {% endfor %}
+      {% endfor %}
+    </div>
 
-    <div class="row text-center">
-      <a class="btn btn-ptc btn-md waves-effect waves-light" href="{% url 'core:dataset-list' %}" title="Ver Todos Datasets" role="button">
+    <div class="row text-center" style="padding-bottom: 30px;">
+      <a class="btn waves-effect waves-light m-t-20" href="{% url 'core:dataset-list' %}" role="button">
         Ver Todos Datasets
       </a>
-    <div>
+      <div>
   </section>
 
 </div>

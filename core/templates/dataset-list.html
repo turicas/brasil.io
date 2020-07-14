@@ -2,57 +2,61 @@
 {% block title %}Lista de datasets - Brasil.IO{% endblock %}
 
 {% block content %}
-<div class="row">
-  <div class="col s12 m7">
-    <h4>Datasets</h4>
-  </div>
-  <div class="col s12 m5">
-    <form action="{% url 'core:dataset-list' %}" method='get'>
-      <div class="row">
-        <div class="col s12 m8">
-          {{ form.search.label_tag }}
-          {{ form.search }}
-        </div>
-        <div class="col m-t-15">
-          <button class="btn">Buscar</button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
-
+<div class="section">
   <div class="row">
-    <div class="col s12 m-b-15">
-      <div class="divider"></div>
+
+    <div class="col s12 m7">
+      <h1 class="header hide-on-small-only">Datasets</h1>
+      <h1 class="header-small hide-on-med-and-up">Datasets</h1>
+    </div>
+
+    <div class="col s12 m5">
+      <form action="{% url 'core:dataset-list' %}" method='get'>
+        <div class="row">
+          <div class="col s12 m8 input-field">
+            {{ form.search.label_tag }}
+            {{ form.search }}
+          </div>
+          <div class="col m4 m-t-15">
+            <button class="btn">Buscar</button>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
+
+
   <div class="row">
 
-  {% for dataset in datasets %}
+    {% for dataset in datasets %}
     {% include 'dataset-card.html' %}
-  {% endfor %}
+    {% endfor %}
 
-  <div class="col s12 m4 m-t-15">
-    <a href="{% url 'core:dataset-suggestion' %}" title="Ver dataset">
-      <div class="card horizontal small">
-        <div class="card-stacked">
-          <div class="card-content">
-            <span class="card-title activator grey-text text-darken-4">
-              Sugira um dataset
-              <i class="material-icons left">rate_review</i>
-            </span>
-            <p class="card-description">
-              Quais outros dados precisam ser libertados? Sugira aqui.
-            </p>
+    <div class="col s12 m6 l4 unselectable">
+      <div class="card small hoverable">
+        <div class="card-content-horizontal activator hoverable">
+          <div class="center">
+            <i class="material-icons icon-dataset">rate_review</i>
           </div>
-          <div class="card-action indigo-text text-accent-4">
-            <p>
-              <a href="{% url 'core:dataset-suggestion' %}" title="Sugerir"> Sugerir </a>
-            </p>
+          <h3 class="activator">Sugira um dataset</h3>
+          <p class="activator">Quais outros dados precisam ser libertados? Sugira aqui.</p>
+          <div class="center activator">
+            <span class="black-text">
+              <i class="material-icons">keyboard_arrow_up</i>
+            </span>
+          </div>
+        </div>
+        <div class="card-reveal grey lighten-5">
+          <i class="material-icons icon-dataset">rate_review</i>
+          <span class="card-title grey-text text-darken-4">Sugira um dataset<i class="material-icons right">close</i></span>
+          <span class="subtitle-tables">:)</span>
+          <div class="links">
+            <a href="{% url 'core:dataset-suggestion' %}">Sugerir</a>
           </div>
         </div>
       </div>
-    </a>
+    </div>
+
   </div>
 
 </div>

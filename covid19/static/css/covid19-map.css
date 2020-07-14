@@ -1,10 +1,10 @@
-nav ul li {
+nav.nav-state-selector ul li {
   list-style-type: none; 
   display: inline-block; 
   float: none!important;
 }
 
-nav ul {
+nav.nav-state-selector ul {
   white-space: nowrap;
   overflow-x: auto; 
   overflow-y: hidden; 
@@ -95,5 +95,56 @@ nav ul {
   .state-option {
     font-size: 1em;
     padding: 0 0.25em;
+  }
+}
+
+/* 
+  Css para manter style da dashboard covid19
+  com estilos de espaçamento e cards diferentes
+  das outras telas do sistema.
+*/
+.container {
+  padding: 10px;
+}
+
+.card .card-action a:not(.btn):not(.btn-large):not(.btn-small):not(.btn-large):not(.btn-floating) {
+  color: #1A237E !important;
+  margin-right: 10px;
+  -webkit-transition: color .3s ease;
+  transition: color .3s ease;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.card .card-content {
+  padding: 0 0.5em 0.5em 0.5em;
+}
+
+.card .card-title {
+  font-size: 1.5em;
+  font-weight: 300;
+}
+
+.card .card-content.card-body {
+  min-height: 100px;
+}
+
+.card.small .card-description {
+  color: rgba(0,0,0,0.87);
+}
+
+.container {
+  margin: 0 auto;
+  width: 90%;
+  max-width: 100%;
+}
+@media only screen and (min-width: 601px) {
+  .container {
+    width: 90%;
+  }
+}
+@media only screen and (min-width: 993px) {
+  .container {
+    width: 90%;
   }
 }
