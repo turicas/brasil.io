@@ -202,6 +202,5 @@ def contributors(request):
 
 def donators(request):
     skip = request.GET.get('skip', 0)
-    print(skip)
     data = get_apoiase_donors("5ab97be3c3f083c623a26742", int(skip))
     return render(request, "donators.html", {"donators": data })
