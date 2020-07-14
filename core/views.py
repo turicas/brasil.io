@@ -12,7 +12,7 @@ from django.urls import reverse
 from core.forms import ContactForm, DatasetSearchForm
 from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
-from core.util import cached_http_get_json
+from core.util import cached_http_get_json, get_apoiase_donors
 
 
 class Echo:
@@ -100,7 +100,7 @@ def dataset_detail(request, slug, tablename=""):
     except Dataset.DoesNotExist:
         context = {"message": "Dataset does not exist"}
         return render(request, "404.html", context, status=404)
-
+    
     if not tablename:
         tablename = dataset.get_default_table().name
         return redirect(reverse("core:dataset-table-detail", kwargs={"slug": slug, "tablename": tablename},))
@@ -199,3 +199,9 @@ def contributors(request):
     url = "https://data.brasil.io/meta/contribuidores.json"
     data = cached_http_get_json(url, 5)
     return render(request, "contributors.html", {"contributors": data})
+
+def donators(request):
+    skip = request.GET.get('skip', 0)
+    print(skip)
+    data = get_apoiase_donors("5ab97be3c3f083c623a26742", int(skip))
+    return render(request, "donators.html", {"donators": data })

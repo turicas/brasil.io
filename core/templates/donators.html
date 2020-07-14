@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Doadores - Brasil.IO{% endblock %}
+{% block head %}
+{{ block.super }}
+<!-- cdnjs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/noframework.waypoints.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/shortcuts/infinite.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="section">
+  <h4>Doadores</h4>
+  <div class="divider"></div>
+
+  <div class="row m-t-5">
+    <p>
+      A lista abaixo é de pessoas que <i>apoiam nossa campanha</i> pela plataforma <strong>Apoia.se</strong> de
+      financiamento coletivo.
+      <a href="https://apoia.se/brasilio" title="Apoie nossa campanha">Colabore você também clicando aqui.</a>
+    </p>
+    <div class="row">
+      <div class="infinite-container col s12 center" id="container">
+        {% for donator in donators.donors %}
+        <div class="col s12 m3 m-t-15 infinite-item" style="min-height: 130px;">
+          <span class="fa-stack fa-2x text-center">
+            <img class="circle responsive-img" src="{{ donator.image }}" alt="Imagem de {{ donator.name }}">
+          </span>
+          <h6> {{ donator.name }} </h6>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="loading col s12 center" style="display: none;">
+        <div class="preloader-wrapper big active">
+          <div class="spinner-layer spinner-blue-only">
+            <div class="circle-clipper left">
+              <div class="circle"></div>
+            </div>
+            <div class="gap-patch">
+              <div class="circle"></div>
+            </div>
+            <div class="circle-clipper right">
+              <div class="circle"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% if not donators.finished %}
+      <a class="infinite-more-link" id="link"></a>
+    {% endif %}
+  </div>
+</div>
+<script type="text/javascript">
+  const imgError = function () {$(this).attr('src', 'https://www.gravatar.com/avatar/0c69fde20bd613fa206dca3d9996b661?d=mp')};
+  $('img').on("error", imgError)
+  var infinite = new Waypoint.Infinite({
+    element: $('#container').get(0),
+    offset: 'bottom-in-view',
+    onBeforePageLoad: function (element) {
+      $('.loading').show();
+      $('#link').attr('href', `?skip=${$('#container').children().length}`);
+    },
+    onAfterPageLoad: function () {
+      $('.loading').hide();
+      $('img').on("error", imgError)
+    }
+  })
+</script>
+{% endblock %}

@@ -172,22 +172,19 @@ def create_table_documentation(table):
 
 
 # Brasil.IO on apoiase: "5ab97be3c3f083c623a26742"
-def get_apoiase_donors(campain_id):
+def get_apoiase_donors(campain_id, skip):
     limit = 25  # Max per page
     url = "https://apoia.se/api/v1/users/public-supporters"
-    data = {"campaignId": campain_id, "limit": limit, "skip": 0}
-    finished = False
+    data = {"campaignId": campain_id, "limit": limit, "skip": skip}
     donors = []
-    while not finished:
-        data["skip"] = len(donors)
-        request = Request(
-            url,
-            data=json.dumps(data).encode("utf-8"),
-            method="POST",
-            headers={"Content-Type": "application/json;charset=UTF-8", "User-Agent": USER_AGENT},
-        )
-        response = urlopen(request)
-        new = json.loads(response.read())
-        donors.extend(new)
-        finished = len(new) < limit
-    return donors
+    request = Request(
+        url,
+        data=json.dumps(data).encode("utf-8"),
+        method="POST",
+        headers={"Content-Type": "application/json;charset=UTF-8", "User-Agent": USER_AGENT},
+    )
+    response = urlopen(request)
+    new = json.loads(response.read())
+    donors.extend(new)
+    finished = len(new) < limit
+    return {'donors': donors, 'finished': finished }
