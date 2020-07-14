@@ -86,11 +86,12 @@ main {
   color: rgba(0,0,0,0.87);
 }
 
-.footer {
-  text-align: center;
+footer a{
+  color: #b0bec5
 }
-.footer.indigo a {
-  color: #00a2ec;
+
+footer a:hover{
+  color: white !important;
 }
 
 .email-newsletter {
