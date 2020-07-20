@@ -5,17 +5,16 @@ from collections import OrderedDict
 from textwrap import dedent
 from urllib.parse import urlparse
 
+import django.contrib.postgres.indexes as pg_indexes
+import django.db.models.indexes as django_indexes
 from cachalot.api import invalidate
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
-from django.db import connection, models
-from django.db import transaction
+from django.db import connection, models, transaction
 from django.db.models import F
 from django.db.utils import ProgrammingError
 from markdownx.models import MarkdownxField
 from rows import fields as rows_fields
-import django.contrib.postgres.indexes as pg_indexes
-import django.db.models.indexes as django_indexes
 
 from core.filters import DynamicModelFilterProcessor
 
