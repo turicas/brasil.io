@@ -5,6 +5,7 @@ from collections import OrderedDict
 from textwrap import dedent
 from urllib.parse import urlparse
 
+from django.db.models.signals import pre_delete, post_delete
 import django.contrib.postgres.indexes as pg_indexes
 import django.db.models.indexes as django_indexes
 from cachalot.api import invalidate
@@ -605,3 +606,17 @@ class DataTable(models.Model):
             Model.delete_table()
         except ProgrammingError:  # model does not exist
             pass
+
+
+def prevent_active_data_table_deletion(sender, instance, **kwargs):
+    if instance.active:
+        msg = f'{instance} is active and can not be deleted. Deactivate it first.'
+        raise RuntimeError(msg)
+
+
+def clean_associated_data_base_table(sender, instance, **kwargs):
+    instance.delete_data_table()
+
+
+pre_delete.connect(prevent_active_data_table_deletion, sender=DataTable)
+post_delete.connect(clean_associated_data_base_table, sender=DataTable)

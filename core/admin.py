@@ -86,9 +86,6 @@ class DataTableAdmin(admin.ModelAdmin):
     def has_add_permission(self, *args, **kwargs):
         return False
 
-    def has_delete_permission(self, *args, **kwargs):
-        return False
-
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
