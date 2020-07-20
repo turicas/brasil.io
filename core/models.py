@@ -10,9 +10,11 @@ import django.db.models.indexes as django_indexes
 from cachalot.api import invalidate
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
-from django.db import connection, models
+from django.db import connection, models, transaction
 from django.db.models import F
+from django.db.models.signals import post_delete, pre_delete
 from django.db.utils import ProgrammingError
+from django.urls import reverse
 from markdownx.models import MarkdownxField
 from rows import fields as rows_fields
 
@@ -539,7 +541,10 @@ def get_table_model(dataset_slug, tablename):
 
 class DataTableQuerySet(models.QuerySet):
     def get_current_active(self):
-        return self.active().order_by("-created_at").first()
+        return self.active().most_recent()
+
+    def most_recent(self):
+        return self.order_by("-created_at").first()
 
     def inactive(self):
         return self.filter(active=False)
@@ -562,6 +567,10 @@ class DataTable(models.Model):
     def __str__(self):
         return f"DataTable: {self.db_table_name}"
 
+    @property
+    def admin_url(self):
+        return reverse("admin:core_datatable_change", args=[self.id])
+
     @classmethod
     def new_data_table(cls, table, suffix_size=8):
         db_table_suffix = "".join(random.choice(string.ascii_lowercase) for i in range(suffix_size))
@@ -570,15 +579,26 @@ class DataTable(models.Model):
             db_table_name += f"_{db_table_suffix}"
         return cls(table=table, db_table_name=db_table_name)
 
-    def activate(self):
-        self.active = True
-        self.save()
+    def activate(self, drop_inactive_table=False):
+        with transaction.atomic():
+            prev_data_table = self.table.data_table
+            if prev_data_table:
+                prev_data_table.deactivate(drop_table=drop_inactive_table)
+            self.active = True
+            self.save()
 
-    def deactivate(self, drop_table=False):
-        if drop_table:
-            self.delete_data_table()
-        self.active = False
-        self.save()
+    def deactivate(self, drop_table=False, activate_most_recent=False):
+        with transaction.atomic():
+            if activate_most_recent and self.active:
+                most_recent = self.table.data_tables.exclude(id=self.id).inactive().most_recent()
+                if most_recent:
+                    most_recent.activate(drop_inactive_table=drop_table)
+                    return
+
+            self.active = False
+            self.save()
+            if drop_table:
+                self.delete_data_table()
 
     def delete_data_table(self):
         Model = self.table.get_model(cache=False, data_table=self)
@@ -586,3 +606,17 @@ class DataTable(models.Model):
             Model.delete_table()
         except ProgrammingError:  # model does not exist
             pass
+
+
+def prevent_active_data_table_deletion(sender, instance, **kwargs):
+    if instance.active:
+        msg = f"{instance} is active and can not be deleted. Deactivate it first."
+        raise RuntimeError(msg)
+
+
+def clean_associated_data_base_table(sender, instance, **kwargs):
+    instance.delete_data_table()
+
+
+pre_delete.connect(prevent_active_data_table_deletion, sender=DataTable)
+post_delete.connect(clean_associated_data_base_table, sender=DataTable)
