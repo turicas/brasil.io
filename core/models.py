@@ -5,7 +5,6 @@ from collections import OrderedDict
 from textwrap import dedent
 from urllib.parse import urlparse
 
-from django.db.models.signals import pre_delete, post_delete
 import django.contrib.postgres.indexes as pg_indexes
 import django.db.models.indexes as django_indexes
 from cachalot.api import invalidate
@@ -13,6 +12,7 @@ from django.contrib.postgres.fields import ArrayField, JSONField
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
 from django.db import connection, models, transaction
 from django.db.models import F
+from django.db.models.signals import post_delete, pre_delete
 from django.db.utils import ProgrammingError
 from django.urls import reverse
 from markdownx.models import MarkdownxField
@@ -610,7 +610,7 @@ class DataTable(models.Model):
 
 def prevent_active_data_table_deletion(sender, instance, **kwargs):
     if instance.active:
-        msg = f'{instance} is active and can not be deleted. Deactivate it first.'
+        msg = f"{instance} is active and can not be deleted. Deactivate it first."
         raise RuntimeError(msg)
 
 

@@ -99,12 +99,13 @@ class DataTableAdmin(admin.ModelAdmin):
 
     def manage_activation(self, obj):
         if obj.active:
-            url = reverse('admin:data_table_management_view', args=[obj.id, self.DEACTIVATE_OP])
+            url = reverse("admin:data_table_management_view", args=[obj.id, self.DEACTIVATE_OP])
             label = "Desativar DataTable"
         else:
-            url = reverse('admin:data_table_management_view', args=[obj.id, self.ACTIVATE_OP])
+            url = reverse("admin:data_table_management_view", args=[obj.id, self.ACTIVATE_OP])
             label = "Ativar DataTable"
         return format_html(f"<a href='{url}'>{label}</a>")
+
     manage_activation.short_description = "Gerenciar ativação/desativação"
 
     def data_table_management_view(self, request, data_table_id, op_type):
