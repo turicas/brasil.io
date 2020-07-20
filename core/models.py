@@ -13,6 +13,7 @@ from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.db import connection, models, transaction
 from django.db.models import F
 from django.db.utils import ProgrammingError
+from django.urls import reverse
 from markdownx.models import MarkdownxField
 from rows import fields as rows_fields
 
@@ -564,6 +565,10 @@ class DataTable(models.Model):
 
     def __str__(self):
         return f"DataTable: {self.db_table_name}"
+
+    @property
+    def admin_url(self):
+        return reverse("admin:core_datatable_change", args=[self.id])
 
     @classmethod
     def new_data_table(cls, table, suffix_size=8):

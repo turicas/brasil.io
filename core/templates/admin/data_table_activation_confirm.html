@@ -1,0 +1,43 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}
+{{ action_title }} DataTable
+{{ block.super }}
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">Início</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='core' %}">Core</a>
+&rsaquo; <a href="{% url 'admin:core_datatable_changelist' %}">DataTable</a>
+&rsaquo; {{ action_title }} {{ data_table_repr }}
+</div>
+{% endblock %}
+{% endif %}
+
+{% block content %}
+<h1>{{ action_title }} {{ data_table_repr }}</h1>
+
+<div id="content-main">
+  <p><b>Cuidado:</b> operações sobre objetos DataTable afetarão os dados a serem retornados pelo backend do Brasil.io.</p>
+
+  <div class="module aligned">
+    <div class="form-row">
+      <div>
+        <label><b>{{ action_title }} DataTable:</b></label>
+        <div class="object-tools">
+          <a href="./?confirm=True" style="background: red">{{ action_title }} DataTable</a>
+        </div>
+        <div class="help">
+          {{ help_text|safe }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
