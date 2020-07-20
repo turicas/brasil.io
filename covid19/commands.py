@@ -115,8 +115,8 @@ class UpdateStateTotalsCommand:
         return form.save()
 
     def deploy_spreadsheet(self, spreadsheet, log_prefix):
-        StateSpreadsheet.objects.cancel_older_versions(spreadsheet)
         spreadsheet.import_to_final_dataset(automatically_created=True)
+        StateSpreadsheet.objects.cancel_older_versions(spreadsheet)
         spreadsheet.refresh_from_db()
         message = f"{log_prefix}, id = {spreadsheet.id}"
         self.debug(message)
