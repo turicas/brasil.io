@@ -1,10 +1,11 @@
 from collections import OrderedDict
+from unittest.mock import patch, Mock
 
 from django.test import TestCase
 from model_bakery import baker, seq
 from rows import fields
 
-from core.models import Table, DataTable
+from core.models import Table, DataTable, DynamicModelMixin
 
 
 class TableModelTests(TestCase):
@@ -102,3 +103,43 @@ class DataTableModelTests(TestCase):
         assert splited_name[0] == 'data'
         assert splited_name[1] == 'dsslug'
         assert splited_name[2] == 'tablename'
+
+    def test_activate_data_table(self):
+        data_table = DataTable.new_data_table(self.table)
+
+        data_table.activate()
+        data_table.refresh_from_db()
+
+        assert data_table.active is True
+
+    @patch.object(Table, 'get_model', Mock())
+    def test_activate_data_table_updates_previous_active_as_inactive(self):
+        old_data_table = DataTable.new_data_table(self.table)
+        old_data_table.activate()
+
+        new_data_table = DataTable.new_data_table(self.table)
+        new_data_table.activate()
+
+        old_data_table.refresh_from_db()
+        new_data_table.refresh_from_db()
+
+        assert old_data_table.active is False
+        assert new_data_table.active is True
+        assert self.table.get_model.called is False
+
+    @patch.object(Table, 'get_model', Mock(DynamicModelMixin))
+    def test_activate_data_table_updates_previous_active_as_inactive_and_delete_table_if_flagged(self):
+        old_data_table = DataTable.new_data_table(self.table)
+        old_data_table.activate()
+
+        new_data_table = DataTable.new_data_table(self.table)
+        new_data_table.activate(drop_inactive_table=True)
+
+        old_data_table.refresh_from_db()
+        new_data_table.refresh_from_db()
+
+        assert old_data_table.active is False
+        assert new_data_table.active is True
+        self.table.get_model.assert_called_once_with(cache=False, data_table=old_data_table)
+        Model = self.table.get_model(cache=False, data_table=old_data_table)
+        Model.delete_table.assert_called_once_with()

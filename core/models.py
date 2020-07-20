@@ -5,16 +5,17 @@ from collections import OrderedDict
 from textwrap import dedent
 from urllib.parse import urlparse
 
-import django.contrib.postgres.indexes as pg_indexes
-import django.db.models.indexes as django_indexes
 from cachalot.api import invalidate
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
 from django.db import connection, models
+from django.db import transaction
 from django.db.models import F
 from django.db.utils import ProgrammingError
 from markdownx.models import MarkdownxField
 from rows import fields as rows_fields
+import django.contrib.postgres.indexes as pg_indexes
+import django.db.models.indexes as django_indexes
 
 from core.filters import DynamicModelFilterProcessor
 
@@ -570,9 +571,13 @@ class DataTable(models.Model):
             db_table_name += f"_{db_table_suffix}"
         return cls(table=table, db_table_name=db_table_name)
 
-    def activate(self):
-        self.active = True
-        self.save()
+    def activate(self, drop_inactive_table=False):
+        with transaction.atomic():
+            prev_data_table = self.table.data_table
+            if prev_data_table:
+                prev_data_table.deactivate(drop_table=drop_inactive_table)
+            self.active = True
+            self.save()
 
     def deactivate(self, drop_table=False):
         if drop_table:
