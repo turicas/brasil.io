@@ -593,10 +593,10 @@ class DataTable(models.Model):
                 most_recent = self.table.data_tables.exclude(id=self.id).inactive().most_recent()
                 if most_recent:
                     most_recent.activate(drop_inactive_table=drop_table)
-            else:
-                self.active = False
-                self.save()
+                    return
 
+            self.active = False
+            self.save()
             if drop_table:
                 self.delete_data_table()
 
