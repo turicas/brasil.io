@@ -4,7 +4,7 @@ from django.test import TestCase
 from model_bakery import baker, seq
 from rows import fields
 
-from core.models import Table
+from core.models import Table, DataTable
 
 
 class TableModelTests(TestCase):
@@ -71,3 +71,34 @@ class TableModelTests(TestCase):
         assert 2 == tables.count()
         assert table in tables
         assert hidden_table in tables
+
+
+class DataTableModelTests(TestCase):
+
+    def setUp(self):
+        self.table = baker.make(Table, dataset__slug='ds-slug', name='table_name')
+
+    def test_new_datatable_with_table_name_suffix(self):
+        data_table = DataTable.new_data_table(self.table)
+        splited_name = data_table.db_table_name.split('_')
+
+        assert not data_table.id  # creates an instance but doesn't save it in the DB
+        assert data_table.table == self.table
+        assert data_table.active is False
+        assert len(splited_name) == 4  # data + ds slug + table + suffix
+        assert splited_name[0] == 'data'
+        assert splited_name[1] == 'dsslug'
+        assert splited_name[2] == 'tablename'
+        assert len(splited_name[3]) == 8  # suffix with 8 chars
+
+    def test_new_datatable_without_table_name_suffix(self):
+        data_table = DataTable.new_data_table(self.table, suffix_size=0)
+        splited_name = data_table.db_table_name.split('_')
+
+        assert not data_table.id  # creates an instance but doesn't save it in the DB
+        assert data_table.table == self.table
+        assert data_table.active is False
+        assert len(splited_name) == 3  # data + ds slug + table
+        assert splited_name[0] == 'data'
+        assert splited_name[1] == 'dsslug'
+        assert splited_name[2] == 'tablename'
