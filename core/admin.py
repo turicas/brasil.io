@@ -2,6 +2,7 @@ from django.contrib import admin, messages
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.templatetags.static import static
+from django.urls import path, reverse
 from django.utils.html import format_html
 from markdownx.admin import MarkdownxModelAdmin
 
@@ -71,7 +72,7 @@ admin.site.register(models.Field, FieldAdmin)
 
 class DataTableAdmin(admin.ModelAdmin):
     ordering = ["-active", "db_table_name"]
-    list_display = ["db_table_name", "dataset", "table", "created_at", "active"]
+    list_display = ["db_table_name", "dataset", "table", "created_at", "active", "manage_activation"]
     list_filter = ["active", "table"]
     readonly_fields = ["db_table_name", "table", "active", "created_at"]
     ACTIVATE_OP, DEACTIVATE_OP = "activate", "deactivate"
@@ -98,6 +99,16 @@ class DataTableAdmin(admin.ModelAdmin):
             ),
         ]
         return custom_urls + urls
+
+    def manage_activation(self, obj):
+        if obj.active:
+            url = reverse('admin:data_table_management_view', args=[obj.id, self.DEACTIVATE_OP])
+            label = "Desativar DataTable"
+        else:
+            url = reverse('admin:data_table_management_view', args=[obj.id, self.ACTIVATE_OP])
+            label = "Ativar DataTable"
+        return format_html(f"<a href='{url}'>{label}</a>")
+    manage_activation.short_description = "Gerenciar ativação/desativação"
 
     def data_table_management_view(self, request, data_table_id, op_type):
         if not request.user.is_superuser:
