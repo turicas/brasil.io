@@ -581,11 +581,18 @@ class DataTable(models.Model):
             self.active = True
             self.save()
 
-    def deactivate(self, drop_table=False):
-        if drop_table:
-            self.delete_data_table()
-        self.active = False
-        self.save()
+    def deactivate(self, drop_table=False, activate_most_recent=False):
+        with transaction.atomic():
+            if activate_most_recent and self.active:
+                most_recent = self.table.data_tables.exclude(id=self.id).inactive().most_recent()
+                if most_recent:
+                    most_recent.activate(drop_inactive_table=drop_table)
+            else:
+                self.active = False
+                self.save()
+
+            if drop_table:
+                self.delete_data_table()
 
     def delete_data_table(self):
         Model = self.table.get_model(cache=False, data_table=self)

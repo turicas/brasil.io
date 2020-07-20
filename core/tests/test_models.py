@@ -142,3 +142,33 @@ class DataTableModelTests(TestCase):
         self.table.get_model.assert_called_once_with(cache=False, data_table=old_data_table)
         Model = self.table.get_model(cache=False, data_table=old_data_table)
         Model.delete_table.assert_called_once_with()
+
+    def test_deactivate_does_not_handle_activation_by_default(self):
+        old_data_table = DataTable.new_data_table(self.table)
+        old_data_table.activate()
+        new_data_table = DataTable.new_data_table(self.table)
+        new_data_table.activate()
+
+        new_data_table.deactivate()
+        old_data_table.refresh_from_db()
+        new_data_table.refresh_from_db()
+
+        assert old_data_table.active is False
+        assert new_data_table.active is False
+
+    def test_deactivate_activates_most_recent_if_flag(self):
+        oldest_data_table = DataTable.new_data_table(self.table)
+        oldest_data_table.activate()
+        old_data_table = DataTable.new_data_table(self.table)
+        old_data_table.activate()
+        new_data_table = DataTable.new_data_table(self.table)
+        new_data_table.activate()
+
+        new_data_table.deactivate(activate_most_recent=True)
+        oldest_data_table.refresh_from_db()
+        old_data_table.refresh_from_db()
+        new_data_table.refresh_from_db()
+
+        assert oldest_data_table.active is False
+        assert new_data_table.active is False
+        assert old_data_table.active is True
