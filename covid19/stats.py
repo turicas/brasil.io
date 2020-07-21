@@ -28,18 +28,18 @@ def group_deaths(data):
     result = []
     for row in data:
         new = {
-            "excess_deaths": row.get("deaths_total", 0) - row.get("deaths_total_2019", 0),
-            "new_excess_deaths": row.get("new_deaths_total", 0) - row.get("new_deaths_total_2019", 0),
+            "excess_deaths": (row.get("deaths_total") or 0) - (row.get("deaths_total_2019") or 0),
+            "new_excess_deaths": (row.get("new_deaths_total") or 0) - (row.get("new_deaths_total_2019") or 0),
         }
         if "date" in row:
             new["date"] = row["date"]
         elif "epidemiological_week" in row:
             new["epidemiological_week"] = row["epidemiological_week"]
         for new_key, sum_keys in key_map.items():
-            new[f"{new_key}_2020"] = sum(row.get(key, 0) or 0 for key in sum_keys)
-            new[f"new_{new_key}_2020"] = sum(row.get(f"new_{key}", 0) or 0 for key in sum_keys)
-            new[f"{new_key}_2019"] = sum(row.get(f"{key}_2019", 0) or 0 for key in sum_keys)
-            new[f"new_{new_key}_2019"] = sum(row.get(f"new_{key}_2019", 0) or 0 for key in sum_keys)
+            new[f"{new_key}_2020"] = sum(row.get(key) or 0 for key in sum_keys)
+            new[f"new_{new_key}_2020"] = sum(row.get(f"new_{key}") or 0 for key in sum_keys)
+            new[f"{new_key}_2019"] = sum(row.get(f"{key}_2019") or 0 for key in sum_keys)
+            new[f"new_{new_key}_2019"] = sum(row.get(f"new_{key}_2019") or 0 for key in sum_keys)
         result.append(new)
     return result
 
