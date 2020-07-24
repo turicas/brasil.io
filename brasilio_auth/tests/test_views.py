@@ -37,3 +37,14 @@ class UserCreationViewTests(TestCase):
         self.assertRedirects(response, settings.LOGIN_REDIRECT_URL, fetch_redirect_response=False)
         assert "_auth_user_id" in self.client.session
         assert str(user.pk) == self.client.session["_auth_user_id"]
+
+    def test_form_error_if_trying_to_create_user_with_existing_username(self):
+        response = self.client.post(self.url, data=self.data)
+        assert User.objects.filter(username="foo").exists()
+
+        self.data["username"] = "FOO"
+        self.data["email"] = "new@foo.com"
+        response = self.client.post(self.url, data=self.data)
+        self.assertTemplateUsed(response, "brasilio_auth/user_creation_form.html")
+        print(response.context["form"].errors)
+        assert bool(response.context["form"].errors) is True
