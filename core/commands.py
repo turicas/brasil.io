@@ -1,6 +1,8 @@
 import csv
 import os
 import time
+import hashlib
+from tqdm import tqdm
 from collections import OrderedDict
 
 import rows
@@ -10,6 +12,7 @@ from django.db.utils import ProgrammingError
 from django.utils import timezone
 
 from core.models import DataTable, Field, Table
+from utils.file_streams import stream_file, human_readable_size
 
 
 class ImportDataCommand:
@@ -151,3 +154,32 @@ class ImportDataCommand:
             self.log(" - done in {:.3f}s.".format(end_field - start_field))
         end = time.time()
         self.log("  done in {:.3f}s.".format(end - start))
+
+
+class UpdateTableFileCommand:
+
+    def __init__(self, table, file_url):
+        self.table = table
+        self.file_url = file_url
+        self.hasher = hashlib.sha512()
+        self.file_size = 0
+
+    def process_file_chunks(self):
+        # TODO get chunks from settings
+        for chunk in stream_file(self.file_url, chunk_size=256):
+            self.file_size += len(chunk)
+            self.hasher.update(chunk)
+            yield chunk
+
+    @classmethod
+    def execute(cls, dataset_slug, tablename, file_url):
+        table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
+        self = cls(table, file_url)
+
+        for chunk in tqdm(self.process_file_chunks()):
+            pass
+
+        file_hash = self.hasher.hexdigest()
+        file_size = human_readable_size(self.file_size)
+        print(f"File hash: {file_hash}")
+        print(f"File size: {file_size}")
