@@ -39,6 +39,7 @@ def spreadsheet_download_url(url_or_id, file_format):
     )
 
 
+@retry(tries=3, delay=5)
 @cache_memoize(24 * 3600)
 def get_general_spreadsheet(timeout=5):
     data = http_get(spreadsheet_download_url(STATE_LINKS_SPREADSHEET_ID, "csv"), timeout)
