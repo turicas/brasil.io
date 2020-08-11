@@ -165,7 +165,7 @@ class UpdateTableFileCommand:
         self.file_size = 0
 
     def process_file_chunks(self):
-        # TODO get chunks from settings
+        # TODO get chunk_size from settings
         for chunk in stream_file(self.file_url, chunk_size=256):
             self.file_size += len(chunk)
             self.hasher.update(chunk)
