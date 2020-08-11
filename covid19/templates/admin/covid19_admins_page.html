@@ -24,24 +24,29 @@ Gerenciamento Covid19
 <div id="content-main">
   <p>Olá {{request.user.username}}! Nesta página você poderá desempenhar funções administrativas em cima dos dados da Covid19.</p>
 
-  <div class="module aligned">
-    <div class="form-row">
-      <div>
-        <label><b>Atualizar totais dos estados:</b></label>
-        <div class="object-tools">
-          <a href="{% url 'admin:covid19_management' %}?action=update_state_totals">Atualizar Total dos Estados</a>
-        </div>
-        <div class="help">
-          Ao clicar no botão acima, o sistema irá criar novas planilhas para os estados
-          somente com a entrada dos dados totais.  Essas planilhas extrairão os dados
-          de acordo com as entradas da planilha
-          <a href="{{ state_totals_url }}" target="_blank">brio_totais</a>. Somente as
-          entradas que tiverem a coluna <b>status</b> com o valor <b>ok</b> serão
-          consideradas durante a atualização.
+  <form id="covidAdminActionForm" method="POST">
+    <input id="actionInput" name="action" value="" style="display: none;">
+    {% csrf_token %}
+
+    <div class="module aligned">
+      <div class="form-row">
+        <div>
+          <label><b>Atualizar totais dos estados:</b></label>
+          <div class="object-tools">
+            <a id="updateStateTotalsAction" href="#">Atualizar Total dos Estados</a>
+          </div>
+          <div class="help">
+            Ao clicar no botão acima, o sistema irá criar novas planilhas para os estados
+            somente com a entrada dos dados totais.  Essas planilhas extrairão os dados
+            de acordo com as entradas da planilha
+            <a href="{{ state_totals_url }}" target="_blank">brio_totais</a>. Somente as
+            entradas que tiverem a coluna <b>status</b> com o valor <b>ok</b> serão
+            consideradas durante a atualização.
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </form>
 
 {% if action_output %}
   <div id="action_output">
@@ -51,4 +56,17 @@ Gerenciamento Covid19
 {% endif %}
 
 </div>
+
+<script src="{% static 'js/jquery.js' %}"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+  var actionForm = $("#covidAdminActionForm");
+  var actionInput = $("#actionInput");
+
+  $("#updateStateTotalsAction").click(function(){
+    actionInput.val("update_state_totals");
+    actionForm.submit();
+  });
+});
+</script>
 {% endblock %}
