@@ -233,7 +233,7 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
         context = self.admin_site.each_context(request)
         context["state_totals_url"] = settings.COVID_19_STATE_TOTALS_URL.split("export")[0]
 
-        if request.GET.get("action", None) == "update_state_totals":
+        if request.POST.get("action", None) == "update_state_totals":
             context["action_output"] = execute_update_state_totals(request.user)
         return render(request, "admin/covid19_admins_page.html", context=context)
 
