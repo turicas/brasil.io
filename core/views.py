@@ -204,7 +204,7 @@ def contributors(request):
 def dataset_meta_detail(request, slug):
     # this view exists for admin users to quickly preview how data.brasil.io/dataset/<dataset_slug>/_meta/list.html will look like
     if not request.user.is_superuser:
-        return Http404
+        raise Http404
 
     dataset = get_object_or_404(Dataset, slug=slug)
     tables = dataset.tables
