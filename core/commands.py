@@ -206,6 +206,10 @@ class UpdateTableFileCommand:
             progress = MinioProgress()
             self.log(f"Uploading file to bucket: {bucket}")
             self.minio.fput_object(bucket, dest_name, self.output_file.name, progress=progress)
+        else:
+            source = self.file_url_info.path
+            self.log(f"Copying {source} to bucket {bucket}")
+            self.minio.copy_object(bucket, dest_name, source)
 
         os.remove(self.output_file.name)
 
