@@ -17,6 +17,7 @@ from django.utils import timezone
 
 from core.models import DataTable, Field, Table
 from utils.file_streams import stream_file, human_readable_size
+from utils.minio import MinioProgress
 
 
 class ImportDataCommand:
@@ -192,9 +193,10 @@ class UpdateTableFileCommand:
             # TODO dynamic suffix
             dest_name = f"{self.table.dataset.slug}/{self.table.name}.csv.gz"
             bucket = settings.MINIO_STORAGE_DATASETS_BUCKET_NAME
+            progress = MinioProgress()
 
             self.log(f"Uploading file to bucket: {bucket}")
-            self.minio.fput_object(bucket, dest_name, self.output_file.name)
+            self.minio.fput_object(bucket, dest_name, self.output_file.name, progress=progress)
             os.remove(self.output_file.name)
 
     @classmethod
