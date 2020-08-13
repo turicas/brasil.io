@@ -166,14 +166,24 @@ class UpdateTableFileCommand:
     def __init__(self, table, file_url):
         self.table = table
         self.file_url = file_url
+        self.file_url_info = urlparse(file_url)
         self.hasher = hashlib.sha512()
         self.file_size = 0
+
+        minio_endpoint = urlparse(settings.AWS_S3_ENDPOINT_URL).netloc
+        self.should_upload = minio_endpoint != self.file_url_info.netloc
         self.minio = Minio(
-            urlparse(settings.AWS_S3_ENDPOINT_URL).netloc,
+            minio_endpoint,
             access_key=settings.AWS_ACCESS_KEY_ID,
-            secret_key=settings.AWS_SECRET_ACCESS_KEY,
+            secret_key=settings.AWS_SECRET_ACCESS_KEY
         )
-        self.output_file = None
+        self._output_file = None
+
+    @property
+    def output_file(self):
+        if not self._output_file:
+            self._output_file = NamedTemporaryFile(delete=False)
+        return self._output_file
 
     def read_file_chunks(self):
         # TODO get chunk_size from settings
@@ -183,21 +193,21 @@ class UpdateTableFileCommand:
             yield chunk
 
     def process_file_chunk(self, chunk):
-        if not self.output_file:
-            self.output_file = NamedTemporaryFile(delete=False)
-        self.output_file.write(chunk)
+        if self.should_upload:
+            self.output_file.write(chunk)
 
     def finish_process(self):
-        if self.output_file:
-            self.output_file.close()
-            # TODO dynamic suffix
-            dest_name = f"{self.table.dataset.slug}/{self.table.name}.csv.gz"
-            bucket = settings.MINIO_STORAGE_DATASETS_BUCKET_NAME
-            progress = MinioProgress()
+        # TODO dynamic suffix
+        dest_name = f"{self.table.dataset.slug}/{self.table.name}.csv.gz"
+        bucket = settings.MINIO_STORAGE_DATASETS_BUCKET_NAME
 
+        if self.should_upload:
+            self.output_file.close()
+            progress = MinioProgress()
             self.log(f"Uploading file to bucket: {bucket}")
             self.minio.fput_object(bucket, dest_name, self.output_file.name, progress=progress)
-            os.remove(self.output_file.name)
+
+        os.remove(self.output_file.name)
 
     @classmethod
     def execute(cls, dataset_slug, tablename, file_url):
