@@ -1,23 +1,23 @@
 import csv
 import hashlib
 import os
-import rows
 import time
 from collections import OrderedDict
-from minio import Minio
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from tqdm import tqdm
 from urllib.parse import urlparse
 
+import rows
 from django.conf import settings
 from django.core.cache import cache
 from django.db import transaction
 from django.db.utils import ProgrammingError
 from django.utils import timezone
+from minio import Minio
+from tqdm import tqdm
 
 from core.models import DataTable, Field, Table
-from utils.file_streams import stream_file, human_readable_size
+from utils.file_streams import human_readable_size, stream_file
 from utils.minio import MinioProgress
 
 
@@ -163,7 +163,6 @@ class ImportDataCommand:
 
 
 class UpdateTableFileCommand:
-
     def __init__(self, table, file_url, **options):
         self.table = table
         self.file_url = file_url
@@ -174,9 +173,7 @@ class UpdateTableFileCommand:
         minio_endpoint = urlparse(settings.AWS_S3_ENDPOINT_URL).netloc
         self.should_upload = minio_endpoint != self.file_url_info.netloc
         self.minio = Minio(
-            minio_endpoint,
-            access_key=settings.AWS_ACCESS_KEY_ID,
-            secret_key=settings.AWS_SECRET_ACCESS_KEY
+            minio_endpoint, access_key=settings.AWS_ACCESS_KEY_ID, secret_key=settings.AWS_SECRET_ACCESS_KEY
         )
         self._output_file = None
         self.delete_source = options["delete_source"]
