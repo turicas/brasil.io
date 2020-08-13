@@ -184,14 +184,13 @@ class UpdateTableFileCommand:
             self._output_file = NamedTemporaryFile(delete=False)
         return self._output_file
 
-    def read_file_chunks(self):
-        # TODO get chunk_size from settings
-        for chunk in stream_file(self.file_url, chunk_size=256):
+    def read_file_chunks(self, chunk_size):
+        for chunk in stream_file(self.file_url, chunk_size):
             self.file_size += len(chunk)
             self.hasher.update(chunk)
             yield chunk
 
-    def process_file_chunk(self, chunk):
+    def process_file_chunk(self, chunk, chunk_size):
         if self.should_upload:
             self.output_file.write(chunk)
 
@@ -223,8 +222,9 @@ class UpdateTableFileCommand:
         table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
         self = cls(table, file_url, **options)
 
-        for chunk in tqdm(self.read_file_chunks(), desc=f"Downloading {file_url} chunks..."):
-            self.process_file_chunk(chunk)
+        chunk_size = settings.MINIO_DATASET_DOWNLOAD_CHUNK_SIZE
+        for chunk in tqdm(self.read_file_chunks(chunk_size), desc=f"Downloading {file_url} chunks..."):
+            self.process_file_chunk(chunk, chunk_size)
 
         new_file_url = self.finish_process()
         table_file = self.create_table_file(new_file_url)
