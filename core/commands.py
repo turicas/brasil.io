@@ -4,8 +4,12 @@ import time
 import hashlib
 from tqdm import tqdm
 from collections import OrderedDict
-
 import rows
+from minio import Minio
+from urllib.parse import urlparse
+from tempfile import NamedTemporaryFile
+
+from django.conf import settings
 from django.core.cache import cache
 from django.db import transaction
 from django.db.utils import ProgrammingError
@@ -163,23 +167,49 @@ class UpdateTableFileCommand:
         self.file_url = file_url
         self.hasher = hashlib.sha512()
         self.file_size = 0
+        self.minio = Minio(
+            urlparse(settings.AWS_S3_ENDPOINT_URL).netloc,
+            access_key=settings.AWS_ACCESS_KEY_ID,
+            secret_key=settings.AWS_SECRET_ACCESS_KEY,
+        )
+        self.output_file = None
 
-    def process_file_chunks(self):
+    def read_file_chunks(self):
         # TODO get chunk_size from settings
         for chunk in stream_file(self.file_url, chunk_size=256):
             self.file_size += len(chunk)
             self.hasher.update(chunk)
             yield chunk
 
+    def process_file_chunk(self, chunk):
+        if not self.output_file:
+            self.output_file = NamedTemporaryFile(delete=False)
+        self.output_file.write(chunk)
+
+    def finish_process(self):
+        if self.output_file:
+            self.output_file.close()
+            # TODO dynamic suffix
+            dest_name = f"{self.table.dataset.slug}/{self.table.name}.csv.gz"
+            bucket = settings.MINIO_STORAGE_DATASETS_BUCKET_NAME
+
+            self.log(f"Uploading file to bucket: {bucket}")
+            self.minio.fput_object(bucket, dest_name, self.output_file.name)
+            os.remove(self.output_file.name)
+
     @classmethod
     def execute(cls, dataset_slug, tablename, file_url):
         table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
         self = cls(table, file_url)
 
-        for chunk in tqdm(self.process_file_chunks()):
-            pass
+        for chunk in tqdm(self.read_file_chunks(), desc=f"Downloading {file_url} chunks..."):
+            self.process_file_chunk(chunk)
 
+        self.finish_process()
         file_hash = self.hasher.hexdigest()
         file_size = human_readable_size(self.file_size)
-        print(f"File hash: {file_hash}")
-        print(f"File size: {file_size}")
+        self.log(f"\nFile hash: {file_hash}")
+        self.log(f"File size: {file_size}")
+
+    def log(self, msg, *args, **kwargs):
+        print(msg, *args, **kwargs)
