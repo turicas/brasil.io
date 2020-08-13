@@ -10,6 +10,7 @@ class Command(BaseCommand):
         parser.add_argument("dataset_slug")
         parser.add_argument("tablename")
         parser.add_argument("file_url")
+        parser.add_argument("--delete-source", required=False, action="store_true", help="delete source Minio file (default False)")
 
     def handle(self, *args, **kwargs):
         dataset_slug = kwargs["dataset_slug"]
@@ -20,4 +21,5 @@ class Command(BaseCommand):
             dataset_slug,
             tablename,
             file_url,
+            delete_source=kwargs["delete_source"],
         )

@@ -163,7 +163,7 @@ class ImportDataCommand:
 
 class UpdateTableFileCommand:
 
-    def __init__(self, table, file_url):
+    def __init__(self, table, file_url, **options):
         self.table = table
         self.file_url = file_url
         self.file_url_info = urlparse(file_url)
@@ -178,6 +178,7 @@ class UpdateTableFileCommand:
             secret_key=settings.AWS_SECRET_ACCESS_KEY
         )
         self._output_file = None
+        self.delete_source = options["delete_source"]
 
     @property
     def output_file(self):
@@ -207,16 +208,21 @@ class UpdateTableFileCommand:
             self.log(f"Uploading file to bucket: {bucket}")
             self.minio.fput_object(bucket, dest_name, self.output_file.name, progress=progress)
         else:
-            source = self.file_url_info.path
+            source = self.file_url_info.path  # /BUCKET_NAME/OBJ_PATH
             self.log(f"Copying {source} to bucket {bucket}")
             self.minio.copy_object(bucket, dest_name, source)
+            if self.delete_source:
+                self.log(f"Deleting {source}")
+                split_source = source.split("/")
+                source_bucket, source_obj = split_source[1], "/".join(split_source[2:])
+                self.minio.remove_object(source_bucket, source_obj)
 
         os.remove(self.output_file.name)
 
     @classmethod
-    def execute(cls, dataset_slug, tablename, file_url):
+    def execute(cls, dataset_slug, tablename, file_url, **options):
         table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
-        self = cls(table, file_url)
+        self = cls(table, file_url, **options)
 
         for chunk in tqdm(self.read_file_chunks(), desc=f"Downloading {file_url} chunks..."):
             self.process_file_chunk(chunk)
