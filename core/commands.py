@@ -5,6 +5,7 @@ import rows
 import time
 from collections import OrderedDict
 from minio import Minio
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from tqdm import tqdm
 from urllib.parse import urlparse
@@ -198,8 +199,9 @@ class UpdateTableFileCommand:
             self.output_file.write(chunk)
 
     def finish_process(self):
-        # TODO dynamic suffix
-        dest_name = f"{self.table.dataset.slug}/{self.table.name}.csv.gz"
+        source = self.file_url_info.path  # /BUCKET_NAME/OBJ_PATH
+        suffix = "".join(Path(source).suffixes)
+        dest_name = f"{self.table.dataset.slug}/{self.table.name}{suffix}"
         bucket = settings.MINIO_STORAGE_DATASETS_BUCKET_NAME
 
         if self.should_upload:
@@ -208,7 +210,6 @@ class UpdateTableFileCommand:
             self.log(f"Uploading file to bucket: {bucket}")
             self.minio.fput_object(bucket, dest_name, self.output_file.name, progress=progress)
         else:
-            source = self.file_url_info.path  # /BUCKET_NAME/OBJ_PATH
             self.log(f"Copying {source} to bucket {bucket}")
             self.minio.copy_object(bucket, dest_name, source)
             if self.delete_source:
