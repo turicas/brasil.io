@@ -19,6 +19,7 @@ from markdownx.models import MarkdownxField
 from rows import fields as rows_fields
 
 from core.filters import DynamicModelFilterProcessor
+from utils.file_streams import human_readable_size
 
 DYNAMIC_MODEL_REGISTRY = {}
 FIELD_TYPES = {
@@ -632,3 +633,7 @@ class TableFile(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+    @property
+    def readable_size(self):
+        return human_readable_size(int(self.size))
