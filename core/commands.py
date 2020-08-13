@@ -206,7 +206,13 @@ class UpdateTableFileCommand:
             self.output_file.close()
             progress = MinioProgress()
             self.log(f"Uploading file to bucket: {bucket}")
-            self.minio.fput_object(bucket, dest_name, self.output_file.name, progress=progress)
+            if suffix == ".csv.gz":
+                content_type = "application/gzip"
+            elif suffix == ".csv":
+                content_type = "text/csv"
+            self.minio.fput_object(
+                bucket, dest_name, self.output_file.name, progress=progress, content_type=content_type
+            )
         else:
             self.log(f"Copying {source} to bucket {bucket}")
             self.minio.copy_object(bucket, dest_name, source)
@@ -287,7 +293,7 @@ class UpdateTableFileListCommand:
 
         self.log(f"Uploading {fname}...")
         progress = MinioProgress()
-        self.minio.fput_object(self.bucket, dest_name, temp_file.name, progress=progress)
+        self.minio.fput_object(self.bucket, dest_name, temp_file.name, progress=progress, content_type="text/plain")
 
         file_info = self.FileListInfo(
             filename=fname,
@@ -315,7 +321,9 @@ class UpdateTableFileListCommand:
         self.log(f"\nUploading list HTML...")
         dest_name = f"{self.dataset.slug}/_meta/list.html"
         progress = MinioProgress()
-        self.minio.fput_object(self.bucket, dest_name, temp_file.name, progress=progress)
+        self.minio.fput_object(
+            self.bucket, dest_name, temp_file.name, progress=progress, content_type="text/html; charset=utf-8"
+        )
 
         os.remove(temp_file.name)
         return f"{settings.AWS_S3_ENDPOINT_URL}{self.bucket}/{dest_name}"
