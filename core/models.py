@@ -620,3 +620,15 @@ def clean_associated_data_base_table(sender, instance, **kwargs):
 
 pre_delete.connect(prevent_active_data_table_deletion, sender=DataTable)
 post_delete.connect(clean_associated_data_base_table, sender=DataTable)
+
+
+class TableFile(models.Model):
+    table = models.ForeignKey(Table, related_name="table_file", on_delete=models.CASCADE)
+    file_url = models.URLField()
+    sha512sum = models.CharField(max_length=128)
+    filename = models.TextField()
+    size = models.BigIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
