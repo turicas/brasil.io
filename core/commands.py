@@ -318,7 +318,7 @@ class UpdateTableFileListCommand:
         temp_file.write(content)
         temp_file.close()
 
-        self.log(f"\nUploading list HTML...")
+        self.log("\nUploading list HTML...")
         dest_name = f"{self.dataset.slug}/_meta/list.html"
         progress = MinioProgress()
         self.minio.fput_object(
