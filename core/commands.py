@@ -2,22 +2,24 @@ import csv
 import hashlib
 import os
 import time
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from urllib.parse import urlparse
 
 import rows
+from cached_property import cached_property
 from django.conf import settings
 from django.core.cache import cache
 from django.db import transaction
 from django.db.utils import ProgrammingError
+from django.template.loader import get_template
 from django.utils import timezone
 from minio import Minio
 from tqdm import tqdm
 
-from core.models import DataTable, Field, Table, TableFile
-from utils.file_streams import stream_file
+from core.models import Dataset, DataTable, Field, Table, TableFile
+from utils.file_streams import human_readable_size, stream_file
 from utils.minio import MinioProgress
 
 
@@ -246,3 +248,87 @@ class UpdateTableFileCommand:
             size=str(self.file_size),
             filename=filename,
         )
+
+
+class UpdateTableFileListCommand:
+    FileListInfo = namedtuple("FileListInfo", ("filename", "file_url", "readable_size", "sha512sum"))
+
+    def __init__(self, dataset, **options):
+        self.dataset = dataset
+        self.tables = dataset.tables
+        minio_endpoint = urlparse(settings.AWS_S3_ENDPOINT_URL).netloc
+        self.bucket = settings.MINIO_STORAGE_DATASETS_BUCKET_NAME
+        self.minio = Minio(
+            minio_endpoint, access_key=settings.AWS_ACCESS_KEY_ID, secret_key=settings.AWS_SECRET_ACCESS_KEY
+        )
+
+    @cached_property
+    def all_table_files(self):
+        return sorted([TableFile.objects.most_recent_for_table(t) for t in self.tables], key=lambda f: f.filename)
+
+    @property
+    def collect_date(self):
+        return max([t.collect_date for t in self.tables])
+
+    def update_sha512_sums_file(self):
+        temp_file = NamedTemporaryFile(delete=False, mode="w")
+        fname = "SHA512SUMS"
+        dest_name = f"{self.dataset.slug}/{fname}"
+
+        sha_sum = hashlib.sha512()
+        size = 0
+        for table_file in self.all_table_files:
+            content = f"{table_file.sha512sum}  {table_file.filename}\n"
+            temp_file.write(content)
+            sha_sum.update(content.encode())
+            size += len(content.encode())
+        temp_file.close()
+
+        self.log(f"Uploading {fname}...")
+        progress = MinioProgress()
+        self.minio.fput_object(self.bucket, dest_name, temp_file.name, progress=progress)
+
+        file_info = self.FileListInfo(
+            filename=fname,
+            readable_size=human_readable_size(size),
+            sha512sum=sha_sum.hexdigest(),
+            file_url=f"{settings.AWS_S3_ENDPOINT_URL}{self.bucket}/{dest_name}",
+        )
+        os.remove(temp_file.name)
+
+        return file_info
+
+    def update_list_html(self, files_list):
+        context = {
+            "dataset": self.dataset,
+            "capture_date": self.collect_date,
+            "file_list": files_list,
+        }
+        list_template = get_template("tables_files_list.html")
+        content = list_template.render(context=context)
+
+        temp_file = NamedTemporaryFile(delete=False, mode="w")
+        temp_file.write(content)
+        temp_file.close()
+
+        self.log(f"\nUploading list HTML...")
+        dest_name = f"{self.dataset.slug}/_meta/list.html"
+        progress = MinioProgress()
+        self.minio.fput_object(self.bucket, dest_name, temp_file.name, progress=progress)
+
+        os.remove(temp_file.name)
+        return f"{settings.AWS_S3_ENDPOINT_URL}{self.bucket}/{dest_name}"
+
+    @classmethod
+    def execute(cls, dataset_slug, **options):
+        dataset = Dataset.objects.get(slug=dataset_slug)
+        self = cls(dataset, **options)
+
+        self.log(f"Starting to update {dataset_slug} dataset list files...")
+        file_info = self.update_sha512_sums_file()
+        url = self.update_list_html(self.all_table_files + [file_info])
+
+        self.log(f"\nNew list html in {url}")
+
+    def log(self, *args, **kwargs):
+        print(*args, **kwargs)
