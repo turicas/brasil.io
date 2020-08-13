@@ -1,13 +1,13 @@
 import csv
-import os
-import time
 import hashlib
-from tqdm import tqdm
-from collections import OrderedDict
+import os
 import rows
+import time
+from collections import OrderedDict
 from minio import Minio
-from urllib.parse import urlparse
 from tempfile import NamedTemporaryFile
+from tqdm import tqdm
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.cache import cache
