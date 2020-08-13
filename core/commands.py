@@ -261,6 +261,7 @@ class UpdateTableFileListCommand:
         self.minio = Minio(
             minio_endpoint, access_key=settings.AWS_ACCESS_KEY_ID, secret_key=settings.AWS_SECRET_ACCESS_KEY
         )
+        self._collect_date = options["collect_date"]
 
     @cached_property
     def all_table_files(self):
@@ -268,7 +269,7 @@ class UpdateTableFileListCommand:
 
     @property
     def collect_date(self):
-        return max([t.collect_date for t in self.tables])
+        return self._collect_date or max([t.collect_date for t in self.tables])
 
     def update_sha512_sums_file(self):
         temp_file = NamedTemporaryFile(delete=False, mode="w")

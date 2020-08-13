@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.core.management.base import BaseCommand
 
 from core.commands import UpdateTableFileListCommand
@@ -8,8 +10,19 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("dataset_slug")
+        parser.add_argument(
+            "--collect-date", required=False, action="store", help="collect date in format YYYY-MM-DD",
+        )
+
+    def clean_collect_date(self, collect_date):
+        if not collect_date:
+            return None
+
+        year, month, day = [int(v) for v in collect_date.split("-")]
+        return date(year, month, day)
 
     def handle(self, *args, **kwargs):
         dataset_slug = kwargs["dataset_slug"]
+        collect_date = self.clean_collect_date(kwargs["collect_date"])
 
-        UpdateTableFileListCommand.execute(dataset_slug)
+        UpdateTableFileListCommand.execute(dataset_slug, collect_date=collect_date)
