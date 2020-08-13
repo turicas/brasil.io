@@ -5,12 +5,12 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import StreamingHttpResponse
-from django.shortcuts import redirect, render
+from django.http import Http404, StreamingHttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from core.forms import ContactForm, DatasetSearchForm
-from core.models import Dataset, Table
+from core.models import Dataset, Table, TableFile
 from core.templatetags.utils import obfuscate
 from core.util import cached_http_get_json
 
@@ -199,3 +199,21 @@ def contributors(request):
     url = "https://data.brasil.io/meta/contribuidores.json"
     data = cached_http_get_json(url, 5)
     return render(request, "contributors.html", {"contributors": data})
+
+
+def dataset_meta_detail(request, slug):
+    # this view exists for admin users to quickly preview how data.brasil.io/dataset/<dataset_slug>/_meta/list.html will look like
+    if not request.user.is_superuser:
+        return Http404
+
+    dataset = get_object_or_404(Dataset, slug=slug)
+    tables = dataset.tables
+    capture_date = max([t.collect_date for t in tables])
+    files = sorted([TableFile.objects.most_recent_for_table(t) for t in tables], key=lambda f: f.filename)
+
+    context = {
+        "dataset": dataset,
+        "capture_date": capture_date,
+        "file_list": files,
+    }
+    return render(request, "tables_files_list.html", context)

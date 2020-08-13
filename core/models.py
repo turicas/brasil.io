@@ -377,6 +377,10 @@ class Table(models.Model):
         return "{}.{}.{}".format(self.dataset.slug, self.version.name, self.name)
 
     @property
+    def collect_date(self):
+        return self.version.collected_at
+
+    @property
     def data_table(self):
         return self.data_tables.get_current_active()
 
@@ -623,7 +627,17 @@ pre_delete.connect(prevent_active_data_table_deletion, sender=DataTable)
 post_delete.connect(clean_associated_data_base_table, sender=DataTable)
 
 
+class TableFileQuerySet(models.QuerySet):
+    def most_recent_for_table(self, table):
+        table_file = self.filter(table=table).first()
+        if not table_file:
+            raise TableFile.DoesNotExist(f"For table {table}")
+        return table_file
+
+
 class TableFile(models.Model):
+    objects = TableFileQuerySet.as_manager()
+
     table = models.ForeignKey(Table, related_name="table_file", on_delete=models.CASCADE)
     file_url = models.URLField()
     sha512sum = models.CharField(max_length=128)
