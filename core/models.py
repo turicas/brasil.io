@@ -637,3 +637,7 @@ class TableFile(models.Model):
     @property
     def readable_size(self):
         return human_readable_size(int(self.size))
+
+    @property
+    def admin_url(self):
+        return reverse("admin:core_tablefile_change", args=[self.id])

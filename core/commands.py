@@ -16,8 +16,8 @@ from django.utils import timezone
 from minio import Minio
 from tqdm import tqdm
 
-from core.models import DataTable, Field, Table
-from utils.file_streams import human_readable_size, stream_file
+from core.models import DataTable, Field, Table, TableFile
+from utils.file_streams import stream_file
 from utils.minio import MinioProgress
 
 
@@ -216,6 +216,7 @@ class UpdateTableFileCommand:
                 self.minio.remove_object(source_bucket, source_obj)
 
         os.remove(self.output_file.name)
+        return f"{settings.AWS_S3_ENDPOINT_URL}{bucket}/{dest_name}"
 
     @classmethod
     def execute(cls, dataset_slug, tablename, file_url, **options):
@@ -225,11 +226,23 @@ class UpdateTableFileCommand:
         for chunk in tqdm(self.read_file_chunks(), desc=f"Downloading {file_url} chunks..."):
             self.process_file_chunk(chunk)
 
-        self.finish_process()
-        file_hash = self.hasher.hexdigest()
-        file_size = human_readable_size(self.file_size)
-        self.log(f"\nFile hash: {file_hash}")
-        self.log(f"File size: {file_size}")
+        new_file_url = self.finish_process()
+        table_file = self.create_table_file(new_file_url)
+
+        app_host = "https://brasil.io" if settings.PRODUCTION else "http://localhost:8000"
+        self.log(f"\nNova entrada de TableFile em {app_host}{table_file.admin_url}")
+        self.log(f"File hash: {table_file.sha512sum}")
+        self.log(f"File size: {table_file.readable_size}")
 
     def log(self, msg, *args, **kwargs):
         print(msg, *args, **kwargs)
+
+    def create_table_file(self, file_url):
+        filename = Path(urlparse(file_url).path).name
+        return TableFile.objects.create(
+            table=self.table,
+            file_url=file_url,
+            sha512sum=self.hasher.hexdigest(),
+            size=str(self.file_size),
+            filename=filename,
+        )
