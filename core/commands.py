@@ -238,25 +238,31 @@ class UpdateTableFileCommand:
             self.process_file_chunk(chunk, chunk_size)
 
         new_file_url = self.finish_process()
-        table_file = self.create_table_file(new_file_url)
+        table_file, created = self.create_table_file(new_file_url)
 
         app_host = "https://brasil.io" if settings.PRODUCTION else "http://localhost:8000"
-        self.log(f"\nNova entrada de TableFile em {app_host}{table_file.admin_url}")
+        table_file_url = app_host + table_file.admin_url
+        if created:
+            self.log(f"\nNew TableFile entry: {table_file_url}")
+        else:
+            self.log(f"\nUsing existing TableFile entry: {table_file_url}")
+
         self.log(f"File hash: {table_file.sha512sum}")
         self.log(f"File size: {table_file.readable_size}")
 
-    def log(self, msg, *args, **kwargs):
-        print(msg, *args, **kwargs)
-
     def create_table_file(self, file_url):
         filename = Path(urlparse(file_url).path).name
-        return TableFile.objects.create(
+        table_file, created = TableFile.objects.get_or_create(
             table=self.table,
             file_url=file_url,
             sha512sum=self.hasher.hexdigest(),
             size=str(self.file_size),
             filename=filename,
         )
+        return table_file, created
+
+    def log(self, msg, *args, **kwargs):
+        print(msg, *args, **kwargs)
 
 
 class UpdateTableFileListCommand:
