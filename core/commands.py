@@ -223,7 +223,7 @@ class UpdateTableFileCommand:
                 source_bucket, source_obj = split_source[1], "/".join(split_source[2:])
                 self.minio.remove_object(source_bucket, source_obj)
         else:
-            self.log(f"Using {source} as the dataset file.")
+            self.log(f"Using {source} as the dataset file.", end="")
 
         os.remove(self.output_file.name)
         return f"{settings.AWS_S3_ENDPOINT_URL}{bucket}/{dest_name}"
