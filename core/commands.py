@@ -201,6 +201,7 @@ class UpdateTableFileCommand:
         suffix = "".join(Path(source).suffixes)
         dest_name = f"{self.table.dataset.slug}/{self.table.name}{suffix}"
         bucket = settings.MINIO_STORAGE_DATASETS_BUCKET_NAME
+        is_same_file = source == f"/{bucket}/{dest_name}"
 
         if self.should_upload:
             self.output_file.close()
@@ -213,7 +214,7 @@ class UpdateTableFileCommand:
             self.minio.fput_object(
                 bucket, dest_name, self.output_file.name, progress=progress, content_type=content_type
             )
-        else:
+        elif not is_same_file:
             self.log(f"Copying {source} to bucket {bucket}")
             self.minio.copy_object(bucket, dest_name, source)
             if self.delete_source:
@@ -221,6 +222,8 @@ class UpdateTableFileCommand:
                 split_source = source.split("/")
                 source_bucket, source_obj = split_source[1], "/".join(split_source[2:])
                 self.minio.remove_object(source_bucket, source_obj)
+        else:
+            self.log(f"Using {source} as the dataset file.")
 
         os.remove(self.output_file.name)
         return f"{settings.AWS_S3_ENDPOINT_URL}{bucket}/{dest_name}"
