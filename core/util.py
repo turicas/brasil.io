@@ -6,6 +6,7 @@ from urllib.request import Request, URLError, urlopen
 
 import django.db.models.fields
 from cachetools import TTLCache, cached
+from django.db.models.functions import Substr
 
 from core.models import Table
 
@@ -27,21 +28,22 @@ def create_object(Model, data):
 
 
 def get_company_by_document(document):
-    Documents = Table.objects.for_dataset("documentos-brasil").named("documents").get_model()
+    Empresa = Table.objects.for_dataset("socios-brasil").named("empresa").get_model()
     doc_prefix = document[:8]
     headquarter_prefix = doc_prefix + "0001"
-    branches = Documents.objects.filter(docroot=doc_prefix, document_type="CNPJ")
+    branches = Empresa.objects.annotate(docroot=Substr("cnpj", 1, 8)).filter(docroot=doc_prefix)
+
     if not branches.exists():
         # no document found with this prefix - we don't know this company
-        raise Documents.DoesNotExist()
+        raise Empresa.DoesNotExist()
 
     try:
-        obj = branches.get(document=document)
-    except Documents.DoesNotExist:
+        obj = branches.get(cnpj=document)
+    except Empresa.DoesNotExist:
         # document not found, but a branch or HQ exists
         try:
-            obj = branches.get(document__startswith=headquarter_prefix)
-        except Documents.DoesNotExist:
+            obj = branches.get(cnpj__startswith=headquarter_prefix)
+        except Empresa.DoesNotExist:
             # there's no HQ, but a branch exists
             obj = branches[0]
 
@@ -49,8 +51,8 @@ def get_company_by_document(document):
         # document found - let's check if there's a HQ
         if not document.startswith(headquarter_prefix):
             try:
-                obj = branches.get(document__startswith=headquarter_prefix)
-            except Documents.DoesNotExist:
+                obj = branches.get(cnpj__startswith=headquarter_prefix)
+            except Empresa.DoesNotExist:
                 # there's no HQ, but the object was found anyway
                 pass
 

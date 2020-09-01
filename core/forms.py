@@ -22,8 +22,8 @@ def _resolve_field_by_type(person_type):
 
 def _get_obj(field, identifier, person_type):
     if person_type == "pessoa-fisica":
-        Socios = get_table_model("socios-brasil", "socios")
-        return Socios.objects.filter(**{field: identifier}).first()
+        Socio = get_table_model("socios-brasil", "socio")
+        return Socio.objects.filter(**{field: identifier}).first()
     elif person_type == "pessoa-juridica":
         try:
             return get_company_by_document(numbers_only(identifier))
