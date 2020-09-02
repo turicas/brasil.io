@@ -225,8 +225,6 @@ CACHES = {
         "KEY_PREFIX": env("CACHE_KEY_PREFIX"),
     }
 }
-if DEBUG:
-    CACHES = {"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache",}}
 
 # django-rq config
 RQ_QUEUES = {"default": {"URL": REDIS_URL, "DEFAULT_TIMEOUT": 500,}}
