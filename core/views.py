@@ -142,7 +142,10 @@ def dataset_detail(request, slug, tablename=""):
         if not any([query, search_query]) or not user_agent or block_agent:
             # User trying to download a CSV without custom filters or invalid
             # user-agent specified.
-            context = {"html_code_snippet": "400-csv-without-filters.html", "download_url": table.version.download_url}
+            context = {
+                "html_code_snippet": "400-csv-without-filters.html",
+                "download_url": table.version.download_url,
+            }
             return render(request, "404.html", context, status=400)
 
         if all_data.count() > settings.CSV_EXPORT_MAX_ROWS:
