@@ -166,6 +166,11 @@ if THROTTLING_RATE:
         }
     )
 
+RATELIMIT_ENABLE = env("RATELIMIT_ENABLE", cast=bool, default=False)
+RATELIMIT_RATE = env(
+    "RATELIMIT_RATE", default="10/m"
+)  # we have to force a default value, otherwise django-ratelimit breaks our app
+
 CORS_ORIGIN_ALLOW_ALL = True
 
 
