@@ -58,7 +58,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-if DEBUG:
+if DEBUG and env("DEBUG_SQL", cast=bool, default=True):
     MIDDLEWARE.append("utils.sqlprint.SqlPrintingMiddleware")
 
 ROOT_URLCONF = "brasilio.urls"
