@@ -1,3 +1,3 @@
-web: gunicorn brasilio.wsgi:application --bind=0.0.0.0:5000 --workers=$WORKERS --log-file -
-worker: python manage.py rqworker --sentry-dsn=""
-release: python manage.py migrate --no-input
+web: bin/web.sh
+worker: bin/worker.sh
+release: bin/release.sh
