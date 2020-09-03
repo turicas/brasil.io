@@ -500,8 +500,8 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
 
     def test_can_create_covid_19_cases_entries(self):
         table = Table.objects.for_dataset("covid19").named("caso")
-        assert table == self.cases_table
-        Covid19Cases = self.Covid19Cases
+        assert table == self.table
+        Covid19Cases = self.TableModel
 
         assert 0 == len(Covid19Cases.objects.all())
         cases_entry = baker.make(Covid19Cases, _fill_optional=["city"])
