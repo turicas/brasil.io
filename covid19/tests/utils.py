@@ -1,7 +1,7 @@
-from core.tests.utils import TestCaseWithSampleDataset
+from core.tests.utils import BaseTestCaseWithSampleDataset
 
 
-class Covid19DatasetTestCase(TestCaseWithSampleDataset):
+class Covid19DatasetTestCase(BaseTestCaseWithSampleDataset):
     """
     Base test case class to prepare Brasil.io's DB to have Covid-19 cases dataset.
     """

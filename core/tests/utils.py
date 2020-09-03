@@ -5,7 +5,7 @@ from model_bakery import baker
 from core.models import Dataset, DataTable
 
 
-class TestCaseWithSampleDataset(TestCase):
+class BaseTestCaseWithSampleDataset(TestCase):
     """
     Base test case class to prepare Brasil.io's DB to have a sample dataset.
 

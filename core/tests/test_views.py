@@ -2,10 +2,10 @@ from django.core.management import call_command
 from django.test import override_settings
 from django.urls import reverse
 
-from core.tests.utils import TestCaseWithSampleDataset
+from core.tests.utils import BaseTestCaseWithSampleDataset
 
 
-class SampleDatasetDetailView(TestCaseWithSampleDataset):
+class SampleDatasetDetailView(BaseTestCaseWithSampleDataset):
     DATASET_SLUG = "sample"
     TABLE_NAME = "sample_table"
     FIELDS_KWARGS = [
