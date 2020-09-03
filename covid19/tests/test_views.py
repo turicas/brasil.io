@@ -1,12 +1,10 @@
 import json
 from unittest.mock import patch
 
-from django.core.management import call_command
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.urls import reverse
 
 from covid19.exceptions import SpreadsheetValidationErrors
-from covid19.tests.utils import Covid19DatasetTestCase
 
 
 class ImportSpreadsheetProxyViewTests(TestCase):
@@ -41,22 +39,3 @@ class ImportSpreadsheetProxyViewTests(TestCase):
 
         assert 400 == response.status_code
         assert ["error 1", "error 2"] == sorted(response.json()["errors"])
-
-
-class Covid19DatasetDetailView(Covid19DatasetTestCase):
-    def setUp(self):
-        self.url = reverse("core:dataset-table-detail", args=["covid19", "caso"])
-        call_command("clear_cache")
-
-    def test_display_dataset_table_data_with_expected_template(self):
-        response = self.client.get(self.url)
-        assert 200 == response.status_code
-        self.assertTemplateUsed(response, "dataset-detail.html")
-
-    @override_settings(RATELIMIT_ENABLE=True)
-    @override_settings(RATELIMIT_RATE="0/s")
-    def test_enforce_rate_limit_if_flagged(self):
-        response = self.client.get(self.url)
-        assert 429 == response.status_code
-        self.assertTemplateUsed(response, "403.html")
-        assert "Você atingiu o limite de requisições" in response.context["message"]
