@@ -429,13 +429,16 @@ class Field(models.Model):
         self.choices = {"data": [str(value) for value in choices]}
 
 
-def get_table(dataset_slug, tablename):
-    return Table.objects.for_dataset(dataset_slug).named(tablename)
+def get_table(dataset_slug, tablename, allow_hidden=False):
+    qs = Table.objects
+    if allow_hidden:
+        qs = Table.with_hidden
+    return qs.for_dataset(dataset_slug).named(tablename)
 
 
 def get_table_model(dataset_slug, tablename):
     # TODO: this function is just a shortcut and should be removed
-    table = get_table(dataset_slug, tablename)
+    table = get_table(dataset_slug, tablename, allow_hidden=True)
     ModelClass = table.get_model(cache=True)
 
     return ModelClass

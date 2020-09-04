@@ -19,7 +19,7 @@ def index(request):
 
 
 def _get_fields(table, remove=None, only=None):
-    if not only and not remove:
+    if only is not None and remove is not None:
         raise ValueError("Cannot have only and remove at the same time")
     elif remove:
         return [field for field in table.field_set.all() if field.show_on_frontend and field.name not in remove]
@@ -68,7 +68,7 @@ def document_detail(request, document):
 
     if is_company:
         try:
-            obj = Empresa.objects.headquarter_or_branch(document)
+            obj = Empresa.objects.get_headquarter_or_branch(document)
         except ObjectDoesNotExist:
             raise Http404
         # From here only HQs or companies without HQs
@@ -80,7 +80,7 @@ def document_detail(request, document):
 
         doc_prefix = document[:8]
         branches = Empresa.objects.branches(document)
-        branches_cnpjs = branches.values_list(["cnpj"], flat=True)
+        branches_cnpjs = branches.values_list("cnpj", flat=True)
 
     else:  # not a company
         # TODO: check another way of getting CPFs
@@ -88,30 +88,49 @@ def document_detail(request, document):
         obj = get_object_or_404(Documents, document=document)
 
     obj_dict = obj.__dict__
+    if is_company:
+        obj_dict["document"] = obj.cnpj
+        # TODO: add document if is_person after migrating from documentos-brasil
     partners_data = Socio.objects.none()
     companies_data = Socio.objects.none()
     applications_data = Candidatos.objects.none()
     filiations_data = FiliadosPartidos.objects.none()
     applications_fields = _get_fields(
-        get_table("eleicoes-brasil", "candidatos"), remove=["cpf_candidato", "nome_candidato"],
+        get_table("eleicoes-brasil", "candidatos", allow_hidden=True), remove=["cpf_candidato", "nome_candidato"],
     )
-    companies_fields = _get_fields(get_table("socios-brasil", "socio"), remove=["cpf_cnpj_socio", "nome_socio"])
+    companies_fields = _get_fields(
+        get_table("socios-brasil", "socio", allow_hidden=True), remove=["cpf_cnpj_socio", "nome_socio"]
+    )
     camara_spending_fields = _get_fields(
-        get_table("gastos-deputados", "cota_parlamentar"), remove=["txtcnpjcpf", "txtfornecedor"],
+        get_table("gastos-deputados", "cota_parlamentar", allow_hidden=True), remove=["txtcnpjcpf", "txtfornecedor"],
     )
     federal_spending_fields = _get_fields(
-        get_table("gastos-diretos", "gastos"), remove=["codigo_favorecido", "nome_favorecido"],
+        get_table("gastos-diretos", "gastos", allow_hidden=True), remove=["codigo_favorecido", "nome_favorecido"],
     )
-    partners_fields = _get_fields(get_table("socios-brasil", "socio"), remove=["cnpj", "razao_social"])
-    filiations_fields = _get_fields(get_table("eleicoes-brasil", "filiados"), remove=[])
-    branches_fields = _get_fields(get_table("socios-brasil", "empresas"), only=["cnpj", "razao_social"])
+    partners_fields = _get_fields(
+        get_table("socios-brasil", "socio", allow_hidden=True), remove=["cnpj", "razao_social"]
+    )
+    filiations_fields = _get_fields(get_table("eleicoes-brasil", "filiados", allow_hidden=True), remove=[])
+    branches_fields = _get_fields(
+        get_table("socios-brasil", "empresa", allow_hidden=True), only=["cnpj", "razao_social", "nome_fantasia"],
+    )
 
     if is_company:
-        partners_data = Socio.objects.filter(cnpj__in=branches_cnpjs).order_by("nome_socio")
-        company = Empresa.objects.get(cnpj=obj.document)
-        obj_dict["state"] = company.uf
+        # Cada filial vai ter os mesmos sócios, por isso precisamos do
+        # `distinct` nas colunas que serão exibidas na interface.
+        partners_data = (
+            Socio.objects
+            .filter(cnpj__in=branches_cnpjs)
+            .distinct(*[field.name for field in partners_fields])
+            .order_by("nome_socio")
+        )
+
+        obj_dict["state"] = obj.uf
+        obj_dict["name"] = obj.razao_social
         companies_data = Holding.objects.filter(holding_cnpj__in=branches_cnpjs).order_by("holding_razao_social")
-        companies_fields = _get_fields(get_table("socios-brasil", "holding"), remove=["holding_cnpj"])
+        companies_fields = _get_fields(
+            get_table("socios-brasil", "holding", allow_hidden=True), remove=["holding_cnpj"]
+        )
 
         camara_spending_data = GastosDeputados.objects.filter(txtcnpjcpf__in=branches_cnpjs).order_by("-datemissao")
         federal_spending_data = GastosDiretos.objects.filter(codigo_favorecido__in=branches_cnpjs).order_by(
@@ -142,11 +161,14 @@ def document_detail(request, document):
         "companies_data": companies_data,
         "companies_fields": companies_fields,
         "doc_prefix": doc_prefix,
+        "document_type": "CNPJ" if is_company else "CPF",
         "encrypted": encrypted,
         "federal_spending_data": federal_spending_data,
         "federal_spending_fields": federal_spending_fields,
         "filiations_data": filiations_data,
         "filiations_fields": filiations_fields,
+        "is_company": is_company,
+        "is_person": is_person,
         "obj": obj_dict,
         "original_document": original_document,
         "partners_data": partners_data,

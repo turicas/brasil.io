@@ -3,7 +3,7 @@
 {% load static %}
 {% load utils %}
 
-{% block title %}{{ obj.name }} - {% if obj.document_type == 'CPF' %}Pessoa Física{% elif obj.document_type == 'CNPJ' %}Pessoa Jurídica{% endif %} - Brasil.IO{% endblock %}
+{% block title %}{{ obj.name }} - {% if is_person %}Pessoa Física{% elif is_company %}Pessoa Jurídica{% endif %} - Brasil.IO{% endblock %}
 
 {% block head %}
   {{ block.super }}
@@ -29,7 +29,7 @@
 
   <dl>
     <dt> Documento: </dt>
-    <dd>{% if encrypted %}{{ obj.document|obfuscate }}{% else %}{{ obj.document }}{% endif %} ({{ obj.document_type|upper }})</b></dd>
+    <dd>{% if encrypted %}{{ obj.document|obfuscate }}{% else %}{{ obj.document }}{% endif %} ({{ document_type|upper }})</b></dd>
     {% if obj.state %}
     <dt> Unidade federativa de registro: </dt>
     <dd>{{ obj.state }}</b></dd>
@@ -85,9 +85,9 @@
   <h4>Sociedades</h4>
   <p>
     Foram identificadas <b>{{ companies_data.count }}</b> sociedades vinculadas
-    {% if obj.document_type == 'CNPJ' %}a esse CNPJ.
-    {% elif obj.document_type == 'CPF' %}a esse nome.{% endif %}
-    {% if obj.document_type == 'CPF' %}
+    {% if is_company %}a esse CNPJ.
+    {% elif is_person %}a esse nome.{% endif %}
+    {% if is_person %}
     <br>
     Nota: esses registros foram encontrados buscando pelo nome "{{ obj.name }}" e
     podem aparecer homônimos nos resultados.
