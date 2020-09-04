@@ -6,9 +6,6 @@ from urllib.request import Request, URLError, urlopen
 
 import django.db.models.fields
 from cachetools import TTLCache, cached
-from django.db.models.functions import Substr
-
-from core.models import Table
 
 USER_AGENT = "brasil.io-backend"
 

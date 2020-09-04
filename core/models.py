@@ -18,7 +18,7 @@ from django.urls import reverse
 from markdownx.models import MarkdownxField
 from rows import fields as rows_fields
 
-from core import dynamic_models
+from core import data_models, dynamic_models
 from core.filters import DynamicModelFilterProcessor
 
 DYNAMIC_MODEL_REGISTRY = {}

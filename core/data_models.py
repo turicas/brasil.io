@@ -1,18 +1,14 @@
 from django.db import models
-from django.db.functions import Substr
-
-from core.models import Table
+from django.db.models.functions import Substr
 
 
 class SociosBrasilEmpresaMixin:
-
     @property
     def is_headquarter(self):
         return self.cnpj[:12].endswith("0001")
 
 
 class SociosBrasilEmpresaQuerySet(models.QuerySet):
-
     def branches(self, document):
         """Filtra empresas pelos 8 primeiros dígitos do CNPJ (inclui matriz e filiais)"""
 
