@@ -33,7 +33,7 @@ class Command(BaseCommand):
             self.graph_db.schema.create_uniqueness_constraint(label, key)
 
     def get_socios_brasil_model(self):
-        table = Table.objects.for_dataset("socios-brasil").named("socios")
+        table = Table.objects.for_dataset("socios-brasil").named("socio")
         return table.get_model()
 
     def get_emp_name(self, cnpj, default):
