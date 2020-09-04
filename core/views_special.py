@@ -9,7 +9,6 @@ from django.urls import reverse
 
 from core.forms import CompanyGroupsForm, TracePathForm
 from core.models import get_table, get_table_model
-from core.util import get_company_by_document
 from graphs.serializers import CNPJCompanyGroupsSerializer, PathSerializer
 
 cipher_suite = Fernet(settings.FERNET_KEY)
@@ -69,19 +68,19 @@ def document_detail(request, document):
 
     if is_company:
         try:
-            obj = get_company_by_document(document)
+            obj = Empresa.objects.headquarter_or_branch(document)
         except ObjectDoesNotExist:
             raise Http404
         # From here only HQs or companies without HQs
         if document != obj.cnpj:
-            if obj.cnpj[:12].endswith("0001"):  # HQ
+            if obj.is_headquarter:
                 return redirect_company(document, obj.cnpj, warn=False)
             else:
                 return redirect_company(document, obj.cnpj, warn=True)
 
         doc_prefix = document[:8]
-        branches = Empresa.objects.annotate(docroot=Substr("cnpj", 1, 8)).filter(docroot=doc_prefix)
-        branches_cnpjs = [branch.cnpj for branch in branches]
+        branches = Empresa.objects.branches(document)
+        branches_cnpjs = branches.values_list(["cnpj"], flat=True)
 
     else:  # not a company
         # TODO: check another way of getting CPFs

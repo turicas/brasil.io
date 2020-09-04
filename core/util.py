@@ -27,38 +27,6 @@ def create_object(Model, data):
     return Model(**data)
 
 
-def get_company_by_document(document):
-    Empresa = Table.objects.for_dataset("socios-brasil").named("empresa").get_model()
-    doc_prefix = document[:8]
-    headquarter_prefix = doc_prefix + "0001"
-    branches = Empresa.objects.annotate(docroot=Substr("cnpj", 1, 8)).filter(docroot=doc_prefix)
-
-    if not branches.exists():
-        # no document found with this prefix - we don't know this company
-        raise Empresa.DoesNotExist()
-
-    try:
-        obj = branches.get(cnpj=document)
-    except Empresa.DoesNotExist:
-        # document not found, but a branch or HQ exists
-        try:
-            obj = branches.get(cnpj__startswith=headquarter_prefix)
-        except Empresa.DoesNotExist:
-            # there's no HQ, but a branch exists
-            obj = branches[0]
-
-    else:
-        # document found - let's check if there's a HQ
-        if not document.startswith(headquarter_prefix):
-            try:
-                obj = branches.get(cnpj__startswith=headquarter_prefix)
-            except Empresa.DoesNotExist:
-                # there's no HQ, but the object was found anyway
-                pass
-
-    return obj
-
-
 def http_get(url, timeout):
     """Execute a HTTP GET request and returns `None` if `timeout` is achieved.
 

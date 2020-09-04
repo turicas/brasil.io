@@ -6,7 +6,6 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from core.models import get_table_model
-from core.util import get_company_by_document
 
 
 def numbers_only(value):
@@ -24,9 +23,11 @@ def _get_obj(field, identifier, person_type):
     if person_type == "pessoa-fisica":
         Socio = get_table_model("socios-brasil", "socio")
         return Socio.objects.filter(**{field: identifier}).first()
+
     elif person_type == "pessoa-juridica":
+        Empresa = get_table_model("socios-brasil", "empresa")
         try:
-            return get_company_by_document(numbers_only(identifier))
+            return Empresa.objects.get_headquarter_or_branch(numbers_only(identifier))
         except ValueError:
             raise ValidationError(
                 _("Invalid value: %(value)s"), params={"value": identifier},
