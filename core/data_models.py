@@ -1,5 +1,34 @@
+import re
+
 from django.db import models
-from django.db.models.functions import Substr
+from django.db.models.expressions import Expression
+
+REGEXP_NOT_FIELD_NAME = re.compile(".*[^a-zA-Z0-9_].*")
+
+
+class Substring(Expression):
+    """Substring SQL function based on Django Expression (SQL with no parameters)"""
+
+    output_field = models.TextField()
+
+    def __init__(self, field_name, pos, length=None, **extra):
+        if not isinstance(pos, int) or (length is not None and not isinstance(length, int)):
+            raise ValueError("'pos' and 'length' must be integers")
+        elif REGEXP_NOT_FIELD_NAME.match(field_name):
+            raise ValueError("Invalid value for 'field_name': {}".format(repr(field_name)))
+
+        self.field_name = field_name
+        self.pos = pos
+        self.length = length
+
+    def __repr__(self):
+        if self.length is not None:
+            return 'Substring("{}", {}, {})'.format(self.field_name, self.pos, self.length)
+        else:
+            return 'Substring("{}", {})'.format(self.field_name, self.pos)
+
+    def as_sql(self, compiler, connection):
+        return repr(self), []
 
 
 class SociosBrasilEmpresaMixin:
@@ -13,7 +42,7 @@ class SociosBrasilEmpresaQuerySet(models.QuerySet):
         """Filtra empresas pelos 8 primeiros dígitos do CNPJ (inclui matriz e filiais)"""
 
         prefix = document[:8]
-        return self.annotate(docroot=Substr("cnpj", 1, 8)).filter(docroot=prefix)
+        return self.annotate(docroot=Substring("cnpj", 1, 8)).filter(docroot=prefix)
 
     def get_headquarter_or_branch(self, document):
         branches = self.branches(document)
