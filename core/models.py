@@ -346,6 +346,13 @@ class Table(models.Model):
         managers = {"objects": DatasetTableModelQuerySet.as_manager()}
         mixins = [DatasetTableModelMixin]
         meta = {"ordering": ordering, "indexes": indexes, "db_table": db_table}
+
+        # TODO: move this hard-coded mixin/manager injections to maybe a model
+        # proxy
+        if self.dataset.slug == "socios-brasil" and self.name == "empresa":
+            mixins.insert(0, data_models.SociosBrasilEmpresaMixin)
+            managers["objects"] = data_models.SociosBrasilEmpresaQuerySet.as_manager()
+
         Model = dynamic_models.create_model_class(
             name=self.model_name, module="core.models", fields=fields, mixins=mixins, meta=meta, managers=managers,
         )
@@ -427,6 +434,7 @@ def get_table(dataset_slug, tablename):
 
 
 def get_table_model(dataset_slug, tablename):
+    # TODO: this function is just a shortcut and should be removed
     table = get_table(dataset_slug, tablename)
     ModelClass = table.get_model(cache=True)
 
