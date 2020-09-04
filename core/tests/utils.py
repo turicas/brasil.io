@@ -49,4 +49,4 @@ class BaseTestCaseWithSampleDataset(TestCase):
         except ProgrammingError:  # Does not exist
             pass
         finally:
-            cls.TableModel.create_table(create_indexes=False)
+            cls.TableModel.create_table(indexes=False)
