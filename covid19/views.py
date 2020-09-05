@@ -14,6 +14,7 @@ from covid19.epiweek import get_epiweek
 from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.geo import city_geojson, state_geojson
 from covid19.models import DailyBulletin, StateSpreadsheet
+from covid19.newstats import BoletimStats, CasoStats, CityStats
 from covid19.spreadsheet import merge_state_data
 from covid19.stats import Covid19Stats, max_values
 
@@ -32,9 +33,11 @@ def cities(request):
     if state is not None and not get_state_info(state):
         raise Http404
 
-    brazil_city_data = stats.city_data
+    country_caso_stats = CasoStats()
+    brazil_city_data = country_caso_stats.per_city
     if state:
-        city_data = stats.city_data_for_state(state)
+        state_caso_stats = CasoStats(state)
+        city_data = state_caso_stats.per_city
         total_row = stats.state_row(state)
     else:
         city_data = brazil_city_data
@@ -133,10 +136,12 @@ def cities_geojson(request):
     elif state:
         state = state.upper()
         high_fidelity = True
-        city_data = stats.city_data_for_state(state)
+        state_caso_stats = CasoStats(state)
+        city_data = state_caso_stats.per_city
     else:
         high_fidelity = False
-        city_data = stats.city_data
+        country_caso_stats = CasoStats()
+        city_data = country_caso_stats.per_city
 
     city_ids = set(row["city_ibge_code"] for row in city_data)
     data = city_geojson(high_fidelity=high_fidelity)
@@ -203,34 +208,43 @@ def dashboard(request, state=None):
     if state:
         state = state.upper()
 
+    country_city_stats = CityStats()
+    country_boletim_stats = BoletimStats()
+    country_caso_stats = CasoStats()
+
     country_aggregate = make_aggregate(
-        reports=stats.total_reports,
-        confirmed=stats.total_confirmed,
-        deaths=stats.total_deaths,
-        affected_cities=stats.number_of_affected_cities,
-        cities=stats.number_of_cities,
-        affected_population=stats.affected_population,
-        population=stats.total_population,
-        cities_with_deaths=stats.cities_with_deaths,
+        reports=country_boletim_stats.total_reports,
+        affected_cities=country_caso_stats.number_of_cities_with_cases,
+        cities_with_deaths=country_caso_stats.number_of_cities_with_deaths,
+        cities=country_city_stats.number_of_cities,
+        affected_population=country_caso_stats.affected_population,
+        population=country_city_stats.population,
+        confirmed=country_caso_stats.confirmed,
+        deaths=country_caso_stats.deaths,
     )
     if state:
-        city_data = stats.city_data_for_state(state)
+        state_city_stats = CityStats(state)
+        state_boletim_stats = BoletimStats(state)
+        state_caso_stats = CasoStats(state)
+
+        city_data = state_caso_stats.per_city
         state_data = STATE_BY_ACRONYM[state]
         state_id = state_data.ibge_code
         state_name = state_data.name
+
         state_aggregate = make_aggregate(
-            reports=stats.total_reports_for_state(state),
-            confirmed=stats.total_confirmed_for_state(state),
-            deaths=stats.total_deaths_for_state(state),
-            affected_cities=stats.number_of_affected_cities_for_state(state),
-            cities=stats.number_of_cities_for_state(state),
-            affected_population=stats.affected_population_for_state(state),
-            population=stats.total_population_for_state(state),
-            cities_with_deaths=stats.cities_with_deaths_for_state(state),
+            reports=state_boletim_stats.total_reports,
+            affected_cities=state_caso_stats.number_of_cities_with_cases,
+            cities_with_deaths=state_caso_stats.number_of_cities_with_deaths,
+            cities=state_city_stats.number_of_cities,
+            affected_population=state_caso_stats.affected_population,
+            population=state_city_stats.population,
+            confirmed=state_caso_stats.confirmed,
+            deaths=state_caso_stats.deaths,
             for_state=True,
         )
     else:
-        city_data = stats.city_data
+        city_data = country_caso_stats.per_city
         state_id = state_name = None
         state_aggregate = None
 
