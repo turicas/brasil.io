@@ -119,8 +119,7 @@ def document_detail(request, document):
         # Cada filial vai ter os mesmos sócios, por isso precisamos do
         # `distinct` nas colunas que serão exibidas na interface.
         partners_data = (
-            Socio.objects
-            .filter(cnpj__in=branches_cnpjs)
+            Socio.objects.filter(cnpj__in=branches_cnpjs)
             .distinct(*[field.name for field in partners_fields])
             .order_by("nome_socio")
         )
@@ -129,7 +128,8 @@ def document_detail(request, document):
         obj_dict["name"] = obj.razao_social
         companies_data = Holding.objects.filter(holding_cnpj__in=branches_cnpjs).order_by("holding_razao_social")
         companies_fields = _get_fields(
-            get_table("socios-brasil", "holding", allow_hidden=True), remove=["holding_cnpj"]
+            get_table("socios-brasil", "holding", allow_hidden=True),
+            remove=["holding_cnpj", "holding_razao_social", "codigo_qualificacao_socia"],
         )
 
         camara_spending_data = GastosDeputados.objects.filter(txtcnpjcpf__in=branches_cnpjs).order_by("-datemissao")

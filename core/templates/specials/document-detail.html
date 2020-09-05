@@ -15,15 +15,18 @@
 {% include 'contas-gratuitas.html' %}
 
 <div class="section">
-  <h4>{{ obj.name }}</h4>
+  <h4 title="{% if is_person %}Nome completo{% else %}Razão social{% endif %}">{{ obj.name }}</h4>
+  {% if is_company and obj.nome_fantasia %}<h5 title="Nome fantasia">{{ obj.nome_fantasia }}</h5>{% endif %}
 
   {% if branches.count %}
   <p>
     {% if original_document %}
     O documento {{ original_document }} não foi encontrado!
     {% endif %}
-    Mostrando informações sobre todas as empresas (matriz e filiais) cujo CNPJ
-    começa com {{ doc_prefix }}.
+    Exibindo informações sobre todas as empresas (matriz e filiais) cujo CNPJ
+    começa com {{ doc_prefix }} (<a
+      href="https://pt.wikipedia.org/wiki/Cadastro_Nacional_da_Pessoa_Jur%C3%ADdica#Formato"
+      target="_blank">aprenda mais sobre o formato do CNPJ</a>).
   </p>
   {% endif %}
 
@@ -38,10 +41,14 @@
 
   {% if branches.count %}
   <h4>Matriz/Filiais</h4>
-  {% with table_id='branches' data=branches fields=branches_fields caption='branches-'|add:obj.name  %}
+  <p>
+    Total de <b>{{ branches.count }}</b> CNPJ(s).
+  </p>
+  {% with table_id='branches' data=branches fields=branches_fields caption='branches-'|add:obj.document %}
     {% include 'data-table.html' %}
   {% endwith %}
   {% endif %}
+
 </div>
 
 <div class="row">
@@ -51,7 +58,7 @@
   <p>
     Total de <b>{{ partners_data.count }}</b> sócios.
   </p>
-  {% with table_id='partners' data=partners_data fields=partners_fields caption='quadro-societario-'|add:obj.name %}
+  {% with table_id='partners' data=partners_data fields=partners_fields caption='quadro-societario-'|add:obj.document %}
     {% include 'data-table.html' %}
   {% endwith %}
   {% endif %}
@@ -65,7 +72,7 @@
     Nota: esses registros foram encontrados buscando pelo nome "{{ obj.name }}" e
     podem aparecer homônimos nos resultados.
   </p>
-  {% with table_id='filiations' data=filiations_data fields=filiations_fields caption='filiacoes-'|add:obj.name %}
+  {% with table_id='filiations' data=filiations_data fields=filiations_fields caption='filiacoes-'|add:obj.document %}
     {% include 'data-table.html' %}
   {% endwith %}
   {% endif %}
@@ -76,7 +83,7 @@
     Foram identificadas <b>{{ applications_data.count }}</b> candidaturas vinculadas
     a esse CPF.
   </p>
-  {% with table_id='applications' data=applications_data fields=applications_fields caption='candidaturas-'|add:obj.name  %}
+  {% with table_id='applications' data=applications_data fields=applications_fields caption='candidaturas-'|add:obj.document %}
     {% include 'data-table.html' %}
   {% endwith %}
   {% endif %}
@@ -93,7 +100,7 @@
     podem aparecer homônimos nos resultados.
     {% endif %}
   </p>
-  {% with table_id='companies' data=companies_data fields=companies_fields caption='sociedades-'|add:obj.name  %}
+  {% with table_id='companies' data=companies_data fields=companies_fields caption='sociedades-'|add:obj.document %}
     {% include 'data-table.html' %}
   {% endwith %}
   {% endif %}
@@ -105,7 +112,7 @@
     {% else %}
     Foram identificadas <b>{{ camara_spending_data.count }}</b> notas.
   </p>
-  {% with table_id='camara-spending' data=camara_spending_data fields=camara_spending_fields caption='gastos-deputados-'|add:obj.name  %}
+  {% with table_id='camara-spending' data=camara_spending_data fields=camara_spending_fields caption='gastos-deputados-'|add:obj.document %}
     {% include 'data-table.html' %}
   {% endwith %}
   {% endif %}
@@ -117,7 +124,7 @@
     {% else %}
     Foram identificadas <b>{{ federal_spending_data.count }}</b> notas.
   </p>
-  {% with table_id='federal-spending' data=federal_spending_data fields=federal_spending_fields caption='gastos-diretos-'|add:obj.name  %}
+  {% with table_id='federal-spending' data=federal_spending_data fields=federal_spending_fields caption='gastos-diretos-'|add:obj.document %}
     {% include 'data-table.html' %}
   {% endwith %}
   {% endif %}
