@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         csv_filename = kwargs["csv_filename"]
-        table = rows.import_from_csv(csv_filename)
+        table = rows.import_from_csv(csv_filename, force_types={"options": rows.fields.JSONField})
         expected_field_names = set(
             "dataset_slug description frontend_filter has_choices "
             "link_template order null name options obfuscate show "
