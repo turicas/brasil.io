@@ -80,7 +80,7 @@ def document_detail(request, document):
 
         doc_prefix = document[:8]
         branches = Empresa.objects.branches(document)
-        branches_cnpjs = branches.values_list("cnpj", flat=True)
+        branches_cnpjs = [company.cnpj for company in branches]
 
     else:  # not a company
         # TODO: check another way of getting CPFs
