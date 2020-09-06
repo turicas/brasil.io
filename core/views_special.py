@@ -242,7 +242,7 @@ def trace_path(request):
 
 
 def _get_groups(company):
-    data = {"identificador": company.document}
+    data = {"identificador": company.cnpj}
     serializer = CNPJCompanyGroupsSerializer(data=data)
     serializer.is_valid()
     network = serializer.data["network"]
