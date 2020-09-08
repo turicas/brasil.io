@@ -58,7 +58,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-if DEBUG:
+if DEBUG and env("DEBUG_SQL", cast=bool, default=True):
     MIDDLEWARE.append("utils.sqlprint.SqlPrintingMiddleware")
 
 ROOT_URLCONF = "brasilio.urls"
@@ -168,6 +168,11 @@ if THROTTLING_RATE:
         }
     )
 
+RATELIMIT_ENABLE = env("RATELIMIT_ENABLE", cast=bool, default=False)
+RATELIMIT_RATE = env(
+    "RATELIMIT_RATE", default="10/m"
+)  # we have to force a default value, otherwise django-ratelimit breaks our app
+
 CORS_ORIGIN_ALLOW_ALL = True
 
 
@@ -227,8 +232,6 @@ CACHES = {
         "KEY_PREFIX": env("CACHE_KEY_PREFIX"),
     }
 }
-if DEBUG:
-    CACHES = {"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache",}}
 
 # django-rq config
 RQ_QUEUES = {"default": {"URL": REDIS_URL, "DEFAULT_TIMEOUT": 500,}}

@@ -20,8 +20,8 @@ BOLETIM_SPREADSHEET = "Boletins (FINAL)"
 CASOS_SPREADSHEET = "Casos (FINAL)"
 
 
-@retry(tries=3, delay=5)
 @cache_memoize(24 * 3600)
+@retry(tries=3, delay=5)
 def get_base_data():
     result = http_get("https://data.brasil.io/meta/covid19-base-data.json.gz", timeout=5)
     json_data = gzip.decompress(result)
@@ -40,6 +40,7 @@ def spreadsheet_download_url(url_or_id, file_format):
 
 
 @cache_memoize(24 * 3600)
+@retry(tries=3, delay=5)
 def get_general_spreadsheet(timeout=5):
     data = http_get(spreadsheet_download_url(STATE_LINKS_SPREADSHEET_ID, "csv"), timeout)
     table = rows.import_from_csv(io.BytesIO(data), encoding="utf-8")

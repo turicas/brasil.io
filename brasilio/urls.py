@@ -12,3 +12,5 @@ urlpatterns = [
     path("markdownx/", include("markdownx.urls")),
     path("", include("core.urls", namespace="core")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler403 = "core.handlers.handler_403"

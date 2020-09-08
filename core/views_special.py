@@ -9,7 +9,6 @@ from django.urls import reverse
 
 from core.forms import CompanyGroupsForm, TracePathForm
 from core.models import get_table, get_table_model
-from core.util import get_company_by_document
 from graphs.serializers import CNPJCompanyGroupsSerializer, PathSerializer
 
 cipher_suite = Fernet(settings.FERNET_KEY)
@@ -19,8 +18,13 @@ def index(request):
     return render(request, "specials/index.html", {})
 
 
-def _get_fields(table, remove):
-    return [field for field in table.field_set.all() if field.show_on_frontend and field.name not in remove]
+def _get_fields(table, remove=None, only=None):
+    if only is not None and remove is not None:
+        raise ValueError("Cannot have only and remove at the same time")
+    elif remove:
+        return [field for field in table.field_set.all() if field.show_on_frontend and field.name not in remove]
+    elif only:
+        return [field for field in table.field_set.all() if field.show_on_frontend and field.name in only]
 
 
 def unaccent(text):
@@ -37,9 +41,9 @@ def redirect_company(from_document, to_document, warn):
 def document_detail(request, document):
     Candidatos = get_table_model("eleicoes-brasil", "candidatos")
     Documents = get_table_model("documentos-brasil", "documents")
-    Empresas = get_table_model("socios-brasil", "empresas")
-    Holdings = get_table_model("socios-brasil", "holdings")
-    Socios = get_table_model("socios-brasil", "socios")
+    Empresa = get_table_model("socios-brasil", "empresa")
+    Holding = get_table_model("socios-brasil", "holding")
+    Socio = get_table_model("socios-brasil", "socio")
     FiliadosPartidos = get_table_model("eleicoes-brasil", "filiados")
     GastosDeputados = get_table_model("gastos-deputados", "cota_parlamentar")
     GastosDiretos = get_table_model("gastos-diretos", "gastos")
@@ -59,68 +63,86 @@ def document_detail(request, document):
     is_company = document_size == 14
     is_person = document_size == 11
 
-    branches = Documents.objects.none()
+    branches = Empresa.objects.none()
     branches_cnpjs = []
 
     if is_company:
-        doc_prefix = document[:8]
         try:
-            obj = get_company_by_document(document)
+            obj = Empresa.objects.get_headquarter_or_branch(document)
         except ObjectDoesNotExist:
             raise Http404
         # From here only HQs or companies without HQs
-        if document != obj.document:
-            if obj.document[:12].endswith("0001"):  # HQ
-                return redirect_company(document, obj.document, warn=False)
+        if document != obj.cnpj:
+            if obj.is_headquarter:
+                return redirect_company(document, obj.cnpj, warn=False)
             else:
-                return redirect_company(document, obj.document, warn=True)
+                return redirect_company(document, obj.cnpj, warn=True)
 
-        branches = Documents.objects.filter(docroot=obj.docroot, document_type="CNPJ")
-        branches_cnpjs = [branch.document for branch in branches]
+        doc_prefix = document[:8]
+        branches = Empresa.objects.branches(document)
+        branches_cnpjs = [company.cnpj for company in branches]
 
     else:  # not a company
+        # TODO: check another way of getting CPFs
         doc_prefix = None
         obj = get_object_or_404(Documents, document=document)
 
     obj_dict = obj.__dict__
-    partners_data = Socios.objects.none()
-    companies_data = Socios.objects.none()
+    if is_company:
+        obj_dict["document"] = obj.cnpj
+        # TODO: add document if is_person after migrating from documentos-brasil
+    partners_data = Socio.objects.none()
+    companies_data = Socio.objects.none()
     applications_data = Candidatos.objects.none()
     filiations_data = FiliadosPartidos.objects.none()
     applications_fields = _get_fields(
-        get_table("eleicoes-brasil", "candidatos"), remove=["cpf_candidato", "nome_candidato"],
+        get_table("eleicoes-brasil", "candidatos", allow_hidden=True), remove=["cpf_candidato", "nome_candidato"],
     )
-    companies_fields = _get_fields(get_table("socios-brasil", "socios"), remove=["cpf_cnpj_socio", "nome_socio"])
+    companies_fields = _get_fields(
+        get_table("socios-brasil", "socio", allow_hidden=True), remove=["cpf_cnpj_socio", "nome_socio"]
+    )
     camara_spending_fields = _get_fields(
-        get_table("gastos-deputados", "cota_parlamentar"), remove=["txtcnpjcpf", "txtfornecedor"],
+        get_table("gastos-deputados", "cota_parlamentar", allow_hidden=True), remove=["txtcnpjcpf", "txtfornecedor"],
     )
     federal_spending_fields = _get_fields(
-        get_table("gastos-diretos", "gastos"), remove=["codigo_favorecido", "nome_favorecido"],
+        get_table("gastos-diretos", "gastos", allow_hidden=True), remove=["codigo_favorecido", "nome_favorecido"],
     )
-    partners_fields = _get_fields(get_table("socios-brasil", "socios"), remove=["cnpj", "razao_social"])
-    filiations_fields = _get_fields(get_table("eleicoes-brasil", "filiados"), remove=[])
+    partners_fields = _get_fields(
+        get_table("socios-brasil", "socio", allow_hidden=True), remove=["cnpj", "razao_social"]
+    )
+    filiations_fields = _get_fields(get_table("eleicoes-brasil", "filiados", allow_hidden=True), remove=[])
     branches_fields = _get_fields(
-        get_table("documentos-brasil", "documents"), remove=["document_type", "sources", "text"],
+        get_table("socios-brasil", "empresa", allow_hidden=True), only=["cnpj", "razao_social", "nome_fantasia"],
     )
 
     if is_company:
-        partners_data = Socios.objects.filter(cnpj__in=branches_cnpjs).order_by("nome_socio")
-        company = Empresas.objects.filter(cnpj=obj.document).first()
-        obj_dict["state"] = company.uf if company else ""
-        companies_data = Holdings.objects.filter(cnpj_socia__in=branches_cnpjs).order_by("razao_social")
-        companies_fields = _get_fields(get_table("socios-brasil", "holdings"), remove=["cnpj_socia"])
+        # Cada filial vai ter os mesmos sócios, por isso precisamos do
+        # `distinct` nas colunas que serão exibidas na interface.
+        partners_data = (
+            Socio.objects.filter(cnpj__in=branches_cnpjs)
+            .distinct(*[field.name for field in partners_fields])
+            .order_by("nome_socio")
+        )
 
-        # all appearances of 'obj.document'
+        obj_dict["state"] = obj.uf
+        obj_dict["name"] = obj.razao_social
+        companies_data = Holding.objects.filter(holding_cnpj__in=branches_cnpjs).order_by("holding_razao_social")
+        companies_fields = _get_fields(
+            get_table("socios-brasil", "holding", allow_hidden=True),
+            remove=["holding_cnpj", "holding_razao_social", "codigo_qualificacao_socia"],
+        )
+
         camara_spending_data = GastosDeputados.objects.filter(txtcnpjcpf__in=branches_cnpjs).order_by("-datemissao")
         federal_spending_data = GastosDiretos.objects.filter(codigo_favorecido__in=branches_cnpjs).order_by(
             "-data_pagamento"
         )
     elif is_person:
         companies_data = (
-            Socios.objects.filter(nome_socio=unaccent(obj.name))
+            Socio.objects.filter(nome_socio=unaccent(obj.name))
             .distinct("cnpj", "razao_social")
             .order_by("razao_social")
         )
+        # TODO: filter by CPF also
         applications_data = Candidatos.objects.filter(cpf_candidato=obj.document)
         filiations_data = FiliadosPartidos.objects.filter(nome_do_filiado=unaccent(obj.name))
 
@@ -139,11 +161,14 @@ def document_detail(request, document):
         "companies_data": companies_data,
         "companies_fields": companies_fields,
         "doc_prefix": doc_prefix,
+        "document_type": "CNPJ" if is_company else "CPF",
         "encrypted": encrypted,
         "federal_spending_data": federal_spending_data,
         "federal_spending_fields": federal_spending_fields,
         "filiations_data": filiations_data,
         "filiations_fields": filiations_fields,
+        "is_company": is_company,
+        "is_person": is_person,
         "obj": obj_dict,
         "original_document": original_document,
         "partners_data": partners_data,
@@ -217,7 +242,7 @@ def trace_path(request):
 
 
 def _get_groups(company):
-    data = {"identificador": company.document}
+    data = {"identificador": company.cnpj}
     serializer = CNPJCompanyGroupsSerializer(data=data)
     serializer.is_valid()
     network = serializer.data["network"]

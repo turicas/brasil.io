@@ -18,73 +18,11 @@ from django.urls import reverse
 from markdownx.models import MarkdownxField
 from rows import fields as rows_fields
 
+from core import data_models, dynamic_models
 from core.filters import DynamicModelFilterProcessor
 from utils.file_streams import human_readable_size
 
 DYNAMIC_MODEL_REGISTRY = {}
-FIELD_TYPES = {
-    "binary": models.BinaryField,
-    "bool": models.BooleanField,
-    "date": models.DateField,
-    "datetime": models.DateTimeField,
-    "decimal": models.DecimalField,
-    "email": models.EmailField,
-    "float": models.FloatField,
-    "integer": models.IntegerField,
-    "json": JSONField,
-    "string": models.CharField,
-    "text": models.TextField,
-}
-
-
-def model_to_code(Model):
-    meta = Model._meta
-    extra = Model.extra
-    model_name = Model.__name__
-    ordering = extra.get("ordering", [])
-    indexes = ",\n                    ".join(
-        f"models.{index.__class__.__name__}(name={repr(index.name)}, fields={repr(index.fields)})"
-        for index in meta.indexes
-    )
-    fields_text = []
-    for field in meta.fields:
-        if field.name == "id":
-            continue
-        field_type = field.__class__.__name__.replace("Field", "").lower()
-        if field_type == "searchvector":
-            field_class = "SearchVector"
-        elif field_type == "jsonfield":
-            field_class = "JSONField"
-        else:
-            if field_type == "char":
-                field_type = "string"
-            field_class = "models." + FIELD_TYPES[field_type].__name__
-        kwargs = {
-            "null": field.null,
-        }
-        options = "max_length max_digits decimal_places".split()
-        for option in options:
-            value = getattr(field, option, None)
-            if value:
-                kwargs[option] = value
-        field_args = ", ".join("{}={}".format(key, repr(value)) for key, value in kwargs.items())
-        fields_text.append(f"{field.name} = {field_class}({field_args})")
-
-    fields = "\n            ".join(fields_text)
-    # TODO: missing objects?
-    return dedent(
-        f"""
-        class {model_name}(models.Model):
-
-            {fields}
-
-            class Meta:
-                indexes = [
-                    {indexes}
-                ]
-                ordering = {repr(ordering)}
-    """
-    ).strip()
 
 
 def make_index_name(tablename, index_type, fields):
@@ -93,26 +31,12 @@ def make_index_name(tablename, index_type, fields):
     return f"idx_{tablename}_{index_type[0]}{idx_hash[-12:]}"
 
 
-class DynamicModelMixin:
+class DatasetTableModelMixin:
+    """Brasil.IO-specific methods for dataset tables' dynamic Models"""
+
     @classmethod
     def tablename(cls):
         return cls._meta.db_table
-
-    @classmethod
-    def create_table(cls, create_indexes=True):
-        indexes = cls._meta.indexes
-        if not create_indexes:
-            cls._meta.indexes = []
-        try:
-            with connection.schema_editor() as schema_editor:
-                schema_editor.create_model(cls)
-        except Exception:
-            raise
-        finally:
-            # TODO: check if this approach really works - it looks like Django
-            # is caching something so the model class must be recreated - see
-            # Table.get_model comments.
-            cls._meta.indexes = indexes
 
     @classmethod
     def analyse_table(cls):
@@ -140,46 +64,8 @@ class DynamicModelMixin:
         with connection.cursor() as cursor:
             cursor.execute(query)
 
-    @classmethod
-    def create_indexes(cls):
-        with connection.cursor() as cursor:
-            for index in cls._meta.indexes:
-                index_class = type(index)
-                if index_class is django_indexes.Index:
-                    index_type = "btree"
-                elif index_class is pg_indexes.GinIndex:
-                    index_type = "gin"
-                else:
-                    raise ValueError("Cannot identify index type of {index}")
 
-                fieldnames = []
-                for fieldname in index.fields:
-                    if fieldname.startswith("-"):
-                        value = f"{fieldname[1:]} DESC"
-                    else:
-                        value = f"{fieldname} ASC"
-                    if index_type == "gin":
-                        value = value.split(" ")[0]
-                    fieldnames.append(value)
-
-                fieldnames = ",\n                            ".join(fieldnames)
-                query = dedent(
-                    f"""
-                    CREATE INDEX CONCURRENTLY {index.name}
-                        ON {cls.tablename()} USING {index_type} (
-                            {fieldnames}
-                        );
-                """
-                ).strip()
-                cursor.execute(query)
-
-    @classmethod
-    def delete_table(cls):
-        with connection.schema_editor() as schema_editor:
-            schema_editor.delete_model(cls)
-
-
-class DynamicModelQuerySet(models.QuerySet):
+class DatasetTableModelQuerySet(models.QuerySet):
     def search(self, search_query):
         qs = self
         search_fields = self.model.extra["search"]
@@ -201,12 +87,15 @@ class DynamicModelQuerySet(models.QuerySet):
         return qs
 
     def apply_filters(self, filtering):
+        # TODO: filtering must be based on field's settings, not on models
+        # settings.
         model_filtering = self.model.extra["filtering"]
         processor = DynamicModelFilterProcessor(filtering, model_filtering)
         return self.filter(**processor.filters)
 
     def apply_ordering(self, query):
         qs = self
+        # TODO: may use Model's meta "ordering" instead of extra["ordering"]
         model_ordering = self.model.extra["ordering"]
         model_filtering = self.model.extra["filtering"]
         allowed_fields = set(model_ordering + model_filtering)
@@ -418,7 +307,16 @@ class Table(models.Model):
             ]
         )
 
+    @property
+    def model_name(self):
+        full_name = self.dataset.slug + "-" + self.name
+        parts = full_name.replace("_", "-").replace(" ", "-").split("-")
+        return "".join([word.capitalize() for word in parts])
+
     def get_model(self, cache=True, data_table=None):
+        # TODO: the current dynamic model registry is handled by Brasil.IO's
+        # code but it needs to be delegated to dynamic_models.
+
         data_table = data_table or self.data_table
         db_table = data_table.db_table_name
 
@@ -429,10 +327,6 @@ class Table(models.Model):
 
         # TODO: unregister the model in Django if already registered (cache_key
         # in DYNAMIC_MODEL_REGISTRY and not cache)
-        # TODO: may use Django's internal registry instead of
-        # DYNAMIC_MODEL_REGISTRY
-        name = self.dataset.slug + "-" + self.name.replace("_", "-")
-        model_name = "".join([word.capitalize() for word in name.split("-")])
         fields = {field.name: field.field_class for field in self.fields}
         fields["search_data"] = SearchVectorField(null=True)
         ordering = self.ordering or []
@@ -454,11 +348,18 @@ class Table(models.Model):
                 pg_indexes.GinIndex(name=make_index_name(db_table, "search", ["search_data"]), fields=["search_data"])
             )
 
-        Options = type("Meta", (object,), {"ordering": ordering, "indexes": indexes, "db_table": db_table,},)
-        Model = type(
-            model_name,
-            (DynamicModelMixin, models.Model,),
-            {"__module__": "core.models", "Meta": Options, "objects": DynamicModelQuerySet.as_manager(), **fields,},
+        managers = {"objects": DatasetTableModelQuerySet.as_manager()}
+        mixins = [DatasetTableModelMixin]
+        meta = {"ordering": ordering, "indexes": indexes, "db_table": db_table}
+
+        # TODO: move this hard-coded mixin/manager injections to maybe a model
+        # proxy
+        if self.dataset.slug == "socios-brasil" and self.name == "empresa":
+            mixins.insert(0, data_models.SociosBrasilEmpresaMixin)
+            managers["objects"] = data_models.SociosBrasilEmpresaQuerySet.as_manager()
+
+        Model = dynamic_models.create_model_class(
+            name=self.model_name, module="core.models", fields=fields, mixins=mixins, meta=meta, managers=managers,
         )
         Model.extra = {
             "filtering": filtering,
@@ -470,7 +371,7 @@ class Table(models.Model):
 
     def get_model_declaration(self):
         Model = self.get_model()
-        return model_to_code(Model)
+        return dynamic_models.model_source_code(Model)
 
     def invalidate_cache(self):
         invalidate(self.db_table)
@@ -487,7 +388,7 @@ class FieldQuerySet(models.QuerySet):
 class Field(models.Model):
     objects = FieldQuerySet.as_manager()
 
-    TYPE_CHOICES = [(value, value) for value in FIELD_TYPES.keys()]
+    TYPE_CHOICES = [(value, value) for value in dynamic_models.FIELD_TYPES.keys()]
 
     choices = JSONField(null=True, blank=True)
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, null=False, blank=False)
@@ -519,7 +420,7 @@ class Field(models.Model):
     def field_class(self):
         kwargs = self.options or {}
         kwargs["null"] = self.null
-        return FIELD_TYPES[self.type](**kwargs)
+        return dynamic_models.FIELD_TYPES[self.type](**kwargs)
 
     def options_text(self):
         if not self.options:
@@ -533,12 +434,16 @@ class Field(models.Model):
         self.choices = {"data": [str(value) for value in choices]}
 
 
-def get_table(dataset_slug, tablename):
-    return Table.objects.for_dataset(dataset_slug).named(tablename)
+def get_table(dataset_slug, tablename, allow_hidden=False):
+    qs = Table.objects
+    if allow_hidden:
+        qs = Table.with_hidden
+    return qs.for_dataset(dataset_slug).named(tablename)
 
 
 def get_table_model(dataset_slug, tablename):
-    table = get_table(dataset_slug, tablename)
+    # TODO: this function is just a shortcut and should be removed
+    table = get_table(dataset_slug, tablename, allow_hidden=True)
     ModelClass = table.get_model(cache=True)
 
     return ModelClass

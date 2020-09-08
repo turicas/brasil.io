@@ -80,7 +80,7 @@ class ImportDataCommand:
             except ProgrammingError:  # Does not exist
                 pass
             finally:
-                Model.create_table(create_indexes=False)
+                Model.create_table(indexes=False)
                 Model.create_triggers()
 
         # Get file object, header and set command to run

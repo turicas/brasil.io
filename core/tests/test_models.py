@@ -5,7 +5,8 @@ from django.test import TestCase
 from model_bakery import baker, seq
 from rows import fields
 
-from core.models import DataTable, DynamicModelMixin, Table
+from core.dynamic_models import DynamicModelMixin
+from core.models import DataTable, Table
 
 
 class TableModelTests(TestCase):
