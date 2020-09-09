@@ -160,3 +160,31 @@ class DataTableAdmin(admin.ModelAdmin):
 
 
 admin.site.register(models.DataTable, DataTableAdmin)
+
+
+class TableFileAdmin(admin.ModelAdmin):
+    list_display = ["filename", "readable_size", "sha512sum", "table", "created_at"]
+    list_filter = ["table__dataset"]
+    readonly_fields = [
+        "table",
+        "get_file_url",
+        "sha512sum",
+        "filename",
+        "readable_size",
+        "created_at",
+    ]
+    exclude = ["file_url", "size"]
+
+    def get_file_url(self, obj):
+        return format_html(f'<a href="{obj.file_url}">{obj.file_url}</a>')
+
+    get_file_url.short_description = "URL"
+
+    def has_add_permission(self, *args, **kwargs):
+        return False
+
+    def has_delete_permission(self, request, *args, **kwargs):
+        return request.user.is_superuser
+
+
+admin.site.register(models.TableFile, TableFileAdmin)

@@ -1,15 +1,28 @@
 import csv
+import hashlib
+import math
+import mimetypes
 import os
 import time
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
+from pathlib import Path
+from tempfile import NamedTemporaryFile
+from urllib.parse import urlparse
 
+import requests
 import rows
+from django.conf import settings
 from django.core.cache import cache
 from django.db import transaction
 from django.db.utils import ProgrammingError
+from django.template.loader import get_template
 from django.utils import timezone
+from minio import Minio
+from tqdm import tqdm
 
-from core.models import DataTable, Field, Table
+from core.models import Dataset, DataTable, Field, Table, TableFile
+from utils.file_info import human_readable_size
+from utils.minio import MinioProgress
 
 
 class ImportDataCommand:
@@ -151,3 +164,192 @@ class ImportDataCommand:
             self.log(" - done in {:.3f}s.".format(end_field - start_field))
         end = time.time()
         self.log("  done in {:.3f}s.".format(end - start))
+
+
+class UpdateTableFileCommand:
+    def __init__(self, table, file_url, **options):
+        self.table = table
+        self.file_url = file_url
+        self.file_url_info = urlparse(file_url)
+        self.hasher = hashlib.sha512()
+        self.file_size = 0
+
+        minio_endpoint = urlparse(settings.AWS_S3_ENDPOINT_URL).netloc
+        self.should_upload = minio_endpoint != self.file_url_info.netloc
+        self.minio = Minio(
+            minio_endpoint, access_key=settings.AWS_ACCESS_KEY_ID, secret_key=settings.AWS_SECRET_ACCESS_KEY
+        )
+        self._output_file = None
+        self.delete_source = options["delete_source"]
+
+    @property
+    def output_file(self):
+        if not self._output_file:
+            self._output_file = NamedTemporaryFile(delete=False)
+        return self._output_file
+
+    def read_file_chunks(self, chunk_size):
+        response = requests.get(self.file_url, stream=True)
+        num_chunks = (
+            math.ceil(int(response.headers["Content-Length"]) / chunk_size)
+            if response.headers.get("Content-Length")
+            else None
+        )
+
+        chunks = response.iter_content(chunk_size=chunk_size)
+
+        for chunk in tqdm(chunks, desc=f"Downloading {self.file_url} chunks...", total=num_chunks):
+            self.file_size += len(chunk)
+            self.hasher.update(chunk)
+            yield chunk
+
+    def process_file_chunk(self, chunk, chunk_size):
+        if self.should_upload:
+            self.output_file.write(chunk)
+
+    def finish_process(self):
+        source = self.file_url_info.path  # /BUCKET_NAME/OBJ_PATH
+        suffix = "".join(Path(source).suffixes)
+        dest_name = f"{self.table.dataset.slug}/{self.table.name}{suffix}"
+        bucket = settings.MINIO_STORAGE_DATASETS_BUCKET_NAME
+        is_same_file = source == f"/{bucket}/{dest_name}"
+
+        if self.should_upload:
+            self.output_file.close()
+            progress = MinioProgress()
+            self.log(f"Uploading file to bucket: {bucket}")
+
+            content_type, encoding = mimetypes.guess_type(dest_name)
+            if encoding == "gzip":
+                # quando é '.csv.gz' o retorno de guess_type é ('text/csv', 'gzip')
+                content_type = "application/gzip"
+            elif encoding is None:
+                content_type = "text/plain"
+
+            self.minio.fput_object(
+                bucket, dest_name, self.output_file.name, progress=progress, content_type=content_type
+            )
+        elif not is_same_file:
+            self.log(f"Copying {source} to bucket {bucket}")
+            self.minio.copy_object(bucket, dest_name, source)
+            if self.delete_source:
+                self.log(f"Deleting {source}")
+                split_source = source.split("/")
+                source_bucket, source_obj = split_source[1], "/".join(split_source[2:])
+                self.minio.remove_object(source_bucket, source_obj)
+        else:
+            self.log(f"Using {source} as the dataset file.", end="")
+
+        os.remove(self.output_file.name)
+        return f"{settings.AWS_S3_ENDPOINT_URL}{bucket}/{dest_name}"
+
+    @classmethod
+    def execute(cls, dataset_slug, tablename, file_url, **options):
+        table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
+        self = cls(table, file_url, **options)
+
+        chunk_size = settings.MINIO_DATASET_DOWNLOAD_CHUNK_SIZE
+        for chunk in self.read_file_chunks(chunk_size):
+            self.process_file_chunk(chunk, chunk_size)
+
+        new_file_url = self.finish_process()
+        table_file, created = self.create_table_file(new_file_url)
+
+        table_file_url = f"https://{settings.APP_HOST}{table_file.admin_url}"
+        if created:
+            self.log(f"\nNew TableFile entry: {table_file_url}")
+        else:
+            self.log(f"\nUsing existing TableFile entry: {table_file_url}")
+
+        self.log(f"File hash: {table_file.sha512sum}")
+        self.log(f"File size: {table_file.readable_size}")
+
+    def create_table_file(self, file_url):
+        filename = Path(urlparse(file_url).path).name
+        table_file, created = TableFile.objects.get_or_create(
+            table=self.table,
+            file_url=file_url,
+            sha512sum=self.hasher.hexdigest(),
+            size=str(self.file_size),
+            filename=filename,
+        )
+        return table_file, created
+
+    def log(self, msg, *args, **kwargs):
+        print(msg, *args, **kwargs)
+
+
+class UpdateTableFileListCommand:
+    FileListInfo = namedtuple("FileListInfo", ("filename", "file_url", "readable_size", "sha512sum"))
+
+    def __init__(self, dataset, **options):
+        self.dataset = dataset
+        minio_endpoint = urlparse(settings.AWS_S3_ENDPOINT_URL).netloc
+        self.bucket = settings.MINIO_STORAGE_DATASETS_BUCKET_NAME
+        self.minio = Minio(
+            minio_endpoint, access_key=settings.AWS_ACCESS_KEY_ID, secret_key=settings.AWS_SECRET_ACCESS_KEY
+        )
+        self._collect_date = options["collect_date"]
+
+    @property
+    def collect_date(self):
+        return self._collect_date or max([t.collect_date for t in self.dataset.tables])
+
+    def update_sha512_sums_file(self):
+        sha_sums, content = self.dataset.sha512sums
+        temp_file = NamedTemporaryFile(delete=False, mode="w")
+        temp_file.write(content)
+        temp_file.close()
+
+        fname = settings.MINIO_DATASET_SHA512SUMS_FILENAME
+        dest_name = f"{self.dataset.slug}/{fname}"
+        self.log(f"Uploading {fname}...")
+        progress = MinioProgress()
+        self.minio.fput_object(self.bucket, dest_name, temp_file.name, progress=progress, content_type="text/plain")
+
+        file_info = self.FileListInfo(
+            filename=fname,
+            readable_size=human_readable_size(len(content.encode())),
+            sha512sum=sha_sums,
+            file_url=f"{settings.AWS_S3_ENDPOINT_URL}{self.bucket}/{dest_name}",
+        )
+        os.remove(temp_file.name)
+
+        return file_info
+
+    def update_list_html(self, files_list):
+        context = {
+            "dataset": self.dataset,
+            "capture_date": self.collect_date,
+            "file_list": files_list,
+        }
+        list_template = get_template("tables_files_list.html")
+        content = list_template.render(context=context)
+
+        temp_file = NamedTemporaryFile(delete=False, mode="w")
+        temp_file.write(content)
+        temp_file.close()
+
+        self.log("\nUploading list HTML...")
+        dest_name = f"{self.dataset.slug}/{settings.MINIO_DATASET_TABLES_FILES_LIST_FILENAME}"
+        progress = MinioProgress()
+        self.minio.fput_object(
+            self.bucket, dest_name, temp_file.name, progress=progress, content_type="text/html; charset=utf-8"
+        )
+
+        os.remove(temp_file.name)
+        return f"{settings.AWS_S3_ENDPOINT_URL}{self.bucket}/{dest_name}"
+
+    @classmethod
+    def execute(cls, dataset_slug, **options):
+        dataset = Dataset.objects.get(slug=dataset_slug)
+        self = cls(dataset, **options)
+
+        self.log(f"Starting to update {dataset_slug} dataset list files...")
+        file_info = self.update_sha512_sums_file()
+        url = self.update_list_html(self.dataset.tables_files + [file_info])
+
+        self.log(f"\nNew list html in {url}")
+
+    def log(self, *args, **kwargs):
+        print(*args, **kwargs)

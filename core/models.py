@@ -20,6 +20,7 @@ from rows import fields as rows_fields
 
 from core import data_models, dynamic_models
 from core.filters import DynamicModelFilterProcessor
+from utils.file_info import human_readable_size
 
 DYNAMIC_MODEL_REGISTRY = {}
 
@@ -173,6 +174,21 @@ class Dataset(models.Model):
     def last_version(self):
         return self.get_last_version()
 
+    @property
+    def tables_files(self):
+        return sorted([TableFile.objects.get_most_recent_for_table(t) for t in self.tables], key=lambda f: f.filename)
+
+    @property
+    def sha512sums(self):
+        sha_sum = hashlib.sha512()
+        content = ""
+
+        for table_file in self.tables_files:
+            sha_sum.update(content.encode())
+            content += f"{table_file.sha512sum}  {table_file.filename}\n"
+
+        return sha_sum.hexdigest(), content
+
     def get_table(self, tablename, allow_hidden=False):
         if allow_hidden:
             return Table.with_hidden.for_dataset(self).named(tablename)
@@ -263,6 +279,10 @@ class Table(models.Model):
 
     def __str__(self):
         return "{}.{}.{}".format(self.dataset.slug, self.version.name, self.name)
+
+    @property
+    def collect_date(self):
+        return self.version.collected_at
 
     @property
     def data_table(self):
@@ -525,3 +545,33 @@ def clean_associated_data_base_table(sender, instance, **kwargs):
 
 pre_delete.connect(prevent_active_data_table_deletion, sender=DataTable)
 post_delete.connect(clean_associated_data_base_table, sender=DataTable)
+
+
+class TableFileQuerySet(models.QuerySet):
+    def get_most_recent_for_table(self, table):
+        table_file = self.filter(table=table).first()
+        if not table_file:
+            raise TableFile.DoesNotExist(f"For table {table}")
+        return table_file
+
+
+class TableFile(models.Model):
+    objects = TableFileQuerySet.as_manager()
+
+    table = models.ForeignKey(Table, related_name="table_file", on_delete=models.CASCADE)
+    file_url = models.URLField()
+    sha512sum = models.CharField(max_length=128)
+    filename = models.TextField()
+    size = models.BigIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    @property
+    def readable_size(self):
+        return human_readable_size(int(self.size))
+
+    @property
+    def admin_url(self):
+        return reverse("admin:core_tablefile_change", args=[self.id])
