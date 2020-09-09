@@ -1,6 +1,7 @@
 import csv
 import hashlib
 import math
+import mimetypes
 import os
 import time
 from collections import OrderedDict, namedtuple
@@ -218,10 +219,14 @@ class UpdateTableFileCommand:
             self.output_file.close()
             progress = MinioProgress()
             self.log(f"Uploading file to bucket: {bucket}")
-            if suffix == ".csv.gz":
+
+            content_type, encoding = mimetypes.guess_type(dest_name)
+            if encoding == "gzip":
+                # quando é '.csv.gz' o retorno de guess_type é ('text/csv', 'gzip')
                 content_type = "application/gzip"
-            elif suffix == ".csv":
-                content_type = "text/csv"
+            elif encoding is None:
+                content_type = "text/plain"
+
             self.minio.fput_object(
                 bucket, dest_name, self.output_file.name, progress=progress, content_type=content_type
             )
