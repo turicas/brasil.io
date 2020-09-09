@@ -1,5 +1,6 @@
 import csv
 import hashlib
+import math
 import os
 import time
 from collections import OrderedDict, namedtuple
@@ -7,6 +8,7 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from urllib.parse import urlparse
 
+import requests
 import rows
 from cached_property import cached_property
 from django.conf import settings
@@ -187,7 +189,16 @@ class UpdateTableFileCommand:
         return self._output_file
 
     def read_file_chunks(self, chunk_size):
-        for chunk in stream_file(self.file_url, chunk_size):
+        response = requests.get(self.file_url, stream=True)
+        num_chunks = (
+            math.ceil(int(response.headers["Content-Length"]) / chunk_size)
+            if response.headers.get("Content-Length")
+            else None
+        )
+
+        chunks = response.iter_content(chunk_size=chunk_size)
+
+        for chunk in tqdm(chunks, desc=f"Downloading {self.file_url} chunks...", total=num_chunks):
             self.file_size += len(chunk)
             self.hasher.update(chunk)
             yield chunk
@@ -234,7 +245,7 @@ class UpdateTableFileCommand:
         self = cls(table, file_url, **options)
 
         chunk_size = settings.MINIO_DATASET_DOWNLOAD_CHUNK_SIZE
-        for chunk in tqdm(self.read_file_chunks(chunk_size), desc=f"Downloading {file_url} chunks..."):
+        for chunk in self.read_file_chunks(chunk_size):
             self.process_file_chunk(chunk, chunk_size)
 
         new_file_url = self.finish_process()
