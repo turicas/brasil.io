@@ -11,6 +11,7 @@ env = environ.Env(DEBUG=(bool, False))
 environ.Env.read_env(".env")
 
 ALLOWED_HOSTS = env("ALLOWED_HOSTS", default="").split(",")
+APP_HOST = env("APP_HOST", default="brasil.io")
 BLOCKED_AGENTS = env.list("BLOCKED_AGENTS", default=[])
 BASE_DIR = root()
 DEBUG = env("DEBUG")

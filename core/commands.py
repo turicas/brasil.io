@@ -251,8 +251,7 @@ class UpdateTableFileCommand:
         new_file_url = self.finish_process()
         table_file, created = self.create_table_file(new_file_url)
 
-        app_host = "https://brasil.io" if settings.PRODUCTION else "http://localhost:8000"
-        table_file_url = app_host + table_file.admin_url
+        table_file_url = f"https://{settings.APP_HOST}{table_file.admin_url}"
         if created:
             self.log(f"\nNew TableFile entry: {table_file_url}")
         else:
