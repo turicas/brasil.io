@@ -301,7 +301,7 @@ class UpdateTableFileListCommand:
         temp_file.write(content)
         temp_file.close()
 
-        fname = "SHA512SUMS"
+        fname = settings.MINIO_DATASET_SHA512SUMS_FILENAME
         dest_name = f"{self.dataset.slug}/{fname}"
         self.log(f"Uploading {fname}...")
         progress = MinioProgress()
@@ -331,7 +331,7 @@ class UpdateTableFileListCommand:
         temp_file.close()
 
         self.log("\nUploading list HTML...")
-        dest_name = f"{self.dataset.slug}/_meta/list.html"
+        dest_name = f"{self.dataset.slug}/{settings.MINIO_DATASET_TABLES_FILES_LIST_FILENAME}"
         progress = MinioProgress()
         self.minio.fput_object(
             self.bucket, dest_name, temp_file.name, progress=progress, content_type="text/html; charset=utf-8"

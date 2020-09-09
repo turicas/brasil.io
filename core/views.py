@@ -214,8 +214,9 @@ def dataset_tables_files_detail(request, slug):
     dataset = get_object_or_404(Dataset, slug=slug)
     tables = dataset.tables
     capture_date = max([t.collect_date for t in tables])
+
     sha_sums, content = dataset.sha512sums
-    fname = "SHA512SUMS"
+    fname = settings.MINIO_DATASET_SHA512SUMS_FILENAME
     dest_name = f"{dataset.slug}/{fname}"
     sha512sums_file = UpdateTableFileListCommand.FileListInfo(
         filename=fname,
