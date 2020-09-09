@@ -533,7 +533,8 @@ post_delete.connect(clean_associated_data_base_table, sender=DataTable)
 
 
 class TableFileQuerySet(models.QuerySet):
-    def most_recent_for_table(self, table):
+
+    def get_most_recent_for_table(self, table):
         table_file = self.filter(table=table).first()
         if not table_file:
             raise TableFile.DoesNotExist(f"For table {table}")

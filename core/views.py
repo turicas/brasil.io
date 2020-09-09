@@ -212,7 +212,7 @@ def dataset_meta_detail(request, slug):
     dataset = get_object_or_404(Dataset, slug=slug)
     tables = dataset.tables
     capture_date = max([t.collect_date for t in tables])
-    files = sorted([TableFile.objects.most_recent_for_table(t) for t in tables], key=lambda f: f.filename)
+    files = sorted([TableFile.objects.get_most_recent_for_table(t) for t in tables], key=lambda f: f.filename)
 
     context = {
         "dataset": dataset,

@@ -290,7 +290,7 @@ class UpdateTableFileListCommand:
 
     @cached_property
     def all_table_files(self):
-        return sorted([TableFile.objects.most_recent_for_table(t) for t in self.tables], key=lambda f: f.filename)
+        return sorted([TableFile.objects.get_most_recent_for_table(t) for t in self.tables], key=lambda f: f.filename)
 
     @property
     def collect_date(self):
