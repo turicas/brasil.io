@@ -7,14 +7,14 @@
 {{ block.super }}
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
 <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'css/covid19-status.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/covid19/status.css' %}"/>
 {% endblock %}
 
 {% block content %}{% localize on %}
 <div id="dashboard-header">
   <h1> ESPECIAL COVID-19 - Status de Importação </h1>
-  {% include 'covid19-text.html' %}
-  {% include 'covid19-links.html' %}
+  {% include 'covid19/text.html' %}
+  {% include 'covid19/links.html' %}
 </div>
 
 <div id="table_container" class="row">

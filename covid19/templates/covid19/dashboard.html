@@ -7,21 +7,22 @@
 {{ block.super }}
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
 <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
-<link rel="stylesheet" type="text/css" href="{% static 'css/covid19-map.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/covid19/map.css' %}"/>
 <script type="text/javascript" language="javascript" src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
 <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" language="javascript" src="https://www.chartjs.org/dist/2.9.3/Chart.min.js"></script>
-<script type="text/javascript" language="javascript" src="{% static 'js/covid19-base.js' %}"></script>
-<script type="text/javascript" language="javascript" src="{% static 'js/covid19-table.js' %}"></script>
-<script type="text/javascript" language="javascript" src="{% static 'js/covid19-map.js' %}"></script>
-<script type="text/javascript" language="javascript" src="{% static 'js/covid19-chart.js' %}"></script>
+<script type="text/javascript" language="javascript" src="{% static 'js/dashboard/chart.js' %}"></script>
+<script type="text/javascript" language="javascript" src="{% static 'js/covid19/base.js' %}"></script>
+<script type="text/javascript" language="javascript" src="{% static 'js/covid19/chart.js' %}"></script>
+<script type="text/javascript" language="javascript" src="{% static 'js/covid19/map.js' %}"></script>
+<script type="text/javascript" language="javascript" src="{% static 'js/covid19/table.js' %}"></script>
 {% endblock %}
 
 {% block content %}{% localize on %}
 <div id="dashboard-header">
   <h1> ESPECIAL COVID-19 - Dados por Município </h1>
-  {% include 'covid19-text.html' %}
-  {% include 'covid19-links.html' %}
+  {% include 'covid19/text.html' %}
+  {% include 'covid19/links.html' %}
 </div>
 
 <div id="dashboard-country-aggregate" class="row card" style="height: 100%">

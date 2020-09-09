@@ -24,7 +24,7 @@ def volunteers(request):
     url = "https://data.brasil.io/meta/covid19-voluntarios.json"
     volunteers = cached_http_get_json(url, 5)
     random.shuffle(volunteers)
-    return render(request, "volunteers.html", {"volunteers": volunteers})
+    return render(request, "covid19/volunteers.html", {"volunteers": volunteers})
 
 
 def cities(request):
@@ -236,7 +236,7 @@ def dashboard(request, state=None):
 
     return render(
         request,
-        "dashboard.html",
+        "covid19/dashboard.html",
         {
             "country_aggregate": country_aggregate,
             "state_aggregate": state_aggregate,
@@ -310,10 +310,10 @@ def status(request):
         return (date, row["state"])
 
     data.sort(key=row_sort)
-    return render(request, "covid-status.html", {"import_data": data})
+    return render(request, "covid19/status.html", {"import_data": data})
 
 
 @disable_non_logged_user_cache
 def list_bulletins(request):
     bulletins = DailyBulletin.objects.order_by("-date").filter(date__lte=timezone.now().date())
-    return render(request, "covid-bulletins.html", {"bulletins": bulletins})
+    return render(request, "covid19/bulletins.html", {"bulletins": bulletins})
