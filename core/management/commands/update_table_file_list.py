@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 
 from django.core.management.base import BaseCommand
 
@@ -18,8 +18,7 @@ class Command(BaseCommand):
         if not collect_date:
             return None
 
-        year, month, day = [int(v) for v in collect_date.split("-")]
-        return date(year, month, day)
+        return datetime.strptime(collect_date, "%Y-%m-%d").date()
 
     def handle(self, *args, **kwargs):
         dataset_slug = kwargs["dataset_slug"]
