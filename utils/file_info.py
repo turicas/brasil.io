@@ -1,11 +1,3 @@
-import requests
-
-
-def stream_file(file_url, chunk_size):
-    response = requests.get(file_url, stream=True)
-    yield from response.iter_content(chunk_size=chunk_size)
-
-
 def human_readable_size(size, divider=1024):
     """
     >>> human_readable_size(100)

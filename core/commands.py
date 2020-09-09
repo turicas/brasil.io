@@ -21,7 +21,7 @@ from minio import Minio
 from tqdm import tqdm
 
 from core.models import Dataset, DataTable, Field, Table, TableFile
-from utils.file_streams import human_readable_size, stream_file
+from utils.file_info import human_readable_size
 from utils.minio import MinioProgress
 
 

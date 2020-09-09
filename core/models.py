@@ -20,7 +20,7 @@ from rows import fields as rows_fields
 
 from core import data_models, dynamic_models
 from core.filters import DynamicModelFilterProcessor
-from utils.file_streams import human_readable_size
+from utils.file_info import human_readable_size
 
 DYNAMIC_MODEL_REGISTRY = {}
 
