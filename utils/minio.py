@@ -109,6 +109,7 @@ class MinioProgress(Thread):
             self.display_queue.task_done()
             if current_size == total_length:
                 self.done_progress()
+                break
 
     def update(self, size):
         """
