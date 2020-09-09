@@ -6,6 +6,7 @@ from urllib.request import Request, URLError, urlopen
 
 import django.db.models.fields
 from cachetools import TTLCache, cached
+from django.conf import settings
 
 USER_AGENT = "brasil.io-backend"
 
@@ -161,7 +162,7 @@ def get_apoiase_donors(campain_id):
 
 @cached(cache=TTLCache(maxsize=100, ttl=24 * 3600))
 def get_cached_apoiase_donors():
-    return get_apoiase_donors("5ab97be3c3f083c623a26742")
+    return get_apoiase_donors(settings.APOIASE_PROJECT_ID)
 
 def ratelimit_key(group, request):
     ip = request.META.get("HTTP_CF_CONNECTING_IP", "").strip()
