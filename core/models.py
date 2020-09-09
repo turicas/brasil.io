@@ -174,6 +174,21 @@ class Dataset(models.Model):
     def last_version(self):
         return self.get_last_version()
 
+    @property
+    def tables_files(self):
+        return sorted([TableFile.objects.get_most_recent_for_table(t) for t in self.tables], key=lambda f: f.filename)
+
+    @property
+    def sha512sums(self):
+        sha_sum = hashlib.sha512()
+        content = ""
+
+        for table_file in self.tables_files:
+            sha_sum.update(content.encode())
+            content += f"{table_file.sha512sum}  {table_file.filename}\n"
+
+        return sha_sum.hexdigest(), content
+
     def get_table(self, tablename, allow_hidden=False):
         if allow_hidden:
             return Table.with_hidden.for_dataset(self).named(tablename)

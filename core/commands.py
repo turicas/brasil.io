@@ -11,7 +11,6 @@ from urllib.parse import urlparse
 
 import requests
 import rows
-from cached_property import cached_property
 from django.conf import settings
 from django.core.cache import cache
 from django.db import transaction
@@ -285,7 +284,6 @@ class UpdateTableFileListCommand:
 
     def __init__(self, dataset, **options):
         self.dataset = dataset
-        self.tables = dataset.tables
         minio_endpoint = urlparse(settings.AWS_S3_ENDPOINT_URL).netloc
         self.bucket = settings.MINIO_STORAGE_DATASETS_BUCKET_NAME
         self.minio = Minio(
@@ -293,36 +291,26 @@ class UpdateTableFileListCommand:
         )
         self._collect_date = options["collect_date"]
 
-    @cached_property
-    def all_table_files(self):
-        return sorted([TableFile.objects.get_most_recent_for_table(t) for t in self.tables], key=lambda f: f.filename)
-
     @property
     def collect_date(self):
-        return self._collect_date or max([t.collect_date for t in self.tables])
+        return self._collect_date or max([t.collect_date for t in self.dataset.tables])
 
     def update_sha512_sums_file(self):
+        sha_sums, content = self.dataset.sha512sums
         temp_file = NamedTemporaryFile(delete=False, mode="w")
-        fname = "SHA512SUMS"
-        dest_name = f"{self.dataset.slug}/{fname}"
-
-        sha_sum = hashlib.sha512()
-        size = 0
-        for table_file in self.all_table_files:
-            content = f"{table_file.sha512sum}  {table_file.filename}\n"
-            temp_file.write(content)
-            sha_sum.update(content.encode())
-            size += len(content.encode())
+        temp_file.write(content)
         temp_file.close()
 
+        fname = "SHA512SUMS"
+        dest_name = f"{self.dataset.slug}/{fname}"
         self.log(f"Uploading {fname}...")
         progress = MinioProgress()
         self.minio.fput_object(self.bucket, dest_name, temp_file.name, progress=progress, content_type="text/plain")
 
         file_info = self.FileListInfo(
             filename=fname,
-            readable_size=human_readable_size(size),
-            sha512sum=sha_sum.hexdigest(),
+            readable_size=human_readable_size(len(content.encode())),
+            sha512sum=sha_sums,
             file_url=f"{settings.AWS_S3_ENDPOINT_URL}{self.bucket}/{dest_name}",
         )
         os.remove(temp_file.name)
@@ -359,7 +347,7 @@ class UpdateTableFileListCommand:
 
         self.log(f"Starting to update {dataset_slug} dataset list files...")
         file_info = self.update_sha512_sums_file()
-        url = self.update_list_html(self.all_table_files + [file_info])
+        url = self.update_list_html(self.dataset.tables_files + [file_info])
 
         self.log(f"\nNew list html in {url}")
 
