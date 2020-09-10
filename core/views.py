@@ -13,7 +13,7 @@ from core.commands import UpdateTableFileListCommand
 from core.forms import ContactForm, DatasetSearchForm
 from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
-from core.util import cached_http_get_json
+from core.util import cached_http_get_json, get_cached_apoiase_donors
 from utils.file_info import human_readable_size
 
 
@@ -105,7 +105,12 @@ def dataset_detail(request, slug, tablename=""):
 
     if not tablename:
         tablename = dataset.get_default_table().name
-        return redirect(reverse("core:dataset-table-detail", kwargs={"slug": slug, "tablename": tablename},))
+        return redirect(
+            reverse(
+                "core:dataset-table-detail",
+                kwargs={"slug": slug, "tablename": tablename},
+            )
+        )
 
     try:
         allow_hidden = request.user.is_superuser
@@ -144,10 +149,7 @@ def dataset_detail(request, slug, tablename=""):
         if not any([query, search_query]) or not user_agent or block_agent:
             # User trying to download a CSV without custom filters or invalid
             # user-agent specified.
-            context = {
-                "html_code_snippet": "400-csv-without-filters.html",
-                "download_url": table.version.download_url,
-            }
+            context = {"html_content": "400-csv-without-filters.html", "download_url": table.version.download_url}
             return render(request, "404.html", context, status=400)
 
         if all_data.count() > settings.CSV_EXPORT_MAX_ROWS:
@@ -159,7 +161,8 @@ def dataset_detail(request, slug, tablename=""):
         writer = csv.writer(pseudo_buffer, dialect=csv.excel)
         csv_rows = queryset_to_csv(all_data, fields)
         response = StreamingHttpResponse(
-            (writer.writerow(row) for row in csv_rows), content_type="text/csv;charset=UTF-8",
+            (writer.writerow(row) for row in csv_rows),
+            content_type="text/csv;charset=UTF-8",
         )
         response["Content-Disposition"] = 'attachment; filename="{}"'.format(filename)
         response.encoding = "UTF-8"
@@ -231,3 +234,10 @@ def dataset_tables_files_detail(request, slug):
         "file_list": dataset.tables_files + [sha512sums_file],
     }
     return render(request, "tables_files_list.html", context)
+
+
+def donors(request):
+    page = request.GET.get("page", 1)
+    paginator = Paginator(get_cached_apoiase_donors(), 25)
+    data = paginator.page(page)
+    return render(request, "donors.html", {"donors": data})

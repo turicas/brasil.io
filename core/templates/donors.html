@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Apoiadores - Brasil.IO{% endblock %}
+{% load thumbnail %}
+{% load endswith %}
+{% block head %}
+{{ block.super }}
+<!-- Infinte scroll -->
+<script src="{% static 'js/noframework.waypoints.min.js' %}"></script>
+<script src="{% static 'js/infinite.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="section">
+  <h4>Doadores</h4>
+  <div class="divider"></div>
+
+  <div class="row m-t-5">
+    <p>
+      A lista abaixo é de pessoas que <i>apoiam nossa campanha</i> pela plataforma <strong>Apoia.se</strong> de
+      financiamento coletivo.
+      <a href="https://apoia.se/brasilio" title="Apoie nossa campanha">Colabore você também clicando aqui.</a>
+    </p>
+    <div class="row">
+      <div class="infinite-container col s12">
+        {% for donor in donors %}
+          <div class="col s12 m3 m-t-15 infinite-item center" style="min-height: 170px;">
+            <span class="fa-stack fa-3x text-center">
+              <!-- Gravatar default logo changed with defaultimageavatar.jpg -->
+              {% if donor.image|endswith:"?d=mp" %}
+                  <img class="circle responsive-img" src='{% static "img/defaultimgavatar.jpg" %}' width="200px" height="auto" />
+              {% else %}
+                {% thumbnail donor.image "170x170" as im %}
+                  <img class="circle responsive-img" src="{{ im.url }}" width="200px" height="auto" />
+                {% endthumbnail %}
+              {% endif %}
+            </span>
+            <h6> {{ donor.name }} </h6>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="loading col s12 center" style="display: none;">
+        <div class="preloader-wrapper big active">
+          <div class="spinner-layer spinner-blue-only">
+            <div class="circle-clipper left">
+              <div class="circle"></div>
+            </div>
+            <div class="gap-patch">
+              <div class="circle"></div>
+            </div>
+            <div class="circle-clipper right">
+              <div class="circle"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% if donors.has_next %}
+      <a class="infinite-more-link" href="?page={{ donors.next_page_number }}"></a>
+    {% endif %}
+  </div>
+</div>
+
+<script type="text/javascript">
+  const defaultImg = function () {$(this).attr('src', '{% static "img/defaultimgavatar.jpg" %}')};
+  var infinite = new Waypoint.Infinite({
+    element: $('.infinite-container')[0],
+    offset: 'bottom-in-view',
+    onBeforePageLoad: function (element) {
+      $('.loading').show();
+    },
+    onAfterPageLoad: function () {
+      $('.loading').hide();
+      $('img').on("error", defaultImg)
+    }
+  })
+</script>
+{% endblock %}
