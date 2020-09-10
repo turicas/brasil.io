@@ -4,7 +4,7 @@ import sys
 import warnings
 
 if __name__ == "__main__":
-    warnings.filterwarnings('ignore', module='environ')  # disable missing .env warning
+    warnings.filterwarnings("ignore", module="environ")  # disable missing .env warning
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "brasilio.settings")
     try:

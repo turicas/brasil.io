@@ -8,9 +8,11 @@ https://docs.djangoproject.com/en/2.0/howto/deployment/wsgi/
 """
 
 import os
+import warnings
 
 from django.core.wsgi import get_wsgi_application
 
+warnings.filterwarnings("ignore", module="environ")  # disable missing .env warning
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "brasilio.settings")
 
 from django.db.backends.signals import connection_created  # noqa
