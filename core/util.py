@@ -160,9 +160,11 @@ def get_apoiase_donors(campain_id):
         finished = len(new) < limit
     return donors
 
+
 @cached(cache=TTLCache(maxsize=100, ttl=24 * 3600))
 def get_cached_apoiase_donors():
     return get_apoiase_donors(settings.APOIASE_PROJECT_ID)
+
 
 def ratelimit_key(group, request):
     ip = request.META.get("HTTP_CF_CONNECTING_IP", "").strip()

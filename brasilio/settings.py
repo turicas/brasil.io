@@ -169,7 +169,10 @@ if THROTTLING_RATE:
                 "rest_framework.throttling.AnonRateThrottle",
                 "rest_framework.throttling.UserRateThrottle",
             ],
-            "DEFAULT_THROTTLE_RATES": {"anon": THROTTLING_RATE, "user": THROTTLING_RATE,},
+            "DEFAULT_THROTTLE_RATES": {
+                "anon": THROTTLING_RATE,
+                "user": THROTTLING_RATE,
+            },
         }
     )
 
@@ -239,7 +242,12 @@ CACHES = {
 }
 
 # django-rq config
-RQ_QUEUES = {"default": {"URL": REDIS_URL, "DEFAULT_TIMEOUT": 500,}}
+RQ_QUEUES = {
+    "default": {
+        "URL": REDIS_URL,
+        "DEFAULT_TIMEOUT": 500,
+    }
+}
 RQ = {
     "DEFAULT_RESULT_TTL": 60 * 60 * 24,  # 24-hours
 }
@@ -264,7 +272,9 @@ ROCKETCHAT_PASSWORD = env("ROCKETCHAT_PASSWORD")
 # Sentry config
 SENTRY_DSN = env("SENTRY_DSN")
 sentry_sdk.init(
-    SENTRY_DSN, integrations=[DjangoIntegration(), RqIntegration()], send_default_pii=True,
+    SENTRY_DSN,
+    integrations=[DjangoIntegration(), RqIntegration()],
+    send_default_pii=True,
 )
 
 
