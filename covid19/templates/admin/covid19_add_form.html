@@ -1,10 +1,23 @@
 {% extends "admin/change_form.html" %}
 
 
+{% block extrahead %}
+  {{ block.super }}
+
+  <style>
+    .state-model {
+        float: None !important;
+        padding: 0.5em 0;
+    }
+  </style>
+
+{% endblock %}
+
+
 {% block object-tools %}
   <ul class="object-tools">
     {% for state in allowed_states %}
-    <li><a href="{% url 'admin:sample_covid_spreadsheet' state.acronym %}" title="Ver Modelo {{ state.acronym }}">Modelo {{ state.acronym }}</a></li>
+    <li class="state-model"><a href="{% url 'admin:sample_covid_spreadsheet' state.acronym %}" title="Ver Modelo {{ state.acronym }}">Modelo {{ state.acronym }}</a></li>
     {% endfor %}
   </ul>
 {% endblock %}
