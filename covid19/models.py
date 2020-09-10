@@ -4,7 +4,7 @@ from pathlib import Path
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.urls import reverse
 from localflavor.br.br_states import STATE_CHOICES
@@ -172,7 +172,7 @@ class StateSpreadsheet(models.Model):
     # precisar ler o arquivo (o validador da planilha no form vai ter que fazer
     # essa leitura, então ele faz, se estiver tudo ok já salva nesse campo pro
     # worker já trabalhar com os dados limpos e normalizados)
-    data = JSONField(default=default_data_json)
+    data = models.JSONField(default=default_data_json)
 
     # por padrao é False, mas vira True se um mesmo usuário subir uma planilha
     # pro mesmo estado pra mesma data (ele cancela o upload anterior pra essa
@@ -356,7 +356,7 @@ class DailyBulletin(models.Model):
     created_at = models.DateField(auto_now_add=True)
     date = models.DateField(unique=True)
     image_url = models.URLField()
-    detailed_data = JSONField(default=dict, blank=True)
+    detailed_data = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
         return f"Boletim: {self.date.day}/{self.date.month}/{self.date.year}"

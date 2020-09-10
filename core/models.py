@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 import django.contrib.postgres.indexes as pg_indexes
 import django.db.models.indexes as django_indexes
 from cachalot.api import invalidate
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
 from django.db import connection, models, transaction
 from django.db.models import F
@@ -268,7 +268,7 @@ class Table(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, null=False, blank=False)
     default = models.BooleanField(null=False, blank=False)
     name = models.CharField(max_length=255, null=False, blank=False)
-    options = JSONField(null=True, blank=True)
+    options = models.JSONField(null=True, blank=True)
     ordering = ArrayField(models.CharField(max_length=63), null=False, blank=False)
     filtering = ArrayField(models.CharField(max_length=63), null=True, blank=True)
     search = ArrayField(models.CharField(max_length=63), null=True, blank=True)
@@ -405,7 +405,7 @@ class Field(models.Model):
 
     TYPE_CHOICES = [(value, value) for value in dynamic_models.FIELD_TYPES.keys()]
 
-    choices = JSONField(null=True, blank=True)
+    choices = models.JSONField(null=True, blank=True)
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
     frontend_filter = models.BooleanField(null=False, blank=True, default=False)
@@ -414,7 +414,7 @@ class Field(models.Model):
     order = models.PositiveIntegerField(null=False, blank=False)
     null = models.BooleanField(null=False, blank=True, default=True)
     name = models.CharField(max_length=63)
-    options = JSONField(null=True, blank=True)
+    options = models.JSONField(null=True, blank=True)
     obfuscate = models.BooleanField(null=False, blank=True, default=False)
     show = models.BooleanField(null=False, blank=True, default=True)
     show_on_frontend = models.BooleanField(null=False, blank=True, default=False)

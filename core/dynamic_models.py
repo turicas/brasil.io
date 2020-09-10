@@ -2,7 +2,6 @@ from textwrap import dedent
 
 import django.contrib.postgres.indexes as pg_indexes
 import django.db.models.indexes as django_indexes
-from django.contrib.postgres.fields import JSONField
 from django.db import connection, models
 
 FIELD_TYPES = {
@@ -14,7 +13,7 @@ FIELD_TYPES = {
     "email": models.EmailField,
     "float": models.FloatField,
     "integer": models.IntegerField,
-    "json": JSONField,
+    "json": models.JSONField,
     "string": models.CharField,  # TODO: rename to "char"
     "text": models.TextField,
 }
