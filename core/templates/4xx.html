@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <div class="section indigo-text text-center error-container">
+  {% if html_code_snippet %}
+    {% include html_code_snippet %}
+  {% else %}
+    <h1>{{ title_4xx }}</h1>
+    <p>
+      <b>
+        {{ message }}
+      </b>
+    </p>
+    <p>
+      Se você acredita que essa página deveria existir e que isso é um
+      problema, entre em <a href="{% url
+        'core:contact' %}">contato</a> ou <a
+        href="https://github.com/turicas/brasil.io/issues/new">crie uma issue
+        em nosso repositório</a>.
+    </p>
+  {% endif %}
+  </div>
+</div>
+{% endblock %}
