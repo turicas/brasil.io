@@ -203,6 +203,10 @@ class Dataset(models.Model):
             content=content,
         )
 
+    @property
+    def all_files(self):
+        return self.tables_files + [self.sha512sums]
+
     def get_table(self, tablename, allow_hidden=False):
         if allow_hidden:
             return Table.with_hidden.for_dataset(self).named(tablename)

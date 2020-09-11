@@ -220,3 +220,11 @@ class DatasetModelTests(TestCase):
         assert hasher.hexdigest() == sha512sums.sha512sum
         assert expected_url == sha512sums.file_url
         assert human_readable_size(len(expected_content.encode())) == sha512sums.readable_size
+
+    def test_property_to_list_all_files_from_a_dataset(self):
+        baker.make(TableFile, filename="sample_02.csv", table=self.tables[0])
+        baker.make(TableFile, filename="csv_data_02.csv", table=self.tables[1])
+
+        expected_files = self.dataset.tables_files + [self.dataset.sha512sums]
+
+        assert expected_files == self.dataset.all_files
