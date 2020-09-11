@@ -2,10 +2,11 @@ import csv
 import uuid
 
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import Http404, StreamingHttpResponse
+from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
@@ -205,17 +206,15 @@ def contributors(request):
 
 
 def dataset_files_detail(request, slug):
-    # this view exists for admin users to quickly preview how data.brasil.io/dataset/<dataset_slug>/_meta/list.html will look like
-    if not request.user.is_superuser:
-        raise Http404
-
     dataset = get_object_or_404(Dataset, slug=slug)
-    tables = dataset.tables
-    capture_date = max([t.collect_date for t in tables])
+    try:
+        all_files = dataset.all_files
+    except ObjectDoesNotExist:
+        return redirect(dataset.get_last_version().download_url)
 
     context = {
         "dataset": dataset,
-        "capture_date": capture_date,
-        "file_list": dataset.all_files,
+        "capture_date": max([t.collect_date for t in dataset.tables]),
+        "file_list": all_files,
     }
     return render(request, "tables_files_list.html", context)
