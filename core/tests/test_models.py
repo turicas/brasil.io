@@ -1,12 +1,13 @@
 from collections import OrderedDict
 from unittest.mock import Mock, patch
 
+import pytest
 from django.test import TestCase
 from model_bakery import baker, seq
 from rows import fields
 
 from core.dynamic_models import DynamicModelMixin
-from core.models import DataTable, Table
+from core.models import Dataset, DataTable, Table, TableFile, Version
 
 
 class TableModelTests(TestCase):
@@ -173,3 +174,28 @@ class DataTableModelTests(TestCase):
         assert oldest_data_table.active is False
         assert new_data_table.active is False
         assert old_data_table.active is True
+
+
+class DatasetModelTests(TestCase):
+    def setUp(self):
+        self.dataset = baker.make(Dataset)
+        self.version = baker.make(Version, dataset=self.dataset)
+        self.tables = baker.make(Table, dataset=self.dataset, version=self.version, _quantity=2)
+
+    def test_property_list_dataset_table_most_recent_fiels_sorted_by_name(self):
+        table_1, table_2 = self.tables
+        baker.make(TableFile, filename="sample_01.csv", table=table_1)  # old table file
+        new_table_1_file = baker.make(TableFile, filename="sample_02.csv", table=table_1)
+        baker.make(TableFile, filename="csv_data_01.csv", table=table_2)  # old table file
+        new_table_2_file = baker.make(TableFile, filename="csv_data_02.csv", table=table_2)
+
+        table_files = self.dataset.tables_files
+
+        assert 2 == len(table_files)
+        assert new_table_2_file == table_files[0]
+        assert new_table_1_file == table_files[1]
+
+    def test_raise_exception_if_no_table_file_for_a_table(self):
+        baker.make(TableFile, filename="sample_02.csv", table=self.tables[0])  # only one table with file
+        with pytest.raises(TableFile.DoesNotExist):
+            self.dataset.tables_files
