@@ -48,8 +48,8 @@ def contact(request):
             return redirect(reverse("core:contact") + "?sent=true")
 
     else:
-        context = {"message": "Invalid HTTP method."}
-        return render(request, "404.html", context, status=400)
+        context = {"message": "Invalid HTTP method.", "title_4xx": "Oops! Ocorreu um erro:"}
+        return render(request, "4xx.html", context, status=405)
 
     return render(request, "contact.html", {"form": form, "sent": sent})
 
