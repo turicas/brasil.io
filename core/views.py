@@ -204,7 +204,7 @@ def contributors(request):
     return render(request, "contributors.html", {"contributors": data})
 
 
-def dataset_tables_files_detail(request, slug):
+def dataset_files_detail(request, slug):
     # this view exists for admin users to quickly preview how data.brasil.io/dataset/<dataset_slug>/_meta/list.html will look like
     if not request.user.is_superuser:
         raise Http404
