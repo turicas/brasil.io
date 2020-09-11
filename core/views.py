@@ -217,4 +217,4 @@ def dataset_files_detail(request, slug):
         "capture_date": max([t.collect_date for t in dataset.tables]),
         "file_list": all_files,
     }
-    return render(request, "tables_files_list.html", context)
+    return render(request, "dataset_files_list.html", context)
