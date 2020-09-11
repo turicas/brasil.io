@@ -125,9 +125,9 @@
           <br>
           * No máximo {{ max_export_rows|localize }} registros serão
           exportados. Caso você necessite de mais dados, considere
-          <a href="{{ version.download_url }}">baixar o dataset completo</a>.
+          <a href="{{ dataset.files_url }}">baixar o dataset completo</a>.
           {% else %}
-          <a class="btn" href="{{ version.download_url }}" target="_blank">
+          <a class="btn" href="{{ dataset.files_url }}" target="_blank">
             Baixar dados completos em CSV
           </a>
           {% endif %}
@@ -154,7 +154,7 @@
         {% endwith %}
       </div>
       <p>
-        Você também pode <a href="{{ version.download_url }}">baixar o dataset completo</a> ou
+        Você também pode <a href="{{ dataset.files_url }}">baixar o dataset completo</a> ou
         <a href="{% url 'api:dataset-detail' dataset.slug %}">utilizar nossa API</a>.
       </p>
 

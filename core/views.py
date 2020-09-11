@@ -145,7 +145,7 @@ def dataset_detail(request, slug, tablename=""):
             # user-agent specified.
             context = {
                 "html_code_snippet": "400-csv-without-filters.html",
-                "download_url": table.version.download_url,
+                "download_url": dataset.files_url,
             }
             return render(request, "404.html", context, status=400)
 
