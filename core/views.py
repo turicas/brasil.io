@@ -148,11 +148,11 @@ def dataset_detail(request, slug, tablename=""):
                 "html_code_snippet": "400-csv-without-filters.html",
                 "download_url": table.version.download_url,
             }
-            return render(request, "404.html", context, status=400)
+            return render(request, "4xx.html", context, status=400)
 
         if all_data.count() > settings.CSV_EXPORT_MAX_ROWS:
-            context = {"message": "Max rows exceeded."}
-            return render(request, "404.html", context, status=400)
+            context = {"message": "Max rows exceeded.", "title_4xx": "Oops! Ocorreu um erro:"}
+            return render(request, "4xx.html", context, status=400)
 
         filename = "{}-{}.csv".format(slug, uuid.uuid4().hex)
         pseudo_buffer = Echo()
