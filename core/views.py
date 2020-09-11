@@ -9,12 +9,10 @@ from django.http import Http404, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from core.commands import UpdateTableFileListCommand
 from core.forms import ContactForm, DatasetSearchForm
 from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
 from core.util import cached_http_get_json
-from utils.file_info import human_readable_size
 
 
 class Echo:
@@ -215,19 +213,9 @@ def dataset_tables_files_detail(request, slug):
     tables = dataset.tables
     capture_date = max([t.collect_date for t in tables])
 
-    sha_sums, content = dataset.sha512sums
-    fname = settings.MINIO_DATASET_SHA512SUMS_FILENAME
-    dest_name = f"{dataset.slug}/{fname}"
-    sha512sums_file = UpdateTableFileListCommand.FileListInfo(
-        filename=fname,
-        readable_size=human_readable_size(len(content.encode())),
-        sha512sum=sha_sums,
-        file_url=f"{settings.AWS_S3_ENDPOINT_URL}{settings.MINIO_STORAGE_MEDIA_BUCKET_NAME}/{dest_name}",
-    )
-
     context = {
         "dataset": dataset,
         "capture_date": capture_date,
-        "file_list": dataset.tables_files + [sha512sums_file],
+        "file_list": dataset.all_files,
     }
     return render(request, "tables_files_list.html", context)
