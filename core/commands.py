@@ -15,7 +15,6 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db import transaction
 from django.db.utils import ProgrammingError
-from django.template.loader import get_template
 from django.utils import timezone
 from minio import Minio
 from tqdm import tqdm
@@ -314,13 +313,8 @@ class UpdateTableFileListCommand:
         return sha_sums
 
     def update_list_html(self, files_list):
-        context = {
-            "dataset": self.dataset,
-            "capture_date": self.collect_date,
-            "file_list": files_list,
-        }
-        list_template = get_template("dataset_files_list.html")
-        content = list_template.render(context=context)
+        files_url = f"https://{settings.APP_HOST}{self.dataset.files_url}"
+        content = f'<html><head><meta http-equiv="Refresh" content="0; url=\'{files_url}\'" /></head></html>'
 
         temp_file = NamedTemporaryFile(delete=False, mode="w")
         temp_file.write(content)
