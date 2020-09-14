@@ -130,8 +130,11 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
 
         obj.user = request.user
         if is_new:
-            transaction.on_commit(lambda: new_spreadsheet_imported_signal.send(sender=self, spreadsheet=obj))
+            self._import_spreadsheet(spreadsheet=obj)
         super().save_model(request, obj, form, change)
+
+    def _import_spreadsheet(self, spreadsheet):
+        transaction.on_commit(lambda: new_spreadsheet_imported_signal.send(sender=self, spreadsheet=spreadsheet))
 
     def get_queryset(self, request):
         qs = super().get_queryset(request).select_related("user", "peer_review__user")
