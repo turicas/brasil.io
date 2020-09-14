@@ -10,6 +10,7 @@ from django.shortcuts import render
 from django.templatetags.static import static
 from django.urls import path, reverse
 from django.utils.html import format_html
+from rangefilter.filter import DateRangeFilter
 
 from brazil_data.cities import brazilian_cities_per_state
 from brazil_data.states import STATES
@@ -116,7 +117,7 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
         return list_display
 
     def get_list_filter(self, request):
-        list_filter = [StateFilter, "status", ActiveFilter]
+        list_filter = [("date", DateRangeFilter), StateFilter, "status", ActiveFilter]
         if user_has_covid_19_admin_permissions(request.user):
             list_filter.append("automatically_created")
         return list_filter
