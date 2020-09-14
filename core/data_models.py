@@ -40,6 +40,10 @@ class SociosBrasilEmpresaMixin:
 
 
 class SociosBrasilEmpresaQuerySet(DatasetTableModelQuerySet):
+    dataset = "socios-brasil"
+    table = "empresa"
+    manager_name = "objects"
+
     def branches(self, document):
         """Filtra empresas pelos 8 primeiros dígitos do CNPJ (inclui matriz e filiais)"""
 

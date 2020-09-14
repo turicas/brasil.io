@@ -20,6 +20,7 @@ from rows import fields as rows_fields
 
 from core import dynamic_models
 from core.filters import DynamicModelFilterProcessor
+from utils.classes import subclasses
 from utils.file_info import human_readable_size
 
 DYNAMIC_MODEL_REGISTRY = {}
@@ -66,6 +67,17 @@ class DatasetTableModelMixin:
 
 
 class DatasetTableModelQuerySet(models.QuerySet):
+
+    @classmethod
+    def get_querysets_for_dataset_table(cls, dataset_slug, table_name):
+        querysets = {}
+        for QuerySet in subclasses(cls):
+            dataset = getattr(QuerySet, "dataset", None)
+            table = getattr(QuerySet, "table", None)
+            if dataset == dataset_slug and table == table_name:
+                querysets[getattr(QuerySet, "manager_name", "objects")] = QuerySet
+        return querysets
+
     def search(self, search_query):
         qs = self
         search_fields = self.model.extra["search"]
@@ -367,13 +379,23 @@ class Table(models.Model):
         mixins = [DatasetTableModelMixin]
         meta = {"ordering": ordering, "indexes": indexes, "db_table": db_table}
 
-        # TODO: move this hard-coded mixin/manager injections to maybe a model
-        # proxy
+        dataset_slug = self.dataset.slug
+        table_name = self.name
+
+        # Look for custom QuerySets for this model so we can set custom
+        # managers based on them.
+        # TODO: add flexibility so we can set custom managers instead of
+        # querysets.
+        qs = DatasetTableModelQuerySet.get_querysets_for_dataset_table(dataset_slug, table_name)
+        if qs:
+            for name, QuerySetClass in qs.items():
+                managers[name] = QuerySetClass.as_manager()
+
+        # TODO: move this hard-coded mixin injection to maybe a model proxy
         if self.dataset.slug == "socios-brasil" and self.name == "empresa":
             from core import data_models
 
             mixins.insert(0, data_models.SociosBrasilEmpresaMixin)
-            managers["objects"] = data_models.SociosBrasilEmpresaQuerySet.as_manager()
 
         Model = dynamic_models.create_model_class(
             name=self.model_name, module="core.models", fields=fields, mixins=mixins, meta=meta, managers=managers,
