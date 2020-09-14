@@ -248,6 +248,20 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
 
     def re_run_import_spreadsheet_action(self, request, queryset):
         spreadsheets = queryset.order_by("id")
+        already_deployed_spreadhseets = [str(s) for s in spreadsheets.deployed()]
+        inactive_spreadsheets = [str(s) for s in spreadsheets.filter_inactive()]
+
+        error_msg = ""
+        if not user_has_covid_19_admin_permissions(request.user):
+            error_msg = f"Seu perfil de usuário não tem permissão para executar essa ação."
+        elif already_deployed_spreadhseets:
+            error_msg = f"Não é possível re-importar planilhas Deployed: {already_deployed_spreadhseets}."
+        elif inactive_spreadsheets:
+            error_msg = f"Não é possível importar planilhas Inativas: {inactive_spreadsheets}."
+
+        if error_msg:
+            self.message_user(request, error_msg, level=messages.ERROR)
+            return
 
         for spreadsheet in spreadsheets:
             self._import_spreadsheet(spreadsheet)
