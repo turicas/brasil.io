@@ -117,7 +117,7 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
         return list_display
 
     def get_list_filter(self, request):
-        list_filter = [("date", DateRangeFilter), StateFilter, "status", ActiveFilter]
+        list_filter = [("date", DateRangeFilter), ("created_at", DateRangeFilter), StateFilter, "status", ActiveFilter]
         if user_has_covid_19_admin_permissions(request.user):
             list_filter.append("automatically_created")
         return list_filter
