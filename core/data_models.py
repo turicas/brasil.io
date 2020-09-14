@@ -3,6 +3,8 @@ import re
 from django.db import models
 from django.db.models.expressions import Expression
 
+from core.models import DatasetTableModelQuerySet
+
 REGEXP_NOT_FIELD_NAME = re.compile(".*[^a-zA-Z0-9_].*")
 
 
@@ -37,7 +39,7 @@ class SociosBrasilEmpresaMixin:
         return self.cnpj[:12].endswith("0001")
 
 
-class SociosBrasilEmpresaQuerySet(models.QuerySet):
+class SociosBrasilEmpresaQuerySet(DatasetTableModelQuerySet):
     def branches(self, document):
         """Filtra empresas pelos 8 primeiros dígitos do CNPJ (inclui matriz e filiais)"""
 
