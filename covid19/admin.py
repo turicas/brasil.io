@@ -3,13 +3,14 @@ import io
 from itertools import groupby
 
 from django.conf import settings
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
 from django.templatetags.static import static
 from django.urls import path, reverse
 from django.utils.html import format_html
+from rangefilter.filter import DateRangeFilter
 
 from brazil_data.cities import brazilian_cities_per_state
 from brazil_data.states import STATES
@@ -79,6 +80,7 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
     ordering = ["-created_at"]
     add_form_template = "admin/covid19_add_form.html"
     change_list_template = "admin/covid19_list.html"
+    actions = ["re_run_import_spreadsheet_action"]
 
     def get_urls(self):
         urls = super().get_urls()
@@ -115,7 +117,7 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
         return list_display
 
     def get_list_filter(self, request):
-        list_filter = [StateFilter, "status", ActiveFilter]
+        list_filter = [("date", DateRangeFilter), ("created_at", DateRangeFilter), StateFilter, "status", ActiveFilter]
         if user_has_covid_19_admin_permissions(request.user):
             list_filter.append("automatically_created")
         return list_filter
@@ -130,8 +132,11 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
 
         obj.user = request.user
         if is_new:
-            transaction.on_commit(lambda: new_spreadsheet_imported_signal.send(sender=self, spreadsheet=obj))
+            self._import_spreadsheet(spreadsheet=obj)
         super().save_model(request, obj, form, change)
+
+    def _import_spreadsheet(self, spreadsheet):
+        transaction.on_commit(lambda: new_spreadsheet_imported_signal.send(sender=self, spreadsheet=spreadsheet))
 
     def get_queryset(self, request):
         qs = super().get_queryset(request).select_related("user", "peer_review__user")
@@ -241,6 +246,32 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
         extra_context = extra_context or {}
         extra_context["covid19_admin"] = user_has_covid_19_admin_permissions(request.user)
         return super().changelist_view(request, extra_context)
+
+    def re_run_import_spreadsheet_action(self, request, queryset):
+        spreadsheets = queryset.order_by("id")
+        already_deployed_spreadhseets = [str(s) for s in spreadsheets.deployed()]
+        inactive_spreadsheets = [str(s) for s in spreadsheets.filter_inactive()]
+
+        error_msg = ""
+        if not user_has_covid_19_admin_permissions(request.user):
+            error_msg = "Seu perfil de usuário não tem permissão para executar essa ação."
+        elif already_deployed_spreadhseets:
+            error_msg = f"Não é possível re-importar planilhas Deployed: {already_deployed_spreadhseets}."
+        elif inactive_spreadsheets:
+            error_msg = f"Não é possível importar planilhas Inativas: {inactive_spreadsheets}."
+
+        if error_msg:
+            self.message_user(request, error_msg, level=messages.ERROR)
+            return
+
+        for spreadsheet in spreadsheets:
+            self._import_spreadsheet(spreadsheet)
+
+        imported = [str(s) for s in spreadsheets]
+        msg = f"O processo para importação de planilhas foi disparado para as seguintes planilhas: {imported}."
+        self.message_user(request, msg, level=messages.SUCCESS)
+
+    re_run_import_spreadsheet_action.short_description = "Importar/validar planilhas novamente"
 
 
 admin.site.register(StateSpreadsheet, StateSpreadsheetModelAdmin)
