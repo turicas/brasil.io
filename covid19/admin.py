@@ -3,7 +3,7 @@ import io
 from itertools import groupby
 
 from django.conf import settings
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
@@ -79,6 +79,7 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
     ordering = ["-created_at"]
     add_form_template = "admin/covid19_add_form.html"
     change_list_template = "admin/covid19_list.html"
+    actions = ["re_run_import_spreadsheet_action"]
 
     def get_urls(self):
         urls = super().get_urls()
@@ -244,6 +245,18 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
         extra_context = extra_context or {}
         extra_context["covid19_admin"] = user_has_covid_19_admin_permissions(request.user)
         return super().changelist_view(request, extra_context)
+
+    def re_run_import_spreadsheet_action(self, request, queryset):
+        spreadsheets = queryset.order_by("id")
+
+        for spreadsheet in spreadsheets:
+            self._import_spreadsheet(spreadsheet)
+
+        imported = [str(s) for s in spreadsheets]
+        msg = f"O processo para importação de planilhas foi disparado para as seguintes planilhas: {imported}."
+        self.message_user(request, msg, level=messages.SUCCESS)
+
+    re_run_import_spreadsheet_action.short_description = "Importar/validar planilhas novamente"
 
 
 admin.site.register(StateSpreadsheet, StateSpreadsheetModelAdmin)
