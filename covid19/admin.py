@@ -253,7 +253,7 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
 
         error_msg = ""
         if not user_has_covid_19_admin_permissions(request.user):
-            error_msg = f"Seu perfil de usuário não tem permissão para executar essa ação."
+            error_msg = "Seu perfil de usuário não tem permissão para executar essa ação."
         elif already_deployed_spreadhseets:
             error_msg = f"Não é possível re-importar planilhas Deployed: {already_deployed_spreadhseets}."
         elif inactive_spreadsheets:
