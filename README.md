@@ -41,6 +41,7 @@ Temos alguns documentos com instruções para te ajudar a colaborar com o projet
 
 - Veja [docs/dev-setup.md](docs/dev-setup.md) para configurar o projeto na sua máquina;
 - Veja [docs/import-data.md](docs/import-data.md) para importar os dados dos [diversos datasets](https://brasil.io/datasets/) do Brasil.io;
+- Veja [docs/dev-process.md](docs/dev-process.md) para dicas sobre como trabalhar em cima do código e sobre os padrões do projeto;
 - Veja [CONTRIBUTING.md](CONTRIBUTING.md) para mais detalhes sobre como montar seu pull request;
 
 ## Deployment no Dokku
