@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "markdownx",
     "django_rq",
     "sorl.thumbnail",
+    "rangefilter",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

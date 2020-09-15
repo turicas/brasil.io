@@ -28,8 +28,9 @@ class SampleDatasetDetailView(BaseTestCaseWithSampleDataset):
     def test_enforce_rate_limit_if_flagged(self):
         response = self.client.get(self.url)
         assert 429 == response.status_code
-        self.assertTemplateUsed(response, "403.html")
+        self.assertTemplateUsed(response, "4xx.html")
         assert "Você atingiu o limite de requisições" in response.context["message"]
+        assert 429 == response.context["title_4xx"]
 
 
 class TestDatasetFilesDetailView(BaseTestCaseWithSampleDataset):

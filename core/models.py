@@ -20,7 +20,7 @@ from django.urls import reverse
 from markdownx.models import MarkdownxField
 from rows import fields as rows_fields
 
-from core import data_models, dynamic_models
+from core import dynamic_models
 from core.filters import DynamicModelFilterProcessor
 from utils.file_info import human_readable_size
 
@@ -392,6 +392,8 @@ class Table(models.Model):
         # TODO: move this hard-coded mixin/manager injections to maybe a model
         # proxy
         if self.dataset.slug == "socios-brasil" and self.name == "empresa":
+            from core import data_models
+
             mixins.insert(0, data_models.SociosBrasilEmpresaMixin)
             managers["objects"] = data_models.SociosBrasilEmpresaQuerySet.as_manager()
 

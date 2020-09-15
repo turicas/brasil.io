@@ -13,8 +13,11 @@ def handler_403(request, exception):
     Handler to deal with Ratelimited exception as exepcted. Reference:
     https://django-ratelimit.readthedocs.io/en/stable/usage.html#exceptions
     """
-    context = {}
     status = 403
+    msg = "Oops! Parece que você não tem permissão para acessar essa página."
+
     if isinstance(exception, Ratelimited):
-        status, context["message"] = 429, rate_limit_msg
-    return render(request, "403.html", context, status=status)
+        status, msg = 429, rate_limit_msg
+
+    context = {"title_4xx": status, "message": msg}
+    return render(request, "4xx.html", context, status=status)
