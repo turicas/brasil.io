@@ -1,12 +1,16 @@
+import hashlib
 from collections import OrderedDict
 from unittest.mock import Mock, patch
 
+import pytest
+from django.conf import settings
 from django.test import TestCase
 from model_bakery import baker, seq
 from rows import fields
 
 from core.dynamic_models import DynamicModelMixin
-from core.models import DataTable, Table
+from core.models import Dataset, DataTable, Table, TableFile, Version
+from utils.file_info import human_readable_size
 
 
 class TableModelTests(TestCase):
@@ -173,3 +177,54 @@ class DataTableModelTests(TestCase):
         assert oldest_data_table.active is False
         assert new_data_table.active is False
         assert old_data_table.active is True
+
+
+class DatasetModelTests(TestCase):
+    def setUp(self):
+        self.dataset = baker.make(Dataset)
+        self.version = baker.make(Version, dataset=self.dataset)
+        self.tables = baker.make(Table, dataset=self.dataset, version=self.version, _quantity=2)
+
+    def test_property_list_dataset_table_most_recent_fiels_sorted_by_name(self):
+        table_1, table_2 = self.tables
+        baker.make(TableFile, filename="sample_01.csv", table=table_1)  # old table file
+        new_table_1_file = baker.make(TableFile, filename="sample_02.csv", table=table_1)
+        baker.make(TableFile, filename="csv_data_01.csv", table=table_2)  # old table file
+        new_table_2_file = baker.make(TableFile, filename="csv_data_02.csv", table=table_2)
+
+        table_files = self.dataset.tables_files
+
+        assert 2 == len(table_files)
+        assert new_table_2_file == table_files[0]
+        assert new_table_1_file == table_files[1]
+
+    def test_raise_exception_if_no_table_file_for_a_table(self):
+        baker.make(TableFile, filename="sample_02.csv", table=self.tables[0])  # only one table with file
+        with pytest.raises(TableFile.DoesNotExist):
+            self.dataset.tables_files
+
+    def test_property_to_organize_sha512sums_from_the_dataset_table_files(self):
+        table_file_1 = baker.make(TableFile, filename="sample_02.csv", table=self.tables[0])
+        table_file_2 = baker.make(TableFile, filename="csv_data_02.csv", table=self.tables[1])
+
+        hasher = hashlib.sha512()
+        expected_content = ""
+        for table_file in [table_file_2, table_file_1]:
+            hasher.update(expected_content.encode())
+            expected_content += f"{table_file.sha512sum}  {table_file.filename}\n"
+        expected_url = f"{settings.AWS_S3_ENDPOINT_URL}{settings.MINIO_STORAGE_DATASETS_BUCKET_NAME}/{self.dataset.slug}/{settings.MINIO_DATASET_SHA512SUMS_FILENAME}"
+
+        sha512sums = self.dataset.sha512sums
+        assert settings.MINIO_DATASET_SHA512SUMS_FILENAME == sha512sums.filename
+        assert expected_content == sha512sums.content
+        assert hasher.hexdigest() == sha512sums.sha512sum
+        assert expected_url == sha512sums.file_url
+        assert human_readable_size(len(expected_content.encode())) == sha512sums.readable_size
+
+    def test_property_to_list_all_files_from_a_dataset(self):
+        baker.make(TableFile, filename="sample_02.csv", table=self.tables[0])
+        baker.make(TableFile, filename="csv_data_02.csv", table=self.tables[1])
+
+        expected_files = self.dataset.tables_files + [self.dataset.sha512sums]
+
+        assert expected_files == self.dataset.all_files

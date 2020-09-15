@@ -1,7 +1,7 @@
 import hashlib
 import random
 import string
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from textwrap import dedent
 from urllib.parse import urlparse
 
@@ -9,6 +9,7 @@ import django.contrib.postgres.indexes as pg_indexes
 import django.db.models.indexes as django_indexes
 from cachalot.api import invalidate
 from cached_property import cached_property
+from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
 from django.db import connection, models, transaction
@@ -177,11 +178,19 @@ class Dataset(models.Model):
         return self.get_last_version()
 
     @property
+    def files_url(self):
+        return reverse("core:dataset-files-detail", args=[self.slug])
+
+    @property
     def tables_files(self):
         return sorted([TableFile.objects.get_most_recent_for_table(t) for t in self.tables], key=lambda f: f.filename)
 
     @property
     def sha512sums(self):
+        """
+        Return a TableFile-like object with the SHA512SUMS from all tables
+        """
+        FileInfo = namedtuple("FileInfo", ("filename", "file_url", "readable_size", "sha512sum", "content"))
         sha_sum = hashlib.sha512()
         content = ""
 
@@ -189,7 +198,19 @@ class Dataset(models.Model):
             sha_sum.update(content.encode())
             content += f"{table_file.sha512sum}  {table_file.filename}\n"
 
-        return sha_sum.hexdigest(), content
+        fname = settings.MINIO_DATASET_SHA512SUMS_FILENAME
+        url = f"{settings.AWS_S3_ENDPOINT_URL}{settings.MINIO_STORAGE_DATASETS_BUCKET_NAME}/{self.slug}/{fname}"
+        return FileInfo(
+            filename=fname,
+            file_url=url,
+            readable_size=human_readable_size(len(content.encode())),
+            sha512sum=sha_sum.hexdigest(),
+            content=content,
+        )
+
+    @property
+    def all_files(self):
+        return self.tables_files + [self.sha512sums]
 
     def get_table(self, tablename, allow_hidden=False):
         if allow_hidden:

@@ -3,6 +3,7 @@ import io
 import os
 import socket
 import sys
+from tempfile import NamedTemporaryFile
 
 import requests
 import requests.packages.urllib3.util.connection as urllib3_cn
@@ -88,13 +89,13 @@ class UpdateStateTotalsCommand:
         self.deploy_spreadsheet(only_total_spreadsheet, log_prefix=message)
 
     def new_only_total_spreadsheet(self, state, date, confirmed, deaths):
-        filename = f"/tmp/{state}-{date}.csv"
-        with open(filename, mode="w") as fobj:
-            writer = csv.writer(fobj)
-            writer.writerow(["municipio", "confirmados", "obitos"])
-            writer.writerow(["TOTAL NO ESTADO", str(confirmed), str(deaths)])
+        temp_file = NamedTemporaryFile(delete=False, mode="w", suffix=".csv")
+        writer = csv.writer(temp_file)
+        writer.writerow(["municipio", "confirmados", "obitos"])
+        writer.writerow(["TOTAL NO ESTADO", str(confirmed), str(deaths)])
+        temp_file.close()
 
-        with open(filename, mode="rb") as fobj:
+        with open(temp_file.name, mode="rb") as fobj:
             file_data = fobj.read()
             form = StateSpreadsheetForm(
                 {
@@ -103,15 +104,15 @@ class UpdateStateTotalsCommand:
                     "boletim_urls": settings.COVID_19_STATE_TOTALS_URL,
                     "boletim_notes": NOTES,
                 },
-                {"file": SimpleUploadedFile(filename, file_data),},
+                {"file": SimpleUploadedFile(temp_file.name, file_data),},
                 user=self.user,
             )
             form_valid = form.is_valid()
             if not form_valid:
                 self.debug(f"{state} - ERROR CREATING - Invalid form: {form.errors}")
                 return
-        os.unlink(filename)
 
+        os.remove(temp_file.name)
         return form.save()
 
     def deploy_spreadsheet(self, spreadsheet, log_prefix):
