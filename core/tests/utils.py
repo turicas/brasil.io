@@ -2,7 +2,7 @@ from django.db.utils import ProgrammingError
 from django.test import TestCase
 from model_bakery import baker
 
-from core.models import Dataset, DataTable
+from core.models import Dataset, DataTable, Version
 
 
 class BaseTestCaseWithSampleDataset(TestCase):
@@ -36,7 +36,8 @@ class BaseTestCaseWithSampleDataset(TestCase):
         cls.validate_config()
         Dataset.objects.filter(slug=cls.DATASET_SLUG).delete()
         cls.dataset = baker.make(Dataset, slug=cls.DATASET_SLUG)
-        cls.table = baker.make("core.Table", dataset=cls.dataset, name=cls.TABLE_NAME)
+        cls.version = baker.make(Version, dataset=cls.dataset)
+        cls.table = baker.make("core.Table", dataset=cls.dataset, name=cls.TABLE_NAME, version=cls.version)
         cls.data_table = DataTable.new_data_table(cls.table)
         cls.data_table.activate()
 

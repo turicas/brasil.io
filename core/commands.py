@@ -15,13 +15,11 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db import transaction
 from django.db.utils import ProgrammingError
-from django.template.loader import get_template
 from django.utils import timezone
 from minio import Minio
 from tqdm import tqdm
 
 from core.models import Dataset, DataTable, Field, Table, TableFile
-from utils.file_info import human_readable_size
 from utils.minio import MinioProgress
 
 
@@ -296,35 +294,27 @@ class UpdateTableFileListCommand:
         return self._collect_date or max([t.collect_date for t in self.dataset.tables])
 
     def update_sha512_sums_file(self):
-        sha_sums, content = self.dataset.sha512sums
+        sha_sums = self.dataset.sha512sums
         temp_file = NamedTemporaryFile(delete=False, mode="w")
-        temp_file.write(content)
+        temp_file.write(sha_sums.content)
         temp_file.close()
 
-        fname = settings.MINIO_DATASET_SHA512SUMS_FILENAME
-        dest_name = f"{self.dataset.slug}/{fname}"
-        self.log(f"Uploading {fname}...")
+        self.log(f"Uploading {sha_sums.filename}...")
         progress = MinioProgress()
-        self.minio.fput_object(self.bucket, dest_name, temp_file.name, progress=progress, content_type="text/plain")
-
-        file_info = self.FileListInfo(
-            filename=fname,
-            readable_size=human_readable_size(len(content.encode())),
-            sha512sum=sha_sums,
-            file_url=f"{settings.AWS_S3_ENDPOINT_URL}{self.bucket}/{dest_name}",
+        self.minio.fput_object(
+            self.bucket,
+            urlparse(sha_sums.file_url).path.replace(f"/{settings.MINIO_STORAGE_DATASETS_BUCKET_NAME}/", ""),
+            temp_file.name,
+            progress=progress,
+            content_type="text/plain",
         )
-        os.remove(temp_file.name)
 
-        return file_info
+        os.remove(temp_file.name)
+        return sha_sums
 
     def update_list_html(self, files_list):
-        context = {
-            "dataset": self.dataset,
-            "capture_date": self.collect_date,
-            "file_list": files_list,
-        }
-        list_template = get_template("core/tables_files_list.html")
-        content = list_template.render(context=context)
+        files_url = f"https://{settings.APP_HOST}{self.dataset.files_url}"
+        content = f'<html><head><meta http-equiv="Refresh" content="0; url=\'{files_url}\'" /></head></html>'
 
         temp_file = NamedTemporaryFile(delete=False, mode="w")
         temp_file.write(content)
