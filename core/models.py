@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 import django.contrib.postgres.indexes as pg_indexes
 import django.db.models.indexes as django_indexes
 from cachalot.api import invalidate
+from cached_property import cached_property
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
 from django.db import connection, models, transaction
@@ -20,6 +21,7 @@ from rows import fields as rows_fields
 
 from core import dynamic_models
 from core.filters import DynamicModelFilterProcessor
+from utils.classes import subclasses
 from utils.file_info import human_readable_size
 
 DYNAMIC_MODEL_REGISTRY = {}
@@ -328,6 +330,10 @@ class Table(models.Model):
         parts = full_name.replace("_", "-").replace(" ", "-").split("-")
         return "".join([word.capitalize() for word in parts])
 
+    @cached_property
+    def dynamic_table_config(self):
+        return DynamicTableConfig.get_dynamic_table_customization(self.dataset.slug, self.name)
+
     def get_dynamic_model_managers(self):
         managers = {"objects": DatasetTableModelQuerySet.as_manager()}
 
@@ -406,6 +412,26 @@ class Table(models.Model):
 
     def invalidate_cache(self):
         invalidate(self.db_table)
+
+
+class DynamicTableConfig:
+    """
+    Helper base class used by core.models.Table to fetch for dynamic models' customization
+    """
+
+    @classmethod
+    def get_dynamic_table_customization(cls, dataset_slug, table_name):
+        CustomConfig = None
+        for subclass in subclasses(cls):
+            valid_implementation_conditions = [
+                getattr(subclass, "dataset_slug", None) == dataset_slug,
+                getattr(subclass, "table_name", None) == table_name,
+            ]
+            if all(valid_implementation_conditions):
+                CustomConfig = subclass
+                break
+
+        return None if not CustomConfig else CustomConfig()
 
 
 class FieldQuerySet(models.QuerySet):
