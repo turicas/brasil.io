@@ -45,7 +45,7 @@ class SociosBrasilEmpresaModelTests(BaseTestCaseWithSampleDataset):
         assert self.matriz in branches
         assert self.filial in branches
         assert docroot == branches[0].docroot
-        assert docroot == branches[0].docroot
+        assert docroot == branches[1].docroot
 
     def test_get_headquarter_or_branch_custom_query_method(self):
         document = "45536152000141"
