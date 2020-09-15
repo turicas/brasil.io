@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 import django.contrib.postgres.indexes as pg_indexes
 import django.db.models.indexes as django_indexes
 from cachalot.api import invalidate
+from cached_property import cached_property
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
@@ -21,6 +22,7 @@ from rows import fields as rows_fields
 
 from core import dynamic_models
 from core.filters import DynamicModelFilterProcessor
+from utils.classes import subclasses
 from utils.file_info import human_readable_size
 
 DYNAMIC_MODEL_REGISTRY = {}
@@ -349,6 +351,23 @@ class Table(models.Model):
         parts = full_name.replace("_", "-").replace(" ", "-").split("-")
         return "".join([word.capitalize() for word in parts])
 
+    @cached_property
+    def dynamic_table_config(self):
+        return DynamicTableConfig.get_dynamic_table_customization(self.dataset.slug, self.name)
+
+    def get_dynamic_model_managers(self):
+        managers = {"objects": DatasetTableModelQuerySet.as_manager()}
+
+        if self.dynamic_table_config:
+            managers.update(self.dynamic_table_config.get_model_managers())
+
+        return managers
+
+    def get_dynamic_model_mixins(self):
+        mixins = [DatasetTableModelMixin]
+        custom_mixins = [] if not self.dynamic_table_config else self.dynamic_table_config.get_model_mixins()
+        return custom_mixins + mixins
+
     def get_model(self, cache=True, data_table=None):
         # TODO: the current dynamic model registry is handled by Brasil.IO's
         # code but it needs to be delegated to dynamic_models.
@@ -384,17 +403,9 @@ class Table(models.Model):
                 pg_indexes.GinIndex(name=make_index_name(db_table, "search", ["search_data"]), fields=["search_data"])
             )
 
-        managers = {"objects": DatasetTableModelQuerySet.as_manager()}
-        mixins = [DatasetTableModelMixin]
+        managers = self.get_dynamic_model_managers()
+        mixins = self.get_dynamic_model_mixins()
         meta = {"ordering": ordering, "indexes": indexes, "db_table": db_table}
-
-        # TODO: move this hard-coded mixin/manager injections to maybe a model
-        # proxy
-        if self.dataset.slug == "socios-brasil" and self.name == "empresa":
-            from core import data_models
-
-            mixins.insert(0, data_models.SociosBrasilEmpresaMixin)
-            managers["objects"] = data_models.SociosBrasilEmpresaQuerySet.as_manager()
 
         Model = dynamic_models.create_model_class(
             name=self.model_name, module="core.models", fields=fields, mixins=mixins, meta=meta, managers=managers,
@@ -413,6 +424,37 @@ class Table(models.Model):
 
     def invalidate_cache(self):
         invalidate(self.db_table)
+
+
+class DynamicTableConfig:
+    """
+    Helper base class used by core.models.Table to fetch for dynamic models' customization
+    """
+
+    @classmethod
+    def get_dynamic_table_customization(cls, dataset_slug, table_name):
+        CustomConfig = None
+        for subclass in subclasses(cls):
+            valid_implementation_conditions = [
+                getattr(subclass, "dataset_slug", None) == dataset_slug,
+                getattr(subclass, "table_name", None) == table_name,
+            ]
+            if all(valid_implementation_conditions):
+                CustomConfig = subclass
+                break
+
+        return None if not CustomConfig else CustomConfig()
+
+    @classmethod
+    def get_model(cls):
+        table = Table.objects.for_dataset(cls.dataset_slug).named(cls.table_name)
+        return table.get_model()
+
+    def get_model_mixins(self):
+        return []
+
+    def get_model_managers(self):
+        return {}
 
 
 class FieldQuerySet(models.QuerySet):

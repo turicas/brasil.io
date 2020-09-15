@@ -5,6 +5,7 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
+from core.data_models import EmpresaTableConfig
 from core.models import get_table_model
 
 
@@ -25,7 +26,7 @@ def _get_obj(field, identifier, person_type):
         return Socio.objects.filter(**{field: identifier}).first()
 
     elif person_type == "pessoa-juridica":
-        Empresa = get_table_model("socios-brasil", "empresa")
+        Empresa = EmpresaTableConfig.get_model()
         try:
             return Empresa.objects.get_headquarter_or_branch(numbers_only(identifier))
         except ValueError:

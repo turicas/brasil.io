@@ -7,6 +7,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
+from core.data_models import EmpresaTableConfig
 from core.forms import CompanyGroupsForm, TracePathForm
 from core.models import get_table, get_table_model
 from graphs.serializers import CNPJCompanyGroupsSerializer, PathSerializer
@@ -41,7 +42,7 @@ def redirect_company(from_document, to_document, warn):
 def document_detail(request, document):
     Candidatos = get_table_model("eleicoes-brasil", "candidatos")
     Documents = get_table_model("documentos-brasil", "documents")
-    Empresa = get_table_model("socios-brasil", "empresa")
+    Empresa = EmpresaTableConfig.get_model()
     Holding = get_table_model("socios-brasil", "holding")
     Socio = get_table_model("socios-brasil", "socio")
     FiliadosPartidos = get_table_model("eleicoes-brasil", "filiados")
