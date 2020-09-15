@@ -2,7 +2,7 @@ import pytest
 from django.db import connection
 from model_bakery import baker
 
-from core.data_models import SociosBrasilEmpresaMixin, Substring
+from core.data_models import EmpresaTableConfig, SociosBrasilEmpresaMixin, Substring
 from core.models import Table
 from core.tests.utils import BaseTestCaseWithSampleDataset
 
@@ -56,3 +56,14 @@ class SociosBrasilEmpresaModelTests(BaseTestCaseWithSampleDataset):
         self.filial.delete()
         with pytest.raises(self.Empresa.DoesNotExist):
             self.Empresa.objects.get_headquarter_or_branch(document)
+
+
+class EmpresaTableConfigTest(BaseTestCaseWithSampleDataset):
+    DATASET_SLUG = "socios-brasil"
+    TABLE_NAME = "empresa"
+    FIELDS_KWARGS = [
+        {"name": "cnpj", "options": {"max_length": 14}, "type": "string", "null": False},
+    ]
+
+    def test_can_operate_on_top_of_dynamic_model_from_table_config(self):
+        assert self.TableModel is EmpresaTableConfig.get_model()
