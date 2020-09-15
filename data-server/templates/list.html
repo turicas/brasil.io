@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ dataset }} - {{ list_type }} - Brasil.IO</title>
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://kit.fontawesome.com/1c6ec1bb47.js" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117698282-3"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-117698282-3');
+    </script>
+  </head>
+
+  <body>
+   <nav>
+    <div class="nav-wrapper indigo">
+      <a href="https://brasil.io/" class="brand-logo" title="Ir ao Telegram do Brasil.IO">
+        <img src="https://data.brasil.io/brasilio-static/img/logo/logo_br-io_fundo-escuro.png" style="max-height:40px;margin-left: 20px; margin-top: 10px;" alt="Logo do Brasil.IO">
+      </a>
+    </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <div class="col s12 m12">
+          <h1>{{ list_type }}: dataset {{ dataset }}</h1>
+          <h2>Data de captura: {{ capture_date }}</h2>
+
+          <div class="card horizontal">
+            <div class="card-stacked">
+              <div class="card-content">
+                <div class="card-title">
+                  <i class="fas fa-info-circle"></i>
+                  Colabore!
+                </div>
+                <p>
+                  O <a href="https://brasil.io/" title="Brasil.IO">Brasil.IO</a> tem como
+                  objetivo facilitar o acesso a dados públicos brasileiros. O
+                  projeto é desenvolvido de forma colaborativa, <a
+                    href="https://github.com/turicas/brasil.io">todo o código
+                    está disponível como software livre</a> e os custos são
+                  pagos através de <a href="https://apoia.se/brasilio">uma
+                    campanha de financiamento coletivo</a>. Se você acredita
+                  nos ideais do projeto ou esses dados estão sendo úteis para
+                  você ou sua empresa, considere <a
+                    href="https://apoia.se/brasilio">fazer uma doação</a> ou <a
+                    href="https://brasil.io/colabore">colaborar de outras
+                    formas</a>.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="file-list">
+            Baixe os arquivos:
+            <table class="table">
+              <tr>
+                <th> Arquivo </th>
+                <th> Tamanho </th>
+                <th> SHA512SUM </th>
+              </tr>
+
+              {% for file in file_list %}
+              <tr>
+                <td>
+                  <a href="../{{ file.filename }}" title="Baixar arquivo">{{ file.filename }}</a>
+                </td>
+                <td> {{ file.size }} </td>
+                <td> {{ file.sha512sum }} </td>
+              </tr>
+              {% endfor %}
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
