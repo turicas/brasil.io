@@ -12,7 +12,7 @@
 
 {% block content %}{% localize off %}{% with client_export_csv=True %}
 
-{% include 'contas-gratuitas.html' %}
+{% include 'core/contas-gratuitas.html' %}
 
 <div class="section">
   <h4 title="{% if is_person %}Nome completo{% else %}Razão social{% endif %}">{{ obj.name }}</h4>
@@ -45,7 +45,7 @@
     Total de <b>{{ branches.count }}</b> CNPJ(s).
   </p>
   {% with table_id='branches' data=branches fields=branches_fields caption='branches-'|add:obj.document %}
-    {% include 'data-table.html' %}
+    {% include 'core/data-table.html' %}
   {% endwith %}
   {% endif %}
 
@@ -59,7 +59,7 @@
     Total de <b>{{ partners_data.count }}</b> sócios.
   </p>
   {% with table_id='partners' data=partners_data fields=partners_fields caption='quadro-societario-'|add:obj.document %}
-    {% include 'data-table.html' %}
+    {% include 'core/data-table.html' %}
   {% endwith %}
   {% endif %}
 
@@ -73,7 +73,7 @@
     podem aparecer homônimos nos resultados.
   </p>
   {% with table_id='filiations' data=filiations_data fields=filiations_fields caption='filiacoes-'|add:obj.document %}
-    {% include 'data-table.html' %}
+    {% include 'core/data-table.html' %}
   {% endwith %}
   {% endif %}
 
@@ -84,7 +84,7 @@
     a esse CPF.
   </p>
   {% with table_id='applications' data=applications_data fields=applications_fields caption='candidaturas-'|add:obj.document %}
-    {% include 'data-table.html' %}
+    {% include 'core/data-table.html' %}
   {% endwith %}
   {% endif %}
 
@@ -101,7 +101,7 @@
     {% endif %}
   </p>
   {% with table_id='companies' data=companies_data fields=companies_fields caption='sociedades-'|add:obj.document %}
-    {% include 'data-table.html' %}
+    {% include 'core/data-table.html' %}
   {% endwith %}
   {% endif %}
 
@@ -113,7 +113,7 @@
     Foram identificadas <b>{{ camara_spending_data.count }}</b> notas.
   </p>
   {% with table_id='camara-spending' data=camara_spending_data fields=camara_spending_fields caption='gastos-deputados-'|add:obj.document %}
-    {% include 'data-table.html' %}
+    {% include 'core/data-table.html' %}
   {% endwith %}
   {% endif %}
 
@@ -125,7 +125,7 @@
     Foram identificadas <b>{{ federal_spending_data.count }}</b> notas.
   </p>
   {% with table_id='federal-spending' data=federal_spending_data fields=federal_spending_fields caption='gastos-diretos-'|add:obj.document %}
-    {% include 'data-table.html' %}
+    {% include 'core/data-table.html' %}
   {% endwith %}
   {% endif %}
 

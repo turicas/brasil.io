@@ -323,7 +323,7 @@ class UpdateTableFileListCommand:
             "capture_date": self.collect_date,
             "file_list": files_list,
         }
-        list_template = get_template("tables_files_list.html")
+        list_template = get_template("core/tables_files_list.html")
         content = list_template.render(context=context)
 
         temp_file = NamedTemporaryFile(delete=False, mode="w")

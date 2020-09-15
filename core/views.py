@@ -51,7 +51,7 @@ def contact(request):
         context = {"message": "Invalid HTTP method.", "title_4xx": "Oops! Ocorreu um erro:"}
         return render(request, "4xx.html", context, status=405)
 
-    return render(request, "contact.html", {"form": form, "sent": sent})
+    return render(request, "core/contact.html", {"form": form, "sent": sent})
 
 
 def queryset_to_csv(data, fields):
@@ -82,7 +82,7 @@ def donate(request):
 
 def home(request):
     context = {"datasets": Dataset.objects.filter(show=True).order_by("?")[:6]}
-    return render(request, "home.html", context)
+    return render(request, "core/home.html", context)
 
 
 def dataset_list(request):
@@ -93,7 +93,7 @@ def dataset_list(request):
         for term in search_str.split(" "):
             q &= Q(Q(description__icontains=term) | Q(name__icontains=term))
     context = {"datasets": Dataset.objects.filter(q).order_by("name"), "form": form}
-    return render(request, "dataset-list.html", context)
+    return render(request, "core/dataset-list.html", context)
 
 
 def dataset_detail(request, slug, tablename=""):
@@ -145,7 +145,7 @@ def dataset_detail(request, slug, tablename=""):
             # User trying to download a CSV without custom filters or invalid
             # user-agent specified.
             context = {
-                "html_code_snippet": "400-csv-without-filters.html",
+                "html_code_snippet": "core/400-csv-without-filters.html",
                 "download_url": table.version.download_url,
             }
             return render(request, "4xx.html", context, status=400)
@@ -185,25 +185,25 @@ def dataset_detail(request, slug, tablename=""):
         "total_count": all_data.count(),
         "version": version,
     }
-    return render(request, "dataset-detail.html", context)
+    return render(request, "core/dataset-detail.html", context)
 
 
 def dataset_suggestion(request):
-    return render(request, "dataset-suggestion.html", {})
+    return render(request, "core/dataset-suggestion.html", {})
 
 
 def manifesto(request):
-    return render(request, "manifesto.html", {})
+    return render(request, "core/manifesto.html", {})
 
 
 def collaborate(request):
-    return render(request, "collaborate.html", {})
+    return render(request, "core/collaborate.html", {})
 
 
 def contributors(request):
     url = "https://data.brasil.io/meta/contribuidores.json"
     data = cached_http_get_json(url, 5)
-    return render(request, "contributors.html", {"contributors": data})
+    return render(request, "core/contributors.html", {"contributors": data})
 
 
 def dataset_tables_files_detail(request, slug):
@@ -230,4 +230,4 @@ def dataset_tables_files_detail(request, slug):
         "capture_date": capture_date,
         "file_list": dataset.tables_files + [sha512sums_file],
     }
-    return render(request, "tables_files_list.html", context)
+    return render(request, "core/tables_files_list.html", context)
