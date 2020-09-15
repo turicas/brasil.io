@@ -45,7 +45,7 @@ Temos alguns documentos com instruções para te ajudar a colaborar com o projet
 
 ## Deployment no Dokku
 
-Veja [deploy-dokku.md](deploy-dokku.md).
+Veja [docs/deploy-dokku.md](docs/deploy-dokku.md).
 
 
 ### Licença
