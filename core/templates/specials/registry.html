@@ -2,7 +2,7 @@
 {% block title %}Registro Nacional - Busca - Brasil.IO{% endblock %}
 {% block content %}
 
-{% include 'contas-gratuitas.html' %}
+{% include 'core/contas-gratuitas.html' %}
 
 <div class="section">
   <h4>Registro Nacional</h4>
@@ -28,7 +28,7 @@
     físicas e jurídicas){% if data.count > 500 %}, mostrando os <b>500</b>
     primeiros).{% else %}.{% endif %}
 
-    {% include 'data-table.html' %}
+    {% include 'core/data-table.html' %}
 
     {% endif %}
 

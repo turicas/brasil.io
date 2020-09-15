@@ -21,7 +21,7 @@ class SampleDatasetDetailView(BaseTestCaseWithSampleDataset):
     def test_display_dataset_table_data_with_expected_template(self):
         response = self.client.get(self.url)
         assert 200 == response.status_code
-        self.assertTemplateUsed(response, "dataset-detail.html")
+        self.assertTemplateUsed(response, "core/dataset-detail.html")
 
     @override_settings(RATELIMIT_ENABLE=True)
     @override_settings(RATELIMIT_RATE="0/s")
@@ -48,7 +48,7 @@ class TestDatasetFilesDetailView(BaseTestCaseWithSampleDataset):
         response = self.client.get(self.url)
 
         assert 200 == response.status_code
-        self.assertTemplateUsed(response, "dataset_files_list.html")
+        self.assertTemplateUsed(response, "core/dataset_files_list.html")
         assert self.dataset == response.context["dataset"]
         assert self.table.version.collected_at == response.context["capture_date"]
         assert self.dataset.all_files == response.context["file_list"]

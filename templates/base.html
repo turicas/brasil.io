@@ -45,13 +45,13 @@
       </a>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger" title="Menu"><i class="material-icons">menu</i></a>
       <ul class="right hide-on-med-and-down">
-        {% include 'menu.html' with id_prefix='desktop' %}
+        {% include 'core/menu.html' with id_prefix='desktop' %}
       </ul>
     </div>
   </nav>
 
   <ul class="sidenav" id="mobile-demo">
-    {% include 'menu.html' with id_prefix='mobile'%}
+    {% include 'core/menu.html' with id_prefix='mobile'%}
   </ul>
 
   {% block top %}{% endblock %}
