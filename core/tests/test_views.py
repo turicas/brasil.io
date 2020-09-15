@@ -19,7 +19,7 @@ class SampleDatasetDetailView(BaseTestCaseWithSampleDataset):
     def test_display_dataset_table_data_with_expected_template(self):
         response = self.client.get(self.url)
         assert 200 == response.status_code
-        self.assertTemplateUsed(response, "dataset-detail.html")
+        self.assertTemplateUsed(response, "core/dataset-detail.html")
 
     @override_settings(RATELIMIT_ENABLE=True)
     @override_settings(RATELIMIT_RATE="0/s")

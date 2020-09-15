@@ -4,6 +4,9 @@ lint:
 	black . --exclude "docker" -l 120
 	flake8
 
+test:
+	pytest
+
 clear_cache:
 	python manage.py clear_cache
 
