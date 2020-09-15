@@ -447,7 +447,8 @@ class DynamicTableConfig:
 
     @classmethod
     def get_model(cls):
-        table = Table.objects.for_dataset(cls.dataset_slug).named(cls.table_name)
+        # TODO add flag to with_hidden
+        table = Table.with_hidden.for_dataset(cls.dataset_slug).named(cls.table_name)
         return table.get_model()
 
     def get_model_mixins(self):
