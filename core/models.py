@@ -328,6 +328,28 @@ class Table(models.Model):
         parts = full_name.replace("_", "-").replace(" ", "-").split("-")
         return "".join([word.capitalize() for word in parts])
 
+    def get_dynamic_model_managers(self):
+        managers = {"objects": DatasetTableModelQuerySet.as_manager()}
+
+        # TODO: move this hard-coded mixin/manager injections to maybe a model
+        # proxy
+        if self.dataset.slug == "socios-brasil" and self.name == "empresa":
+            from core import data_models
+            managers["objects"] = data_models.SociosBrasilEmpresaQuerySet.as_manager()
+
+        return managers
+
+    def get_dynamic_model_mixins(self):
+        mixins = [DatasetTableModelMixin]
+
+        # TODO: move this hard-coded mixin/manager injections to maybe a model
+        # proxy
+        if self.dataset.slug == "socios-brasil" and self.name == "empresa":
+            from core import data_models
+            mixins.insert(0, data_models.SociosBrasilEmpresaMixin)
+
+        return mixins
+
     def get_model(self, cache=True, data_table=None):
         # TODO: the current dynamic model registry is handled by Brasil.IO's
         # code but it needs to be delegated to dynamic_models.
@@ -363,17 +385,9 @@ class Table(models.Model):
                 pg_indexes.GinIndex(name=make_index_name(db_table, "search", ["search_data"]), fields=["search_data"])
             )
 
-        managers = {"objects": DatasetTableModelQuerySet.as_manager()}
-        mixins = [DatasetTableModelMixin]
+        managers = self.get_dynamic_model_managers()
+        mixins = self.get_dynamic_model_mixins()
         meta = {"ordering": ordering, "indexes": indexes, "db_table": db_table}
-
-        # TODO: move this hard-coded mixin/manager injections to maybe a model
-        # proxy
-        if self.dataset.slug == "socios-brasil" and self.name == "empresa":
-            from core import data_models
-
-            mixins.insert(0, data_models.SociosBrasilEmpresaMixin)
-            managers["objects"] = data_models.SociosBrasilEmpresaQuerySet.as_manager()
 
         Model = dynamic_models.create_model_class(
             name=self.model_name, module="core.models", fields=fields, mixins=mixins, meta=meta, managers=managers,
