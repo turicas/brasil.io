@@ -19,6 +19,7 @@ class SociosBrasilEmpresaModelTests(BaseTestCaseWithSampleDataset):
     TABLE_NAME = "empresa"
     FIELDS_KWARGS = [
         {"name": "cnpj", "options": {"max_length": 14}, "type": "string", "null": False},
+        {"name": "razao_social", "type": "text", "null": False},
     ]
 
     def setUp(self):
@@ -56,6 +57,12 @@ class SociosBrasilEmpresaModelTests(BaseTestCaseWithSampleDataset):
         self.filial.delete()
         with pytest.raises(self.Empresa.DoesNotExist):
             self.Empresa.objects.get_headquarter_or_branch(document)
+
+    def test_empresa_has_a_name_property(self):
+        assert self.matriz.razao_social == self.matriz.name
+        # defaults to CNPJ if no data
+        self.matriz.razao_social = ""
+        assert self.matriz.cnpj == self.matriz.name
 
 
 class EmpresaTableConfigTest(BaseTestCaseWithSampleDataset):

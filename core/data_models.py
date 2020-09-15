@@ -38,6 +38,10 @@ class SociosBrasilEmpresaMixin:
     def is_headquarter(self):
         return self.cnpj[:12].endswith("0001")
 
+    @property
+    def name(self):
+        return self.razao_social if self.razao_social else self.cnpj
+
 
 class SociosBrasilEmpresaQuerySet(DatasetTableModelQuerySet):
     def branches(self, document):
