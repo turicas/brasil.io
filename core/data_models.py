@@ -3,7 +3,7 @@ import re
 from django.db import models
 from django.db.models.expressions import Expression
 
-from core.models import DatasetTableModelQuerySet
+from core.models import DatasetTableModelQuerySet, DynamicTableConfig
 
 REGEXP_NOT_FIELD_NAME = re.compile(".*[^a-zA-Z0-9_].*")
 
@@ -74,3 +74,14 @@ class SociosBrasilEmpresaQuerySet(DatasetTableModelQuerySet):
                         break
 
         return obj
+
+
+class EmpresaTableConfig(DynamicTableConfig):
+    dataset_slug = "socios-brasil"
+    table_name = "empresa"
+
+    def get_model_mixins(self):
+        return [SociosBrasilEmpresaMixin]
+
+    def get_model_managers(self):
+        return {"objects": SociosBrasilEmpresaQuerySet.as_manager()}

@@ -1,9 +1,8 @@
 import pytest
+from django.db import connection
 from model_bakery import baker
 
-from django.db import connection
-
-from core.data_models import Substring, SociosBrasilEmpresaMixin
+from core.data_models import SociosBrasilEmpresaMixin, Substring
 from core.models import Table
 from core.tests.utils import BaseTestCaseWithSampleDataset
 
