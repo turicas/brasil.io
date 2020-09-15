@@ -8,7 +8,6 @@ from urllib.parse import urlparse
 import django.contrib.postgres.indexes as pg_indexes
 import django.db.models.indexes as django_indexes
 from cachalot.api import invalidate
-from cached_property import cached_property
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
@@ -184,7 +183,7 @@ class Dataset(models.Model):
     def tables_files(self):
         return sorted([TableFile.objects.get_most_recent_for_table(t) for t in self.tables], key=lambda f: f.filename)
 
-    @cached_property
+    @property
     def sha512sums(self):
         """
         Return a TableFile-like object with the SHA512SUMS from all tables
