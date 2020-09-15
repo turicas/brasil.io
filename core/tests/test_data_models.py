@@ -20,6 +20,7 @@ class SociosBrasilEmpresaModelTests(BaseTestCaseWithSampleDataset):
     FIELDS_KWARGS = [
         {"name": "cnpj", "options": {"max_length": 14}, "type": "string", "null": False},
         {"name": "razao_social", "type": "text", "null": False},
+        {"name": "nome_fantasia", "type": "text", "null": False},
     ]
 
     def setUp(self):
@@ -60,8 +61,11 @@ class SociosBrasilEmpresaModelTests(BaseTestCaseWithSampleDataset):
 
     def test_empresa_has_a_name_property(self):
         assert self.matriz.razao_social == self.matriz.name
-        # defaults to CNPJ if no data
-        self.matriz.razao_social = ""
+        # defaults to nome_fantasia if no razao_social
+        self.matriz.razao_social = " "
+        assert self.matriz.nome_fantasia == self.matriz.name
+        # defaults to cnpj if no razao_social and nome_fantasia
+        self.matriz.nome_fantasia = " "
         assert self.matriz.cnpj == self.matriz.name
 
 

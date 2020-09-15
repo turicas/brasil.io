@@ -40,7 +40,11 @@ class SociosBrasilEmpresaMixin:
 
     @property
     def name(self):
-        return self.razao_social if self.razao_social else self.cnpj
+        keys_to_try = ("razao_social", "nome_fantasia", "cnpj")
+        for key in keys_to_try:
+            value = str(getattr(self, key, None) or "").strip()
+            if value:
+                return value
 
 
 class SociosBrasilEmpresaQuerySet(DatasetTableModelQuerySet):
