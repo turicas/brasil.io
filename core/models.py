@@ -337,24 +337,15 @@ class Table(models.Model):
     def get_dynamic_model_managers(self):
         managers = {"objects": DatasetTableModelQuerySet.as_manager()}
 
-        # TODO: move this hard-coded mixin/manager injections to maybe a model
-        # proxy
-        if self.dataset.slug == "socios-brasil" and self.name == "empresa":
-            from core import data_models
-            managers["objects"] = data_models.SociosBrasilEmpresaQuerySet.as_manager()
+        if self.dynamic_table_config:
+            managers.update(self.dynamic_table_config.get_model_managers())
 
         return managers
 
     def get_dynamic_model_mixins(self):
         mixins = [DatasetTableModelMixin]
-
-        # TODO: move this hard-coded mixin/manager injections to maybe a model
-        # proxy
-        if self.dataset.slug == "socios-brasil" and self.name == "empresa":
-            from core import data_models
-            mixins.insert(0, data_models.SociosBrasilEmpresaMixin)
-
-        return mixins
+        custom_mixins = [] if not self.dynamic_table_config else self.dynamic_table_config.get_model_mixins()
+        return custom_mixins + mixins
 
     def get_model(self, cache=True, data_table=None):
         # TODO: the current dynamic model registry is handled by Brasil.IO's
@@ -432,6 +423,12 @@ class DynamicTableConfig:
                 break
 
         return None if not CustomConfig else CustomConfig()
+
+    def get_model_mixins(self):
+        return []
+
+    def get_model_managers(self):
+        return {}
 
 
 class FieldQuerySet(models.QuerySet):
