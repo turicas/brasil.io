@@ -19,5 +19,16 @@ def handler_403(request, exception):
     if isinstance(exception, Ratelimited):
         status, msg = 429, rate_limit_msg
 
+        # TODO: DISCLAIMER! This is a technique to slow down attackers: we make
+        # them use bandwidth (so attacking the website becomes expensive). This
+        # will add from 1MB to 100MB of garbage inside the HTML as a comment;
+        # since the data is random, gzip won't help the attacker here.
+        import base64
+        import os
+        import random
+
+        data = base64.b64encode(os.urandom(random.randint(1, 10) * 1024 * 1024)).decode("ascii")
+        msg += "<!-- " + data + " -->"
+
     context = {"title_4xx": status, "message": msg}
     return render(request, "4xx.html", context, status=status)
