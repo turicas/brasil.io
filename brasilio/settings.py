@@ -13,7 +13,7 @@ environ.Env.read_env(".env")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS", default="").split(",")
 APP_HOST = env("APP_HOST", default="brasil.io")
 BLOCKED_AGENTS = env.list("BLOCKED_AGENTS", default=[])
-BLOCKED_WEB_AGENTS = env.list("BLOCKED_WEB_AGENTS", default=[])
+BLOCKED_WEB_AGENTS = [a.lower() for a in env.list("BLOCKED_WEB_AGENTS", default=[])]
 BASE_DIR = root()
 DEBUG = env("DEBUG")
 PRODUCTION = env("PRODUCTION", bool)

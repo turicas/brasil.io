@@ -36,9 +36,8 @@ class BrasilioSecurityMiddleware(SecurityMiddleware):
     def process_request(self, request):
         # TODO: DISCLAIMER!!! THIS IS A TEMPORARY HACK TO ESCAPE FROM CURRENT "DDOS ATTACK"
         # WE MUST IMPLEMENT RATE LIMIT CONTROL IN NGINX SO WE DON'T HAVE TO RELY ON DJANGO TO DO THAT
-        agent = request.META.get("HTTP_USER_AGENT", "")
-        blocked_web_agents = [a.lower() for a in settings.BLOCKED_WEB_AGENTS]
-        if blocked_web_agents and agent.lower() in blocked_web_agents:
+        agent = request.META.get("HTTP_USER_AGENT", "").lower().strip()
+        if not agent or agent in settings.BLOCKED_WEB_AGENTS:
             import json
             from django_redis import get_redis_connection
 
