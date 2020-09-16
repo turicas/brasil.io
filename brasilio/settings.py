@@ -13,6 +13,7 @@ environ.Env.read_env(".env")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS", default="").split(",")
 APP_HOST = env("APP_HOST", default="brasil.io")
 BLOCKED_AGENTS = env.list("BLOCKED_AGENTS", default=[])
+BLOCKED_WEB_AGENTS = env.list("BLOCKED_WEB_AGENTS", default=[])
 BASE_DIR = root()
 DEBUG = env("DEBUG")
 PRODUCTION = env("PRODUCTION", bool)
@@ -49,7 +50,7 @@ INSTALLED_APPS = [
     "rangefilter",
 ]
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
+    "core.middlewares.BrasilioSecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
