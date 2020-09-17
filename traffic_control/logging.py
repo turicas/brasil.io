@@ -13,6 +13,7 @@ def log_blocked_request(request, response_status_code):
         "headers": list(request.headers.items()),
         "response_status_code": response_status_code,
         "user_id": getattr(user, "id", None),
+        "http": {key: value for key, value in request.META.items() if key.lower().startswith("http_")},
     }
     if settings.RQ_BLOCKED_REQUESTS_LIST:
         conn = get_redis_connection("default")
