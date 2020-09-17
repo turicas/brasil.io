@@ -24,8 +24,19 @@ def handler_403(request, exception):
         # will add from 1MB to 100MB of garbage inside the HTML as a comment;
         # since the data is random, gzip won't help the attacker here.
         import base64
+        import json
         import os
         import random
+        from django_redis import get_redis_connection
+
+        conn = get_redis_connection("default")
+
+        request_data = {
+            "query_string": list(request.GET.items()),
+            "path": request.path,
+            "headers": list(request.headers.items()),
+        }
+        conn.lpush("blocked", json.dumps(request_data))
 
         data = base64.b64encode(os.urandom(random.randint(1, 10) * 1024 * 1024)).decode("ascii")
         msg += "<!-- " + data + " -->"
