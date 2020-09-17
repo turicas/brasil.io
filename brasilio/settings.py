@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "brasilio_auth",
     "covid19.apps.Covid19Config",
     "dashboard",
+    "traffic_control",
     # Third-party apps
     "cachalot",
     "captcha",
