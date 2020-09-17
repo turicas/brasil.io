@@ -23,9 +23,9 @@ class BlockedRequest(models.Model):
         obj.user_agent = headers.get("user-agent")
         obj.source_ip = (
             headers.get("cf-connecting-ip", "").strip()
-            or headers.get("x-forwarded-for", "").strip()
-            or request_data.get("http", {}).get("remote-addr", "").strip()
-            or None
+            or headers.get("x-forwarded-for", "").strip()  # noqa
+            or request_data.get("http", {}).get("remote-addr", "").strip()  # noqa
+            or None  # noqa
         )
         obj.status_code = request_data.get("response_status_code", 1)
 
