@@ -23,5 +23,5 @@ class Command(BaseCommand):
         progress.close()
 
         print(f"Bulk inserting {len(all_requests)} entries")
-        BlockedRequest.objects.bulk_create([BlockedRequest(request_data=req) for req in all_requests])
+        BlockedRequest.objects.bulk_create([BlockedRequest.from_request_data(request_data=req) for req in all_requests])
         print("Done")
