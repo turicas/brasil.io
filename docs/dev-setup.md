@@ -2,47 +2,69 @@
 
 Nesta página você encontrará informações sobre como preparar o seu ambiente local para conseguir rodar o projeto, importar dados, executar os testes e poder começar a contribuir no código do Brasil.io.
 
-Há duas formas de rodar o projeto em sua máquina, uma utilizando o PostgreSQL
-como um container Docker e outra utilizando o PostgreSQL rodando diretamente
-em sua máquina. Aqui você vai encontrar o processo par ambas as formas.
+## Passos gerais
 
-Primeiramente, certifique-se de que você tenha instalados:
+1. Copie o projeto para o seu usuário. Na página do repositório (<https://github.com/turicas/brasil.io>), use o botão "Fork", no canto superior direito
+
+2. Certifique-se de que você tenha instalados:
 
 - git
 - [pyenv](https://github.com/pyenv/pyenv) com
-  [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv) e Python 3.6.4
+  [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv) e Python 3.7.9
 
-### Configuração usando Docker
-
-Certifiques-e de que você tenha instalado o [docker](https://www.docker.com/)
-e em seguida clone o repositório:
+3. Clone seu repositório na máquina em que for trabalhar:
 
 ```bash
 # Clonar o repositório:
-git clone git@github.com:turicas/brasil.io.git
+git clone https://github.com/<seu-usuario-github>/brasil.io.git
 ```
 
-Siga os passos:
+4. Há duas formas de rodar o projeto em sua máquina, uma utilizando o PostgreSQL como um container Docker e outra utilizando o PostgreSQL rodando diretamente em sua máquina. Aqui você vai encontrar o processo para ambas as formas.
+
+### Configuração usando Docker
+
+1. Certifique-se de que você tenha instalado o [docker](https://www.docker.com/).
+
+Esse exemplo usa o script em get.docker.com para instalar a última versão do Docker Engine - Community no Linux.
+
+Aviso: Sempre examine scripts baixados da internet antes de rodá-los localmente.
 
 ```bash
-# Instale o Python 3.6.4 usando o pyenv:
-pyenv install 3.6.4
+
+# Para instalar o docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+# Para permitir seu usuário rodar comandos docker sem "sudo"
+sudo usermod -aG docker $USER
+
+```
+
+Lembre-se de sair do terminal e entrar novamente, para que produza o efeito desejado!
+
+2. Entre na pasta brasil.io e siga os passos:
+
+```bash
+
+cd brasil.io
+
+# Instale o Python 3.7.9 usando o pyenv:
+pyenv install 3.7.9
 
 # Criar um virtualenv:
-pyenv virtualenv 3.6.4 brasil.io
+pyenv virtualenv 3.7.9 brasil.io
 
 # Copie o arquivo de env de exemplo e edite o .env de acordo com suas preferências
 cp env.example .env
 
-# Criar containers e ativar o virtualenv
-cd brasil.io
+# Ativar o virtualenv
 source .activate
 
 # Instalar dependências
 pip install -r requirements.txt
 
 # Iniciar os containers (bancos de dados, e-mail)
-docker-compose up
+docker-compose up -d
 
 # Criar schema e popular base de dados
 python manage.py migrate
@@ -54,14 +76,7 @@ python manage.py runserver
 
 ### Configuração sem usar o Docker
 
-Certifiques-e de que você tenha instalado o [PostgreSQL](https://www.postgresql.org/)
-e em seguida clone o repositório:
-
-```bash
-# Clonar o repositório:
-git clone git@github.com:turicas/brasil.io.git
-
-```
+1. Certifiques-e de que você tenha instalado o [PostgreSQL](https://www.postgresql.org/)
 
 Após instalar o PostgreSQL crie o banco de dados que será utilizado pelo
 projeto. Como o docker não está sendo utilizado será necessário comentar
@@ -78,11 +93,11 @@ fi
 e siga os passos:
 
 ```bash
-# Instale o Python 3.6.4 usando o pyenv:
-pyenv install 3.6.4
+# Instale o Python 3.7.9 usando o pyenv:
+pyenv install 3.7.9
 
 # Criar um virtualenv:
-pyenv virtualenv 3.6.4 brasil.io
+pyenv virtualenv 3.7.9 brasil.io
 
 # Modifique o arquivo .env para as configurações do seu banco de dados
 # Caso você use as configurações padrões, o arquivo será parecido com:
