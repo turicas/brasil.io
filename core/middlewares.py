@@ -30,14 +30,3 @@ class NotLoggedUserFetchFromCacheMiddleware(FetchFromCacheMiddleware):
             req_info = resolve(request.path)
             if not getattr(req_info.func, DISABLE_CACHE_ATTR, False):
                 return super().process_request(request)
-
-
-class BrasilioSecurityMiddleware(SecurityMiddleware):
-    def process_request(self, request):
-        # TODO: DISCLAIMER!!! THIS IS A TEMPORARY HACK TO ESCAPE FROM CURRENT "DDOS ATTACK"
-        # WE MUST IMPLEMENT RATE LIMIT CONTROL IN NGINX SO WE DON'T HAVE TO RELY ON DJANGO TO DO THAT
-        agent = request.META.get("HTTP_USER_AGENT", "").lower().strip()
-        if not agent or agent in settings.BLOCKED_WEB_AGENTS:
-            raise Ratelimited()
-
-        return super().process_request(request)

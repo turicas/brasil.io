@@ -1,5 +1,10 @@
+import base64
+import os
+import random
+
 from django.shortcuts import render
 from ratelimit.exceptions import Ratelimited
+from traffic_control.logging import log_blocked_request
 
 rate_limit_msg = """
 <p>Você atingiu o limite de requisições e, por isso, essa requisição foi bloqueada. Caso você precise acessar várias páginas de um dataset, por favor, baixe o dataset completo em vez de percorrer várias páginas na interface (o link para baixar o arquivo completo encontra-se na <a href="https://brasil.io/datasets/">página do dataset</a>).</p>
@@ -19,28 +24,8 @@ def handler_403(request, exception):
     if isinstance(exception, Ratelimited):
         status, msg = 429, rate_limit_msg
 
-        # TODO: DISCLAIMER! This is a technique to slow down attackers: we make
-        # them use bandwidth (so attacking the website becomes expensive). This
-        # will add from 1MB to 100MB of garbage inside the HTML as a comment;
-        # since the data is random, gzip won't help the attacker here.
-        import base64
-        import json
-        import os
-        import random
-        from django_redis import get_redis_connection
-
-        conn = get_redis_connection("default")
-
-        request_data = {
-            "query_string": list(request.GET.items()),
-            "path": request.path,
-            "headers": list(request.headers.items()),
-            "http": {key: value for key, value in request.META.items() if key.lower().startswith("http_")},
-        }
-        conn.lpush("blocked", json.dumps(request_data))
-
-        data = base64.b64encode(os.urandom(random.randint(1, 10) * 1024 * 1024)).decode("ascii")
-        msg += "<!-- " + data + " -->"
-
+    log_blocked_request(request, 429)
+    data = base64.b64encode(os.urandom(random.randint(1, 10) * 1024 * 1024)).decode("ascii")
+    msg += "<!-- " + data + " -->"
     context = {"title_4xx": status, "message": msg}
     return render(request, "4xx.html", context, status=status)

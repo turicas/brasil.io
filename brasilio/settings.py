@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "brasilio_auth",
     "covid19.apps.Covid19Config",
     "dashboard",
+    "traffic_control",
     # Third-party apps
     "cachalot",
     "captcha",
@@ -50,7 +51,8 @@ INSTALLED_APPS = [
     "rangefilter",
 ]
 MIDDLEWARE = [
-    "core.middlewares.BrasilioSecurityMiddleware",
+    "traffic_control.middlewares.block_suspicious_requests",
+    "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -244,6 +246,7 @@ RQ_QUEUES = {"default": {"URL": REDIS_URL, "DEFAULT_TIMEOUT": 500,}}
 RQ = {
     "DEFAULT_RESULT_TTL": 60 * 60 * 24,  # 24-hours
 }
+RQ_BLOCKED_REQUESTS_LIST = env("RQ_BLOCKED_REQUESTS_LIST")
 
 if not DEBUG:
     RQ_QUEUES["default"]["WORKER_CLASS"] = "brasilio.worker.SentryAwareWorker"
