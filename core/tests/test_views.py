@@ -66,13 +66,15 @@ class TestDatasetFilesDetailView(BaseTestCaseWithSampleDataset):
         response = self.client.get(self.url)
         assert 404 == response.status_code
 
-    def test_404_if_dataset_without_files(self):
+    def test_return_empty_list_if_no_visible_table(self):
         #  If the table is hidden, it can't be seen by the view under test
         self.table.hidden = True
         self.table.save()
 
         response = self.client.get(self.url)
 
-        assert 404 == response.status_code
-        self.table.hidden = False
-        self.table.save()
+        assert 200 == response.status_code
+        self.assertTemplateUsed(response, "core/dataset_files_list.html")
+        assert self.dataset == response.context["dataset"]
+        assert response.context["capture_date"] is None
+        assert [] == response.context["file_list"]
