@@ -25,7 +25,9 @@
   <div class="row">
     <div class="col s12 m12">
       <h1>dataset: dataset {{ dataset.slug }}</h1>
+      {% if capture_date %}
       <h2>Data de captura: {{ capture_date|date:"Y-m-d" }}</h2>
+      {% endif %}
 
       <div class="card horizontal">
         <div class="card-stacked">
