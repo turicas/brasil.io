@@ -212,11 +212,15 @@ def dataset_files_detail(request, slug):
     except ObjectDoesNotExist:
         return redirect(dataset.get_last_version().download_url)
 
+    if not all_files:
+        context = {
+            "message": f"<p>Ainda não cadastramos nenhum arquivo para download no dataset {slug}.</p><p>Estamos trabalhando para os dados estarem disponíveis em breve.</p><p>Acompanhe o nosso <a href='https://t.me/brasil_io'>grupo no Telegram</a> para manter-se atualizada.</p>",
+        }
+        return render(request, "404.html", context)
+
     context = {
         "dataset": dataset,
-        "capture_date": None,
+        "capture_date": max([t.collect_date for t in dataset.tables]),
         "file_list": all_files,
     }
-    if all_files:
-        context["capture_date"] = max([t.collect_date for t in dataset.tables])
     return render(request, "core/dataset_files_list.html", context)

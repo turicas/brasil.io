@@ -74,7 +74,5 @@ class TestDatasetFilesDetailView(BaseTestCaseWithSampleDataset):
         response = self.client.get(self.url)
 
         assert 200 == response.status_code
-        self.assertTemplateUsed(response, "core/dataset_files_list.html")
-        assert self.dataset == response.context["dataset"]
-        assert response.context["capture_date"] is None
-        assert [] == response.context["file_list"]
+        self.assertTemplateUsed(response, "404.html")
+        assert response.context["message"]
