@@ -35,6 +35,7 @@ def handler_403(request, exception):
             "query_string": list(request.GET.items()),
             "path": request.path,
             "headers": list(request.headers.items()),
+            "http": {key: value for key, value in request.META.items() if key.lower().startswith("http_")},
         }
         conn.lpush("blocked", json.dumps(request_data))
 
