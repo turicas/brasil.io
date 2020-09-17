@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import StreamingHttpResponse
+from django.http import Http404, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
@@ -209,6 +209,8 @@ def dataset_files_detail(request, slug):
     dataset = get_object_or_404(Dataset, slug=slug)
     try:
         all_files = dataset.all_files
+        if not all_files:
+            raise Http404
     except ObjectDoesNotExist:
         return redirect(dataset.get_last_version().download_url)
 

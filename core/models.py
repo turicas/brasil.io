@@ -210,7 +210,8 @@ class Dataset(models.Model):
 
     @property
     def all_files(self):
-        return self.tables_files + [self.sha512sums]
+        files = self.tables_files
+        return [] if not files else files + [self.sha512sums]
 
     def get_table(self, tablename, allow_hidden=False):
         if allow_hidden:

@@ -65,3 +65,14 @@ class TestDatasetFilesDetailView(BaseTestCaseWithSampleDataset):
         self.url = reverse("core:dataset-files-detail", args=["foo"])
         response = self.client.get(self.url)
         assert 404 == response.status_code
+
+    def test_404_if_dataset_without_files(self):
+        #  If the table is hidden, it can't be seen by the view under test
+        self.table.hidden = True
+        self.table.save()
+
+        response = self.client.get(self.url)
+
+        assert 404 == response.status_code
+        self.table.hidden = False
+        self.table.save()
