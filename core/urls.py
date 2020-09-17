@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path, reverse_lazy
 from ratelimit.decorators import ratelimit
 
-from core.util import ratelimit_key
+from traffic_control.util import ratelimit_key
 
 from . import views, views_special
 

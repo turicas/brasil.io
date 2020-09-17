@@ -2,8 +2,8 @@ from django.conf import settings
 from django.urls import path
 from ratelimit.decorators import ratelimit
 
-from core.util import ratelimit_key
 from graphs import views as graph_views
+from traffic_control.util import ratelimit_key
 
 from . import views
 
