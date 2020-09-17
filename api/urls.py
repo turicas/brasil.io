@@ -1,15 +1,18 @@
 from django.urls import path
 
 from graphs import views as graph_views
+from traffic_control.decorators import enable_ratelimit
 
 from . import views
 
 app_name = "api"
+
+
 urlpatterns = [
     # Dataset-related endpoints
     path("datasets/", views.dataset_list, name="dataset-list"),
     path("dataset/<slug>/", views.dataset_detail, name="dataset-detail"),
-    path("dataset/<slug>/<tablename>/data/", views.dataset_data, name="dataset-table-data",),
+    path("dataset/<slug>/<tablename>/data/", enable_ratelimit(views.dataset_data), name="dataset-table-data",),
     # Graph-related endpoints
     path("especiais/grafo/sociedades/", graph_views.GetResourceNetworkView.as_view(), name="resource-graph",),
     path(

@@ -13,6 +13,7 @@ environ.Env.read_env(".env")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS", default="").split(",")
 APP_HOST = env("APP_HOST", default="brasil.io")
 BLOCKED_AGENTS = env.list("BLOCKED_AGENTS", default=[])
+BLOCKED_WEB_AGENTS = [a.lower() for a in env.list("BLOCKED_WEB_AGENTS", default=[])]
 BASE_DIR = root()
 DEBUG = env("DEBUG")
 PRODUCTION = env("PRODUCTION", bool)
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     "brasilio_auth",
     "covid19.apps.Covid19Config",
     "dashboard",
+    "traffic_control",
     # Third-party apps
     "cachalot",
     "captcha",
@@ -49,6 +51,7 @@ INSTALLED_APPS = [
     "rangefilter",
 ]
 MIDDLEWARE = [
+    "traffic_control.middlewares.block_suspicious_requests",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -243,6 +246,7 @@ RQ_QUEUES = {"default": {"URL": REDIS_URL, "DEFAULT_TIMEOUT": 500,}}
 RQ = {
     "DEFAULT_RESULT_TTL": 60 * 60 * 24,  # 24-hours
 }
+RQ_BLOCKED_REQUESTS_LIST = env("RQ_BLOCKED_REQUESTS_LIST")
 
 if not DEBUG:
     RQ_QUEUES["default"]["WORKER_CLASS"] = "brasilio.worker.SentryAwareWorker"
