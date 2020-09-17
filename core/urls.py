@@ -1,23 +1,11 @@
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.urls import path, reverse_lazy
-from ratelimit.decorators import ratelimit
 
-from traffic_control.util import ratelimit_key
+from traffic_control.decorators import enable_ratelimit
 
 from . import views, views_special
 
 sign_up_url = reverse_lazy("brasilio_auth:sign_up")
-
-
-def limited_dataset_detail(request, slug, tablename):
-    # cannot use @decorator syntax because reading from settings during import time
-    # prevents django.test.override_settings from working as expected.
-    # that's why I'm manually decorating the view in this custom view
-    return ratelimit(key=ratelimit_key, rate=settings.RATELIMIT_RATE, block=settings.RATELIMIT_ENABLE)(
-        views.dataset_detail
-    )(request, slug=slug, tablename=tablename)
-
 
 app_name = "core"
 urlpatterns = [
@@ -28,7 +16,7 @@ urlpatterns = [
     path("home/", views.home, name="home"),
     path("dataset/<slug>/", views.dataset_detail, name="dataset-detail"),
     path("dataset/<slug>/files/", views.dataset_files_detail, name="dataset-files-detail"),
-    path("dataset/<slug>/<tablename>/", limited_dataset_detail, name="dataset-table-detail"),
+    path("dataset/<slug>/<tablename>/", enable_ratelimit(views.dataset_detail), name="dataset-table-detail"),
     path("datasets/sugira/", views.dataset_suggestion, name="dataset-suggestion"),
     path("manifesto/", views.manifesto, name="manifesto"),
     path("colabore/", views.collaborate, name="collaborate"),
