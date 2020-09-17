@@ -228,3 +228,10 @@ class DatasetModelTests(TestCase):
         expected_files = self.dataset.tables_files + [self.dataset.sha512sums]
 
         assert expected_files == self.dataset.all_files
+
+    def test_return_empty_list_if_no_visible_table(self):
+        baker.make(TableFile, filename="sample_02.csv", table=self.tables[0])
+        baker.make(TableFile, filename="csv_data_02.csv", table=self.tables[1])
+        Table.objects.all().update(hidden=True)
+
+        assert [] == self.dataset.all_files
