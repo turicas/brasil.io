@@ -173,7 +173,7 @@ def get_ip(request):
 
 def ratelimit_key(group, request):
     ip = get_ip(request)
-    agent = request.META.get("HTTP_USER_AGENT", "")
-    #key = f"{ip}:{agent}"
+    request.META.get("HTTP_USER_AGENT", "")
+    # key = f"{ip}:{agent}"
     key = ip
     return key

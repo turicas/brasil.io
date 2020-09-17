@@ -4,6 +4,7 @@ import random
 
 from django.shortcuts import render
 from ratelimit.exceptions import Ratelimited
+
 from traffic_control.logging import log_blocked_request
 
 rate_limit_msg = """

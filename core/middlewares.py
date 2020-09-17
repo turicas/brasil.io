@@ -1,10 +1,7 @@
 import functools
 
-from django.conf import settings
 from django.middleware.cache import FetchFromCacheMiddleware
-from django.middleware.security import SecurityMiddleware
 from django.urls import resolve
-from ratelimit.exceptions import Ratelimited
 
 DISABLE_CACHE_ATTR = "_disable_non_logged_user_cache"
 
