@@ -1,7 +1,7 @@
 import json
-from django_redis import get_redis_connection
 
 from django.conf import settings
+from django_redis import get_redis_connection
 
 
 def log_blocked_request(request, response_status_code):
