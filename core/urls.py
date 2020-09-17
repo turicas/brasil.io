@@ -16,7 +16,7 @@ def limited_dataset_detail(request, slug, tablename):
     # that's why I'm manually decorating the view in this custom view
     return ratelimit(key=ratelimit_key, rate=settings.RATELIMIT_RATE, block=settings.RATELIMIT_ENABLE)(
         views.dataset_detail
-    )(request, slug, tablename)
+    )(request, slug=slug, tablename=tablename)
 
 
 app_name = "core"
