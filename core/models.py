@@ -269,6 +269,9 @@ class TableQuerySet(models.QuerySet):
     def named(self, name):
         return self.get(name=name)
 
+    def api_enabled(self):
+        return self.filter(api_enabled=True)
+
 
 class ActiveTableManager(models.Manager):
     """
@@ -300,6 +303,7 @@ class Table(models.Model):
     import_date = models.DateTimeField(null=True, blank=True)
     description = MarkdownxField(null=True, blank=True)
     hidden = models.BooleanField(default=False)
+    api_enabled = models.BooleanField(default=True)
 
     def __str__(self):
         return "{}.{}.{}".format(self.dataset.slug, self.version.name, self.name)

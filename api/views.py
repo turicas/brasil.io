@@ -32,7 +32,7 @@ class DatasetDataListView(ListAPIView):
 
     def get_table(self):
         dataset = get_object_or_404(Dataset, slug=self.kwargs["slug"])
-        return get_object_or_404(Table, dataset=dataset, name=self.kwargs["tablename"])
+        return get_object_or_404(Table.objects.api_enabled(), dataset=dataset, name=self.kwargs["tablename"])
 
     def get_model_class(self):
         return self.get_table().get_model()
