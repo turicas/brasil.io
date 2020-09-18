@@ -14,6 +14,7 @@ from core.forms import ContactForm, DatasetSearchForm
 from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
 from core.util import cached_http_get_json
+from traffic_control.logging import log_blocked_request
 
 
 class Echo:
@@ -111,6 +112,7 @@ def dataset_detail(request, slug, tablename=""):
         table = dataset.get_table(tablename, allow_hidden=allow_hidden)
     except Table.DoesNotExist:
         context = {"message": "Table does not exist"}
+        log_blocked_request(request, 404)
         return render(request, "404.html", context, status=404)
 
     querystring = request.GET.copy()
