@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('traffic_control', '0006_auto_20200918_0214'),
+        ("traffic_control", "0006_auto_20200918_0214"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='blockedrequest',
-            name='user_agent',
-            field=models.TextField(blank=True, db_index=True, default='', null=True),
+            model_name="blockedrequest",
+            name="user_agent",
+            field=models.TextField(blank=True, db_index=True, default="", null=True),
         ),
     ]
