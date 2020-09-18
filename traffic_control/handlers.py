@@ -33,7 +33,7 @@ def handler_403(request, exception):
     if isinstance(exception, Ratelimited):
         status, msg = 429, rate_limit_msg
 
-    log_blocked_request(request, 429)
+    log_blocked_request(request, status)
     data = base64.b64encode(os.urandom(random.randint(1, 10) * 1024 * 1024)).decode("ascii")
     msg += "<!-- " + data + " -->"
     context = {"title_4xx": status, "message": msg}
