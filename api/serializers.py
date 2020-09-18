@@ -58,7 +58,7 @@ class DatasetSerializer(serializers.ModelSerializer):
 class DatasetDetailSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
     links = LinkSerializer(many=True, source="link_set")
-    tables = TableSerializer(many=True)
+    tables = serializers.SerializerMethodField()
     collected_at = serializers.SerializerMethodField()
 
     def get_id(self, obj):
@@ -66,6 +66,9 @@ class DatasetDetailSerializer(serializers.ModelSerializer):
 
     def get_collected_at(self, obj):
         return obj.last_version.collected_at
+
+    def get_tables(self, obj):
+        return TableSerializer(instance=obj.tables.api_enabled(), many=True, context=self.context).data
 
     class Meta:
         model = Dataset
