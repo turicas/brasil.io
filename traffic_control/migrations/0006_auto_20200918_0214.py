@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('traffic_control', '0005_auto_20200917_1952'),
+        ("traffic_control", "0005_auto_20200917_1952"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='blockedrequest',
-            name='path',
-            field=models.TextField(blank=True, db_index=True, default='', null=True),
+            model_name="blockedrequest",
+            name="path",
+            field=models.TextField(blank=True, db_index=True, default="", null=True),
         ),
         migrations.AlterField(
-            model_name='blockedrequest',
-            name='source_ip',
+            model_name="blockedrequest",
+            name="source_ip",
             field=models.GenericIPAddressField(blank=True, db_index=True, null=True),
         ),
         migrations.AlterField(
-            model_name='blockedrequest',
-            name='status_code',
+            model_name="blockedrequest",
+            name="status_code",
             field=models.PositiveSmallIntegerField(blank=True, db_index=True, null=True),
         ),
     ]

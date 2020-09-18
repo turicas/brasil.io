@@ -1,10 +1,36 @@
+import datetime
+
 from django.db import models
+from django.utils import timezone
+
+
+class BlockRequestQuerySet(models.QuerySet):
+    def last_hour(self):
+        return self.filter(created_at__gte=timezone.now() - datetime.timedelta(hours=1))
+
+    def last_day(self):
+        return self.filter(created_at__gte=timezone.now() - datetime.timedelta(hours=24))
+
+    def today(self):
+        today = timezone.now().date()
+        return self.filter(created_at__year=today.year, created_at__month=today.month, created_at__day=today.day,)
+
+    def yesterday(self):
+        yesterday = timezone.now().date() - datetime.timedelta(days=1)
+        return self.filter(
+            created_at__year=yesterday.year, created_at__month=yesterday.month, created_at__day=yesterday.day,
+        )
+
+    def count_by(self, field_name):
+        return self.values(field_name).annotate(total=models.Count(field_name)).order_by("-total")
 
 
 class BlockedRequest(models.Model):
+    objects = BlockRequestQuerySet.as_manager()
+
     request_data = models.JSONField(null=False)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-    user_agent = models.TextField(default="", null=True, blank=True)
+    user_agent = models.TextField(default="", null=True, blank=True, db_index=True)
     headers = models.JSONField(default=dict, null=True, blank=True)
     query_string = models.JSONField(default=dict, null=True, blank=True)
     path = models.TextField(default="", null=True, blank=True, db_index=True)
