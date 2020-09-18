@@ -112,7 +112,13 @@ def dataset_detail(request, slug, tablename=""):
         table = dataset.get_table(tablename, allow_hidden=allow_hidden)
     except Table.DoesNotExist:
         context = {"message": "Table does not exist"}
-        log_blocked_request(request, 404)
+        try:
+            # log 404 request only if hidden table exist
+            hidden_table = dataset.get_table(tablename, allow_hidden=True)
+            if hidden_table:
+                log_blocked_request(request, 404)
+        except Table.DoesNotExist:
+            pass
         return render(request, "404.html", context, status=404)
 
     querystring = request.GET.copy()
