@@ -7,9 +7,9 @@ class BlockedRequest(models.Model):
     user_agent = models.TextField(default="", null=True, blank=True)
     headers = models.JSONField(default=dict, null=True, blank=True)
     query_string = models.JSONField(default=dict, null=True, blank=True)
-    path = models.TextField(default="", null=True, blank=True)
-    source_ip = models.GenericIPAddressField(null=True, blank=True)
-    status_code = models.PositiveSmallIntegerField(default=429, null=True, blank=True)
+    path = models.TextField(default="", null=True, blank=True, db_index=True)
+    source_ip = models.GenericIPAddressField(null=True, blank=True, db_index=True)
+    status_code = models.PositiveSmallIntegerField(null=True, blank=True, db_index=True)
 
     @classmethod
     def from_request_data(cls, request_data):

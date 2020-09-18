@@ -12,10 +12,13 @@ Lembre-se: o Brasil.IO é um projeto colaborativo, desenvolvido por voluntários
 
 def api_exception_handler(exc, context):
     response = exception_handler(exc, context)
+    status_code = getattr(response, "status_code", None)
 
     if isinstance(exc, Throttled):
         custom_response_data = {"message": throtthling_msg, "available_in": f"{exc.wait} seconds"}
         response.data = custom_response_data
-        log_blocked_request(context["request"], 429)
+
+    if 400 <= status_code < 500:
+        log_blocked_request(context["request"], status_code)
 
     return response
