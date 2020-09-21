@@ -1,3 +1,6 @@
+from unittest.mock import Mock, patch
+
+from captcha.fields import ReCaptchaField
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm as DjangoUserCreationForm
 from django.test import TestCase
@@ -9,7 +12,7 @@ from brasilio_auth.models import NewsletterSubscriber
 
 class UserCreationFormTests(TestCase):
     def test_required_fields(self):
-        required_fields = ["username", "email", "password1", "password2"]
+        required_fields = ["username", "email", "password1", "password2", "captcha"]
 
         form = UserCreationForm({})
         assert form.is_valid() is False
@@ -19,6 +22,7 @@ class UserCreationFormTests(TestCase):
         assert len(required_fields) == len(form.errors)
         assert issubclass(UserCreationForm, DjangoUserCreationForm)
 
+    @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
     def test_create_user(self):
         passwd = "verygoodpassword"
         data = {
@@ -26,6 +30,7 @@ class UserCreationFormTests(TestCase):
             "email": "foo@bar.com",
             "password1": passwd,
             "password2": passwd,
+            "captcha": "captcha-validation",
         }
 
         form = UserCreationForm(data)
@@ -37,6 +42,7 @@ class UserCreationFormTests(TestCase):
         assert user.check_password(passwd) is True
         assert not NewsletterSubscriber.objects.filter(user=user).exists()
 
+    @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
     def test_subscribe_to_newsleter(self):
         data = {
             "username": "foo",
@@ -44,6 +50,7 @@ class UserCreationFormTests(TestCase):
             "password1": "123123asd",
             "password2": "123123asd",
             "subscribe_newsletter": True,
+            "captcha": "captcha-validation",
         }
 
         form = UserCreationForm(data)
@@ -52,6 +59,7 @@ class UserCreationFormTests(TestCase):
 
         assert NewsletterSubscriber.objects.filter(user=user).exists()
 
+    @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
     def test_force_lower_for_username(self):
         passwd = "verygoodpassword"
         data = {
@@ -59,6 +67,7 @@ class UserCreationFormTests(TestCase):
             "email": "foo@bar.com",
             "password1": passwd,
             "password2": passwd,
+            "captcha": "captcha-validation",
         }
 
         form = UserCreationForm(data)
@@ -68,6 +77,7 @@ class UserCreationFormTests(TestCase):
 
         assert "foo" == user.username
 
+    @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
     def test_respect_abstract_user_max_length_for_username(self):
         passwd = "verygoodpassword"
         data = {
@@ -75,6 +85,7 @@ class UserCreationFormTests(TestCase):
             "email": "foo@bar.com",
             "password1": passwd,
             "password2": passwd,
+            "captcha": "captcha-validation",
         }
 
         form = UserCreationForm(data)
@@ -85,6 +96,7 @@ class UserCreationFormTests(TestCase):
         assert not form.is_valid()
         assert "username" in form.errors
 
+    @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
     def test_invalid_username_if_already_exists(self):
         baker.make(settings.AUTH_USER_MODEL, username="foo")
         passwd = "verygoodpassword"
@@ -93,12 +105,14 @@ class UserCreationFormTests(TestCase):
             "email": "foo@bar.com",
             "password1": passwd,
             "password2": passwd,
+            "captcha": "captcha-validation",
         }
 
         form = UserCreationForm(data)
         assert form.is_valid() is False
         assert "username" in form.errors
 
+    @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
     def test_invalid_email_if_user_already_exists(self):
         baker.make(settings.AUTH_USER_MODEL, email="foo@bar.com")
         passwd = "verygoodpassword"
@@ -107,12 +121,14 @@ class UserCreationFormTests(TestCase):
             "email": "foo@bar.com",
             "password1": passwd,
             "password2": passwd,
+            "captcha": "captcha-validation",
         }
 
         form = UserCreationForm(data)
         assert not form.is_valid()
         assert "email" in form.errors
 
+    @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
     def test_email_validation_does_not_break_if_different_letter_case(self):
         baker.make(settings.AUTH_USER_MODEL, email="foo@bar.com")
         passwd = "verygoodpassword"
@@ -121,8 +137,24 @@ class UserCreationFormTests(TestCase):
             "email": "FOO@bar.com",
             "password1": passwd,
             "password2": passwd,
+            "captcha": "captcha-validation",
         }
 
         form = UserCreationForm(data)
         assert not form.is_valid()
         assert "email" in form.errors
+
+    def test_do_not_validate_if_bad_captcha(self):
+        passwd = "verygoodpassword"
+        data = {
+            "username": "foo",
+            "email": "foo@bar.com",
+            "password1": passwd,
+            "password2": passwd,
+            "captcha": "invalid-captcha",
+        }
+
+        form = UserCreationForm(data)
+
+        assert not form.is_valid()
+        assert "captcha" in form.errors

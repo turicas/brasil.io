@@ -1,3 +1,4 @@
+from captcha.fields import ReCaptchaField
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm as DjangoUserCreationForm
@@ -15,6 +16,7 @@ class UserCreationForm(DjangoUserCreationForm):
         widget=forms.PasswordInput,
         help_text=_("Enter the same password as above, for verification."),
     )
+    captcha = ReCaptchaField()
     subscribe_newsletter = forms.BooleanField(required=False)
 
     class Meta:
