@@ -1,3 +1,6 @@
+from unittest.mock import Mock, patch
+
+from captcha.fields import ReCaptchaField
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -6,6 +9,7 @@ from django.urls import reverse
 User = get_user_model()
 
 
+@patch.object(ReCaptchaField, "validate", Mock(return_value=True))
 class UserCreationViewTests(TestCase):
     def setUp(self):
         self.url = reverse("brasilio_auth:sign_up")
@@ -15,6 +19,7 @@ class UserCreationViewTests(TestCase):
             "email": "foo@bar.com",
             "password1": passwd,
             "password2": passwd,
+            "captcha": "captcha-code",
         }
 
     def test_render_correct_template(self):
