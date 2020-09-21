@@ -13,4 +13,4 @@ urlpatterns = [
     path("", include("core.urls", namespace="core")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-handler403 = "core.handlers.handler_403"
+handler403 = "traffic_control.handlers.handler_403"

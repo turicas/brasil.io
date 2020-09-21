@@ -160,7 +160,7 @@ DATA_URL = env("DATA_URL")
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
-    "EXCEPTION_HANDLER": "api.handlers.api_exception_handler",
+    "EXCEPTION_HANDLER": "traffic_control.handlers.api_exception_handler",
 }
 
 THROTTLING_RATE = env("THROTTLING_RATE")
