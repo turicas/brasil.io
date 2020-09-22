@@ -1,5 +1,6 @@
 import datetime
 from itertools import chain
+from copy import deepcopy
 
 from django.db import models
 from django.utils import timezone
@@ -40,7 +41,7 @@ class BlockedRequest(models.Model):
 
     @classmethod
     def from_request_data(cls, request_data):
-        obj = cls(request_data=request_data)
+        obj = cls(request_data=deepcopy(request_data))
         headers = {key.lower(): value for key, value in dict(request_data.pop("headers", [])).items()}
         query_string = dict(request_data.pop("query_string", []))
 
