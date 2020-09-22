@@ -1,0 +1,1 @@
+REQUIRED_HEADERS = {"HTTP_USER_AGENT": "test-client"}
