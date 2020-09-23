@@ -55,7 +55,10 @@ class Cloudflare:
                 finished = pagination_info["page"] == pagination_info["total_pages"]
             elif "cursors" in pagination_info:
                 page = None
-                cursor = pagination_info["cursors"]
+                if "after" in pagination_info["cursors"]:
+                    cursor = pagination_info["cursors"]["after"]
+                else:
+                    finished = True
             else:
                 raise RuntimeError("Received unrecognized pagination information")
 
