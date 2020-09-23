@@ -36,4 +36,9 @@ def run():
         print("rules list item", obj)
 
     # Insert ip into list item
-    cf.add_rule_list_item(account_id, list_id, ip)
+    operation_info = cf.add_rule_list_item(account_id, list_id, ip)
+    operation_id = operation_info["operation_id"]
+
+    # Get async operation status
+    status = cf.get_operation_status(account_id, operation_id)
+    print(status)
