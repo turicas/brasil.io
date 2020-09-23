@@ -1,4 +1,3 @@
-import os
 from urllib.parse import urljoin
 
 import requests
@@ -68,30 +67,3 @@ class Cloudflare:
 
     def rules_list_items(self, account_id, list_id):
         yield from self.paginate(f"accounts/{account_id}/rules/lists/{list_id}/items")
-
-
-if __name__ == "__main__":
-    key = os.environ["CLOUDFLARE_AUTH_KEY"]
-    email = os.environ["CLOUDFLARE_AUTH_EMAIL"]
-    desired_account_name = "Pythonic Café"
-    desired_list_name = "blocked_ips"
-
-    cf = Cloudflare(email, key)
-
-    # Get account ID
-    account_id = None
-    for obj in cf.accounts():
-        if obj["name"] == desired_account_name:
-            account_id = obj["id"]
-            break
-
-    # Get list ID
-    list_id = None
-    for obj in cf.rules_list(account_id):
-        if obj["name"] == desired_list_name:
-            list_id = obj["id"]
-            break
-
-    # Get list items
-    for obj in cf.rules_list_items(account_id, list_id):
-        print("rules list item", obj)

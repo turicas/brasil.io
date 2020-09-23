@@ -1,0 +1,35 @@
+from django.conf import settings
+
+from traffic_control.cloudflare import Cloudflare
+
+
+def run():
+    """
+    Demo script with Cloudflare API integration
+
+    python manage.py runscript cloudflare_demo
+    """
+    email = settings.CLOUDFLARE_AUTH_EMAIL
+    key = settings.CLOUDFLARE_AUTH_KEY
+    desired_account_name = settings.CLOUDFLARE_ACCOUNT_NAME
+    desired_list_name = settings.CLOUDFLARE_BLOCKED_IPS_RULE
+
+    cf = Cloudflare(email, key)
+
+    # Get account ID
+    account_id = None
+    for obj in cf.accounts():
+        if obj["name"] == desired_account_name:
+            account_id = obj["id"]
+            break
+
+    # Get list ID
+    list_id = None
+    for obj in cf.rules_list(account_id):
+        if obj["name"] == desired_list_name:
+            list_id = obj["id"]
+            break
+
+    # Get list items
+    for obj in cf.rules_list_items(account_id, list_id):
+        print("rules list item", obj)
