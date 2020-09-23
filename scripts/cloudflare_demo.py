@@ -13,6 +13,7 @@ def run():
     key = settings.CLOUDFLARE_AUTH_KEY
     desired_account_name = settings.CLOUDFLARE_ACCOUNT_NAME
     desired_list_name = settings.CLOUDFLARE_BLOCKED_IPS_RULE
+    ip = "127.0.0.1"
 
     cf = Cloudflare(email, key)
 
@@ -33,3 +34,6 @@ def run():
     # Get list items
     for obj in cf.rules_list_items(account_id, list_id):
         print("rules list item", obj)
+
+    # Insert ip into list item
+    cf.add_rule_list_item(account_id, list_id, ip)

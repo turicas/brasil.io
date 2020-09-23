@@ -67,3 +67,13 @@ class Cloudflare:
 
     def rules_list_items(self, account_id, list_id):
         yield from self.paginate(f"accounts/{account_id}/rules/lists/{list_id}/items")
+
+    def add_rule_list_item(self, account_id, list_id, ip, commment=None):
+        # docs: https://api.cloudflare.com/#rules-lists-create-list-items
+        path = f"accounts/{account_id}/rules/lists/{list_id}/items"
+        data = {"ip": ip}
+        if commment:
+            data["comment"] = commment
+
+        response = self.request(path, data=[data], method="POST")
+        return response["result"]
