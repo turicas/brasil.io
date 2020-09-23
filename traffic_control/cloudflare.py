@@ -33,31 +33,41 @@ class Cloudflare:
             raise ValueError(f"Error on respose: {data}")
         return data
 
-    def paginate(self, path, query_string=None, data=None, headers=None, method="get"):
+    def paginate(self, path, query_string=None, data=None, headers=None, method="get", result_class=dict):
         query_string = query_string or {}
-        finished, page = False, 1
+        finished, page, cursor = False, 1, None
         while not finished:
-            query_string["page"] = page
+            if page is not None:
+                query_string["page"] = page
+            else:
+                if "page" in query_string:
+                    del query_string["page"]
+                query_string["cursor"] = cursor
             response = self.request(path, query_string=query_string, data=data, headers=headers, method=method)
             for result in response["result"]:
-                yield result
-            if "result_info" not in response:
+                yield result_class(result)
+
+            pagination_info = response.get("result_info", None)
+            if pagination_info is None:  # No pagination
                 finished = True
+                continue
+            if "page" in pagination_info:
+                page += 1
+                finished = pagination_info["page"] == pagination_info["total_pages"]
+            elif "cursors" in pagination_info:
+                page = None
+                cursor = pagination_info["cursors"]
             else:
-                pagination_info = response["result_info"]
-                if "page" in pagination_info:
-                    finished = pagination_info["page"] == pagination_info["total_pages"]
-                elif "cursors" in pagination_info:
-                    # TODO: implement (required for listing list items)
-                    raise NotImplementedError("cursor-based pagination was not implemented")
-                else:
-                    raise RuntimeError("Received unrecognized pagination information")
+                raise RuntimeError("Received unrecognized pagination information")
 
     def accounts(self):
         yield from self.paginate("accounts")
 
     def rules_list(self, account_id):
         yield from self.paginate(f"accounts/{account_id}/rules/lists")
+
+    def rules_list_items(self, account_id, list_id):
+        yield from self.paginate(f"accounts/{account_id}/rules/lists/{list_id}/items")
 
 
 if __name__ == "__main__":
@@ -81,3 +91,7 @@ if __name__ == "__main__":
         if obj["name"] == desired_list_name:
             list_id = obj["id"]
             break
+
+    # Get list items
+    for obj in cf.rules_list_items(account_id, list_id):
+        print("rules list item", obj)
