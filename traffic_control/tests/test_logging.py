@@ -4,7 +4,8 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.test import RequestFactory
 
-from traffic_control.logging import format_request
+from traffic_control.blocked_list import blocked_requests
+from traffic_control.logging import format_request, log_blocked_request
 
 
 @pytest.fixture
@@ -59,3 +60,14 @@ def test_fail_safe_if_no_remote_addr(request_factory):
     data = format_request(request, 200)
 
     assert "" == data["http"]["remote-addr"]
+
+
+def test_logging_enqueue_message_to_be_processed(request_factory):
+    assert 0 == len(blocked_requests)
+
+    request = request_factory.get("/", HTTP_FOO=42, HTTP_BAR="data")
+    log_blocked_request(request, 429)
+
+    assert 1 == len(blocked_requests)
+    assert format_request(request, 429) == blocked_requests.lpop()
+    assert 0 == len(blocked_requests)

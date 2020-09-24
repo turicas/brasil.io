@@ -1,7 +1,4 @@
-import json
-
-from django.conf import settings
-from django_redis import get_redis_connection
+from traffic_control.blocked_list import blocked_requests
 
 
 def format_request(request, response_status_code):
@@ -21,8 +18,4 @@ def format_request(request, response_status_code):
 
 def log_blocked_request(request, response_status_code):
     request_data = format_request(request, response_status_code)
-    if settings.RQ_BLOCKED_REQUESTS_LIST:
-        conn = get_redis_connection("default")
-        conn.lpush(settings.RQ_BLOCKED_REQUESTS_LIST, json.dumps(request_data))
-    else:
-        print(f"BLOCKED REQUEST - Response {response_status_code}: {request_data}")
+    blocked_requests.lpush(request_data)
