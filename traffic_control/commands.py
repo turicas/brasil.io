@@ -1,30 +1,39 @@
-import json
 from cached_property import cached_property
 from django.conf import settings
-from django_redis import get_redis_connection
 from tqdm import tqdm
 
+from traffic_control.blocked_list import blocked_requests
 from traffic_control.cloudflare import Cloudflare
 from traffic_control.models import BlockedRequest
 
 
 class PersistBlockedRequestsCommand:
-
     @classmethod
-    def execute(cls):
-        conn = get_redis_connection("default")
-        all_requests = []
-        cache_key = settings.RQ_BLOCKED_REQUESTS_LIST
+    def execute(cls, batch_size=10):
+        self = cls()
+        requests, counter = [], 0
+
         progress = tqdm("Reading requests...")
-        while conn.llen(cache_key) > 0:
-            data = json.loads(conn.lpop(cache_key))
-            all_requests.append(data)
+        while len(blocked_requests):
+            requests.append(blocked_requests.lpop())
+            if len(requests) == batch_size:
+                self.persist_requests(requests)
+                counter += batch_size
+                requests = []
             progress.update()
         progress.close()
 
-        print(f"Bulk inserting {len(all_requests)} entries")
-        BlockedRequest.objects.bulk_create([BlockedRequest.from_request_data(request_data=req) for req in all_requests])
-        print("Done")
+        if requests:
+            self.persist_requests(requests)
+            counter += len(requests)
+
+        if counter:
+            print(f"New {counter} BlockedRequests were created!")
+        else:
+            print("There aren't new blocked requests.")
+
+    def persist_requests(self, requests):
+        BlockedRequest.objects.bulk_create([BlockedRequest.from_request_data(r) for r in requests])
 
 
 class UpdateBlockedIPsCommand:

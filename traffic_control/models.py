@@ -1,6 +1,6 @@
 import datetime
-from itertools import chain
 from copy import deepcopy
+from itertools import chain
 
 from django.db import models
 from django.utils import timezone
