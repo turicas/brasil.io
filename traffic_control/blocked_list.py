@@ -1,6 +1,7 @@
 import json
 from collections import deque
 
+from cached_property import cached_property
 from django.conf import settings
 from django_redis import get_redis_connection
 
@@ -17,23 +18,36 @@ class BlockedRequestList:
     def __init__(self):
         self._requests_data = deque()
 
-    def lpush(self, request_data):
+    @cached_property
+    def redis_conn(self):
         if settings.RQ_BLOCKED_REQUESTS_LIST:
-            conn = get_redis_connection("default")
-            conn.lpush(settings.RQ_BLOCKED_REQUESTS_LIST, json.dumps(request_data))
+            return get_redis_connection("default")
+
+    def lpush(self, request_data):
+        if self.redis_conn:
+            self.redis_conn.lpush(settings.RQ_BLOCKED_REQUESTS_LIST, json.dumps(request_data))
         else:
             self._requests_data.appendleft(request_data)
             print(f"BLOCKED REQUEST - Response {request_data}")
 
     def lpop(self):
-        if settings.RQ_BLOCKED_REQUESTS_LIST:
-            conn = get_redis_connection("default")
-            return json.loads(conn.lpop(settings.RQ_BLOCKED_REQUESTS_LIST))
+        if self.redis_conn:
+            return json.loads(self.redis_conn.lpop(settings.RQ_BLOCKED_REQUESTS_LIST))
         else:
             return self._requests_data.popleft()
 
     def __len__(self):
-        return len(self._requests_data)
+        if self.redis_conn:
+            return self.redis_conn.llen(settings.RQ_BLOCKED_REQUESTS_LIST)
+        else:
+            return len(self._requests_data)
+
+    def clear(self):
+        if self.redis_conn:
+            while len(self) > 0:
+                self.lpop()
+        else:
+            self._requests_data.clear()
 
 
 blocked_requests = BlockedRequestList()
