@@ -83,5 +83,5 @@ class Cloudflare:
 
     def get_operation_status(self, account_id, operation_id):
         # docs: https://api.cloudflare.com/#rules-lists-get-bulk-operation
-        path = "accounts/{account_id}/rules/lists/bulk_operations/{operation_id}"
+        path = f"accounts/{account_id}/rules/lists/bulk_operations/{operation_id}"
         return self.request(path)
