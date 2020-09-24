@@ -76,14 +76,12 @@ class Cloudflare:
     def rules_list_items(self, account_id, list_id):
         yield from self.paginate(f"accounts/{account_id}/rules/lists/{list_id}/items")
 
-    def add_rule_list_item(self, account_id, list_id, ip, commment=None):
+    def add_rule_list_items(self, account_id, list_id, ips, comment=None):
         # docs: https://api.cloudflare.com/#rules-lists-create-list-items
         path = f"accounts/{account_id}/rules/lists/{list_id}/items"
-        data = {"ip": ip}
-        if commment:
-            data["comment"] = commment
-
-        response = self.request(path, data=[data], method="POST")
+        comment = (comment or "").strip()
+        data = [{"ip": ip, "comment": comment} for ip in ips]
+        response = self.request(path, data=data, method="POST")
         return response["result"]
 
     def get_operation_status(self, account_id, operation_id):
@@ -91,7 +89,7 @@ class Cloudflare:
         path = f"accounts/{account_id}/rules/lists/bulk_operations/{operation_id}"
         return self.request(path)
 
-    def delete_list_items(self, account_id, list_id, list_items_ids):
+    def delete_rule_list_items(self, account_id, list_id, list_items_ids):
         # docs: https://api.cloudflare.com/#rules-lists-delete-list-items
         path = f"accounts/{account_id}/rules/lists/{list_id}/items"
         data = {"items": [{"id": id_} for id_ in list_items_ids]}

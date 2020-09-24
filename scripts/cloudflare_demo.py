@@ -13,7 +13,7 @@ def run():
     key = settings.CLOUDFLARE_AUTH_KEY
     desired_account_name = settings.CLOUDFLARE_ACCOUNT_NAME
     desired_list_name = settings.CLOUDFLARE_BLOCKED_IPS_RULE
-    ip = "8.8.8.8"
+    ips = ["8.8.8.8", "9.9.9.9"]
 
     cf = Cloudflare(email, key)
 
@@ -36,8 +36,8 @@ def run():
         print("rules list item", obj)
 
     # Insert ip into list item
-    print(f"Inserting demo ip: {ip}...")
-    operation_info = cf.add_rule_list_item(account_id, list_id, ip)
+    print(f"Inserting demo ips: {ips}...")
+    operation_info = cf.add_rule_list_items(account_id, list_id, ips)
     operation_id = operation_info["operation_id"]
 
     # Get async operation status
@@ -45,12 +45,13 @@ def run():
     print(status)
 
     # Fetching all IPs to delete demo one
-    print(f"Removing demo ip: {ip}...")
+    print(f"Removing demo ips: {ips}...")
+    list_items_ids = []
     for obj in cf.rules_list_items(account_id, list_id):
-        if obj["ip"] == ip:
-            operation_info = cf.delete_list_items(account_id, list_id, [obj["id"]])
-
-            ## Get async operation status
+        if obj["ip"] in ips:
+            list_items_ids.append(obj["id"])
+        if len(list_items_ids) == len(ips):
+            operation_info = cf.delete_rule_list_items(account_id, list_id, list_items_ids)
             status = cf.get_operation_status(account_id, operation_info["operation_id"])
             print(status)
             break
