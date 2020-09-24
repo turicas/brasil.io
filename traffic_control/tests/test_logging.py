@@ -63,11 +63,11 @@ def test_fail_safe_if_no_remote_addr(request_factory):
 
 
 def test_logging_enqueue_message_to_be_processed(request_factory):
-    assert 0 == len(blocked_requests)
+    blocked_count = len(blocked_requests)
 
     request = request_factory.get("/", HTTP_FOO=42, HTTP_BAR="data")
     log_blocked_request(request, 429)
 
-    assert 1 == len(blocked_requests)
+    assert blocked_count + 1 == len(blocked_requests)
     assert format_request(request, 429) == blocked_requests.lpop()
-    assert 0 == len(blocked_requests)
+    assert blocked_count == len(blocked_requests)

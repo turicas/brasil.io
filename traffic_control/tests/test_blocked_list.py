@@ -9,16 +9,16 @@ from traffic_control.blocked_list import blocked_requests
 
 class BlockedRequestListTests(TestCase):
     def test_in_memory_enqueueing(self):
-        assert 0 == len(blocked_requests)
+        blocked_count = len(blocked_requests)
 
         msg_1, msg_2 = {"path": "/"}, {"path": "/about/"}
         blocked_requests.lpush(msg_1)
         blocked_requests.lpush(msg_2)
 
-        assert 2 == len(blocked_requests)
+        assert blocked_count + 2 == len(blocked_requests)
         assert msg_2 == blocked_requests.lpop()
         assert msg_1 == blocked_requests.lpop()
-        assert 0 == len(blocked_requests)
+        assert blocked_count == len(blocked_requests)
 
     @override_settings(RQ_BLOCKED_REQUESTS_LIST="blocked_list")
     @patch("traffic_control.blocked_list.get_redis_connection")
