@@ -46,6 +46,7 @@ class Cloudflare:
                 if "page" in query_string:
                     del query_string["page"]
                 query_string["cursor"] = cursor
+
             response = self.request(path, query_string=query_string, data=data, headers=headers, method=method)
             for result in response["result"]:
                 yield result_class(result)
@@ -89,3 +90,10 @@ class Cloudflare:
         # docs: https://api.cloudflare.com/#rules-lists-get-bulk-operation
         path = f"accounts/{account_id}/rules/lists/bulk_operations/{operation_id}"
         return self.request(path)
+
+    def delete_list_items(self, account_id, list_id, list_items_ids):
+        # docs: https://api.cloudflare.com/#rules-lists-delete-list-items
+        path = f"accounts/{account_id}/rules/lists/{list_id}/items"
+        data = {"items": [{"id": id_} for id_ in list_items_ids]}
+        response = self.request(path, data=data, method="DELETE")
+        return response["result"]
