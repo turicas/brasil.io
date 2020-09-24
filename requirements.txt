@@ -42,3 +42,4 @@ whitenoise==5.0.1
 sorl-thumbnail==12.6.3
 django-ratelimit==3.0.1
 django-admin-rangefilter==0.6.2
+rq-scheduler==0.10.0
