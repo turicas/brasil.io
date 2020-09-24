@@ -31,10 +31,13 @@ class UpdateBlockedIPsCommand:
         raise ValueError(f"There's no Rule List account named {self.rule_nane} from account {self.account_name}")
 
     @classmethod
-    def execute(cls, account_name, rule_name, hourly_max=30, daily_max=1200):
+    def execute(cls, account_name, rule_name, hourly_max=30, daily_max=1200, hours_ago=None):
         self = cls(account_name, rule_name)
 
-        ips_to_block = set(blocked["ip"] for blocked in BlockedRequest.blocked_ips(hourly_max, daily_max))
+        ips_to_block = set(
+            blocked["ip"] for blocked in BlockedRequest.blocked_ips(hourly_max, daily_max, hours_ago=hours_ago)
+        )
+        print(ips_to_block)
         if not ips_to_block:
             self.log("There aren't new blocked requests to analyize.")
             return
