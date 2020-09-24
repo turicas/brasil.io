@@ -1,3 +1,4 @@
+import json
 from urllib.parse import urljoin
 
 import requests
@@ -21,10 +22,13 @@ class Cloudflare:
 
     def request(self, path, query_string=None, data=None, headers=None, method="get"):
         request_headers = self.get_http_headers()
+        method = method.lower()
         if headers is not None:
             request_headers.update(headers)
+        if method in ["post", "put", "delete"] and data:
+            data = json.dumps(data)
 
-        http_request_func = getattr(requests, method.lower())
+        http_request_func = getattr(requests, method)
         url = urljoin(self.base_url, path)
         response = http_request_func(url, params=query_string, headers=request_headers, data=data)
         data = response.json()
