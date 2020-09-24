@@ -5,10 +5,12 @@ from django.test import TestCase
 from django.urls import reverse
 
 from covid19.exceptions import SpreadsheetValidationErrors
-from traffic_control.tests.util import REQUIRED_HEADERS
+from traffic_control.tests.util import TrafficControlClient
 
 
 class ImportSpreadsheetProxyViewTests(TestCase):
+    client_class = TrafficControlClient
+
     def setUp(self):
         self.url = reverse("covid19:spreadsheet_proxy", args=["RJ"])
 
@@ -17,7 +19,7 @@ class ImportSpreadsheetProxyViewTests(TestCase):
         fake_data = {"cases": [], "reports": []}
         mock_merge.return_value = fake_data
 
-        response = self.client.get(self.url, **REQUIRED_HEADERS)
+        response = self.client.get(self.url)
 
         assert 200 == response.status_code
         assert fake_data == json.loads(response.content)
@@ -25,7 +27,7 @@ class ImportSpreadsheetProxyViewTests(TestCase):
 
     def test_404_if_invalid_state(self):
         self.url = reverse("covid19:spreadsheet_proxy", args=["XX"])
-        response = self.client.get(self.url, **REQUIRED_HEADERS)
+        response = self.client.get(self.url)
         assert 404 == response.status_code
 
     @patch("covid19.views.merge_state_data", autospec=True)
@@ -36,7 +38,7 @@ class ImportSpreadsheetProxyViewTests(TestCase):
         mock_merge.side_effect = exception
 
         self.url = reverse("covid19:spreadsheet_proxy", args=["RJ"])
-        response = self.client.get(self.url, **REQUIRED_HEADERS)
+        response = self.client.get(self.url)
 
         assert 400 == response.status_code
         assert ["error 1", "error 2"] == sorted(response.json()["errors"])

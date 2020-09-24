@@ -7,10 +7,11 @@ from model_bakery import baker
 
 from core.models import TableFile
 from core.tests.utils import BaseTestCaseWithSampleDataset
-from traffic_control.tests.util import REQUIRED_HEADERS
+from traffic_control.tests.util import TrafficControlClient
 
 
 class SampleDatasetDetailView(BaseTestCaseWithSampleDataset):
+    client_class = TrafficControlClient
     DATASET_SLUG = "sample"
     TABLE_NAME = "sample_table"
     FIELDS_KWARGS = [
@@ -22,7 +23,7 @@ class SampleDatasetDetailView(BaseTestCaseWithSampleDataset):
         call_command("clear_cache")
 
     def test_display_dataset_table_data_with_expected_template(self):
-        response = self.client.get(self.url, **REQUIRED_HEADERS)
+        response = self.client.get(self.url)
         assert 200 == response.status_code
         self.assertTemplateUsed(response, "core/dataset-detail.html")
 
@@ -30,7 +31,7 @@ class SampleDatasetDetailView(BaseTestCaseWithSampleDataset):
     @override_settings(RATELIMIT_RATE="0/s")
     @patch("traffic_control.decorators.ratelimit")
     def test_enforce_rate_limit_if_flagged(self, mocked_ratelimit):
-        response = self.client.get(self.url, **REQUIRED_HEADERS)
+        response = self.client.get(self.url)
         assert 429 == response.status_code
         self.assertTemplateUsed(response, "4xx.html")
         assert "Você atingiu o limite de requisições" in response.context["message"]
@@ -39,6 +40,7 @@ class SampleDatasetDetailView(BaseTestCaseWithSampleDataset):
 
 
 class TestDatasetFilesDetailView(BaseTestCaseWithSampleDataset):
+    client_class = TrafficControlClient
     DATASET_SLUG = "sample"
     TABLE_NAME = "sample_table"
     FIELDS_KWARGS = [
@@ -50,7 +52,7 @@ class TestDatasetFilesDetailView(BaseTestCaseWithSampleDataset):
         baker.make(TableFile, table=self.table)
 
     def test_render_template_with_expected_context(self):
-        response = self.client.get(self.url, **REQUIRED_HEADERS)
+        response = self.client.get(self.url)
 
         assert 200 == response.status_code
         self.assertTemplateUsed(response, "core/dataset_files_list.html")
@@ -62,13 +64,13 @@ class TestDatasetFilesDetailView(BaseTestCaseWithSampleDataset):
         TableFile.objects.all().delete()
 
         expected_url = self.dataset.get_last_version().download_url
-        response = self.client.get(self.url, **REQUIRED_HEADERS)
+        response = self.client.get(self.url)
 
         self.assertRedirects(response, expected_url, fetch_redirect_response=False)
 
     def test_404_if_dataset_does_not_exist(self):
         self.url = reverse("core:dataset-files-detail", args=["foo"])
-        response = self.client.get(self.url, **REQUIRED_HEADERS)
+        response = self.client.get(self.url)
         assert 404 == response.status_code
 
     def test_return_empty_list_if_no_visible_table(self):
@@ -76,7 +78,7 @@ class TestDatasetFilesDetailView(BaseTestCaseWithSampleDataset):
         self.table.hidden = True
         self.table.save()
 
-        response = self.client.get(self.url, **REQUIRED_HEADERS)
+        response = self.client.get(self.url)
 
         assert 200 == response.status_code
         self.assertTemplateUsed(response, "404.html")
