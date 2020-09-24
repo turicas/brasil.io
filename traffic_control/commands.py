@@ -1,13 +1,11 @@
 from cached_property import cached_property
-
 from django.conf import settings
 
 from traffic_control.cloudflare import Cloudflare
 from traffic_control.models import BlockedRequest
 
 
-class UpdateBlockedIPsCommand():
-
+class UpdateBlockedIPsCommand:
     def __init__(self, account_name, rule_name):
         self.cf = Cloudflare(settings.CLOUDFLARE_AUTH_EMAIL, settings.CLOUDFLARE_AUTH_KEY)
         self.account_name = account_name
