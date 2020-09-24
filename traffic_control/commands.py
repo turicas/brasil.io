@@ -35,13 +35,19 @@ class UpdateBlockedIPsCommand:
         self = cls(account_name, rule_name)
 
         ips_to_block = set(blocked["ip"] for blocked in BlockedRequest.blocked_ips(hourly_max, daily_max))
+        if not ips_to_block:
+            self.log("There aren't new blocked requests to analyize.")
+            return
+
         self.log("Getting all already blocked ips...")
         blocked_ips = set(item["ip"] for item in self.cf.rules_list_items(self.account["id"], self.rule_list["id"]))
         ips_to_block -= blocked_ips
 
-        self.log(f"Blocking {len(ips_to_block)} new ips...")
-        operation_info = self.cf.add_rule_list_items(self.account["id"], self.rule_list["id"], ips_to_block)
-        operation_id = operation_info["operation_id"]
-
-        status = self.cf.get_operation_status(self.account["id"], operation_id)
-        self.log(status)
+        if ips_to_block:
+            self.log(f"Blocking {len(ips_to_block)} new ips...")
+            operation_info = self.cf.add_rule_list_items(self.account["id"], self.rule_list["id"], ips_to_block)
+            operation_id = operation_info["operation_id"]
+            status = self.cf.get_operation_status(self.account["id"], operation_id)
+            self.log(status)
+        else:
+            self.log("There aren't new ips to block")
