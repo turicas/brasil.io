@@ -1,4 +1,5 @@
 import datetime
+from itertools import chain
 
 from django.db import models
 from django.utils import timezone
@@ -56,6 +57,17 @@ class BlockedRequest(models.Model):
         obj.status_code = request_data.get("response_status_code", 1)
 
         return obj
+
+    @classmethod
+    def blocked_ips(cls, hourly_max=30, daily_max=1200):
+        qs_hour = cls.objects.last_hour().count_by("source_ip").filter(total__gte=hourly_max)
+        qs_day = cls.objects.last_day().count_by("source_ip").filter(total__gte=daily_max)
+        for blocked in chain(qs_hour, qs_day):
+            ip = blocked["source_ip"]
+            if ":" in ip:
+                ip = ":".join(ip.split(":")[:4] + [":/64"])
+            blocked["ip"] = ip
+            yield blocked
 
     class Meta:
         ordering = ["-created_at"]
