@@ -62,23 +62,19 @@ class UpdateBlockedIPsCommand:
         raise ValueError(f"There's no Rule List account named {self.rule_nane} from account {self.account_name}")
 
     @classmethod
-    def execute(cls, account_name, rule_name, hourly_max=30, daily_max=1200):
+    def execute(cls, account_name, rule_name, hourly_max=30, daily_max=1200, hours_ago=None):
         self = cls(account_name, rule_name)
 
-        ips_to_block = set(blocked["ip"] for blocked in BlockedRequest.blocked_ips(hourly_max, daily_max))
+        ips_to_block = set(
+            blocked["ip"] for blocked in BlockedRequest.blocked_ips(hourly_max, daily_max, hours_ago=hours_ago)
+        )
+        print(ips_to_block)
         if not ips_to_block:
             self.log("There aren't new blocked requests to analyize.")
             return
 
-        self.log("Getting all already blocked ips...")
-        blocked_ips = set(item["ip"] for item in self.cf.rules_list_items(self.account["id"], self.rule_list["id"]))
-        ips_to_block -= blocked_ips
-
-        if ips_to_block:
-            self.log(f"Blocking {len(ips_to_block)} new ips...")
-            operation_info = self.cf.add_rule_list_items(self.account["id"], self.rule_list["id"], ips_to_block)
-            operation_id = operation_info["operation_id"]
-            status = self.cf.get_operation_status(self.account["id"], operation_id)
-            self.log(status)
-        else:
-            self.log("There aren't new ips to block")
+        self.log(f"Blocking {len(ips_to_block)} new ips...")
+        operation_info = self.cf.add_rule_list_items(self.account["id"], self.rule_list["id"], ips_to_block)
+        operation_id = operation_info["operation_id"]
+        status = self.cf.get_operation_status(self.account["id"], operation_id)
+        self.log(status)

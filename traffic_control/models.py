@@ -7,11 +7,14 @@ from django.utils import timezone
 
 
 class BlockRequestQuerySet(models.QuerySet):
+    def from_hours_ago(self, hours):
+        return self.filter(created_at__gte=timezone.now() - datetime.timedelta(hours=hours))
+
     def last_hour(self):
-        return self.filter(created_at__gte=timezone.now() - datetime.timedelta(hours=1))
+        return self.from_hours_ago(1)
 
     def last_day(self):
-        return self.filter(created_at__gte=timezone.now() - datetime.timedelta(hours=24))
+        return self.from_hours_ago(24)
 
     def today(self):
         today = timezone.now().date()
@@ -60,8 +63,10 @@ class BlockedRequest(models.Model):
         return obj
 
     @classmethod
-    def blocked_ips(cls, hourly_max=30, daily_max=1200):
-        qs_hour = cls.objects.last_hour().count_by("source_ip").filter(total__gte=hourly_max)
+    def blocked_ips(cls, hourly_max=30, daily_max=1200, hours_ago=None):
+        hours = hours_ago or 1
+        hours_max = hourly_max * hours
+        qs_hour = cls.objects.from_hours_ago(hours).count_by("source_ip").filter(total__gte=hours_max)
         qs_day = cls.objects.last_day().count_by("source_ip").filter(total__gte=daily_max)
         for blocked in chain(qs_hour, qs_day):
             ip = blocked["source_ip"]
