@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "django_rq",
     "sorl.thumbnail",
     "rangefilter",
+    "django_registration",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -280,3 +281,8 @@ CLOUDFLARE_AUTH_EMAIL = env("CLOUDFLARE_AUTH_EMAIL")
 CLOUDFLARE_AUTH_KEY = env("CLOUDFLARE_AUTH_KEY")
 CLOUDFLARE_ACCOUNT_NAME = env("CLOUDFLARE_ACCOUNT_NAME")
 CLOUDFLARE_BLOCKED_IPS_RULE = env("CLOUDFLARE_BLOCKED_IPS_RULE")
+
+# Django registration config
+ACCOUNT_ACTIVATION_DAYS = env("ACCOUNT_ACTIVATION_DAYS", cast=int)
+REGISTRATION_SALT = env("REGISTRATION_SALT")
+REGISTRATION_OPEN = env("REGISTRATION_OPEN", cast=bool)
