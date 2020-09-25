@@ -96,7 +96,7 @@ def home(request):
             continue
 
         msg = f"Atualização dos dados da tabela {table.name} do dataset {table.dataset.name}"
-        activities.append({"date": table.import_date.date(), "description": msg})
+        activities.append({"date": table.import_date, "description": msg})
         datasets_with_updates.append(table.dataset)
 
     context = {"datasets": Dataset.objects.filter(show=True).order_by("?")[:6], "recent_activities": activities[:5]}

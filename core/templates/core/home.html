@@ -21,7 +21,7 @@
 
       <div class="container">
         {% for activity in recent_activities %}
-          <p>{{ activity.date }} - {{ activity.description }}</p>
+          <p>{{ activity.date|date }} - {{ activity.description }}</p>
         {% endfor %}
       </div>
 
