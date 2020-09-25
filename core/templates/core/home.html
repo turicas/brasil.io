@@ -20,6 +20,12 @@
     <div class="row">
 
       <div class="container">
+        {% for activity in recent_activities %}
+          <p>{{ activity.date }} - {{ activity.description }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="container">
         <br>
         <h1 class="header center green-text hide-on-small-only">ESPECIAL COVID-19: DADOS POR MUNICÍPIO</h1>
         <h1 class="header-small center green-text hide-on-med-and-up">ESPECIAL COVID-19: DADOS POR MUNICÍPIO</h1>
