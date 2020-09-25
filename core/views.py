@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from core.forms import ContactForm, DatasetSearchForm
+from core.middlewares import disable_non_logged_user_cache
 from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
 from core.util import cached_http_get_json
@@ -22,6 +23,7 @@ class Echo:
         return value
 
 
+@disable_non_logged_user_cache
 def contact(request):
     sent = request.GET.get("sent", "").lower() == "true"
 

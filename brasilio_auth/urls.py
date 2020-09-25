@@ -2,6 +2,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, reverse_lazy
 
 from brasilio_auth.views import CreateUserView
+from core.middlewares import disable_non_logged_user_cache
 
 login = auth_views.LoginView.as_view(template_name="brasilio_auth/login.html")
 logout = auth_views.LogoutView.as_view()
@@ -23,8 +24,8 @@ password_reset_complete = auth_views.PasswordResetCompleteView.as_view(
 
 app_name = "brasilio_auth"
 urlpatterns = (
-    path("entrar/", CreateUserView.as_view(), name="sign_up"),
     path("login/", login, name="login"),
+    path("entrar/", disable_non_logged_user_cache(CreateUserView.as_view()), name="sign_up"),
     path("logout/", logout, name="logout"),
     path("troca-senha/", password_reset, name="password_reset"),
     path("troca-senha/enviada/", password_reset_done, name="password_reset_done"),
