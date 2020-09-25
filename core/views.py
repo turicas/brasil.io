@@ -1,4 +1,5 @@
 import csv
+import datetime
 import uuid
 
 from django.conf import settings
@@ -9,6 +10,7 @@ from django.db.models import Q
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 
 from core.forms import ContactForm, DatasetSearchForm
 from core.models import Dataset, Table
@@ -81,7 +83,23 @@ def donate(request):
 
 
 def home(request):
-    context = {"datasets": Dataset.objects.filter(show=True).order_by("?")[:6]}
+    # TODO: refactor this code as part of issue 442 work
+    days_ago = timezone.now() - datetime.timedelta(days=30)
+    tables_recently_updated = (
+        Table.objects.filter(import_date__gte=days_ago).order_by("-import_date").select_related("dataset")
+    )
+
+    datasets_with_updates = []
+    activities = []
+    for table in tables_recently_updated:
+        if table.dataset in datasets_with_updates:
+            continue
+
+        msg = f"Atualização dos dados da tabela {table.name} do dataset {table.dataset.name}"
+        activities.append({"date": table.import_date.date(), "description": msg})
+        datasets_with_updates.append(table.dataset)
+
+    context = {"datasets": Dataset.objects.filter(show=True).order_by("?")[:6], "recent_activities": activities[:5]}
     return render(request, "core/home.html", context)
 
 
