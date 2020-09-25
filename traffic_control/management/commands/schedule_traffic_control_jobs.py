@@ -17,3 +17,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         self.schedule(tasks.persist_blocked_requests_task, 300)
+        self.schedule(tasks.update_blocked_ips_task, 3600)
