@@ -57,6 +57,9 @@ Lembre-se de sair do terminal e entrar novamente, para que produza o efeito dese
 
 ```bash
 
+# O python 3.7.9 espera que alguns pacotes dev estejam instalados. Para isso, rode:
+sudo apt install python3-dev libpq-dev zlib1g-dev libbz2-dev libffi-dev liblzma-dev
+
 cd brasil.io
 
 # Instale o Python 3.7.9 usando o pyenv:
