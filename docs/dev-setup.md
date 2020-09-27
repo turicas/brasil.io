@@ -37,7 +37,18 @@ sudo sh get-docker.sh
 
 # Para permitir seu usuário rodar comandos docker sem "sudo"
 sudo usermod -aG docker $USER
+sudo service docker restart
 
+```
+
+Além disso é necessário ter também o
+[`docker-compose`](https://docs.docker.com/compose/install/) configurado:
+
+```bash
+sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+docker-compose --version
 ```
 
 Lembre-se de sair do terminal e entrar novamente, para que produza o efeito desejado!
