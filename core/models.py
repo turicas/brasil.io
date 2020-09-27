@@ -514,8 +514,8 @@ class Field(models.Model):
 
         return ", ".join(["{}={}".format(key, repr(value)) for key, value in self.options.items()])
 
-    def update_choices(self):
-        Model = self.table.get_model()
+    def update_choices(self, data_table=None):
+        Model = self.table.get_model(data_table=data_table)
         choices = Model.objects.order_by(self.name).distinct(self.name).values_list(self.name, flat=True)
         self.choices = {"data": [str(value) for value in choices]}
 
