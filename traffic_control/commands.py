@@ -21,11 +21,12 @@ class PersistBlockedRequestsCommand:
                 counter += batch_size
                 requests = []
             progress.update()
-        progress.close()
 
         if requests:
             self.persist_requests(requests)
             counter += len(requests)
+            progress.update()
+        progress.close()
 
         if counter:
             print(f"New {counter} BlockedRequests were created!")
