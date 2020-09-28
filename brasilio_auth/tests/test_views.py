@@ -8,6 +8,7 @@ from django.template.loader import get_template
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
+from brasilio_auth.models import NewsletterSubscriber
 from brasilio_auth.views import ActivationView
 from traffic_control.tests.util import TrafficControlClient
 
@@ -50,6 +51,16 @@ class UserCreationViewTests(TestCase):
         assert not user.is_active
         assert len(mail.outbox) == 1
         self.assertRedirects(response, reverse("brasilio_auth:sign_up_complete"))
+        assert not NewsletterSubscriber.objects.exists()
+
+    def test_create_user_as_newsletter_subscriber(self):
+        self.data["subscribe_newsletter"] = True
+
+        self.client.post(self.url, data=self.data)
+
+        user = User.objects.get(username="foo")
+        assert not user.is_active
+        assert NewsletterSubscriber.objects.filter(user=user).exists()
 
     @override_settings(REGISTRATION_OPEN=False)
     def test_redirect_to_not_allowed_if_closed_subscription(self):

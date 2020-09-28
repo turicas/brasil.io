@@ -2,8 +2,6 @@ from captcha.fields import ReCaptchaField
 from django import forms
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
-
-from brasilio_auth.models import NewsletterSubscriber
 from django_registration.forms import RegistrationFormUniqueEmail
 
 
@@ -26,12 +24,6 @@ class UserCreationForm(RegistrationFormUniqueEmail):
     def clean_username(self):
         username = self.cleaned_data.get("username", "")
         return username.lower()
-
-    def save(self, *args, **kwargs):
-        user = super(UserCreationForm, self).save(*args, **kwargs)
-        if self.cleaned_data.get("subscribe_newsletter"):
-            NewsletterSubscriber.objects.create(user=user)
-        return user
 
     def clean_email(self):
         email = self.cleaned_data.get("email")

@@ -43,23 +43,6 @@ class UserCreationFormTests(TestCase):
         assert not NewsletterSubscriber.objects.filter(user=user).exists()
 
     @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
-    def test_subscribe_to_newsleter(self):
-        data = {
-            "username": "foo",
-            "email": "foo@bar.com",
-            "password1": "123123asd",
-            "password2": "123123asd",
-            "subscribe_newsletter": True,
-            "captcha": "captcha-validation",
-        }
-
-        form = UserCreationForm(data)
-        assert form.is_valid() is True
-        user = form.save()
-
-        assert NewsletterSubscriber.objects.filter(user=user).exists()
-
-    @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
     def test_force_lower_for_username(self):
         passwd = "verygoodpassword"
         data = {
