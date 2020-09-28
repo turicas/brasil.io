@@ -25,3 +25,12 @@ class BlockSuspiciousRequestsMiddlewareTests(TestCase):
     def test_middleware_pipeline_does_not_break_if_invalid_resolve(self):
         response = self.client.get("alkjsdasd3121312", HTTP_USER_AGENT="other_agent")
         assert 404 == response.status_code
+
+    def test_middleware_respects_append_slash_setings(self):
+        url = "/admin"
+        with override_settings(APPEND_SLASH=True):
+            response = self.client.get(url, HTTP_USER_AGENT="other_agent")
+            assert 404 != response.status_code
+        with override_settings(APPEND_SLASH=False):
+            response = self.client.get(url, HTTP_USER_AGENT="other_agent")
+            assert 404 == response.status_code
