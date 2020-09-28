@@ -1,13 +1,13 @@
 from captcha.fields import ReCaptchaField
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm as DjangoUserCreationForm
 from django.utils.translation import gettext_lazy as _
 
 from brasilio_auth.models import NewsletterSubscriber
+from django_registration.forms import RegistrationFormUniqueEmail
 
 
-class UserCreationForm(DjangoUserCreationForm):
+class UserCreationForm(RegistrationFormUniqueEmail):
     username = forms.CharField(widget=forms.TextInput(attrs={"style": "text-transform: lowercase"}),)
     email = forms.EmailField()
     password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
