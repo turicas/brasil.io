@@ -1,5 +1,7 @@
 from unittest.mock import Mock, patch
 
+from django.conf import settings
+
 from traffic_control import tasks
 from traffic_control.commands import PersistBlockedRequestsCommand, UpdateBlockedIPsCommand
 
@@ -17,4 +19,6 @@ def test_update_blocked_ips_async_task():
 
     assert getattr(tasks.update_blocked_ips_task, "delay")  # ensure it's a job
     tasks.update_blocked_ips_task()
-    UpdateBlockedIPsCommand.execute.assert_called_once_with()
+    UpdateBlockedIPsCommand.execute.assert_called_once_with(
+        settings.CLOUDFLARE_ACCOUNT_NAME, settings.CLOUDFLARE_BLOCKED_IPS_RULE
+    )
