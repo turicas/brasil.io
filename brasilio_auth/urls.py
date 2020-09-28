@@ -2,8 +2,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, reverse_lazy
 from django.views.generic.base import TemplateView
 
-from brasilio_auth.views import RegistrationView, ActivationView
-from core.middlewares import disable_non_logged_user_cache
+from brasilio_auth.views import ActivationView, RegistrationView
 
 login = auth_views.LoginView.as_view(template_name="brasilio_auth/login.html")
 logout = auth_views.LogoutView.as_view()
@@ -33,33 +32,19 @@ urlpatterns = (
     path("troca-senha/atualizada/", password_reset_complete, name="password_reset_complete",),
     path(
         "ativar/sucesso/",
-        TemplateView.as_view(
-            template_name="brasilio_auth/activation_complete.html"
-        ),
+        TemplateView.as_view(template_name="brasilio_auth/activation_complete.html"),
         name="activation_complete",
     ),
-    path(
-        "ativar/<str:activation_key>/",
-        ActivationView.as_view(),
-        name="activate_user",
-    ),
-    path(
-        "entrar/",
-        RegistrationView.as_view(),
-        name="sign_up",
-    ),
+    path("ativar/<str:activation_key>/", ActivationView.as_view(), name="activate_user",),
+    path("entrar/", RegistrationView.as_view(), name="sign_up",),
     path(
         "entrar/sucesso/",
-        TemplateView.as_view(
-            template_name="brasilio_auth/registration_complete.html"
-        ),
+        TemplateView.as_view(template_name="brasilio_auth/registration_complete.html"),
         name="sign_up_complete",
     ),
     path(
         "entrar/fechado/",
-        TemplateView.as_view(
-            template_name="brasilio_auth/registration_closed.html"
-        ),
+        TemplateView.as_view(template_name="brasilio_auth/registration_closed.html"),
         name="sign_up_disallowed",
     ),
 )
