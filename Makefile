@@ -16,7 +16,10 @@ run_django:
 run_rqworker:
 	python manage.py rqworker  --sentry-dsn=""
 
+run_scheduler:
+	python manage.py rqscheduler
+
 run: clear_cache
-	make -j2 run_django run_rqworker
+	make -j3 run_django run_rqworker run_scheduler
 
 .PHONY: black clear_cache run_django run_rqworker run

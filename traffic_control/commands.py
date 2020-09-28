@@ -1,8 +1,40 @@
 from cached_property import cached_property
 from django.conf import settings
+from tqdm import tqdm
 
+from traffic_control.blocked_list import blocked_requests
 from traffic_control.cloudflare import Cloudflare
 from traffic_control.models import BlockedRequest
+
+
+class PersistBlockedRequestsCommand:
+    @classmethod
+    def execute(cls, batch_size=10):
+        self = cls()
+        requests, counter = [], 0
+
+        progress = tqdm("Reading requests...")
+        while len(blocked_requests):
+            requests.append(blocked_requests.lpop())
+            if len(requests) == batch_size:
+                self.persist_requests(requests)
+                counter += batch_size
+                requests = []
+            progress.update()
+
+        if requests:
+            self.persist_requests(requests)
+            counter += len(requests)
+            progress.update()
+        progress.close()
+
+        if counter:
+            print(f"New {counter} BlockedRequests were created!")
+        else:
+            print("There aren't new blocked requests.")
+
+    def persist_requests(self, requests):
+        BlockedRequest.objects.bulk_create([BlockedRequest.from_request_data(r) for r in requests])
 
 
 class UpdateBlockedIPsCommand:

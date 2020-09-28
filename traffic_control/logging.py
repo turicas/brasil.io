@@ -1,10 +1,7 @@
-import json
-
-from django.conf import settings
-from django_redis import get_redis_connection
+from traffic_control.blocked_list import blocked_requests
 
 
-def log_blocked_request(request, response_status_code):
+def format_request(request, response_status_code):
     user = getattr(request, "user", None)
 
     request_data = {
@@ -16,8 +13,9 @@ def log_blocked_request(request, response_status_code):
         "http": {key: value for key, value in request.META.items() if key.lower().startswith("http_")},
     }
     request_data["http"]["remote-addr"] = request.META.get("REMOTE_ADDR", "").strip()
-    if settings.RQ_BLOCKED_REQUESTS_LIST:
-        conn = get_redis_connection("default")
-        conn.lpush(settings.RQ_BLOCKED_REQUESTS_LIST, json.dumps(request_data))
-    else:
-        print(f"BLOCKED REQUEST - Response {response_status_code}: {request_data}")
+    return request_data
+
+
+def log_blocked_request(request, response_status_code):
+    request_data = format_request(request, response_status_code)
+    blocked_requests.lpush(request_data)
