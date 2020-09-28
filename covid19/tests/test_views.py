@@ -5,9 +5,12 @@ from django.test import TestCase
 from django.urls import reverse
 
 from covid19.exceptions import SpreadsheetValidationErrors
+from traffic_control.tests.util import TrafficControlClient
 
 
 class ImportSpreadsheetProxyViewTests(TestCase):
+    client_class = TrafficControlClient
+
     def setUp(self):
         self.url = reverse("covid19:spreadsheet_proxy", args=["RJ"])
 

@@ -1,5 +1,11 @@
 from django.conf import settings
+from django.urls import resolve
+from ratelimit import ALL
+from ratelimit.core import is_ratelimited
 from ratelimit.exceptions import Ratelimited
+
+from traffic_control.constants import RATELIMITED_VIEW_ATTR
+from traffic_control.util import ratelimit_key
 
 
 def block_suspicious_requests(get_response):
@@ -9,6 +15,21 @@ def block_suspicious_requests(get_response):
         agent = request.META.get("HTTP_USER_AGENT", "").lower().strip()
         if not agent or agent in settings.BLOCKED_WEB_AGENTS:
             raise Ratelimited()
+
+        match = resolve(request.path)
+        if getattr(match.func, RATELIMITED_VIEW_ATTR, None):
+            # based in ratelimit decorator
+            # https://github.com/jsocol/django-ratelimit/blob/main/ratelimit/decorators.py#L13
+            if settings.RATELIMIT_ENABLE and is_ratelimited(
+                request=request,
+                group=None,
+                fn=match.func,
+                key=ratelimit_key,
+                rate=settings.RATELIMIT_RATE,
+                method=ALL,
+                increment=True,
+            ):
+                raise Ratelimited()
 
         return get_response(request)
 

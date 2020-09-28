@@ -1,6 +1,7 @@
 from django.conf import settings
 from ratelimit.decorators import ratelimit
 
+from traffic_control.constants import RATELIMITED_VIEW_ATTR
 from traffic_control.util import ratelimit_key
 
 
@@ -13,4 +14,5 @@ def enable_ratelimit(view):
             request, *args, **kwargs
         )
 
+    setattr(view_with_rate_limit, RATELIMITED_VIEW_ATTR, True)
     return view_with_rate_limit

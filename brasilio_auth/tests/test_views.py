@@ -6,11 +6,15 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
+from traffic_control.tests.util import TrafficControlClient
+
 User = get_user_model()
 
 
 @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
 class UserCreationViewTests(TestCase):
+    client_class = TrafficControlClient
+
     def setUp(self):
         self.url = reverse("brasilio_auth:sign_up")
         passwd = "someverygoodpassword"

@@ -51,8 +51,8 @@ INSTALLED_APPS = [
     "rangefilter",
 ]
 MIDDLEWARE = [
-    "traffic_control.middlewares.block_suspicious_requests",
     "django.middleware.security.SecurityMiddleware",
+    "traffic_control.middlewares.block_suspicious_requests",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
