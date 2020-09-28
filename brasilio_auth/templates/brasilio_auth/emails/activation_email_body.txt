@@ -1,1 +1,11 @@
-corpo do email de ativação
+Olá, {{ user.username }}!
+
+Obrigado por se cadastrar no Brasil.io =)
+
+Para finalizar a criação da sua conta, clique no link abaixo para ativá-la:
+
+{{ scheme }}://{{ site }}{% url "brasilio_auth:activate_user" activation_key %}
+
+Esse link estará válido pelos próximos {{ expiration_days }} dias.
+
+Abraços,
