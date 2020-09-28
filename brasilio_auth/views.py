@@ -1,4 +1,5 @@
 import django_registration.backends.activation.views as registration_views
+from django.contrib.auth import login
 from django.urls import reverse_lazy
 
 from brasilio_auth.forms import UserCreationForm
@@ -25,3 +26,8 @@ class ActivationView(registration_views.ActivationView):
     # reference:  https://github.com/ubernostrum/django-registration/blob/390a6c9eefa59917108cb60acd73dde51b0843f0/src/django_registration/backends/activation/views.py#L106
     success_url = reverse_lazy("brasilio_auth:activation_complete")
     template_name = "brasilio_auth/activation_failed.html"
+
+    def activate(self, *args, **kwargs):
+        user = super().activate(*args, **kwargs)
+        login(self.request, user)
+        return user
