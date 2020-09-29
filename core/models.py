@@ -419,6 +419,7 @@ class Table(models.Model):
             "filtering": filtering,
             "ordering": ordering,
             "search": search,
+            "table": self,
         }
         DYNAMIC_MODEL_REGISTRY[cache_key] = Model
         return Model
