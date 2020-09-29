@@ -32,8 +32,13 @@
 .m-t-15 {
   margin-top: 15px !important;
 }
+
 .m-t-20 {
   margin-top: 20px !important;
+}
+
+.m-t-50 {
+  margin-top: 50px !important;
 }
 
 .m-b-5 {
@@ -50,6 +55,10 @@
 
 .m-b-20 {
   margin-bottom: 20px !important;
+}
+
+.m-b-50 {
+  margin-bottom: 50px !important;
 }
 
 .p-5 {
