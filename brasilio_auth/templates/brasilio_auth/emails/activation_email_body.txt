@@ -1,6 +1,6 @@
 Olá, {{ user.username }}!
 
-Obrigado por se cadastrar no Brasil.io =)
+Obrigado por se cadastrar no Brasil.IO! =)
 
 Para finalizar a criação da sua conta, clique no link abaixo para ativá-la:
 
