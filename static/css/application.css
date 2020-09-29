@@ -21,6 +21,10 @@ main {
   flex: 1 0 auto;
 }
 
+section {
+  margin: 50px 0;
+}
+
 .footer {
   text-align: center;
 }
@@ -246,7 +250,7 @@ em {
 }
 
 .header {
-  font-size: 30px;
+  font-size: 27px;
 }
 
 .header-small {
