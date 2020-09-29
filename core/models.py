@@ -93,7 +93,14 @@ class DatasetTableModelQuerySet(models.QuerySet):
         # TODO: filtering must be based on field's settings, not on models
         # settings.
         model_filtering = self.model.extra["filtering"]
-        processor = DynamicModelFilterProcessor(filtering, model_filtering)
+
+        from django.forms import modelform_factory
+        FilterFormClass = modelform_factory(self.model, fields=model_filtering)
+        form = FilterFormClass(data=filtering)
+        if not form.is_valid():
+            raise Exception(form.errors)  # TODO create brasil.io custom exception
+
+        processor = DynamicModelFilterProcessor(form.cleaned_data, model_filtering)
         return self.filter(**processor.filters)
 
     def apply_ordering(self, query):
