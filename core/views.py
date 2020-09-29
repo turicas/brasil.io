@@ -99,11 +99,12 @@ def home(request):
         if dataset_slug in datasets_with_updates:
             continue
         tables = list(tables)
+        name = tables[0].dataset.name
         plural = len(tables) > 1
         activities.append(
             {
                 "date": date,
-                "description": f"Tabela{'s' if plural else ''} {', '.join(t.name for t in tables)} atualizadas no dataset {dataset_slug}",
+                "description": f"Tabela{'s' if plural else ''} {', '.join(t.name for t in tables)} atualizadas no dataset {name}",
             }
         )
         datasets_with_updates.append(dataset_slug)
