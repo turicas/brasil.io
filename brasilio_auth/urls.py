@@ -3,6 +3,7 @@ from django.urls import path, reverse_lazy
 from django.views.generic.base import TemplateView
 
 from brasilio_auth.views import ActivationView, RegistrationView
+from core.middlewares import disable_non_logged_user_cache
 
 login = auth_views.LoginView.as_view(template_name="brasilio_auth/login.html")
 logout = auth_views.LogoutView.as_view()
@@ -36,7 +37,7 @@ urlpatterns = (
         name="activation_complete",
     ),
     path("ativar/<str:activation_key>/", ActivationView.as_view(), name="activate_user",),
-    path("entrar/", RegistrationView.as_view(), name="sign_up",),
+    path("entrar/", disable_non_logged_user_cache(RegistrationView.as_view()), name="sign_up",),
     path(
         "entrar/sucesso/",
         TemplateView.as_view(template_name="brasilio_auth/registration_complete.html"),
