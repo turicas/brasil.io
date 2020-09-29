@@ -1,5 +1,6 @@
 import csv
 import datetime
+import itertools
 import uuid
 
 from django.conf import settings
@@ -89,15 +90,23 @@ def home(request):
         Table.objects.filter(import_date__gte=days_ago).order_by("-import_date").select_related("dataset")
     )
 
-    datasets_with_updates = []
     activities = []
-    for table in tables_recently_updated:
-        if table.dataset in datasets_with_updates:
+    datasets_with_updates = []
+    for metadata, tables in itertools.groupby(
+        tables_recently_updated, key=lambda t: (t.dataset.slug, t.import_date.date())
+    ):
+        dataset_slug, date = metadata
+        if dataset_slug in datasets_with_updates:
             continue
-
-        msg = f"Atualização dos dados da tabela {table.name} do dataset {table.dataset.name}"
-        activities.append({"date": table.import_date, "description": msg})
-        datasets_with_updates.append(table.dataset)
+        tables = list(tables)
+        plural = len(tables) > 1
+        activities.append(
+            {
+                "date": date,
+                "description": f"Tabela{'s' if plural else ''} {', '.join(t.name for t in tables)} atualizadas no dataset {dataset_slug}",
+            }
+        )
+        datasets_with_updates.append(dataset_slug)
 
     context = {"datasets": Dataset.objects.filter(show=True).order_by("?")[:6], "recent_activities": activities[:5]}
     return render(request, "core/home.html", context)
