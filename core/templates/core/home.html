@@ -13,32 +13,31 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
 
-  <section id="info">
-
-    <div class="row">
-
-      <div class="container">
-        {% for activity in recent_activities %}
-          <p>{{ activity.date|date }} - {{ activity.description }}</p>
-        {% endfor %}
-      </div>
-
-      <div class="container">
-        <br>
-        <h1 class="header center green-text hide-on-small-only">ESPECIAL COVID-19: DADOS POR MUNICÍPIO</h1>
-        <h1 class="header-small center green-text hide-on-med-and-up">ESPECIAL COVID-19: DADOS POR MUNICÍPIO</h1>
-        <div style="text-align: justify;" class="row center">
-          <p class="col s12 light">{% include 'covid19/text.html' %}</p>
+<section>
+  <div class="row">
+    <div class="col m12 l6">
+        <h1 class="header center green-text">Últimas atualizações</h1>
+        <div class="m-t-50">
+          {% for activity in recent_activities %}
+            <ul class="collection">
+              <li class="collection-item"> <strong>{{ activity.date|date:" d/m/Y" }}</strong> - {{ activity.description }}</li>
+            </ul>
+          {% endfor %}
         </div>
-        <div class="row center">
-          <a href="{% url 'covid19:dashboard' %}" id="download-button"
-            class="btn-large waves-effect waves-light blue">Ver Mais</a>
-        </div>
-        <br><br>
-
+    </div>
+    <div class="col m12 l6">
+      <h1 class="header center green-text">ESPECIAL COVID-19: DADOS POR MUNICÍPIO</h1>
+      <div style="text-align: justify;" class="row center">
+        <p class="col s12 light">{% include 'covid19/text.html' %}</p>
       </div>
+      <div class="row center">
+        <a href="{% url 'covid19:dashboard' %}" id="download-button"
+          class="btn-large waves-effect waves-light blue">Ver Mais</a>
+      </div>
+    </div>
+  </div>
+</section>
 
   </section>
   <div class="row center">
