@@ -58,7 +58,7 @@ def dataset_updates(days_ago):
         )
 
 
-@cached(cache=TTLCache(maxsize=1, ttl=24 * 3600))
+@cached(cache=TTLCache(maxsize=10, ttl=3600))
 def recent_activities(days_ago=30, limit=None):
     min_date = timezone.now() - datetime.timedelta(days=days_ago)
     data = []
