@@ -190,7 +190,7 @@ class Covid19Stats:
         return self.state_cases.aggregate(
             total_confirmed=Sum("confirmed"),
             total_deaths=Sum("deaths"),
-            total_population=Sum("estimated_population_2019"),
+            total_population=Sum("estimated_population"),
             last_date=Max("date"),
         )
 
@@ -213,7 +213,7 @@ class Covid19Stats:
             "death_rate_percent": 100 * (deaths / confirmed),
             "deaths": deaths,
             "deaths_per_100k_inhabitants": 100_000 * (deaths / population),
-            "estimated_population_2019": population,
+            "estimated_population": population,
             "state": "BR",
         }
 
@@ -224,7 +224,7 @@ class Covid19Stats:
 
         confirmed = case.confirmed
         deaths = case.deaths
-        population = case.estimated_population_2019
+        population = case.estimated_population
         state_name = case.state
 
         # TODO: use new schema from caso_full when its ready
@@ -240,7 +240,7 @@ class Covid19Stats:
             "death_rate_percent": 100 * (deaths / confirmed),
             "deaths": deaths,
             "deaths_per_100k_inhabitants": 100_000 * (deaths / population),
-            "estimated_population_2019": population,
+            "estimated_population": population,
             "state": state,
         }
 
@@ -248,7 +248,7 @@ class Covid19Stats:
         return self.state_cases.filter(state=state).aggregate(
             total_confirmed=Sum("confirmed"),
             total_deaths=Sum("deaths"),
-            total_population=Sum("estimated_population_2019"),
+            total_population=Sum("estimated_population"),
             last_date=Max("date"),
         )
 
@@ -280,11 +280,11 @@ class Covid19Stats:
             max_confirmed_per_100k_inhabitants=Max("confirmed_per_100k_inhabitants"),
             max_death_rate=Max("death_rate"),
             max_deaths=Max("deaths"),
-            total_population=Sum("estimated_population_2019"),
+            total_population=Sum("estimated_population"),
         )
 
     def city_totals_for_state(self, state):
-        return self.city_cases.filter(state=state).aggregate(total_population=Sum("estimated_population_2019"))
+        return self.city_cases.filter(state=state).aggregate(total_population=Sum("estimated_population"))
 
     @property
     def affected_population(self):
