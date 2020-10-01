@@ -36,7 +36,7 @@ def dataset_updates(days_ago):
 
         yield Activity(
             title=desc,
-            url="",
+            url=dataset.detail_url,
             created_at=max([t.import_date for t in tables]),
         )
 
