@@ -1,7 +1,10 @@
 import datetime
-import itertools
 from dataclasses import dataclass
+from itertools import chain, groupby
 
+import feedparser
+import pytz
+from django.conf import settings
 from django.utils import timezone
 
 from core.models import Table
@@ -14,6 +17,21 @@ class Activity:
     created_at: datetime
 
 
+def brasilio_blog_items():
+    timezone = pytz.timezone(settings.TIME_ZONE)
+    url = "https://blog.brasil.io/feed.rss"
+    feed = feedparser.parse(url)
+    for entry in feed["entries"]:
+        dt = entry["published_parsed"]
+        yield Activity(
+            title=f"[Blog] {entry['title']}",
+            url=entry["link"],
+            created_at=datetime.datetime(dt.tm_year, dt.tm_mon, dt.tm_mday, dt.tm_hour, dt.tm_min, dt.tm_sec).replace(
+                tzinfo=timezone
+            ),
+        )
+
+
 def dataset_updates(days_ago):
     days_ago = timezone.now() - datetime.timedelta(days=30)
     tables_recently_updated = (
@@ -21,9 +39,7 @@ def dataset_updates(days_ago):
     )
 
     datasets_with_updates = []
-    for metadata, tables in itertools.groupby(
-        tables_recently_updated, key=lambda t: (t.dataset.slug, t.import_date.date())
-    ):
+    for metadata, tables in groupby(tables_recently_updated, key=lambda t: (t.dataset.slug, t.import_date.date())):
         dataset_slug, date = metadata
         if dataset_slug in datasets_with_updates:
             continue
@@ -32,15 +48,20 @@ def dataset_updates(days_ago):
         tables = list(tables)
         dataset = tables[0].dataset
         plural = len(tables) > 1
-        desc = f"Tabela{'s' if plural else ''} {', '.join(t.name for t in tables)} atualizadas no dataset {dataset.name}"
+        desc = (
+            f"Tabela{'s' if plural else ''} {', '.join(t.name for t in tables)} atualizadas no dataset {dataset.name}"
+        )
 
         yield Activity(
-            title=desc,
-            url=dataset.detail_url,
-            created_at=max([t.import_date for t in tables]),
+            title=desc, url=dataset.detail_url, created_at=max([t.import_date for t in tables]),
         )
 
 
 def recent_activities(days_ago=30, limit=None):
-    activities = list(dataset_updates(days_ago))
-    return activities[:limit]
+    min_date = timezone.now() - datetime.timedelta(days=days_ago)
+    data = []
+    for acitivy in chain(brasilio_blog_items(), dataset_updates(days_ago)):
+        if acitivy.created_at >= min_date:
+            data.append(acitivy)
+
+    return sorted(data, key=lambda a: a.created_at, reverse=True)[:limit]
