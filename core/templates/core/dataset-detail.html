@@ -82,23 +82,12 @@
                 <input type="text" id="search" name="search" value="{{ query_dict.search|default:'' }}">
               </div>
 
-              {% for field in fields %}
-              {% if field.frontend_filter %}{% with value=query_dict|getplainattribute:field|default:'' %}
+              {% for field in filter_form %}
               <div class="input-field col s6">
-                <label class="active" for="{{ field.name }}">{{ field.title }}</label>
-              {% if field.has_choices %}
-                <select name="{{ field.name }}">
-                  <option value="" {% if value == "" %} selected{% endif %}>Todos</option>
-                  {% for choice in field.choices.data %}
-                  <option value="{{ choice }}"{% if value == choice %} selected{% endif %}>{% if choice == 'None' %}(vazio){% else %}{{ choice }}{% endif %}</option>
-                  {% endfor %}
-                </select>
-                {% else %}
-                <input type="text" name="{{ field.name }}" value="{{ value }}">
-              {% endif %}
+                <label class="active" for="{{ field.name }}">{{ field.label }}</label>
+                {{ field }}
               </div>
-            {% endwith %}{% endif %}
-            {% endfor %}
+              {% endfor %}
 
             </div>
             <div class="row">

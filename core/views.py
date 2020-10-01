@@ -198,6 +198,7 @@ def dataset_detail(request, slug, tablename=""):
         "data": data,
         "dataset": dataset,
         "fields": fields,
+        "filter_form": filter_form,
         "max_export_rows": settings.CSV_EXPORT_MAX_ROWS,
         "query_dict": querystring,
         "querystring": querystring.urlencode(),
