@@ -1,6 +1,4 @@
 import csv
-import datetime
-import itertools
 import uuid
 
 from django.conf import settings
@@ -11,13 +9,13 @@ from django.db.models import Q
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils import timezone
 
 from core.forms import ContactForm, DatasetSearchForm
 from core.middlewares import disable_non_logged_user_cache
 from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
 from core.util import cached_http_get_json
+from data_activities_log.activites import recent_activities
 from traffic_control.logging import log_blocked_request
 
 
@@ -86,32 +84,10 @@ def donate(request):
 
 
 def home(request):
-    # TODO: refactor this code as part of issue 442 work
-    days_ago = timezone.now() - datetime.timedelta(days=30)
-    tables_recently_updated = (
-        Table.objects.filter(import_date__gte=days_ago).order_by("-import_date").select_related("dataset")
-    )
-
-    activities = []
-    datasets_with_updates = []
-    for metadata, tables in itertools.groupby(
-        tables_recently_updated, key=lambda t: (t.dataset.slug, t.import_date.date())
-    ):
-        dataset_slug, date = metadata
-        if dataset_slug in datasets_with_updates:
-            continue
-        tables = list(tables)
-        name = tables[0].dataset.name
-        plural = len(tables) > 1
-        activities.append(
-            {
-                "date": date,
-                "description": f"Tabela{'s' if plural else ''} {', '.join(t.name for t in tables)} atualizadas no dataset {name}",
-            }
-        )
-        datasets_with_updates.append(dataset_slug)
-
-    context = {"datasets": Dataset.objects.filter(show=True).order_by("?")[:6], "recent_activities": activities[:5]}
+    context = {
+        "datasets": Dataset.objects.filter(show=True).order_by("?")[:6],
+        "recent_activities": recent_activities(days_ago=30, limit=5),
+    }
     return render(request, "core/home.html", context)
 
 
