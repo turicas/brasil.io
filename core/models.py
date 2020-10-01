@@ -182,6 +182,10 @@ class Dataset(models.Model):
         return reverse("core:dataset-files-detail", args=[self.slug])
 
     @property
+    def detail_url(self):
+        return reverse("core:dataset-detail", args=[self.slug])
+
+    @property
     def tables_files(self):
         return sorted([TableFile.objects.get_most_recent_for_table(t) for t in self.tables], key=lambda f: f.filename)
 

@@ -21,7 +21,7 @@
         <div class="m-t-50">
           {% for activity in recent_activities %}
             <ul class="collection">
-              <li class="collection-item"> <strong>{{ activity.date|date:" d/m/Y" }}</strong> - {{ activity.description }}</li>
+              <li class="collection-item"> <strong>{{ activity.created_at|date:" d/m/Y" }}</strong> - {{ activity.title }}{% if activity.url %} - <a href="{{ activity.url }}">veja mais</a>{% endif %}</li>
             </ul>
           {% endfor %}
         </div>
