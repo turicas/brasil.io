@@ -15,7 +15,7 @@ class CityCaseSerializer(serializers.Serializer):
     death_rate_percent = serializers.SerializerMethodField()
     deaths = serializers.SerializerMethodField()
     deaths_per_100k_inhabitants = serializers.SerializerMethodField()
-    estimated_population_2019 = serializers.IntegerField()
+    estimated_population = serializers.IntegerField()
     state = serializers.CharField()
 
     def get_confirmed(self, case):
@@ -25,7 +25,7 @@ class CityCaseSerializer(serializers.Serializer):
         return case.confirmed_per_100k_inhabitants or 0
 
     def get_deaths_per_100k_inhabitants(self, case):
-        return 100_000 * ((case.deaths or 0) / case.estimated_population_2019)
+        return 100_000 * ((case.deaths or 0) / case.estimated_population)
 
     def get_deaths(self, case):
         return case.deaths or 0
