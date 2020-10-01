@@ -17,6 +17,7 @@ class Covid19DatasetTestCase(BaseTestCaseWithSampleDataset):
         {"name": "deaths", "options": {}, "type": "integer", "null": True},
         {"name": "is_last", "options": {}, "type": "bool", "null": False},
         {"name": "estimated_population_2019", "options": {}, "type": "integer", "null": True},
+        {"name": "estimated_population", "options": {}, "type": "integer", "null": True},
         {"name": "city_ibge_code", "options": {"max_length": 127}, "type": "string", "null": True},
         {"name": "confirmed_per_100k_inhabitants", "options": {}, "type": "float", "null": True},
         {"name": "death_rate", "options": {}, "type": "float", "null": True},
