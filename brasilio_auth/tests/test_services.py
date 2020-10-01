@@ -10,10 +10,12 @@ User = get_user_model()
 
 class TestSubscribersAsCSVRows(TestCase):
     def setUp(self):
-        users = baker.make(User, _quantity=5, _fill_optional=True)
+        users = baker.make(User, is_active=True, _quantity=5, _fill_optional=True)
         self.subscribers = [baker.make(NewsletterSubscriber, user=u) for u in users]
 
     def test_get_csv_rows(self):
+        baker.make(NewsletterSubscriber, user__is_active=False, _quantity=5)  # inactive
+
         rows = subscribers_as_csv_rows()
 
         assert len(rows) == len(self.subscribers) + 1

@@ -18,7 +18,7 @@ class Echo:
 
 class NewsletterSubscriberAdmin(admin.ModelAdmin):
     change_list_template = "brasilio_auth/newslettersubscribers_change_list.html"
-    list_display = ["user"]
+    list_display = ["user", "user_is_active"]
 
     def get_urls(self):
         urls = super().get_urls()
@@ -44,6 +44,12 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
             return response
 
         return view(request)
+
+    def user_is_active(self, obj):
+        return obj.user.is_active
+
+    user_is_active.short_description = "Usuário ativo?"
+    user_is_active.boolean = True
 
 
 class UserAdmin(BaseUserAdmin):
