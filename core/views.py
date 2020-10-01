@@ -153,10 +153,11 @@ def dataset_detail(request, slug, tablename=""):
 
     DynamicForm = get_table_dynamic_form(table)
     filter_form = DynamicForm(data=query)
-    if not filter_form.is_valid():
-        raise Exception(str(filter_form.errors))
+    if filter_form.is_valid():
+        query = {k: v for k, v in filter_form.cleaned_data.items() if v != ""}
+    else:
+        query = {}
 
-    query = {k: v for k, v in filter_form.cleaned_data.items() if v != ""}
     all_data = TableModel.objects.composed_query(query, search_query, order_by)
 
     if download_csv:

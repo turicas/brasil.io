@@ -86,6 +86,9 @@
               <div class="input-field col s6">
                 <label class="active" for="{{ field.name }}">{{ field.label }}</label>
                 {{ field }}
+                {% if field.errors %}
+                  <span class="filter-error">{{ field.errors.as_text }}</span>
+                {% endif %}
               </div>
               {% endfor %}
 
