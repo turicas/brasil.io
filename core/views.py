@@ -86,7 +86,9 @@ def donate(request):
 def home(request):
     context = {
         "datasets": Dataset.objects.filter(show=True).order_by("?")[:6],
-        "recent_activities": recent_activities(days_ago=30, limit=5),
+        "recent_activities": recent_activities(
+            days_ago=settings.NUM_RECENT_ACTIVITES_HOMEPAGE, limit=settings.DAYS_RANGE_RECENT_ACTIVITES_HOMEPAGE
+        ),
     }
     return render(request, "core/home.html", context)
 
