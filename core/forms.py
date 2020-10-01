@@ -109,12 +109,14 @@ class DatasetSearchForm(forms.Form):
 def get_table_dynamic_form(table):
     def config_dynamic_filter(model_field):
         dynamic_field = [f for f in table.fields if f.name == model_field.name][0]
+        kwargs = {"required": False, "label": dynamic_field.title}
+        field_factory = model_field.formfield
 
         if dynamic_field.has_choices:
-            choices = [("", "Todos")] + [(c, c) for c in dynamic_field.choices["data"]]
-            return forms.ChoiceField(required=False, choices=choices)
-        else:
-            return model_field.formfield(required=False)
+            kwargs["choices"] = [("", "Todos")] + [(c, c) for c in dynamic_field.choices["data"]]
+            field_factory = forms.ChoiceField
+
+        return field_factory(**kwargs)
 
     model = table.get_model()
     fields = model.extra["filtering"]
