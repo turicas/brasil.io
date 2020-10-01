@@ -10,7 +10,7 @@ from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from core.forms import ContactForm, DatasetSearchForm
+from core.forms import ContactForm, DatasetSearchForm, get_table_dynamic_form
 from core.middlewares import disable_non_logged_user_cache
 from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
@@ -150,6 +150,13 @@ def dataset_detail(request, slug, tablename=""):
 
     TableModel = table.get_model()
     query, search_query, order_by = TableModel.objects.parse_querystring(querystring)
+
+    DynamicForm = get_table_dynamic_form(table)
+    filter_form = DynamicForm(data=query)
+    if not filter_form.is_valid():
+        raise Exception(str(filter_form.errors))
+
+    query = {k: v for k, v in filter_form.cleaned_data.items() if v != ""}
     all_data = TableModel.objects.composed_query(query, search_query, order_by)
 
     if download_csv:

@@ -93,19 +93,8 @@ class DatasetTableModelQuerySet(models.QuerySet):
         # TODO: filtering must be based on field's settings, not on models
         # settings.
         model_filtering = self.model.extra["filtering"]
-
-        from django.forms import modelform_factory
-        FilterFormClass = modelform_factory(
-            self.model, fields=model_filtering, formfield_callback=build_dynamic_filter_field
-        )
-        form = FilterFormClass(data=filtering)
-        if not form.is_valid():
-            raise Exception(form.errors)  # TODO create brasil.io custom exception
-
-        cleaned_data = {k: v for k, v in form.cleaned_data.items() if v != ""}
-        processor = DynamicModelFilterProcessor(cleaned_data, model_filtering)
+        processor = DynamicModelFilterProcessor(filtering, model_filtering)
         return self.filter(**processor.filters)
-
 
     def apply_ordering(self, query):
         qs = self
@@ -162,18 +151,6 @@ class DatasetTableModelQuerySet(models.QuerySet):
             self._count = super().count()
 
         return self._count
-
-
-def build_dynamic_filter_field(model_field):
-    from django import forms
-    table = model_field.model.extra["table"]
-    dynamic_field = [f for f in table.fields if f.name == model_field.name][0]
-
-    if dynamic_field.has_choices:
-        choices = [("", "Todos")] + [(c, c) for c in dynamic_field.choices["data"]]
-        return forms.ChoiceField(required=False, choices=choices)
-    else:
-        return model_field.formfield(required=False)
 
 
 class Dataset(models.Model):

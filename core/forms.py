@@ -104,3 +104,18 @@ class ContactForm(forms.Form):
 
 class DatasetSearchForm(forms.Form):
     search = forms.CharField(label="Titulo ou Descrição")
+
+
+def get_table_dynamic_form(table):
+    def config_dynamic_filter(model_field):
+        dynamic_field = [f for f in table.fields if f.name == model_field.name][0]
+
+        if dynamic_field.has_choices:
+            choices = [("", "Todos")] + [(c, c) for c in dynamic_field.choices["data"]]
+            return forms.ChoiceField(required=False, choices=choices)
+        else:
+            return model_field.formfield(required=False)
+
+    model = table.get_model()
+    fields = model.extra["filtering"]
+    return forms.modelform_factory(model, fields=fields, formfield_callback=config_dynamic_filter)
