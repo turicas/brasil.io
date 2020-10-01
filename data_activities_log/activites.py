@@ -4,6 +4,7 @@ from itertools import chain, groupby
 
 import feedparser
 import pytz
+from cachetools import TTLCache, cached
 from django.conf import settings
 from django.utils import timezone
 
@@ -57,6 +58,7 @@ def dataset_updates(days_ago):
         )
 
 
+@cached(cache=TTLCache(maxsize=1, ttl=24 * 3600))
 def recent_activities(days_ago=30, limit=None):
     min_date = timezone.now() - datetime.timedelta(days=days_ago)
     data = []
