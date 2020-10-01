@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}Home - Brasil.IO{% endblock %}
 {% block top %}
-<div class="top-container indigo darken-1 m-b-20">
+<div class="top-container indigo darken-1">
   <div class="container">
     <div class="section indigo-text text-lighten-5">
       <h3>O Brasil em dados libertos</h3>
@@ -13,28 +13,33 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
 
-  <section id="info">
-
-    <div class="row">
-
-      <div class="container">
-        <br>
-        <h1 class="header center green-text hide-on-small-only">ESPECIAL COVID-19: DADOS POR MUNICÍPIO</h1>
-        <h1 class="header-small center green-text hide-on-med-and-up">ESPECIAL COVID-19: DADOS POR MUNICÍPIO</h1>
-        <div style="text-align: justify;" class="row center">
-          <p class="col s12 light">{% include 'covid19/text.html' %}</p>
+<section>
+  <div class="row">
+    <div class="col m12 l6">
+        <h1 class="header center green-text">Últimas atualizações</h1>
+        <div class="m-t-50">
+          {% for activity in recent_activities %}
+            <ul class="collection">
+              <li class="collection-item"> <strong>{{ activity.created_at|date:" d/m/Y" }}</strong> - {{ activity.title }}{% if activity.url %} - <a href="{{ activity.url }}">veja mais</a>{% endif %}</li>
+            </ul>
+          {% endfor %}
         </div>
-        <div class="row center">
-          <a href="{% url 'covid19:dashboard' %}" id="download-button"
-            class="btn-large waves-effect waves-light blue">Ver Mais</a>
-        </div>
-        <br><br>
-
+    </div>
+    <div class="col m12 l6">
+      <h1 class="header center green-text">ESPECIAL COVID-19: DADOS POR MUNICÍPIO</h1>
+      <div style="text-align: justify;" class="row center">
+        <p class="col s12 light">{% include 'covid19/text.html' %}</p>
       </div>
+      <div class="row center">
+        <a href="{% url 'covid19:dashboard' %}" id="download-button"
+          class="btn-large waves-effect waves-light blue">Ver Mais</a>
+      </div>
+    </div>
+  </div>
+</section>
 
-  </section>
+<section>
   <div class="row center">
     <div class="col s12 m6 xl3">
       <a href="{% url 'core:manifesto' %}">
@@ -49,7 +54,6 @@
         </div>
       </a>
     </div>
-
     <div class="col s12 m6 xl3">
       <a href="{% url 'core:dataset-list' %}">
         <div class="card small yellow hoverable waves-block  waves-effect waves-orange">
@@ -62,7 +66,6 @@
         </div>
       </a>
     </div>
-
     <div class="col s12 m6 xl3">
       <a href="{% url 'core:dataset-suggestion' %}">
         <div class="card small blue darken-1 hoverable waves-block  waves-effect waves-light">
@@ -75,7 +78,6 @@
         </div>
       </a>
     </div>
-
     <div class="col s12 m6 xl3">
       <a href="https://github.com/turicas/brasil.io/issues">
         <div class="card small hoverable waves-block  waves-effect">
@@ -90,25 +92,21 @@
       </a>
     </div>
   </div>
+</section>
 
-  <section id="datasets" style="margin-top: 50px;">
-    <h4 class="text-center m-15 green-text">Datasets</h4>
-    <div class="row" style="margin-top: 50px;">
-      {% for dataset in datasets %}
-      {% include 'core/dataset-card.html' %}
-      {% endfor %}
-    </div>
+<section id="datasets">
+  <h4 class="header center green-text m-t-50 m-b-50">Datasets</h4>
+  <div class="row" class="m-t-50">
+    {% for dataset in datasets %}
+    {% include 'core/dataset-card.html' %}
+    {% endfor %}
+  </div>
 
-    <div class="row text-center" style="padding-bottom: 30px;">
-      <a class="btn waves-effect waves-light m-t-20" href="{% url 'core:dataset-list' %}" role="button">
-        Ver Todos Datasets
-      </a>
-      <div>
-  </section>
+  <div class="row text-center" style="padding-bottom: 30px;">
+    <a class="btn waves-effect waves-light m-t-20" href="{% url 'core:dataset-list' %}" role="button">
+      Ver Todos Datasets
+    </a>
+  <div>
+</section>
 
-</div>
-
-
-
-</div>
 {% endblock %}

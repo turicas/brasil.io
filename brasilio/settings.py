@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "django_rq",
     "sorl.thumbnail",
     "rangefilter",
+    "django_registration",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -280,3 +281,13 @@ CLOUDFLARE_AUTH_EMAIL = env("CLOUDFLARE_AUTH_EMAIL")
 CLOUDFLARE_AUTH_KEY = env("CLOUDFLARE_AUTH_KEY")
 CLOUDFLARE_ACCOUNT_NAME = env("CLOUDFLARE_ACCOUNT_NAME")
 CLOUDFLARE_BLOCKED_IPS_RULE = env("CLOUDFLARE_BLOCKED_IPS_RULE")
+
+# Django registration config
+ACCOUNT_ACTIVATION_DAYS = env("ACCOUNT_ACTIVATION_DAYS", cast=int, default=7)
+REGISTRATION_SALT = env("REGISTRATION_SALT", default=SECRET_KEY)
+REGISTRATION_OPEN = env("REGISTRATION_OPEN", cast=bool, default=True)
+
+
+# Brasil.io presentation config
+NUM_RECENT_ACTIVITES_HOMEPAGE = env("NUM_RECENT_ACTIVITES_HOMEPAGE", cast=int, default=5)
+DAYS_RANGE_RECENT_ACTIVITES_HOMEPAGE = env("DAYS_RANGE_RECENT_ACTIVITES_HOMEPAGE", cast=int, default=30)

@@ -59,7 +59,7 @@ class ImportDataCommand:
         try:
             with transaction.atomic():
                 if self.flag_fill_choices:
-                    self.fill_choices(Model)
+                    self.fill_choices(Model, data_table)
                 if self.flag_import_data:
                     table.data_table.deactivate(drop_table=self.flag_delete_old_table)
                     data_table.activate()
@@ -149,14 +149,14 @@ class ImportDataCommand:
         end = time.time()
         self.log("  done in {:.3f}s.".format(end - start))
 
-    def fill_choices(self, Model):
+    def fill_choices(self, Model, data_table):
         self.log("Filling choices...")
         start = time.time()
         choiceables = Field.objects.for_table(self.table).choiceables()
         for field in choiceables:
             self.log("  {}".format(field.name), end="", flush=True)
             start_field = time.time()
-            field.update_choices()
+            field.update_choices(data_table)
             field.save()
             end_field = time.time()
             self.log(" - done in {:.3f}s.".format(end_field - start_field))

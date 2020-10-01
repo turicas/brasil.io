@@ -205,6 +205,10 @@ class Dataset(models.Model):
         return reverse("core:dataset-files-detail", args=[self.slug])
 
     @property
+    def detail_url(self):
+        return reverse("core:dataset-detail", args=[self.slug])
+
+    @property
     def tables_files(self):
         return sorted([TableFile.objects.get_most_recent_for_table(t) for t in self.tables], key=lambda f: f.filename)
 
@@ -538,8 +542,8 @@ class Field(models.Model):
 
         return ", ".join(["{}={}".format(key, repr(value)) for key, value in self.options.items()])
 
-    def update_choices(self):
-        Model = self.table.get_model()
+    def update_choices(self, data_table=None):
+        Model = self.table.get_model(data_table=data_table)
         choices = Model.objects.order_by(self.name).distinct(self.name).values_list(self.name, flat=True)
         self.choices = {"data": [str(value) for value in choices]}
 

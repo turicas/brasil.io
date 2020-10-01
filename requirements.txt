@@ -43,3 +43,5 @@ sorl-thumbnail==12.6.3
 django-ratelimit==3.0.1
 django-admin-rangefilter==0.6.2
 rq-scheduler==0.10.0
+django-registration==3.1.1
+feedparser==6.0.1

@@ -15,6 +15,7 @@ from core.middlewares import disable_non_logged_user_cache
 from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
 from core.util import cached_http_get_json
+from data_activities_log.activites import recent_activities
 from traffic_control.logging import log_blocked_request
 
 
@@ -83,7 +84,12 @@ def donate(request):
 
 
 def home(request):
-    context = {"datasets": Dataset.objects.filter(show=True).order_by("?")[:6]}
+    context = {
+        "datasets": Dataset.objects.filter(show=True).order_by("?")[:6],
+        "recent_activities": recent_activities(
+            days_ago=settings.NUM_RECENT_ACTIVITES_HOMEPAGE, limit=settings.DAYS_RANGE_RECENT_ACTIVITES_HOMEPAGE
+        ),
+    }
     return render(request, "core/home.html", context)
 
 

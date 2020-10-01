@@ -3,9 +3,13 @@ from unittest.mock import Mock, patch
 from captcha.fields import ReCaptchaField
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.core import mail
+from django.template.loader import get_template
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
+from brasilio_auth.models import NewsletterSubscriber
+from brasilio_auth.views import ActivationView
 from traffic_control.tests.util import TrafficControlClient
 
 User = get_user_model()
@@ -36,16 +40,32 @@ class UserCreationViewTests(TestCase):
         self.assertTemplateUsed(response, "brasilio_auth/user_creation_form.html")
         assert bool(response.context["form"].errors) is True
 
-    def test_create_and_login_with_user(self):
+    def test_create_inactive_user_and_redirect_to_sign_up_complete(self):
+        assert len(mail.outbox) == 0
         assert 1 == User.objects.count()  # auto import covid 19 user
         assert User.objects.filter(username=settings.COVID19_AUTO_IMPORT_USER).exists()
 
         response = self.client.post(self.url, data=self.data)
         user = User.objects.get(username="foo")
 
-        self.assertRedirects(response, settings.LOGIN_REDIRECT_URL, fetch_redirect_response=False)
-        assert "_auth_user_id" in self.client.session
-        assert str(user.pk) == self.client.session["_auth_user_id"]
+        assert not user.is_active
+        assert len(mail.outbox) == 1
+        self.assertRedirects(response, reverse("brasilio_auth:sign_up_complete"))
+        assert not NewsletterSubscriber.objects.exists()
+
+    def test_create_user_as_newsletter_subscriber(self):
+        self.data["subscribe_newsletter"] = True
+
+        self.client.post(self.url, data=self.data)
+
+        user = User.objects.get(username="foo")
+        assert not user.is_active
+        assert NewsletterSubscriber.objects.filter(user=user).exists()
+
+    @override_settings(REGISTRATION_OPEN=False)
+    def test_redirect_to_not_allowed_if_closed_subscription(self):
+        response = self.client.get(self.url)
+        self.assertRedirects(response, reverse("brasilio_auth:sign_up_disallowed"))
 
     def test_form_error_if_trying_to_create_user_with_existing_username(self):
         response = self.client.post(self.url, data=self.data)
@@ -57,3 +77,10 @@ class UserCreationViewTests(TestCase):
         self.assertTemplateUsed(response, "brasilio_auth/user_creation_form.html")
         print(response.context["form"].errors)
         assert bool(response.context["form"].errors) is True
+
+
+class ActivationViewTests(TestCase):
+    def test_attributes_configuration(self):
+        assert reverse("brasilio_auth:activation_complete") == ActivationView.success_url
+        assert "brasilio_auth/activation_failed.html" == ActivationView.template_name
+        assert get_template(ActivationView.template_name)
