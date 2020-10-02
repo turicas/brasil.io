@@ -12,7 +12,7 @@ class Token(models.Model):
 
     key = models.CharField("Key", max_length=40, primary_key=True)
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name="auth_token", on_delete=models.CASCADE, verbose_name="User"
+        settings.AUTH_USER_MODEL, related_name="auth_tokens", on_delete=models.CASCADE, verbose_name="User"
     )
     created = models.DateTimeField("Created", auto_now_add=True)
 
