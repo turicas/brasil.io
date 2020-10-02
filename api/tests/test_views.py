@@ -1,5 +1,6 @@
-from model_bakery import baker
 from django.urls import reverse_lazy
+from model_bakery import baker
+
 from core.tests.utils import BaseTestCaseWithSampleDataset
 from traffic_control.tests.util import TrafficControlClient
 
@@ -15,6 +16,8 @@ class DatasetViewSetTests(BaseTestCaseWithSampleDataset):
     url = reverse_lazy("api:dataset-detail", args=[DATASET_SLUG])
 
     def setUp(self):
+        self.dataset.show = True
+        self.dataset.save()
         self.token = baker.make("authtoken.Token", user__is_active=True)
         auth = f"Token {self.token.key}"
         self.auth_header = {"HTTP_AUTHORIZATION": auth}
@@ -37,3 +40,14 @@ class DatasetViewSetTests(BaseTestCaseWithSampleDataset):
         self.auth_header["HTTP_AUTHORIZATION"] = "Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b"
         response = self.client.get(self.url, **self.auth_header)
         assert 401 == response.status_code
+
+    def test_404_if_dataset_does_not_exist(self):
+        url = reverse_lazy("api:dataset-detail", args=["foooo"])
+        response = self.client.get(url, **self.auth_header)
+        assert 404 == response.status_code
+
+    def test_404_if_dataset_is_not_visible_for_the_api(self):
+        self.dataset.show = False
+        self.dataset.save()
+        response = self.client.get(self.url, **self.auth_header)
+        assert 404 == response.status_code

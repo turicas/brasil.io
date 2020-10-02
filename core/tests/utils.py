@@ -35,7 +35,7 @@ class BaseTestCaseWithSampleDataset(TestCase):
     def setUpTestData(cls):
         cls.validate_config()
         Dataset.objects.filter(slug=cls.DATASET_SLUG).delete()
-        cls.dataset = baker.make(Dataset, slug=cls.DATASET_SLUG)
+        cls.dataset = baker.make(Dataset, slug=cls.DATASET_SLUG, show=True)
         cls.version = baker.make(Version, dataset=cls.dataset)
         cls.table = baker.make("core.Table", dataset=cls.dataset, name=cls.TABLE_NAME, version=cls.version)
         cls.data_table = DataTable.new_data_table(cls.table)
