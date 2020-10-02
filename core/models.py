@@ -113,10 +113,6 @@ class DatasetTableModelQuerySet(models.QuerySet):
 
         return qs
 
-    def filter_by_querystring(self, querystring):
-        query, search_query, order_by = self.parse_querystring(querystring)
-        return self.composed_query(query, search_query, order_by)
-
     def parse_querystring(self, querystring):
         query = querystring.copy()
         order_by = query.pop("order-by", [""])
