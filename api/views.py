@@ -13,7 +13,6 @@ from . import paginators
 
 
 class DatasetViewSet(viewsets.ModelViewSet):
-
     serializer_class = DatasetSerializer
 
     def get_queryset(self):
