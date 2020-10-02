@@ -18,7 +18,7 @@ class DatasetViewSetTests(BaseTestCaseWithSampleDataset):
     def setUp(self):
         self.dataset.show = True
         self.dataset.save()
-        self.token = baker.make("authtoken.Token", user__is_active=True)
+        self.token = baker.make("api.Token", user__is_active=True)
         auth = f"Token {self.token.key}"
         self.auth_header = {"HTTP_AUTHORIZATION": auth}
 
