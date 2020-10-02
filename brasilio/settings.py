@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.staticfiles",
     # Project apps
+    "api",
     "core",
     "graphs",
     "brasilio_auth",
