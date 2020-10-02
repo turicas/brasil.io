@@ -106,7 +106,7 @@ class DatasetSearchForm(forms.Form):
     search = forms.CharField(label="Titulo ou Descrição")
 
 
-def get_table_dynamic_form(table):
+def get_table_dynamic_form(table, cache=True):
     def config_dynamic_filter(model_field):
         dynamic_field = table.get_field(model_field.name)
         kwargs = {"required": False, "label": dynamic_field.title}
@@ -118,6 +118,6 @@ def get_table_dynamic_form(table):
 
         return field_factory(**kwargs)
 
-    model = table.get_model()
+    model = table.get_model(cache=cache)
     fields = model.extra["filtering"]
     return forms.modelform_factory(model, fields=fields, formfield_callback=config_dynamic_filter)
