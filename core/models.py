@@ -365,6 +365,9 @@ class Table(models.Model):
         custom_mixins = [] if not self.dynamic_table_config else self.dynamic_table_config.get_model_mixins()
         return custom_mixins + mixins
 
+    def get_field(self, name):
+        return self.fields.get(name=name)
+
     def get_model(self, cache=True, data_table=None):
         # TODO: the current dynamic model registry is handled by Brasil.IO's
         # code but it needs to be delegated to dynamic_models.

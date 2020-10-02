@@ -108,7 +108,7 @@ class DatasetSearchForm(forms.Form):
 
 def get_table_dynamic_form(table):
     def config_dynamic_filter(model_field):
-        dynamic_field = [f for f in table.fields if f.name == model_field.name][0]
+        dynamic_field = table.get_field(model_field.name)
         kwargs = {"required": False, "label": dynamic_field.title}
         field_factory = model_field.formfield
 
