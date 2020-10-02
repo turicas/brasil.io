@@ -6,6 +6,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 
 from api.serializers import DatasetDetailSerializer, DatasetSerializer, GenericSerializer
+from core.filters import parse_querystring
 from core.forms import get_table_dynamic_form
 from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
@@ -50,7 +51,7 @@ class DatasetDataListView(ListAPIView):
                 del querystring[pagination_key]
 
         Model = self.get_model_class()
-        query, search_query, order_by = Model.objects.parse_querystring(querystring)
+        query, search_query, order_by = parse_querystring(querystring)
 
         DynamicForm = get_table_dynamic_form(self.get_table())
         filter_form = DynamicForm(data=query)

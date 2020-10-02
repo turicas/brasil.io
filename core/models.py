@@ -113,14 +113,6 @@ class DatasetTableModelQuerySet(models.QuerySet):
 
         return qs
 
-    def parse_querystring(self, querystring):
-        query = querystring.copy()
-        order_by = query.pop("order-by", [""])
-        order_by = [field.strip().lower() for field in order_by[0].split(",") if field.strip()]
-        search_query = query.pop("search", [""])[0]
-        query = {key: value for key, value in query.items() if value}
-        return query, search_query, order_by
-
     def composed_query(self, filter_query=None, search_query=None, order_by=None):
         qs = self
         if search_query:

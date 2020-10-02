@@ -8,6 +8,15 @@ def clean_value(key, value):
     return key, value
 
 
+def parse_querystring(querystring):
+    query = querystring.copy()
+    order_by = query.pop("order-by", [""])
+    order_by = [field.strip().lower() for field in order_by[0].split(",") if field.strip()]
+    search_query = query.pop("search", [""])[0]
+    query = {key: value for key, value in query.items() if value}
+    return query, search_query, order_by
+
+
 class DynamicModelFilterProcessor:
     def __init__(self, filtering: dict, allowed_filters: list):
         self.filtering = filtering

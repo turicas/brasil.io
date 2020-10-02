@@ -10,6 +10,7 @@ from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
+from core.filters import parse_querystring
 from core.forms import ContactForm, DatasetSearchForm, get_table_dynamic_form
 from core.middlewares import disable_non_logged_user_cache
 from core.models import Dataset, Table
@@ -148,7 +149,7 @@ def dataset_detail(request, slug, tablename=""):
     version = dataset.version_set.order_by("-order").first()
 
     TableModel = table.get_model()
-    query, search_query, order_by = TableModel.objects.parse_querystring(querystring)
+    query, search_query, order_by = parse_querystring(querystring)
 
     DynamicForm = get_table_dynamic_form(table)
     filter_form = DynamicForm(data=query)
