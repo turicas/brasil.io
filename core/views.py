@@ -146,7 +146,6 @@ def dataset_detail(request, slug, tablename=""):
     items_per_page = min(items_per_page, 1000)
 
     version = dataset.version_set.order_by("-order").first()
-    fields = table.fields
 
     TableModel = table.get_model()
     query, search_query, order_by = TableModel.objects.parse_querystring(querystring)
@@ -180,7 +179,7 @@ def dataset_detail(request, slug, tablename=""):
         filename = "{}-{}.csv".format(slug, uuid.uuid4().hex)
         pseudo_buffer = Echo()
         writer = csv.writer(pseudo_buffer, dialect=csv.excel)
-        csv_rows = queryset_to_csv(all_data, fields)
+        csv_rows = queryset_to_csv(all_data, table.fields)
         response = StreamingHttpResponse(
             (writer.writerow(row) for row in csv_rows), content_type="text/csv;charset=UTF-8",
         )
@@ -198,7 +197,6 @@ def dataset_detail(request, slug, tablename=""):
     context = {
         "data": data,
         "dataset": dataset,
-        "fields": fields,
         "filter_form": filter_form,
         "max_export_rows": settings.CSV_EXPORT_MAX_ROWS,
         "query_dict": querystring,
