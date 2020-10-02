@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_extensions",
     "rest_framework",
+    "rest_framework.authtoken",
     "markdownx",
     "django_rq",
     "sorl.thumbnail",
@@ -162,6 +163,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
     "EXCEPTION_HANDLER": "traffic_control.handlers.api_exception_handler",
+    "DEFAULT_AUTHENTICATION_CLASSES": ["rest_framework.authentication.TokenAuthentication",],
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
 }
 
 THROTTLING_RATE = env("THROTTLING_RATE")
