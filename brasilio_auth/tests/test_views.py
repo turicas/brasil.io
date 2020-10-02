@@ -7,6 +7,7 @@ from django.core import mail
 from django.template.loader import get_template
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from model_bakery import baker
 
 from brasilio_auth.models import NewsletterSubscriber
 from brasilio_auth.views import ActivationView
@@ -84,3 +85,31 @@ class ActivationViewTests(TestCase):
         assert reverse("brasilio_auth:activation_complete") == ActivationView.success_url
         assert "brasilio_auth/activation_failed.html" == ActivationView.template_name
         assert get_template(ActivationView.template_name)
+
+
+class ManageAPiTokensViewsTests(TestCase):
+    client_class = TrafficControlClient
+
+    def setUp(self):
+        self.user = baker.make(get_user_model(), is_active=True)
+        self.client.force_login(self.user)
+        self.url = reverse("brasilio_auth:list_api_tokens")
+
+    def test_login_required(self):
+        self.client.logout()
+        response = self.client.get(self.url)
+        redirect_url = f"{settings.LOGIN_URL}?next={self.url}"
+        self.assertRedirects(response, redirect_url)
+
+    def test_list_user_tokens(self):
+        tokens = baker.make("api.Token", user=self.user, _quantity=5)
+        baker.make("api.Token", _quantity=2)  # other users tokens
+
+        response = self.client.get(self.url)
+
+        self.assertTemplateUsed(response, "brasilio_auth/list_user_api_tokens.html")
+        context = response.context
+        assert 5 == len(context["tokens"])
+        for token in tokens:
+            assert token in context["tokens"]
+        assert context["num_tokens_available"] == settings.MAX_NUM_API_TOKEN_PER_USER - 5

@@ -1,9 +1,12 @@
 import django_registration.backends.activation.views as registration_views
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
+from django.shortcuts import render
 
 from brasilio_auth.forms import UserCreationForm
 from brasilio_auth.models import NewsletterSubscriber
+from api.models import Token
 
 
 class RegistrationView(registration_views.RegistrationView):
@@ -31,3 +34,11 @@ class ActivationView(registration_views.ActivationView):
         user = super().activate(*args, **kwargs)
         login(self.request, user)
         return user
+
+
+@login_required()
+def list_user_api_tokens(request):
+    user = request.user
+    tokens = user.auth_tokens.all()
+    context = {"tokens": tokens, "num_tokens_available": Token.num_of_available_tokens(user)}
+    return render(request, "brasilio_auth/list_user_api_tokens.html", context=context)

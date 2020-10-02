@@ -29,5 +29,9 @@ class Token(models.Model):
     def generate_key(cls):
         return binascii.hexlify(os.urandom(20)).decode()
 
+    @classmethod
+    def num_of_available_tokens(cls, user):
+        return settings.MAX_NUM_API_TOKEN_PER_USER - user.auth_tokens.count()
+
     def __str__(self):
         return self.key

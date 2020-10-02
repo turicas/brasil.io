@@ -166,6 +166,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ["api.authentication.TokenAuthentication",],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
 }
+MAX_NUM_API_TOKEN_PER_USER = env("MAX_NUM_API_TOKEN_PER_USER", cast=int, default=10)
 
 THROTTLING_RATE = env("THROTTLING_RATE")
 
