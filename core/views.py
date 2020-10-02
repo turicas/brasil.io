@@ -207,7 +207,11 @@ def dataset_detail(request, slug, tablename=""):
         "total_count": all_data.count(),
         "version": version,
     }
-    return render(request, "core/dataset-detail.html", context)
+
+    status = 200
+    if filter_form.errors:
+        status = 400
+    return render(request, "core/dataset-detail.html", context, status=status)
 
 
 def dataset_suggestion(request):
