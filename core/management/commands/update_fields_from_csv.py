@@ -1,6 +1,7 @@
 import rows
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.utils import timezone
 
 from core.models import Dataset, Field, Table, Version
 
@@ -31,9 +32,14 @@ class Command(BaseCommand):
                 row = row._asdict()
                 row["version_name"] = str(row["version_name"])
                 row["dataset"] = Dataset.objects.get(slug=row.pop("dataset_slug"))
-                row["version"] = Version.objects.get(dataset=row["dataset"], name=row.pop("version_name"))
-                row["table"] = Table.with_hidden.get(
+                row["version"], _ = Version.objects.get_or_create(
+                    dataset=row["dataset"],
+                    name=row.pop("version_name"),
+                    defaults={"collected_at": timezone.now(), "order": 1},
+                )
+                row["table"], _ = Table.with_hidden.get_or_create(
                     dataset=row["dataset"], version=row["version"], name=row.pop("table_name"),
+                    defaults={"default": False, "ordering": []},
                 )
                 existing_field = Field.objects.filter(
                     dataset=row["dataset"], version=row["version"], table=row["table"], name=row["name"],
