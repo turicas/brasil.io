@@ -204,7 +204,6 @@ def dataset_detail(request, slug, tablename=""):
         "querystring": querystring.urlencode(),
         "slug": slug,
         "table": table,
-        "table": table,
         "total_count": all_data.count(),
         "version": version,
     }
