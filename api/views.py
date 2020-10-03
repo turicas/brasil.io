@@ -6,6 +6,8 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 
 from api.serializers import DatasetDetailSerializer, DatasetSerializer, GenericSerializer
+from core.filters import parse_querystring
+from core.forms import get_table_dynamic_form
 from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
 
@@ -26,6 +28,11 @@ class DatasetViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+class InvalidFiltersException(Exception):
+    def __init__(self, errors_list):
+        self.errors_list = errors_list
+
+
 class DatasetDataListView(ListAPIView):
 
     pagination_class = paginators.LargeTablePageNumberPagination
@@ -44,9 +51,16 @@ class DatasetDataListView(ListAPIView):
                 del querystring[pagination_key]
 
         Model = self.get_model_class()
-        queryset = Model.objects.filter_by_querystring(querystring)
+        query, search_query, order_by = parse_querystring(querystring)
 
-        return queryset
+        DynamicForm = get_table_dynamic_form(self.get_table())
+        filter_form = DynamicForm(data=query)
+        if filter_form.is_valid():
+            query = {k: v for k, v in filter_form.cleaned_data.items() if v != ""}
+        else:
+            raise InvalidFiltersException(filter_form.errors)
+
+        return Model.objects.composed_query(query, search_query, order_by)
 
     def get_serializer_class(self):
         table = self.get_table()
@@ -71,6 +85,12 @@ class DatasetDataListView(ListAPIView):
                     setattr(obj, field_name, value)
 
         return super().get_serializer(*args, **kwargs)
+
+    def handle_exception(self, exc):
+        if isinstance(exc, InvalidFiltersException):
+            return Response(exc.errors_list, status=400)
+        else:
+            return super().handle_exception(exc)
 
 
 dataset_list = DatasetViewSet.as_view({"get": "list"})

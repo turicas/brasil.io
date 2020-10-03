@@ -10,7 +10,8 @@ from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from core.forms import ContactForm, DatasetSearchForm
+from core.filters import parse_querystring
+from core.forms import ContactForm, DatasetSearchForm, get_table_dynamic_form
 from core.middlewares import disable_non_logged_user_cache
 from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
@@ -146,10 +147,17 @@ def dataset_detail(request, slug, tablename=""):
     items_per_page = min(items_per_page, 1000)
 
     version = dataset.version_set.order_by("-order").first()
-    fields = table.fields
 
     TableModel = table.get_model()
-    query, search_query, order_by = TableModel.objects.parse_querystring(querystring)
+    query, search_query, order_by = parse_querystring(querystring)
+
+    DynamicForm = get_table_dynamic_form(table)
+    filter_form = DynamicForm(data=query)
+    if filter_form.is_valid():
+        query = {k: v for k, v in filter_form.cleaned_data.items() if v != ""}
+    else:
+        query = {}
+
     all_data = TableModel.objects.composed_query(query, search_query, order_by)
 
     if download_csv:
@@ -172,7 +180,7 @@ def dataset_detail(request, slug, tablename=""):
         filename = "{}-{}.csv".format(slug, uuid.uuid4().hex)
         pseudo_buffer = Echo()
         writer = csv.writer(pseudo_buffer, dialect=csv.excel)
-        csv_rows = queryset_to_csv(all_data, fields)
+        csv_rows = queryset_to_csv(all_data, table.fields)
         response = StreamingHttpResponse(
             (writer.writerow(row) for row in csv_rows), content_type="text/csv;charset=UTF-8",
         )
@@ -190,7 +198,7 @@ def dataset_detail(request, slug, tablename=""):
     context = {
         "data": data,
         "dataset": dataset,
-        "fields": fields,
+        "filter_form": filter_form,
         "max_export_rows": settings.CSV_EXPORT_MAX_ROWS,
         "query_dict": querystring,
         "querystring": querystring.urlencode(),
@@ -200,7 +208,11 @@ def dataset_detail(request, slug, tablename=""):
         "total_count": all_data.count(),
         "version": version,
     }
-    return render(request, "core/dataset-detail.html", context)
+
+    status = 200
+    if filter_form.errors:
+        status = 400
+    return render(request, "core/dataset-detail.html", context, status=status)
 
 
 def dataset_suggestion(request):
