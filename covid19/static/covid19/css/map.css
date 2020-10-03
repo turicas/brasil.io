@@ -27,6 +27,14 @@ nav.nav-state-selector ul {
   height: 10em;
 }
 
+.card > .card-content.card-body.number{
+  font-weight: bold;
+  font-size: 1.5em;
+  height: 2em;
+  text-align: center;
+}
+
+
 .info {
   padding: 6px 8px;
   font: 14px/16px sans-serif;
