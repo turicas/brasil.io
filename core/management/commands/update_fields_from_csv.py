@@ -38,7 +38,9 @@ class Command(BaseCommand):
                     defaults={"collected_at": timezone.now(), "order": 1},
                 )
                 row["table"], _ = Table.with_hidden.get_or_create(
-                    dataset=row["dataset"], version=row["version"], name=row.pop("table_name"),
+                    dataset=row["dataset"],
+                    version=row["version"],
+                    name=row.pop("table_name"),
                     defaults={"default": False, "ordering": []},
                 )
                 existing_field = Field.objects.filter(
