@@ -2,6 +2,7 @@ from unittest.mock import Mock, patch
 
 from captcha.fields import ReCaptchaField
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.template.loader import get_template
@@ -113,3 +114,53 @@ class ManageAPiTokensViewsTests(TestCase):
         for token in tokens:
             assert token in context["tokens"]
         assert context["num_tokens_available"] == settings.MAX_NUM_API_TOKEN_PER_USER - 5
+
+
+class CreateAPiTokensViewsTests(TestCase):
+    client_class = TrafficControlClient
+
+    def setUp(self):
+        self.user = baker.make(get_user_model(), is_active=True)
+        self.client.force_login(self.user)
+        self.url = reverse("brasilio_auth:create_api_tokens")
+
+    def test_login_required(self):
+        self.client.logout()
+        response = self.client.get(self.url)
+        redirect_url = f"{settings.LOGIN_URL}?next={self.url}"
+        self.assertRedirects(response, redirect_url)
+
+    def test_create_new_token_for_user(self):
+        assert 0 == self.user.auth_tokens.count()
+
+        response = self.client.get(self.url)
+        context = response.context
+        new_token = self.user.auth_tokens.get()
+
+        self.assertTemplateUsed(response, "brasilio_auth/list_user_api_tokens.html")
+        assert 1 == len(context["tokens"])
+        assert new_token in context["tokens"]
+        assert context["num_tokens_available"] == settings.MAX_NUM_API_TOKEN_PER_USER - 1
+        user_messages = list(context["messages"])
+        assert len(user_messages) == 1
+        msg = user_messages[0]
+        assert messages.SUCCESS == msg.level
+        assert f"Nova chave de API: {new_token}" == msg.message
+
+    def test_display_error_message_if_user_has_max_num_of_tokens(self):
+        baker.make("api.Token", user=self.user, _quantity=settings.MAX_NUM_API_TOKEN_PER_USER)
+        tokens = self.user.auth_tokens.all()
+
+        response = self.client.get(self.url)
+        context = response.context
+
+        self.assertTemplateUsed(response, "brasilio_auth/list_user_api_tokens.html")
+        assert settings.MAX_NUM_API_TOKEN_PER_USER == len(context["tokens"])
+        for token in tokens:
+            assert token in context["tokens"]
+        assert context["num_tokens_available"] == 0
+        user_messages = list(context["messages"])
+        assert len(user_messages) == 1
+        msg = user_messages[0]
+        assert messages.ERROR == msg.level
+        assert f"Você já possui número máximo de {settings.MAX_NUM_API_TOKEN_PER_USER} chaves de API." == msg.message

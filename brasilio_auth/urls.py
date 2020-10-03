@@ -49,4 +49,5 @@ urlpatterns = (
         name="sign_up_disallowed",
     ),
     path("tokens-api/", views.list_user_api_tokens, name="list_api_tokens"),
+    path("tokens-api/novo/", views.create_new_api_token, name="create_api_tokens"),
 )

@@ -1,12 +1,14 @@
 import django_registration.backends.activation.views as registration_views
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy
 from django.shortcuts import render
+from django.urls import reverse_lazy
 
+from api.models import NumMaxTokensExceeded, Token
 from brasilio_auth.forms import UserCreationForm
 from brasilio_auth.models import NewsletterSubscriber
-from api.models import Token
 
 
 class RegistrationView(registration_views.RegistrationView):
@@ -42,3 +44,14 @@ def list_user_api_tokens(request):
     tokens = user.auth_tokens.all()
     context = {"tokens": tokens, "num_tokens_available": Token.num_of_available_tokens(user)}
     return render(request, "brasilio_auth/list_user_api_tokens.html", context=context)
+
+
+@login_required()
+def create_new_api_token(request):
+    try:
+        token = Token.new_token_for_user(request.user)
+        messages.add_message(request, messages.SUCCESS, f"Nova chave de API: {token}")
+    except NumMaxTokensExceeded:
+        msg = f"Você já possui número máximo de {settings.MAX_NUM_API_TOKEN_PER_USER} chaves de API."
+        messages.add_message(request, messages.ERROR, msg)
+    return list_user_api_tokens(request)
