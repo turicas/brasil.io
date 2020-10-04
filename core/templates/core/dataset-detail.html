@@ -141,7 +141,7 @@
       </div>
 
       <div class="row table-container" style="padding-left: 0px;">
-        {% with table_id=dataset.slug table=table %}
+        {% with table_id=dataset.slug fields=table.fields %}
         {% include 'core/data-table.html' %}
         {% endwith %}
       </div>

@@ -9,7 +9,7 @@
 <table id="{{ table_id }}"{% if caption %}data-filename="{{ caption }}"{% endif %} class="mdl-data-table table-custom">
   <thead>
   <tr>
-    {% for field in table.fields %}
+    {% for field in fields %}
     {% if field.show_on_frontend %}
     <th>{{ field.title }}</th>
     {% endif %}
@@ -20,7 +20,7 @@
   <tbody>
   {% for row in data %}
   <tr>
-    {% for field in table.fields %}{% if field.show_on_frontend %}{% with value=row|getattribute:field %}
+    {% for field in fields %}{% if field.show_on_frontend %}{% with value=row|getattribute:field %}
     {% if field.link_template and value %}
     <td><a href="{{ field.link_template|render:row }}" title="Ver mais"> {{ value }} </a></td>
     {% else %}
