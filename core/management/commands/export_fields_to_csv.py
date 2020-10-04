@@ -24,7 +24,7 @@ class Command(BaseCommand):
 
         for dataset in datasets:
             dataset_slug = dataset.slug
-            tables = dataset.tables
+            tables = dataset.all_tables
             if filter_table_name:
                 tables = tables.filter(name=filter_table_name)
 

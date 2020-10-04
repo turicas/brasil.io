@@ -162,6 +162,12 @@ class Dataset(models.Model):
         return self.table_set.filter(version=version).order_by("name")
 
     @property
+    def all_tables(self):
+        # By now we're ignoring version - just take the last one
+        version = self.get_last_version()
+        return Table.with_hidden.filter(version=version).order_by("name")
+
+    @property
     def last_version(self):
         return self.get_last_version()
 
