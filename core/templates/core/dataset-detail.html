@@ -79,7 +79,8 @@
 
               <div class="input-field col s6">
                 <label class="active" for="search">Busca</label>
-                <input type="text" id="search" name="search" value="{{ query_dict.search|default:'' }}">
+                <input type="text" id="search" name="search" value="{{ search_term }}">
+
               </div>
 
               {% for field in filter_form %}

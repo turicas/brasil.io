@@ -35,14 +35,16 @@ class SampleDatasetDetailView(BaseTestCaseWithSampleDataset):
         assert 200 == response.status_code
         self.assertTemplateUsed(response, "core/dataset-detail.html")
         assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
+        assert "" == response.context["search_term"]
 
     def test_400_if_invalid_filter_choice(self):
-        url = self.url + "?sample_field=xpto"
+        url = self.url + "?sample_field=xpto&search=algo"
         response = self.client.get(url)
         assert 400 == response.status_code
         self.assertTemplateUsed(response, "core/dataset-detail.html")
         assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert "sample_field" in response.context["filter_form"].errors
+        assert "algo" == response.context["search_term"]
 
     @override_settings(RATELIMIT_ENABLE=True)
     @override_settings(RATELIMIT_RATE="0/s")
