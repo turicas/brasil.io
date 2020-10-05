@@ -1,6 +1,7 @@
 import rows
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.utils import timezone
 
 from core.models import Dataset, Field, Table, Version
 
@@ -23,17 +24,24 @@ class Command(BaseCommand):
             raise ValueError("Field names didn't match")
 
         with transaction.atomic():
-            fields_to_add = []
+            fields_to_save, tables_created = [], []
             for row in table:
                 # First pass: get objects from database: won't add Field here,
                 # since if there are errors, the script will raise exception inside
                 # this first `for`.
                 row = row._asdict()
                 row["version_name"] = str(row["version_name"])
-                row["dataset"] = Dataset.objects.get(slug=row.pop("dataset_slug"))
-                row["version"] = Version.objects.get(dataset=row["dataset"], name=row.pop("version_name"))
-                row["table"] = Table.with_hidden.get(
-                    dataset=row["dataset"], version=row["version"], name=row.pop("table_name"),
+                row["dataset"], _ = Dataset.objects.get_or_create(slug=row.pop("dataset_slug"))
+                row["version"], _ = Version.objects.get_or_create(
+                    dataset=row["dataset"],
+                    name=row.pop("version_name"),
+                    defaults={"collected_at": timezone.now(), "order": 1},
+                )
+                row["table"], table_created = Table.with_hidden.get_or_create(
+                    dataset=row["dataset"],
+                    version=row["version"],
+                    name=row.pop("table_name"),
+                    defaults={"default": False, "ordering": ["id"], "search": []},
                 )
                 existing_field = Field.objects.filter(
                     dataset=row["dataset"], version=row["version"], table=row["table"], name=row["name"],
@@ -48,8 +56,18 @@ class Command(BaseCommand):
                         if key in ("dataset", "version", "table"):
                             continue
                         setattr(field, key, value)
-                fields_to_add.append((action, field))
+                fields_to_save.append((action, field))
+                if table_created:
+                    tables_created.append(row["table"])
 
-            for action, field in fields_to_add:
+            for table in tables_created:
+                table.search = [
+                    field.name
+                    for action, field in fields_to_save
+                    if field.table == table and field.type in ("text", "string")
+                ]
+                table.save()
+
+            for action, field in fields_to_save:
                 print(f"{action}: {field}")
                 field.save()

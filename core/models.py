@@ -113,18 +113,6 @@ class DatasetTableModelQuerySet(models.QuerySet):
 
         return qs
 
-    def filter_by_querystring(self, querystring):
-        query, search_query, order_by = self.parse_querystring(querystring)
-        return self.composed_query(query, search_query, order_by)
-
-    def parse_querystring(self, querystring):
-        query = querystring.copy()
-        order_by = query.pop("order-by", [""])
-        order_by = [field.strip().lower() for field in order_by[0].split(",") if field.strip()]
-        search_query = query.pop("search", [""])[0]
-        query = {key: value for key, value in query.items() if value}
-        return query, search_query, order_by
-
     def composed_query(self, filter_query=None, search_query=None, order_by=None):
         qs = self
         if search_query:
@@ -172,6 +160,12 @@ class Dataset(models.Model):
         # By now we're ignoring version - just take the last one
         version = self.get_last_version()
         return self.table_set.filter(version=version).order_by("name")
+
+    @property
+    def all_tables(self):
+        # By now we're ignoring version - just take the last one
+        version = self.get_last_version()
+        return Table.with_hidden.filter(version=version).order_by("name")
 
     @property
     def last_version(self):
@@ -377,6 +371,9 @@ class Table(models.Model):
         custom_mixins = [] if not self.dynamic_table_config else self.dynamic_table_config.get_model_mixins()
         return custom_mixins + mixins
 
+    def get_field(self, name):
+        return self.fields.get(name=name)
+
     def get_model(self, cache=True, data_table=None):
         # TODO: the current dynamic model registry is handled by Brasil.IO's
         # code but it needs to be delegated to dynamic_models.
@@ -423,6 +420,7 @@ class Table(models.Model):
             "filtering": filtering,
             "ordering": ordering,
             "search": search,
+            "table": self,
         }
         DYNAMIC_MODEL_REGISTRY[cache_key] = Model
         return Model

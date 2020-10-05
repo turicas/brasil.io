@@ -45,10 +45,10 @@ class ImportDataCommand:
 
         if self.flag_import_data:
             self.log(f"Importing data to new table {data_table.db_table_name}")
-            Model = self.table.get_model(cache=False, data_table=data_table)
+            Model = table.get_model(cache=False, data_table=data_table)
             self.import_data(filename, Model)
         else:
-            Model = self.table.get_model(cache=False)
+            Model = table.get_model(cache=False)
 
         # Vaccum and concurrent index creation cannot run inside a transaction block
         if self.flag_vacuum:
@@ -61,15 +61,18 @@ class ImportDataCommand:
                 if self.flag_fill_choices:
                     self.fill_choices(Model, data_table)
                 if self.flag_import_data:
-                    table.data_table.deactivate(drop_table=self.flag_delete_old_table)
+                    if table.data_table is not None:
+                        table.data_table.deactivate(drop_table=self.flag_delete_old_table)
                     data_table.activate()
+                    table.refresh_from_db()  # To have data_table filled
         except Exception as e:
             self.log(f"Deleting import table {data_table.db_table_name} due to an error.")
             data_table.delete_data_table()
             raise e
 
         if self.flag_clear_view_cache:
-            self.log("Clearing view cache...")
+            self.log("Clearing view and table caches...")
+            table.invalidate_cache()
             cache.clear()
 
     def import_data(self, filename, Model):
@@ -132,7 +135,6 @@ class ImportDataCommand:
                     duration, rows_imported, rows_imported / duration
                 )
             )
-        self.table.invalidate_cache()
 
     def run_vacuum(self, Model):
         self.log("Running VACUUM ANALYSE...", end="", flush=True)

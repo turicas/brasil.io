@@ -25,11 +25,6 @@ def getattribute(obj, field):
     return _getattr(obj, field, should_obfuscate=True)
 
 
-@register.filter(name="getplainattribute")
-def getplainattribute(obj, field):
-    return _getattr(obj, field, should_obfuscate=False)
-
-
 @register.filter(name="render")
 def render(template_text, obj):
     template_text = "{% load utils %}" + template_text  # inception

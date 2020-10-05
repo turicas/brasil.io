@@ -197,3 +197,8 @@ a {
 .error-container p{
   font-size: 1.4rem;
 }
+
+.filter-error {
+  color: #ee6e73;
+  font-size: 1rem;
+}
