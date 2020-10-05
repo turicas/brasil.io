@@ -122,7 +122,7 @@ class CreateAPiTokensViewsTests(TestCase):
     def setUp(self):
         self.user = baker.make(get_user_model(), is_active=True)
         self.client.force_login(self.user)
-        self.url = reverse("brasilio_auth:create_api_tokens")
+        self.url = reverse("brasilio_auth:create_api_token")
 
     def test_login_required(self):
         self.client.logout()
@@ -173,7 +173,7 @@ class DeleteApiTokenViewsTests(TestCase):
         self.user = baker.make(get_user_model(), is_active=True)
         self.token = baker.make("api.Token", user=self.user)
         self.client.force_login(self.user)
-        self.url = reverse("brasilio_auth:delete_api_tokens", args=[self.token.key])
+        self.url = reverse("brasilio_auth:delete_api_token", args=[self.token.key])
 
     def test_login_required(self):
         self.client.logout()
