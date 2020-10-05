@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Gerenciamento de Chaves API - Brasil.IO{% endblock %}
+
+{% block content %}
+<div class="section">
+  <div id="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">Gerenciamento de Chaves da API</span>
+            Aqui você poderá criar e gerenciars suas chaves de API.......
+          </div>
+        </div>
+      </div>
+  </div>
+
+
+  <div class="row table-container" style="padding-left: 0px; overflow: hidden;">
+    <table id="api-tokens-table" class="mdl-data-table table-custom">
+      <tr>
+        <th>Chave</th>
+        <th>Criada em</th>
+        <th>Ações</th>
+      </tr>
+
+      {% for token in tokens %}
+        <tr>
+          <td><tt>{{ token.key }}</tt></td>
+          <td>{{ token.created }}</td>
+          <td><a href="{% url 'brasilio_auth:delete_api_token' token.key %}">Deletar chave</a></td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% if num_tokens_available %}
+  <div class="row" style="text-align: right">
+    <a data-table-id="api-tokens-table" class="btn download-button" href="{% url 'brasilio_auth:create_api_token' %}">Criar nova Chave de API</a>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
