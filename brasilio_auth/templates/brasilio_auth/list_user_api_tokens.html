@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="section">
-  <div id="row">
+  <div class="row">
       <div class="col s12">
         <div class="card">
           <div class="card-content">
@@ -15,6 +15,16 @@
       </div>
   </div>
 
+  {% if messages %}
+  <div class="row">
+
+    <ul class="messages">
+        {% for message in messages %}
+        <li class={% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}"dark-red"{% else %}"dark-green"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
 
   <div class="row table-container" style="padding-left: 0px; overflow: hidden;">
     <table id="api-tokens-table" class="mdl-data-table table-custom">

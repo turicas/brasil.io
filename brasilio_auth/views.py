@@ -50,7 +50,7 @@ def list_user_api_tokens(request):
 def create_new_api_token(request):
     try:
         token = Token.new_token_for_user(request.user)
-        messages.add_message(request, messages.SUCCESS, f"Nova chave de API: {token}")
+        messages.add_message(request, messages.SUCCESS, f"Nova chave de API: <tt>{token}</tt>")
     except NumMaxTokensExceeded:
         msg = f"Você já possui número máximo de {settings.MAX_NUM_API_TOKEN_PER_USER} chaves de API."
         messages.add_message(request, messages.ERROR, msg)
