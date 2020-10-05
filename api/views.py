@@ -16,9 +16,7 @@ from . import paginators
 
 class DatasetViewSet(viewsets.ModelViewSet):
     serializer_class = DatasetSerializer
-
-    def get_queryset(self):
-        return Dataset.objects.filter(show=True)
+    queryset = Dataset.objects.api_visible()
 
     def retrieve(self, request, slug):
         obj = get_object_or_404(self.get_queryset(), slug=slug)
@@ -36,7 +34,7 @@ class DatasetDataListView(ListAPIView):
     pagination_class = paginators.LargeTablePageNumberPagination
 
     def get_table(self):
-        dataset = get_object_or_404(Dataset, slug=self.kwargs["slug"])
+        dataset = get_object_or_404(Dataset.objects.api_visible(), slug=self.kwargs["slug"])
         return get_object_or_404(Table.objects.api_enabled(), dataset=dataset, name=self.kwargs["tablename"])
 
     def get_model_class(self):

@@ -88,3 +88,9 @@ class DatasetTableDataTests(BaseTestCaseWithSampleDataset):
         response = self.client.get(self.url, data=qs, **self.auth_header)
         assert 200 == response.status_code
         assert "results" in response.json()
+
+    def test_404_if_dataset_is_not_visible_for_the_api(self):
+        self.dataset.show = False
+        self.dataset.save()
+        response = self.client.get(self.url, **self.auth_header)
+        assert 404 == response.status_code
