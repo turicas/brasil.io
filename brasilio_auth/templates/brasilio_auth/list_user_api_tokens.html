@@ -38,7 +38,7 @@
         <tr>
           <td><tt>{{ token.key }}</tt></td>
           <td>{{ token.created }}</td>
-          <td><a href="{% url 'brasilio_auth:delete_api_token' token.key %}">Deletar chave</a></td>
+          <td><a href="{% url 'brasilio_auth:api_token_sample_usage' token.key %}">Ver exemplo</a> | <a href="{% url 'brasilio_auth:delete_api_token' token.key %}">Deletar chave</a></td>
         </tr>
       {% endfor %}
     </table>

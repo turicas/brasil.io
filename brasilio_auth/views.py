@@ -64,3 +64,7 @@ def delete_api_token(request, key):
     msg = "Chave de API deletada com sucesso."
     messages.add_message(request, messages.SUCCESS, msg)
     return redirect("brasilio_auth:list_api_tokens")
+
+
+def api_token_demo_usage(request, key):
+    return render(request, "brasilio_auth/api_token_sample_usage.html", context={"key": key})

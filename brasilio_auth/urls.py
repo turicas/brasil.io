@@ -51,4 +51,5 @@ urlpatterns = (
     path("tokens-api/", views.list_user_api_tokens, name="list_api_tokens"),
     path("tokens-api/novo/", views.create_new_api_token, name="create_api_token"),
     path("tokens-api/apagar/<str:key>/", views.delete_api_token, name="delete_api_token"),
+    path("tokens-api/exemplo/<str:key>/", views.api_token_demo_usage, name="api_token_sample_usage"),
 )
