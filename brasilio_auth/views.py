@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 
 from api.models import NumMaxTokensExceeded, Token
@@ -54,7 +54,7 @@ def create_new_api_token(request):
     except NumMaxTokensExceeded:
         msg = f"Você já possui número máximo de {settings.MAX_NUM_API_TOKEN_PER_USER} chaves de API."
         messages.add_message(request, messages.ERROR, msg)
-    return list_user_api_tokens(request)
+    return redirect("brasilio_auth:list_api_tokens")
 
 
 @login_required()
@@ -63,4 +63,4 @@ def delete_api_token(request, key):
     token.delete()
     msg = "Chave de API deletada com sucesso."
     messages.add_message(request, messages.SUCCESS, msg)
-    return list_user_api_tokens(request)
+    return redirect("brasilio_auth:list_api_tokens")

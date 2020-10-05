@@ -133,7 +133,7 @@ class CreateAPiTokensViewsTests(TestCase):
     def test_create_new_token_for_user(self):
         assert 0 == self.user.auth_tokens.count()
 
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, follow=True)
         context = response.context
         new_token = self.user.auth_tokens.get()
 
@@ -145,13 +145,13 @@ class CreateAPiTokensViewsTests(TestCase):
         assert len(user_messages) == 1
         msg = user_messages[0]
         assert messages.SUCCESS == msg.level
-        assert f"Nova chave de API: {new_token}" == msg.message
+        assert f"Nova chave de API: <tt>{new_token}</tt>" == msg.message
 
     def test_display_error_message_if_user_has_max_num_of_tokens(self):
         baker.make("api.Token", user=self.user, _quantity=settings.MAX_NUM_API_TOKEN_PER_USER)
         tokens = self.user.auth_tokens.all()
 
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, follow=True)
         context = response.context
 
         self.assertTemplateUsed(response, "brasilio_auth/list_user_api_tokens.html")
@@ -196,7 +196,7 @@ class DeleteApiTokenViewsTests(TestCase):
         user_other_tokens = baker.make("api.Token", user=self.user, _quantity=3)
         assert 4 == self.user.auth_tokens.count()
 
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, follow=True)
         context = response.context
 
         self.assertTemplateUsed(response, "brasilio_auth/list_user_api_tokens.html")
