@@ -74,3 +74,21 @@ class DynamicModelFormTests(BaseTestCaseWithSampleDataset):
         assert "uf" in form.errors
         assert "city" not in form.errors
         assert {"city": "Rio de Janeiro"} == form.cleaned_data
+
+    def test_choice_failback_to_default_type_if_has_choice_field_but_no_data(self):
+        self.table.filtering = ["uf", "city"]
+        self.table.save()
+        uf_field = self.table.get_field("uf")
+        uf_field.has_choices = True
+        uf_field.save()
+        city_field = self.table.get_field("city")
+        city_field.has_choices = True
+        city_field.save()
+
+        DynamicFormClasss = get_table_dynamic_form(self.table, cache=False)
+        form = DynamicFormClasss()
+
+        assert "uf" in form.fields
+        assert "city" in form.fields
+        assert isinstance(form.fields["uf"], type(self.get_model_field("uf").formfield()))
+        assert isinstance(form.fields["city"], type(self.get_model_field("city").formfield()))
