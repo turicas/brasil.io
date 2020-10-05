@@ -15,7 +15,14 @@ class SampleDatasetDetailView(BaseTestCaseWithSampleDataset):
     DATASET_SLUG = "sample"
     TABLE_NAME = "sample_table"
     FIELDS_KWARGS = [
-        {"name": "sample_field", "options": {"max_length": 10}, "type": "text", "null": False},
+        {
+            "name": "sample_field",
+            "options": {"max_length": 10},
+            "type": "text",
+            "null": False,
+            "filtering": True,
+            "choices": {"data": ["foo", "bar"]},
+        },
     ]
 
     def setUp(self):
@@ -26,6 +33,13 @@ class SampleDatasetDetailView(BaseTestCaseWithSampleDataset):
         response = self.client.get(self.url)
         assert 200 == response.status_code
         self.assertTemplateUsed(response, "core/dataset-detail.html")
+
+    def test_400_if_invalid_filter_choice(self):
+        url = self.url + "?sample_field=xpto"
+        response = self.client.get(url)
+        assert 400 == response.status_code
+        self.assertTemplateUsed(response, "core/dataset-detail.html")
+        assert "sample_field" in response.context["filter_form"].errors
 
     @override_settings(RATELIMIT_ENABLE=True)
     @override_settings(RATELIMIT_RATE="0/s")
