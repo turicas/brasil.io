@@ -164,3 +164,47 @@ class CreateAPiTokensViewsTests(TestCase):
         msg = user_messages[0]
         assert messages.ERROR == msg.level
         assert f"Você já possui número máximo de {settings.MAX_NUM_API_TOKEN_PER_USER} chaves de API." == msg.message
+
+
+class DeleteApiTokenViewsTests(TestCase):
+    client_class = TrafficControlClient
+
+    def setUp(self):
+        self.user = baker.make(get_user_model(), is_active=True)
+        self.token = baker.make("api.Token", user=self.user)
+        self.client.force_login(self.user)
+        self.url = reverse("brasilio_auth:delete_api_tokens", args=[self.token.key])
+
+    def test_login_required(self):
+        self.client.logout()
+        response = self.client.get(self.url)
+        redirect_url = f"{settings.LOGIN_URL}?next={self.url}"
+        self.assertRedirects(response, redirect_url)
+
+    def test_404_if_token_does_not_exist(self):
+        self.token.delete()
+        response = self.client.get(self.url)
+        assert 404 == response.status_code
+
+    def test_404_if_token_does_not_belong_to_logged_user(self):
+        self.client.logout()
+        self.client.force_login(baker.make(get_user_model(), is_active=True))
+        response = self.client.get(self.url)
+        assert 404 == response.status_code
+
+    def test_delete_token(self):
+        user_other_tokens = baker.make("api.Token", user=self.user, _quantity=3)
+        assert 4 == self.user.auth_tokens.count()
+
+        response = self.client.get(self.url)
+        context = response.context
+
+        self.assertTemplateUsed(response, "brasilio_auth/list_user_api_tokens.html")
+        assert 3 == len(context["tokens"]) == len(user_other_tokens)
+        for token in user_other_tokens:
+            assert token in context["tokens"]
+        user_messages = list(context["messages"])
+        assert len(user_messages) == 1
+        msg = user_messages[0]
+        assert messages.SUCCESS == msg.level
+        assert "Chave de API deletada com sucesso." == msg.message
