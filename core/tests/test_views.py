@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from django.conf import settings
 from django.core.management import call_command
 from django.test import override_settings
 from django.urls import reverse
@@ -33,12 +34,14 @@ class SampleDatasetDetailView(BaseTestCaseWithSampleDataset):
         response = self.client.get(self.url)
         assert 200 == response.status_code
         self.assertTemplateUsed(response, "core/dataset-detail.html")
+        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
 
     def test_400_if_invalid_filter_choice(self):
         url = self.url + "?sample_field=xpto"
         response = self.client.get(url)
         assert 400 == response.status_code
         self.assertTemplateUsed(response, "core/dataset-detail.html")
+        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert "sample_field" in response.context["filter_form"].errors
 
     @override_settings(RATELIMIT_ENABLE=True)
@@ -48,6 +51,7 @@ class SampleDatasetDetailView(BaseTestCaseWithSampleDataset):
         response = self.client.get(self.url)
         assert 429 == response.status_code
         self.assertTemplateUsed(response, "4xx.html")
+        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert "Você atingiu o limite de requisições" in response.context["message"]
         assert 429 == response.context["title_4xx"]
         assert mocked_ratelimit.called is False  # this ensures the middleware is the one raising the 429 error
@@ -70,6 +74,7 @@ class TestDatasetFilesDetailView(BaseTestCaseWithSampleDataset):
 
         assert 200 == response.status_code
         self.assertTemplateUsed(response, "core/dataset_files_list.html")
+        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert self.dataset == response.context["dataset"]
         assert self.table.version.collected_at == response.context["capture_date"]
         assert self.dataset.all_files == response.context["file_list"]
@@ -96,4 +101,5 @@ class TestDatasetFilesDetailView(BaseTestCaseWithSampleDataset):
 
         assert 200 == response.status_code
         self.assertTemplateUsed(response, "404.html")
+        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert response.context["message"]

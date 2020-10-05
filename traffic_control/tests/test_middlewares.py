@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase, override_settings
 
 
@@ -5,6 +6,7 @@ class BlockSuspiciousRequestsMiddlewareTests(TestCase):
     def assert429(self, response):
         assert 429 == response.status_code
         self.assertTemplateUsed(response, "4xx.html")
+        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert "Você atingiu o limite de requisições" in response.context["message"]
         assert 429 == response.context["title_4xx"]
 

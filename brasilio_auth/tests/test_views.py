@@ -35,11 +35,13 @@ class UserCreationViewTests(TestCase):
     def test_render_correct_template(self):
         response = self.client.get(self.url)
         self.assertTemplateUsed(response, "brasilio_auth/user_creation_form.html")
+        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert "form" in response.context
 
     def test_render_form_errors_if_invalid_post(self):
         response = self.client.post(self.url, data={})
         self.assertTemplateUsed(response, "brasilio_auth/user_creation_form.html")
+        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert bool(response.context["form"].errors) is True
 
     def test_create_inactive_user_and_redirect_to_sign_up_complete(self):
@@ -77,6 +79,7 @@ class UserCreationViewTests(TestCase):
         self.data["email"] = "new@foo.com"
         response = self.client.post(self.url, data=self.data)
         self.assertTemplateUsed(response, "brasilio_auth/user_creation_form.html")
+        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         print(response.context["form"].errors)
         assert bool(response.context["form"].errors) is True
 
