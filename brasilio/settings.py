@@ -164,12 +164,13 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 100,
     "EXCEPTION_HANDLER": "traffic_control.handlers.api_exception_handler",
     "DEFAULT_AUTHENTICATION_CLASSES": ["api.authentication.TokenAuthentication",],
-    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
 }
 MAX_NUM_API_TOKEN_PER_USER = env("MAX_NUM_API_TOKEN_PER_USER", cast=int, default=10)
+ENABLE_API_AUTH = env("ENABLE_API_AUTH", cast=bool, default=False)
+if ENABLE_API_AUTH:
+    REST_FRAMEWORK["DEFAULT_PERMISSION_CLASSES"] = ["rest_framework.permissions.IsAuthenticated"]
 
 THROTTLING_RATE = env("THROTTLING_RATE")
-
 if THROTTLING_RATE:
     REST_FRAMEWORK.update(
         {
@@ -180,6 +181,7 @@ if THROTTLING_RATE:
             "DEFAULT_THROTTLE_RATES": {"anon": THROTTLING_RATE, "user": THROTTLING_RATE,},
         }
     )
+
 
 RATELIMIT_ENABLE = env("RATELIMIT_ENABLE", cast=bool, default=False)
 RATELIMIT_RATE = env(
