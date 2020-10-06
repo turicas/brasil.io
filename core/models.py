@@ -308,7 +308,7 @@ class Table(models.Model):
 
     @property
     def filtering(self):
-        return self.filtering_fields
+        return [f.name for f in self.fields.frontend_filters()]
 
     @property
     def collect_date(self):
@@ -474,7 +474,10 @@ class FieldQuerySet(models.QuerySet):
         return self.filter(table=table)
 
     def choiceables(self):
-        return self.filter(has_choices=True, frontend_filter=True)
+        return self.frontend_filter().filter(has_choices=True)
+
+    def frontend_filters(self):
+        return self.filter(frontend_filter=True)
 
 
 class Field(models.Model):
