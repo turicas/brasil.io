@@ -88,7 +88,7 @@ class ActivationViewTests(TestCase):
         assert get_template(ActivationView.template_name)
 
 
-class ManageAPiTokensViewsTests(TestCase):
+class ManageApiTokensViewsTests(TestCase):
     client_class = TrafficControlClient
 
     def setUp(self):
