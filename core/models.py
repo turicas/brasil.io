@@ -295,7 +295,7 @@ class Table(models.Model):
     name = models.CharField(max_length=255, null=False, blank=False)
     options = models.JSONField(null=True, blank=True)
     ordering = ArrayField(models.CharField(max_length=63), null=False, blank=False)
-    filtering = ArrayField(models.CharField(max_length=63), null=True, blank=True)
+    filtering_fields = ArrayField(models.CharField(max_length=63), null=True, blank=True)
     search = ArrayField(models.CharField(max_length=63), null=True, blank=True)
     version = models.ForeignKey(Version, on_delete=models.CASCADE, null=False, blank=False)
     import_date = models.DateTimeField(null=True, blank=True)
@@ -305,6 +305,10 @@ class Table(models.Model):
 
     def __str__(self):
         return "{}.{}.{}".format(self.dataset.slug, self.version.name, self.name)
+
+    @property
+    def filtering(self):
+        return self.filtering_fields
 
     @property
     def collect_date(self):
