@@ -43,7 +43,11 @@ class ActivationView(registration_views.ActivationView):
 def list_user_api_tokens(request):
     user = request.user
     tokens = user.auth_tokens.all()
-    context = {"tokens": tokens, "num_tokens_available": Token.num_of_available_tokens(user)}
+    context = {
+        "tokens": tokens,
+        "num_tokens_available": Token.num_of_available_tokens(user),
+        "demo_url": settings.API_DEMO_URL,
+    }
     return render(request, "brasilio_auth/list_user_api_tokens.html", context=context)
 
 

@@ -38,14 +38,15 @@
         <tr>
           <td><tt>{{ token.key }}</tt></td>
           <td>{{ token.created }}</td>
-          <td><a href="{% url 'brasilio_auth:api_token_sample_usage' token.key %}">Ver exemplo</a> | <a href="{% url 'brasilio_auth:delete_api_token' token.key %}">Deletar chave</a></td>
+          <td><a href="{% url 'brasilio_auth:delete_api_token' token.key %}">Deletar chave</a></td>
         </tr>
       {% endfor %}
     </table>
   </div>
   {% if num_tokens_available %}
-  <div class="row" style="text-align: right">
-    <a data-table-id="api-tokens-table" class="btn download-button" href="{% url 'brasilio_auth:create_api_token' %}">Criar nova Chave de API</a>
+  <div class="row" style="text-align: right; display: block">
+    <a style="display: inline-block" class="btn download-button" href="{{ demo_url }}">Ver exemplo de uso</a>
+    <a style="display: inline-block" data-table-id="api-tokens-table" class="btn download-button" href="{% url 'brasilio_auth:create_api_token' %}">Criar nova Chave de API</a>
   </div>
   {% endif %}
 </div>

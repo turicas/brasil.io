@@ -113,6 +113,7 @@ class ManageApiTokensViewsTests(TestCase):
         self.assertTemplateUsed(response, "brasilio_auth/list_user_api_tokens.html")
         context = response.context
         assert 5 == len(context["tokens"])
+        assert settings.API_DEMO_URL == context["demo_url"]
         for token in tokens:
             assert token in context["tokens"]
         assert context["num_tokens_available"] == settings.MAX_NUM_API_TOKEN_PER_USER - 5
