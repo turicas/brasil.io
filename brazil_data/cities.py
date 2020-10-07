@@ -8,10 +8,10 @@ import rows.utils
 from brazil_data.util import load_csv_from_url
 
 POPULATION_CSV_URL = (
-    "https://raw.githubusercontent.com/turicas/covid19-br/master/data/populacao-estimada-2019.csv"  # noqa
+    "https://raw.githubusercontent.com/turicas/covid19-br/master/data/populacao-por-municipio-2020.csv"  # noqa
 )
 POPULATION_SCHEMA_URL = (
-    "https://raw.githubusercontent.com/turicas/covid19-br/master/schema/populacao-estimada-2019.csv"  # noqa
+    "https://raw.githubusercontent.com/turicas/covid19-br/master/schema/populacao-por-municipio.csv"  # noqa
 )
 StateInfo = namedtuple("StateInfo", ["state", "state_ibge_code"])
 
