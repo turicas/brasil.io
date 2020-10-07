@@ -75,6 +75,7 @@ class StateSpreadsheetManager(models.Manager):
     def get_state_data(self, state):
         """Return all state cases, grouped by date"""
         from covid19.spreadsheet_validator import TOTAL_LINE_DISPLAY
+        from brazil_data.cities import get_city_info
 
         cases, reports = defaultdict(dict), {}
         qs = self.get_queryset()
@@ -107,6 +108,8 @@ class StateSpreadsheetManager(models.Manager):
                 city = row["city"]
                 if city is None:
                     city = TOTAL_LINE_DISPLAY
+                elif city != "Importados/Indefinidos":
+                    city = get_city_info(city, state).city  # Fix city name
                 cases[date][city] = {
                     "confirmed": row["confirmed"],
                     "deaths": row["deaths"],
