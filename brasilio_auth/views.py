@@ -8,7 +8,7 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 
 from api.models import NumMaxTokensExceeded, Token
-from brasilio_auth.forms import UserCreationForm, TokenApiManagementForm
+from brasilio_auth.forms import TokenApiManagementForm, UserCreationForm
 from brasilio_auth.models import NewsletterSubscriber
 
 
@@ -66,6 +66,7 @@ class CreateNewApiToken(FormView):
             msg = f"Você já possui número máximo de {settings.MAX_NUM_API_TOKEN_PER_USER} chaves de API."
             messages.add_message(self.request, messages.ERROR, msg)
         return redirect("brasilio_auth:list_api_tokens")
+
 
 create_new_api_token = login_required(CreateNewApiToken.as_view())
 

@@ -10,8 +10,8 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from model_bakery import baker
 
-from brasilio_auth.forms import TokenApiManagementForm
 from api.models import Token
+from brasilio_auth.forms import TokenApiManagementForm
 from brasilio_auth.models import NewsletterSubscriber
 from brasilio_auth.views import ActivationView
 from traffic_control.tests.util import TrafficControlClient
@@ -148,7 +148,7 @@ class CreateAPiTokensViewsTests(TestCase):
         assert context["form"].errors
         assert not Token.objects.exists()
 
-    @patch.object(TokenApiManagementForm, 'is_valid', Mock(return_value=True))
+    @patch.object(TokenApiManagementForm, "is_valid", Mock(return_value=True))
     def test_create_new_token_for_user(self):
         assert 0 == self.user.auth_tokens.count()
 
@@ -166,7 +166,7 @@ class CreateAPiTokensViewsTests(TestCase):
         assert messages.SUCCESS == msg.level
         assert f"Nova chave de API: <tt>{new_token}</tt>" == msg.message
 
-    @patch.object(TokenApiManagementForm, 'is_valid', Mock(return_value=True))
+    @patch.object(TokenApiManagementForm, "is_valid", Mock(return_value=True))
     def test_display_error_message_if_user_has_max_num_of_tokens(self):
         baker.make("api.Token", user=self.user, _quantity=settings.MAX_NUM_API_TOKEN_PER_USER)
         tokens = self.user.auth_tokens.all()
