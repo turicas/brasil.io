@@ -141,6 +141,7 @@ class CreateAPiTokensViewsTests(TestCase):
         context = response.context
         assert 200 == response.status_code
         self.assertTemplateUsed(response, "brasilio_auth/new_api_token_form.html")
+        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert isinstance(context["form"], TokenApiManagementForm)
         assert context["num_tokens_available"] == settings.MAX_NUM_API_TOKEN_PER_USER
 
@@ -148,6 +149,7 @@ class CreateAPiTokensViewsTests(TestCase):
         response = self.client.post(self.url, data={})
         context = response.context
         self.assertTemplateUsed(response, "brasilio_auth/new_api_token_form.html")
+        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert context["form"].errors
         assert not Token.objects.exists()
 
@@ -160,6 +162,7 @@ class CreateAPiTokensViewsTests(TestCase):
         new_token = self.user.auth_tokens.get()
 
         self.assertTemplateUsed(response, "brasilio_auth/list_user_api_tokens.html")
+        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert 1 == len(context["tokens"])
         assert new_token in context["tokens"]
         assert context["num_tokens_available"] == settings.MAX_NUM_API_TOKEN_PER_USER - 1
@@ -178,6 +181,7 @@ class CreateAPiTokensViewsTests(TestCase):
         context = response.context
 
         self.assertTemplateUsed(response, "brasilio_auth/list_user_api_tokens.html")
+        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert settings.MAX_NUM_API_TOKEN_PER_USER == len(context["tokens"])
         for token in tokens:
             assert token in context["tokens"]
