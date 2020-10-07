@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Gerar nova Chave de API - Brasil.IO{% endblock %}
+
+{% block content %}
+<div class="section">
+  <div class="row">
+      <div class="col s12">
+        <h4>Gerar nova Chave de API</h4>
+      </div>
+  </div>
+
+  <div class="row table-container" style="padding-left: 0px; overflow: hidden;">
+    <form action="." method="POST">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input class="btn" type="submit" value="Gerar nova chave">
+    </form>
+  </div>
+</div>
+
+{% endblock %}

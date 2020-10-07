@@ -5,9 +5,10 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.views.generic.edit import FormView
 
 from api.models import NumMaxTokensExceeded, Token
-from brasilio_auth.forms import UserCreationForm
+from brasilio_auth.forms import UserCreationForm, TokenApiManagementForm
 from brasilio_auth.models import NewsletterSubscriber
 
 
@@ -46,15 +47,23 @@ def list_user_api_tokens(request):
     return render(request, "brasilio_auth/list_user_api_tokens.html", context=context)
 
 
-@login_required()
-def create_new_api_token(request):
-    try:
-        token = Token.new_token_for_user(request.user)
-        messages.add_message(request, messages.SUCCESS, f"Nova chave de API: <tt>{token}</tt>")
-    except NumMaxTokensExceeded:
-        msg = f"Você já possui número máximo de {settings.MAX_NUM_API_TOKEN_PER_USER} chaves de API."
-        messages.add_message(request, messages.ERROR, msg)
-    return redirect("brasilio_auth:list_api_tokens")
+class CreateNewApiToken(FormView):
+    template_name = "brasilio_auth/new_api_token_form.html"
+    form_class = TokenApiManagementForm
+
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        try:
+            token = Token.new_token_for_user(self.request.user)
+            messages.add_message(self.request, messages.SUCCESS, f"Nova chave de API: <tt>{token}</tt>")
+        except NumMaxTokensExceeded:
+            msg = f"Você já possui número máximo de {settings.MAX_NUM_API_TOKEN_PER_USER} chaves de API."
+            messages.add_message(self.request, messages.ERROR, msg)
+        return redirect("brasilio_auth:list_api_tokens")
+
+create_new_api_token = login_required(CreateNewApiToken.as_view())
 
 
 @login_required()
