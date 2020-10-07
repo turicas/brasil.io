@@ -51,6 +51,10 @@ class CreateNewApiToken(FormView):
     template_name = "brasilio_auth/new_api_token_form.html"
     form_class = TokenApiManagementForm
 
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+        ctx["num_tokens_available"] = Token.num_of_available_tokens(self.request.user)
+        return ctx
 
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.

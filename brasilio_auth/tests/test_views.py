@@ -139,6 +139,7 @@ class CreateAPiTokensViewsTests(TestCase):
         assert 200 == response.status_code
         self.assertTemplateUsed(response, "brasilio_auth/new_api_token_form.html")
         assert isinstance(context["form"], TokenApiManagementForm)
+        assert context["num_tokens_available"] == settings.MAX_NUM_API_TOKEN_PER_USER
 
     def test_do_not_create_api_token_if_invalid_post(self):
         response = self.client.post(self.url, data={})
