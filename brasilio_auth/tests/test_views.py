@@ -10,6 +10,8 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from model_bakery import baker
 
+from api.models import Token
+from brasilio_auth.forms import TokenApiManagementForm
 from brasilio_auth.models import NewsletterSubscriber
 from brasilio_auth.views import ActivationView
 from traffic_control.tests.util import TrafficControlClient
@@ -91,7 +93,7 @@ class ActivationViewTests(TestCase):
         assert get_template(ActivationView.template_name)
 
 
-class ManageAPiTokensViewsTests(TestCase):
+class ManageApiTokensViewsTests(TestCase):
     client_class = TrafficControlClient
 
     def setUp(self):
@@ -126,6 +128,7 @@ class CreateAPiTokensViewsTests(TestCase):
         self.user = baker.make(get_user_model(), is_active=True)
         self.client.force_login(self.user)
         self.url = reverse("brasilio_auth:create_api_token")
+        self.data = {"captcha": "foo"}
 
     def test_login_required(self):
         self.client.logout()
@@ -133,10 +136,26 @@ class CreateAPiTokensViewsTests(TestCase):
         redirect_url = f"{settings.LOGIN_URL}?next={self.url}"
         self.assertRedirects(response, redirect_url)
 
+    def test_render_valid_template_on_get(self):
+        response = self.client.get(self.url)
+        context = response.context
+        assert 200 == response.status_code
+        self.assertTemplateUsed(response, "brasilio_auth/new_api_token_form.html")
+        assert isinstance(context["form"], TokenApiManagementForm)
+        assert context["num_tokens_available"] == settings.MAX_NUM_API_TOKEN_PER_USER
+
+    def test_do_not_create_api_token_if_invalid_post(self):
+        response = self.client.post(self.url, data={})
+        context = response.context
+        self.assertTemplateUsed(response, "brasilio_auth/new_api_token_form.html")
+        assert context["form"].errors
+        assert not Token.objects.exists()
+
+    @patch.object(TokenApiManagementForm, "is_valid", Mock(return_value=True))
     def test_create_new_token_for_user(self):
         assert 0 == self.user.auth_tokens.count()
 
-        response = self.client.get(self.url, follow=True)
+        response = self.client.post(self.url, self.data, follow=True)
         context = response.context
         new_token = self.user.auth_tokens.get()
 
@@ -150,11 +169,12 @@ class CreateAPiTokensViewsTests(TestCase):
         assert messages.SUCCESS == msg.level
         assert f"Nova chave de API: <tt>{new_token}</tt>" == msg.message
 
+    @patch.object(TokenApiManagementForm, "is_valid", Mock(return_value=True))
     def test_display_error_message_if_user_has_max_num_of_tokens(self):
         baker.make("api.Token", user=self.user, _quantity=settings.MAX_NUM_API_TOKEN_PER_USER)
         tokens = self.user.auth_tokens.all()
 
-        response = self.client.get(self.url, follow=True)
+        response = self.client.post(self.url, data=self.data, follow=True)
         context = response.context
 
         self.assertTemplateUsed(response, "brasilio_auth/list_user_api_tokens.html")

@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserCreationForm as DjangoUserCreationForm
 from django.test import TestCase
 from model_bakery import baker
 
-from brasilio_auth.forms import UserCreationForm
+from brasilio_auth.forms import TokenApiManagementForm, UserCreationForm
 from brasilio_auth.models import NewsletterSubscriber
 
 
@@ -141,3 +141,14 @@ class UserCreationFormTests(TestCase):
 
         assert not form.is_valid()
         assert "captcha" in form.errors
+
+
+class TestTokenApiManagementForm(TestCase):
+    def test_required_fields(self):
+        required_fields = ["captcha"]
+
+        form = TokenApiManagementForm({})
+        assert not form.is_valid()
+
+        assert len(form.errors) == len(required_fields)
+        assert all([f in form.errors for f in required_fields])

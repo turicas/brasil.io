@@ -1,4 +1,4 @@
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from model_bakery import baker
 
 from core.tests.utils import BaseTestCaseWithSampleDataset
@@ -33,8 +33,12 @@ class DatasetViewSetTests(BaseTestCaseWithSampleDataset):
         assert 401 == response.status_code
 
     def test_unauthorized_response_if_request_without_auth_token(self):
+        url = reverse("brasilio_auth:list_api_tokens")
+        expected_msg = f"As credenciais de autenticação não foram fornecidas. Acesse https://brasil.io{url} para gerenciar suas chaves de acesso a API."
         response = self.client.get(self.url)
+        content = response.json()
         assert 401 == response.status_code
+        assert expected_msg == content["message"]
 
     def test_unauthorized_response_if_request_with_invalid_token(self):
         self.auth_header["HTTP_AUTHORIZATION"] = "Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b"

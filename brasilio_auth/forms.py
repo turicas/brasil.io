@@ -31,3 +31,7 @@ class UserCreationForm(RegistrationFormUniqueEmail):
             if get_user_model().objects.filter(email__iexact=email).exists():
                 raise forms.ValidationError(f"Usuário com o email {email} já cadastrado.")
         return email
+
+
+class TokenApiManagementForm(forms.Form):
+    captcha = ReCaptchaField()
