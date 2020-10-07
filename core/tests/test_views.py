@@ -46,6 +46,29 @@ class SampleDatasetDetailView(BaseTestCaseWithSampleDataset):
         assert "sample_field" in response.context["filter_form"].errors
         assert "algo" == response.context["search_term"]
 
+    def test_list_table_data_in_context_as_expected(self):
+        data = baker.make(self.TableModel, _quantity=10)
+
+        response = self.client.get(self.url)
+        context = response.context
+
+        assert 200 == response.status_code
+        assert 10 == len(context["data"].paginator.object_list)
+        assert all(d in context["data"].paginator.object_list for d in data)
+
+    def test_apply_fronent_filter(self):
+        match = baker.make(self.TableModel, sample_field="bar")
+        baker.make(self.TableModel, sample_field="foo")
+        baker.make(self.TableModel, sample_field="other")
+
+        url = self.url + "?sample_field=bar"
+        response = self.client.get(url)
+        context = response.context
+
+        assert 200 == response.status_code
+        assert 1 == len(context["data"].paginator.object_list)
+        assert match in context["data"].paginator.object_list
+
     @override_settings(RATELIMIT_ENABLE=True)
     @override_settings(RATELIMIT_RATE="0/s")
     @patch("traffic_control.decorators.ratelimit")
