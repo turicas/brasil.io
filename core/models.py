@@ -296,7 +296,7 @@ class Table(models.Model):
     options = models.JSONField(null=True, blank=True)
     ordering = ArrayField(models.CharField(max_length=63), null=False, blank=False)
     filtering_fields = ArrayField(models.CharField(max_length=63), null=True, blank=True)
-    search = ArrayField(models.CharField(max_length=63), null=True, blank=True)
+    search_fields = ArrayField(models.CharField(max_length=63), null=True, blank=True)
     version = models.ForeignKey(Version, on_delete=models.CASCADE, null=False, blank=False)
     import_date = models.DateTimeField(null=True, blank=True)
     description = MarkdownxField(null=True, blank=True)
@@ -325,6 +325,10 @@ class Table(models.Model):
     @property
     def fields(self):
         return self.field_set.all()
+
+    @property
+    def search(self):
+        return self.search_fields
 
     @property
     def enabled(self):
