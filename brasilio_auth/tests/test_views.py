@@ -15,12 +15,13 @@ from brasilio_auth.forms import TokenApiManagementForm
 from brasilio_auth.models import NewsletterSubscriber
 from brasilio_auth.views import ActivationView
 from traffic_control.tests.util import TrafficControlClient
+from utils.tests import DjangoAssertionsMixin
 
 User = get_user_model()
 
 
 @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
-class UserCreationViewTests(TestCase):
+class UserCreationViewTests(DjangoAssertionsMixin, TestCase):
     client_class = TrafficControlClient
 
     def setUp(self):
@@ -37,13 +38,11 @@ class UserCreationViewTests(TestCase):
     def test_render_correct_template(self):
         response = self.client.get(self.url)
         self.assertTemplateUsed(response, "brasilio_auth/user_creation_form.html")
-        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert "form" in response.context
 
     def test_render_form_errors_if_invalid_post(self):
         response = self.client.post(self.url, data={})
         self.assertTemplateUsed(response, "brasilio_auth/user_creation_form.html")
-        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert bool(response.context["form"].errors) is True
 
     def test_create_inactive_user_and_redirect_to_sign_up_complete(self):
@@ -81,7 +80,6 @@ class UserCreationViewTests(TestCase):
         self.data["email"] = "new@foo.com"
         response = self.client.post(self.url, data=self.data)
         self.assertTemplateUsed(response, "brasilio_auth/user_creation_form.html")
-        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         print(response.context["form"].errors)
         assert bool(response.context["form"].errors) is True
 
@@ -121,7 +119,7 @@ class ManageApiTokensViewsTests(TestCase):
         assert context["num_tokens_available"] == settings.MAX_NUM_API_TOKEN_PER_USER - 5
 
 
-class CreateAPiTokensViewsTests(TestCase):
+class CreateAPiTokensViewsTests(DjangoAssertionsMixin, TestCase):
     client_class = TrafficControlClient
 
     def setUp(self):
@@ -141,7 +139,6 @@ class CreateAPiTokensViewsTests(TestCase):
         context = response.context
         assert 200 == response.status_code
         self.assertTemplateUsed(response, "brasilio_auth/new_api_token_form.html")
-        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert isinstance(context["form"], TokenApiManagementForm)
         assert context["num_tokens_available"] == settings.MAX_NUM_API_TOKEN_PER_USER
 
@@ -149,7 +146,6 @@ class CreateAPiTokensViewsTests(TestCase):
         response = self.client.post(self.url, data={})
         context = response.context
         self.assertTemplateUsed(response, "brasilio_auth/new_api_token_form.html")
-        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert context["form"].errors
         assert not Token.objects.exists()
 
@@ -162,7 +158,6 @@ class CreateAPiTokensViewsTests(TestCase):
         new_token = self.user.auth_tokens.get()
 
         self.assertTemplateUsed(response, "brasilio_auth/list_user_api_tokens.html")
-        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert 1 == len(context["tokens"])
         assert new_token in context["tokens"]
         assert context["num_tokens_available"] == settings.MAX_NUM_API_TOKEN_PER_USER - 1
@@ -181,7 +176,6 @@ class CreateAPiTokensViewsTests(TestCase):
         context = response.context
 
         self.assertTemplateUsed(response, "brasilio_auth/list_user_api_tokens.html")
-        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
         assert settings.MAX_NUM_API_TOKEN_PER_USER == len(context["tokens"])
         for token in tokens:
             assert token in context["tokens"]
