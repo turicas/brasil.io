@@ -36,6 +36,7 @@ class Command(BaseCommand):
                         {
                             "dataset_slug": dataset_slug,
                             "description": field.description,
+                            "searchable": field.searchable,
                             "frontend_filter": field.frontend_filter,
                             "has_choices": field.has_choices,
                             "link_template": field.link_template,
