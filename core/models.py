@@ -328,7 +328,7 @@ class Table(models.Model):
 
     @property
     def search(self):
-        return self.search_fields
+        return [f.name for f in self.fields.searchable()]
 
     @property
     def enabled(self):
@@ -482,6 +482,9 @@ class FieldQuerySet(models.QuerySet):
 
     def frontend_filters(self):
         return self.filter(frontend_filter=True)
+
+    def searchable(self):
+        return self.filter(searchable=True)
 
 
 class Field(models.Model):
