@@ -68,7 +68,10 @@ def is_same_city(state, city_a, city_b):
 def get_city_info(city, state):
     state = state.upper()
     data = normalized_ibge_data_per_state()
-    return data[state][normalize_city_name(city)]
+    try:
+        return data[state][normalize_city_name(city)]
+    except KeyError:
+        return None
 
 
 def get_state_info(state):
