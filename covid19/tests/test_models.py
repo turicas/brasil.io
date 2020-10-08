@@ -163,6 +163,16 @@ class StateSpreadsheetTests(TestCase):
 
         assert expected == sp1.compare_to_spreadsheet(sp2)
 
+    def test_error_if_mismatch_of_city_name(self):
+        sp1, sp2 = baker.make(StateSpreadsheet, date=date.today(), state="PR", _quantity=2)
+        sp1.table_data = deepcopy(self.table_data)
+
+        self.table_data[-1]["city"] = "Curitibá"
+        sp2.table_data = self.table_data
+        expected = ["Grafias diferentes para a cidade: Curitiba - Curitibá"]
+
+        assert expected == sp1.compare_to_spreadsheet(sp2)
+
     def test_error_if_mismatch_of_city_numbers(self):
         sp1, sp2 = baker.make(StateSpreadsheet, date=date.today(), state="PR", _quantity=2)
         sp1.table_data = deepcopy(self.table_data)
@@ -187,7 +197,9 @@ class StateSpreadsheetTests(TestCase):
             f"Curitiba está na planilha (por {sp1.user.username}) mas não na outra usada para a comparação (por {sp2.user.username}).",  # noqa
         ]
 
-        assert sorted(expected) == sorted(sp1.compare_to_spreadsheet(sp2))
+        results = sp1.compare_to_spreadsheet(sp2)
+        assert len(expected) == len(results)
+        assert sorted(expected) == sorted(results)
 
     def test_error_if_mismatch_because_other_cities_exists_only_in_the_other_spreadsheet(self):
         sp1, sp2 = baker.make(StateSpreadsheet, date=date.today(), state="PR", _quantity=2)

@@ -226,8 +226,16 @@ class StateSpreadsheet(models.Model):
         return qs.pending_review().exclude(pk=self.pk, user_id=self.user_id).order_by("created_at")
 
     @property
+    def cities(self):
+        return [c for c in self.table_data if c["place_type"] == "city"]
+
+    @property
     def table_data_by_city(self):
-        return {c["city"]: c for c in self.table_data if c["place_type"] == "city"}
+        return {c["city"]: c for c in self.cities}
+
+    @property
+    def table_data_by_code(self):
+        return {c["city_ibge_code"]: c for c in self.cities}
 
     @property
     def ready_to_import(self):
@@ -269,18 +277,21 @@ class StateSpreadsheet(models.Model):
 
         user = self.user.username
         other_user = other.user.username
-        self_cities = set(self.table_data_by_city.keys())
-        other_cities = set(other.table_data_by_city.keys())
 
-        extra_self_cities = self_cities - other_cities
-        for extra_self in extra_self_cities:
+        self_ibge_codes = set(self.table_data_by_code.keys())
+        other_ibge_codes = set(other.table_data_by_code.keys())
+
+        extra_self_ibge_codes = self_ibge_codes - other_ibge_codes
+        for extra_self in extra_self_ibge_codes:
+            extra = self.table_data_by_code[extra_self]["city"]
             errors.append(
-                f"{extra_self} está na planilha (por {user}) mas não na outra usada para a comparação (por {other_user})."  # noqa
+                f"{extra} está na planilha (por {user}) mas não na outra usada para a comparação (por {other_user})."  # noqa
             )
-        extra_other_cities = other_cities - self_cities
-        for extra_other in extra_other_cities:
+        extra_other_ibge_codes = other_ibge_codes - self_ibge_codes
+        for extra_other in extra_other_ibge_codes:
+            extra = other.table_data_by_code[extra_other]["city"]
             errors.append(
-                f"{extra_other} está na planilha usada para a comparação (por {other_user}) mas não na importada (por {user}).",  # noqa
+                f"{extra} está na planilha usada para a comparação (por {other_user}) mas não na importada (por {user}).",  # noqa
             )
 
         self_len = len(self.table_data)
@@ -297,8 +308,12 @@ class StateSpreadsheet(models.Model):
             else:
                 other_entry = other.get_data_from_city(entry["city_ibge_code"])
 
-            if entry["city"] not in extra_self_cities and not match(entry, other_entry):
+            if entry["city_ibge_code"] not in extra_self_ibge_codes and not match(entry, other_entry):
                 errors.append(f"Número de casos confirmados ou óbitos diferem para {display}.")
+            elif other_entry:
+                city, other_city = entry["city"], other_entry["city"]
+                if city != other_city:
+                    errors.append(f"Grafias diferentes para a cidade: {city} - {other_city}")
 
         return errors
 
