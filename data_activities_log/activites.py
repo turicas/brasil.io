@@ -34,7 +34,7 @@ def brasilio_blog_items():
 
 
 def dataset_updates(days_ago):
-    days_ago = timezone.now() - datetime.timedelta(days=30)
+    days_ago = timezone.now() - datetime.timedelta(days=days_ago)
     tables_recently_updated = (
         Table.objects.filter(import_date__gte=days_ago).order_by("-import_date").select_related("dataset")
     )

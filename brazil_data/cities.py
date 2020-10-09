@@ -8,10 +8,10 @@ import rows.utils
 from brazil_data.util import load_csv_from_url
 
 POPULATION_CSV_URL = (
-    "https://raw.githubusercontent.com/turicas/covid19-br/master/data/populacao-estimada-2019.csv"  # noqa
+    "https://raw.githubusercontent.com/turicas/covid19-br/master/data/populacao-por-municipio-2020.csv"  # noqa
 )
 POPULATION_SCHEMA_URL = (
-    "https://raw.githubusercontent.com/turicas/covid19-br/master/schema/populacao-estimada-2019.csv"  # noqa
+    "https://raw.githubusercontent.com/turicas/covid19-br/master/schema/populacao-por-municipio.csv"  # noqa
 )
 StateInfo = namedtuple("StateInfo", ["state", "state_ibge_code"])
 
@@ -35,12 +35,42 @@ def brazilian_cities_per_state():
     return {state: [city.city for city in state_cities] for state, state_cities in data.items()}
 
 
-def get_city_info(city, state):
+@lru_cache(maxsize=11140)
+def normalize_city_name(name):
+    # Simple normalization
+    name = rows.fields.slug(name)
+    for value in ("_de_", "_da_", "_do_", "_das_", "_dos_"):
+        name = name.replace(value, "_")
+
+    # Exceptions
+    name = name.replace("_thome_", "_tome_")  # São Tomé das Letras
+    if name == "florinia":
+        name = "florinea"
+
+    return name
+
+
+@lru_cache(maxsize=1)
+def normalized_ibge_data_per_state():
     data = ibge_data_per_state()
+    new = {}
+    for state, cities in data.items():
+        new[state] = {normalize_city_name(city.city): city for city in cities}
+    return new
+
+
+@lru_cache(maxsize=11140)
+def is_same_city(state, city_a, city_b):
+    return normalize_city_name(city_a) == normalize_city_name(city_b)
+
+
+@lru_cache(maxsize=5570)
+def get_city_info(city, state):
+    state = state.upper()
+    data = normalized_ibge_data_per_state()
     try:
-        cities = data[state.upper()]
-        return [c for c in cities if c.city.lower() == city.lower()][0]
-    except (KeyError, IndexError):
+        return data[state][normalize_city_name(city)]
+    except KeyError:
         return None
 
 
