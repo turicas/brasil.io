@@ -62,10 +62,9 @@ class DatasetViewSetTests(BaseTestCaseWithSampleDataset):
 
     @override_settings(ENABLE_API_AUTH=False)
     def test_success_response_with_or_without_valid_token_with_disabled_api_auth(self):
-        client = TrafficControlClient()
-        response = client.get(self.url)
+        response = self.client.get(self.url)
         assert 200 == response.status_code
-        response = client.get(self.url, **self.auth_header)
+        response = self.client.get(self.url, **self.auth_header)
         assert 200 == response.status_code
 
     @override_settings(ENABLE_API_AUTH=False)
