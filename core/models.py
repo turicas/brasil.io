@@ -228,7 +228,12 @@ class Dataset(models.Model):
         return Table.objects.for_dataset(self).default()
 
     def __str__(self):
-        return "{} (by {}, source: {})".format(self.name, self.author_name, self.source_name)
+        name = self.name or self.slug
+        if self.author_name:
+            name += ", by: " + self.author_name
+        if self.source_name:
+            name += ", source: " + self.source_name
+        return name
 
     def get_model_declaration(self):
         version = self.version_set.order_by("order").last()
