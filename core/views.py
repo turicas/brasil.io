@@ -200,7 +200,7 @@ def dataset_detail(request, slug, tablename=""):
         "dataset": dataset,
         "filter_form": filter_form,
         "max_export_rows": settings.CSV_EXPORT_MAX_ROWS,
-        "query_dict": querystring,
+        "search_term": querystring.get("search", ""),
         "querystring": querystring.urlencode(),
         "slug": slug,
         "table": table,
@@ -242,6 +242,7 @@ def dataset_files_detail(request, slug):
     if not all_files:
         context = {
             "message": f"<p>Ainda não cadastramos nenhum arquivo para download no dataset {slug}.</p><p>Estamos trabalhando para os dados estarem disponíveis em breve.</p><p>Acompanhe o nosso <a href='https://t.me/brasil_io'>grupo no Telegram</a> para manter-se atualizada.</p>",
+            "title_4xx": "",
         }
         return render(request, "404.html", context)
 

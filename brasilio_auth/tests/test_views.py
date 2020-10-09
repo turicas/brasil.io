@@ -15,12 +15,13 @@ from brasilio_auth.forms import TokenApiManagementForm
 from brasilio_auth.models import NewsletterSubscriber
 from brasilio_auth.views import ActivationView
 from traffic_control.tests.util import TrafficControlClient
+from utils.tests import DjangoAssertionsMixin
 
 User = get_user_model()
 
 
 @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
-class UserCreationViewTests(TestCase):
+class UserCreationViewTests(DjangoAssertionsMixin, TestCase):
     client_class = TrafficControlClient
 
     def setUp(self):
@@ -119,7 +120,7 @@ class ManageApiTokensViewsTests(TestCase):
         assert context["num_tokens_available"] == settings.MAX_NUM_API_TOKEN_PER_USER - 5
 
 
-class CreateAPiTokensViewsTests(TestCase):
+class CreateAPiTokensViewsTests(DjangoAssertionsMixin, TestCase):
     client_class = TrafficControlClient
 
     def setUp(self):

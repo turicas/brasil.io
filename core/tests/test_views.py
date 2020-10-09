@@ -8,14 +8,22 @@ from model_bakery import baker
 from core.models import TableFile
 from core.tests.utils import BaseTestCaseWithSampleDataset
 from traffic_control.tests.util import TrafficControlClient
+from utils.tests import DjangoAssertionsMixin
 
 
-class SampleDatasetDetailView(BaseTestCaseWithSampleDataset):
+class SampleDatasetDetailView(DjangoAssertionsMixin, BaseTestCaseWithSampleDataset):
     client_class = TrafficControlClient
     DATASET_SLUG = "sample"
     TABLE_NAME = "sample_table"
     FIELDS_KWARGS = [
-        {"name": "sample_field", "options": {"max_length": 10}, "type": "text", "null": False},
+        {
+            "name": "sample_field",
+            "options": {"max_length": 10},
+            "type": "text",
+            "null": False,
+            "filtering": True,
+            "choices": {"data": ["foo", "bar"]},
+        },
     ]
 
     def setUp(self):
@@ -26,6 +34,38 @@ class SampleDatasetDetailView(BaseTestCaseWithSampleDataset):
         response = self.client.get(self.url)
         assert 200 == response.status_code
         self.assertTemplateUsed(response, "core/dataset-detail.html")
+        assert "" == response.context["search_term"]
+
+    def test_400_if_invalid_filter_choice(self):
+        url = self.url + "?sample_field=xpto&search=algo"
+        response = self.client.get(url)
+        assert 400 == response.status_code
+        self.assertTemplateUsed(response, "core/dataset-detail.html")
+        assert "sample_field" in response.context["filter_form"].errors
+        assert "algo" == response.context["search_term"]
+
+    def test_list_table_data_in_context_as_expected(self):
+        data = baker.make(self.TableModel, _quantity=10)
+
+        response = self.client.get(self.url)
+        context = response.context
+
+        assert 200 == response.status_code
+        assert 10 == len(context["data"].paginator.object_list)
+        assert all(d in context["data"].paginator.object_list for d in data)
+
+    def test_apply_fronent_filter(self):
+        match = baker.make(self.TableModel, sample_field="bar")
+        baker.make(self.TableModel, sample_field="foo")
+        baker.make(self.TableModel, sample_field="other")
+
+        url = self.url + "?sample_field=bar"
+        response = self.client.get(url)
+        context = response.context
+
+        assert 200 == response.status_code
+        assert 1 == len(context["data"].paginator.object_list)
+        assert match in context["data"].paginator.object_list
 
     @override_settings(RATELIMIT_ENABLE=True)
     @override_settings(RATELIMIT_RATE="0/s")
@@ -39,7 +79,7 @@ class SampleDatasetDetailView(BaseTestCaseWithSampleDataset):
         assert mocked_ratelimit.called is False  # this ensures the middleware is the one raising the 429 error
 
 
-class TestDatasetFilesDetailView(BaseTestCaseWithSampleDataset):
+class TestDatasetFilesDetailView(DjangoAssertionsMixin, BaseTestCaseWithSampleDataset):
     client_class = TrafficControlClient
     DATASET_SLUG = "sample"
     TABLE_NAME = "sample_table"

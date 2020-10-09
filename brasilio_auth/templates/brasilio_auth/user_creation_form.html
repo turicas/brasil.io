@@ -50,7 +50,9 @@
       </p>
 
       <div class="text-center m-t-10">
+        {% if next %}
         <input type="hidden" name="next" value="{{ next }}" />
+        {% endif %}
         <input class='btn' type="submit" value="Salvar" />
       </div>
 
