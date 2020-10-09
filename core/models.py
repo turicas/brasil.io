@@ -478,7 +478,7 @@ class FieldQuerySet(models.QuerySet):
         return self.filter(table=table)
 
     def choiceables(self):
-        return self.frontend_filter().filter(has_choices=True)
+        return self.frontend_filters().filter(has_choices=True)
 
     def frontend_filters(self):
         return self.filter(frontend_filter=True)
