@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django.db.utils import ProgrammingError
 from django.test import TestCase
 from model_bakery import baker
@@ -35,13 +37,15 @@ class BaseTestCaseWithSampleDataset(TestCase):
     def setUpTestData(cls):
         cls.validate_config()
         Dataset.objects.filter(slug=cls.DATASET_SLUG).delete()
-        cls.dataset = baker.make(Dataset, slug=cls.DATASET_SLUG)
+        cls.dataset = baker.make(Dataset, slug=cls.DATASET_SLUG, show=True)
         cls.version = baker.make(Version, dataset=cls.dataset)
-        cls.table = baker.make("core.Table", dataset=cls.dataset, name=cls.TABLE_NAME, version=cls.version)
+        cls.table = baker.make("core.Table", dataset=cls.dataset, name=cls.TABLE_NAME, version=cls.version,)
         cls.data_table = DataTable.new_data_table(cls.table)
         cls.data_table.activate()
 
-        for f_kwargs in cls.FIELDS_KWARGS:
+        for f_kwargs in [deepcopy(k) for k in cls.FIELDS_KWARGS]:
+            f_kwargs["frontend_filter"] = bool(f_kwargs.pop("filtering", None))
+            f_kwargs["has_choices"] = "choices" in f_kwargs
             baker.make("core.Field", dataset=cls.dataset, table=cls.table, **f_kwargs)
 
         cls.TableModel = cls.table.get_model(cache=False)

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Exemplo de uso de Chaves API - Brasil.IO{% endblock %}
+
+{% block content %}
+<div class="section">
+  <div class="row">
+
+  <pre>
+### Exemplo em Python 3
+import json
+from urllib.request import Request, urlopen
+
+token = "{{ key }}"
+url = "https://brasil.io/api/datasets/"
+request = Request(url, headers={"Authorization": f"Token {token}"})
+response = urlopen(request)
+data = json.load(response)
+print(data)
+  </pre>
+
+  </div>
+</div>
+{% endblock %}

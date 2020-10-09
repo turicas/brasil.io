@@ -9,7 +9,7 @@ from model_bakery import baker, seq
 from rows import fields
 
 from core.dynamic_models import DynamicModelMixin
-from core.models import Dataset, DataTable, Table, TableFile, Version, Field
+from core.models import Dataset, DataTable, Field, Table, TableFile, Version
 from utils.file_info import human_readable_size
 
 

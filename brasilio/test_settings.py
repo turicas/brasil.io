@@ -10,3 +10,6 @@ CACHES = {"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache",}
 RQ_BLOCKED_REQUESTS_LIST = ""
 
 RATELIMIT_ENABLE = False  # noqa
+TEMPLATE_STRING_IF_INVALID = "%%%Invalid variable%%%"  # noqa
+TEMPLATES[0]["OPTIONS"]["string_if_invalid"] = TEMPLATE_STRING_IF_INVALID  # noqa
+ENABLE_API_AUTH = True

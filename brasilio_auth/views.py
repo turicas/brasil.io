@@ -1,8 +1,14 @@
 import django_registration.backends.activation.views as registration_views
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.views.generic.edit import FormView
 
-from brasilio_auth.forms import UserCreationForm
+from api.models import NumMaxTokensExceeded, Token
+from brasilio_auth.forms import TokenApiManagementForm, UserCreationForm
 from brasilio_auth.models import NewsletterSubscriber
 
 
@@ -31,3 +37,52 @@ class ActivationView(registration_views.ActivationView):
         user = super().activate(*args, **kwargs)
         login(self.request, user)
         return user
+
+
+@login_required()
+def list_user_api_tokens(request):
+    user = request.user
+    tokens = user.auth_tokens.all()
+    context = {
+        "tokens": tokens,
+        "num_tokens_available": Token.num_of_available_tokens(user),
+        "demo_url": settings.API_DEMO_URL,
+    }
+    return render(request, "brasilio_auth/list_user_api_tokens.html", context=context)
+
+
+class CreateNewApiToken(FormView):
+    template_name = "brasilio_auth/new_api_token_form.html"
+    form_class = TokenApiManagementForm
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+        ctx["num_tokens_available"] = Token.num_of_available_tokens(self.request.user)
+        return ctx
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        try:
+            token = Token.new_token_for_user(self.request.user)
+            messages.add_message(self.request, messages.SUCCESS, f"Nova chave de API: <tt>{token}</tt>")
+        except NumMaxTokensExceeded:
+            msg = f"Você já possui número máximo de {settings.MAX_NUM_API_TOKEN_PER_USER} chaves de API."
+            messages.add_message(self.request, messages.ERROR, msg)
+        return redirect("brasilio_auth:list_api_tokens")
+
+
+create_new_api_token = login_required(CreateNewApiToken.as_view())
+
+
+@login_required()
+def delete_api_token(request, key):
+    token = get_object_or_404(request.user.auth_tokens, key=key)
+    token.delete()
+    msg = "Chave de API deletada com sucesso."
+    messages.add_message(request, messages.SUCCESS, msg)
+    return redirect("brasilio_auth:list_api_tokens")
+
+
+def api_token_demo_usage(request, key):
+    return render(request, "brasilio_auth/api_token_sample_usage.html", context={"key": key})

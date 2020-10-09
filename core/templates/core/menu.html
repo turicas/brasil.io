@@ -9,6 +9,7 @@
   {% if is_covid19_contributor %}
   <li><a href="{% url 'admin:covid19_statespreadsheet_changelist' %}" title="Ver Importação Covid-19">Importação Covid-19</a></li>
   {% endif %}
+  <li><a href="{% url 'brasilio_auth:list_api_tokens' %}" title="Chaves da API">Chaves da API</a></li>
   <li><a href="{% url 'brasilio_auth:logout' %}">Logout</a></li>
 </ul>
 

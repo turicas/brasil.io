@@ -141,7 +141,14 @@ class DatasetTableModelQuerySet(models.QuerySet):
         return self._count
 
 
+class DatasetQuerySet(models.QuerySet):
+    def api_visible(self):
+        return self.filter(show=True)
+
+
 class Dataset(models.Model):
+    objects = DatasetQuerySet.as_manager()
+
     author_name = models.CharField(max_length=255, null=False, blank=False)
     author_url = models.URLField(max_length=2000, null=True, blank=True)
     code_url = models.URLField(max_length=2000, null=False, blank=False)
