@@ -18,7 +18,7 @@ class Command(BaseCommand):
         expected_field_names = set(
             "dataset_slug description frontend_filter has_choices "
             "link_template order null name options obfuscate show "
-            "show_on_frontend table_name title type version_name".split()
+            "show_on_frontend table_name title type version_name searchable".split()
         )
         if set(table.field_names) != expected_field_names:
             raise ValueError("Field names didn't match")

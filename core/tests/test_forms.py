@@ -14,7 +14,7 @@ class DynamicModelFormTests(BaseTestCaseWithSampleDataset):
     ]
 
     def setUp(self):
-        self.table.filtering = []
+        self.table.field_set.all().update(frontend_filter=False)
         self.table.save()
 
     def get_model_field(self, name):
@@ -26,8 +26,7 @@ class DynamicModelFormTests(BaseTestCaseWithSampleDataset):
         assert 0 == len(form.fields)
 
     def test_generate_form_based_in_table_filtering(self):
-        self.table.filtering = ["uf", "city"]
-        self.table.save()
+        self.table.field_set.filter(name__in=["uf", "city"]).update(frontend_filter=True)
 
         DynamicFormClasss = get_table_dynamic_form(self.table, cache=False)
         form = DynamicFormClasss()
@@ -38,8 +37,7 @@ class DynamicModelFormTests(BaseTestCaseWithSampleDataset):
         assert isinstance(form.fields["city"], type(self.get_model_field("city").formfield()))
 
     def test_filter_form_does_not_invalidate_if_no_data(self):
-        self.table.filtering = ["uf", "city"]
-        self.table.save()
+        self.table.field_set.filter(name__in=["uf", "city"]).update(frontend_filter=True)
 
         DynamicFormClasss = get_table_dynamic_form(self.table, cache=False)
         form = DynamicFormClasss(data={})
@@ -48,8 +46,7 @@ class DynamicModelFormTests(BaseTestCaseWithSampleDataset):
         assert {"uf": "", "city": ""} == form.cleaned_data
 
     def test_validate_form_against_field_choices(self):
-        self.table.filtering = ["uf", "city"]
-        self.table.save()
+        self.table.field_set.filter(name__in=["uf", "city"]).update(frontend_filter=True)
         uf_field = self.table.get_field("uf")
         uf_field.has_choices = True
         uf_field.choices = {"data": ["RJ", "SP", "MG"]}
@@ -76,8 +73,7 @@ class DynamicModelFormTests(BaseTestCaseWithSampleDataset):
         assert {"city": "Rio de Janeiro"} == form.cleaned_data
 
     def test_choice_failback_to_default_type_if_has_choice_field_but_no_data(self):
-        self.table.filtering = ["uf", "city"]
-        self.table.save()
+        self.table.field_set.filter(name__in=["uf", "city"]).update(frontend_filter=True)
         uf_field = self.table.get_field("uf")
         uf_field.has_choices = True
         uf_field.save()

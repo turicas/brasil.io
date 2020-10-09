@@ -64,8 +64,8 @@ def str_to_list(data):
 
 def table_update_data(row):
     row["ordering"] = str_to_list(row["ordering"])
-    row["filtering"] = str_to_list(row["filtering"])
-    row["search"] = str_to_list(row["search"])
+    row["filtering_fields"] = str_to_list(row["filtering"])
+    row["search_fields"] = str_to_list(row["search"])
     return {"dataset": row["dataset"], "version": row["version"], "name": row["name"], "defaults": row}
 
 
@@ -165,4 +165,10 @@ class Command(BaseCommand):
                 data_table.save()
             else:  # Same table as before, so no need to update
                 total_skipped += 1
+
+            if table.filtering_fields:  # avoid None
+                table.fields.filter(name__in=table.filtering_fields).update(frontend_filter=True)
+            if table.search_fields:
+                table.fields.filter(name__in=table.search_fields__isnull).update(searchable=True)
+
         print(" created: {}, updated: {}, skipped: {}.".format(total_created, total_updated, total_skipped))

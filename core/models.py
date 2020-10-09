@@ -295,8 +295,8 @@ class Table(models.Model):
     name = models.CharField(max_length=255, null=False, blank=False)
     options = models.JSONField(null=True, blank=True)
     ordering = ArrayField(models.CharField(max_length=63), null=False, blank=False)
-    filtering = ArrayField(models.CharField(max_length=63), null=True, blank=True)
-    search = ArrayField(models.CharField(max_length=63), null=True, blank=True)
+    filtering_fields = ArrayField(models.CharField(max_length=63), null=True, blank=True)
+    search_fields = ArrayField(models.CharField(max_length=63), null=True, blank=True)
     version = models.ForeignKey(Version, on_delete=models.CASCADE, null=False, blank=False)
     import_date = models.DateTimeField(null=True, blank=True)
     description = MarkdownxField(null=True, blank=True)
@@ -305,6 +305,10 @@ class Table(models.Model):
 
     def __str__(self):
         return "{}.{}.{}".format(self.dataset.slug, self.version.name, self.name)
+
+    @property
+    def filtering(self):
+        return [f.name for f in self.fields.frontend_filters()]
 
     @property
     def collect_date(self):
@@ -321,6 +325,10 @@ class Table(models.Model):
     @property
     def fields(self):
         return self.field_set.all()
+
+    @property
+    def search(self):
+        return [f.name for f in self.fields.searchable()]
 
     @property
     def enabled(self):
@@ -470,7 +478,13 @@ class FieldQuerySet(models.QuerySet):
         return self.filter(table=table)
 
     def choiceables(self):
-        return self.filter(has_choices=True, frontend_filter=True)
+        return self.frontend_filters().filter(has_choices=True)
+
+    def frontend_filters(self):
+        return self.filter(frontend_filter=True)
+
+    def searchable(self):
+        return self.filter(searchable=True)
 
 
 class Field(models.Model):
@@ -482,6 +496,7 @@ class Field(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
     frontend_filter = models.BooleanField(null=False, blank=True, default=False)
+    searchable = models.BooleanField(null=False, blank=True, default=False)
     has_choices = models.BooleanField(null=False, blank=True, default=False)
     link_template = models.TextField(max_length=2000, null=True, blank=True)
     order = models.PositiveIntegerField(null=False, blank=False)

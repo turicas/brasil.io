@@ -9,7 +9,7 @@ from model_bakery import baker, seq
 from rows import fields
 
 from core.dynamic_models import DynamicModelMixin
-from core.models import Dataset, DataTable, Table, TableFile, Version
+from core.models import Dataset, DataTable, Table, TableFile, Version, Field
 from utils.file_info import human_readable_size
 
 
@@ -77,6 +77,36 @@ class TableModelTests(TestCase):
         assert 2 == tables.count()
         assert table in tables
         assert hidden_table in tables
+
+
+class FieldModelTests(TestCase):
+    def test_searchable_queryset(self):
+        field = baker.make(Field, searchable=True)
+        baker.make(Field, searchable=False)
+
+        qs = Field.objects.searchable()
+
+        assert field in qs
+        assert 1 == qs.count()
+
+    def test_frontend_filters(self):
+        field = baker.make(Field, frontend_filter=True)
+        baker.make(Field, frontend_filter=False)
+
+        qs = Field.objects.frontend_filters()
+
+        assert field in qs
+        assert 1 == qs.count()
+
+    def test_choiceables_queryset(self):
+        field = baker.make(Field, frontend_filter=True, has_choices=True)
+        baker.make(Field, frontend_filter=True, has_choices=False)
+        baker.make(Field, frontend_filter=False)
+
+        qs = Field.objects.choiceables()
+
+        assert field in qs
+        assert 1 == qs.count()
 
 
 class DataTableModelTests(TestCase):
