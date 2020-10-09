@@ -31,7 +31,7 @@ class Command(BaseCommand):
                 # this first `for`.
                 row = row._asdict()
                 row["version_name"] = str(row["version_name"])
-                row["dataset"], _ = Dataset.objects.get_or_create(slug=row.pop("dataset_slug"))
+                row["dataset"], _ = Dataset.objects.get_or_create(slug=row.pop("dataset_slug"), defaults={"show": True})
                 row["version"], _ = Version.objects.get_or_create(
                     dataset=row["dataset"],
                     name=row.pop("version_name"),
@@ -41,7 +41,7 @@ class Command(BaseCommand):
                     dataset=row["dataset"],
                     version=row["version"],
                     name=row.pop("table_name"),
-                    defaults={"default": False, "ordering": ["id"], "search": []},
+                    defaults={"default": False, "ordering": ["id"], "search_fields": []},
                 )
                 existing_field = Field.objects.filter(
                     dataset=row["dataset"], version=row["version"], table=row["table"], name=row["name"],
@@ -61,7 +61,7 @@ class Command(BaseCommand):
                     tables_created.append(row["table"])
 
             for table in tables_created:
-                table.search = [
+                table.search_fields = [
                     field.name
                     for action, field in fields_to_save
                     if field.table == table and field.type in ("text", "string")
