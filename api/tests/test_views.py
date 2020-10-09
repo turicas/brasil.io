@@ -1,3 +1,4 @@
+from django.test import override_settings
 from django.urls import reverse, reverse_lazy
 from model_bakery import baker
 
@@ -44,6 +45,9 @@ class DatasetViewSetTests(BaseTestCaseWithSampleDataset):
         self.auth_header["HTTP_AUTHORIZATION"] = "Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b"
         response = self.client.get(self.url, **self.auth_header)
         assert 401 == response.status_code
+        self.auth_header["HTTP_AUTHORIZATION"] = "9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b"
+        response = self.client.get(self.url, **self.auth_header)
+        assert 401 == response.status_code
 
     def test_404_if_dataset_does_not_exist(self):
         url = reverse_lazy("api:dataset-detail", args=["foooo"])
@@ -55,6 +59,23 @@ class DatasetViewSetTests(BaseTestCaseWithSampleDataset):
         self.dataset.save()
         response = self.client.get(self.url, **self.auth_header)
         assert 404 == response.status_code
+
+    @override_settings(ENABLE_API_AUTH=False)
+    def test_success_response_with_or_without_valid_token_with_disabled_api_auth(self):
+        client = TrafficControlClient()
+        response = client.get(self.url)
+        assert 200 == response.status_code
+        response = client.get(self.url, **self.auth_header)
+        assert 200 == response.status_code
+
+    @override_settings(ENABLE_API_AUTH=False)
+    def test_unauthorized_response_if_request_with_invalid_token_with_disabled_api_auth(self):
+        self.auth_header["HTTP_AUTHORIZATION"] = "Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b"
+        response = self.client.get(self.url, **self.auth_header)
+        assert 401 == response.status_code
+        self.auth_header["HTTP_AUTHORIZATION"] = "Tokn 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b"
+        response = self.client.get(self.url, **self.auth_header)
+        assert 401 == response.status_code
 
 
 class DatasetTableDataTests(BaseTestCaseWithSampleDataset):
