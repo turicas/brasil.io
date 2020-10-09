@@ -44,13 +44,12 @@ class BaseTestCaseWithSampleDataset(TestCase):
             dataset=cls.dataset,
             name=cls.TABLE_NAME,
             version=cls.version,
-            filtering=[f["name"] for f in cls.FIELDS_KWARGS if f.get("filtering")],
         )
         cls.data_table = DataTable.new_data_table(cls.table)
         cls.data_table.activate()
 
         for f_kwargs in [deepcopy(k) for k in cls.FIELDS_KWARGS]:
-            f_kwargs.pop("filtering", None)
+            f_kwargs["frontend_filter"] = bool(f_kwargs.pop("filtering", None))
             f_kwargs["has_choices"] = "choices" in f_kwargs
             baker.make("core.Field", dataset=cls.dataset, table=cls.table, **f_kwargs)
 
