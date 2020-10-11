@@ -64,6 +64,16 @@
     {% endif %}
     {% endcache %}
 
+      <p>
+        Quer <b>baixar os dados completos</b> ou precisa <b>acessá-los de
+          maneira automatizada</b>? Antes de mais nada, <a
+          href="https://blog.brasil.io/2020/10/10/como-acessar-os-dados-do-brasil-io/"><b>leia
+            a documentação</b></a> e depois <a href="{{ dataset.files_url }}">baixe
+          o dataset completo</a> ou
+        <a href="{% url 'api:dataset-detail' dataset.slug %}">utilize
+          nossa API</a>.
+      </p>
+
       <ul class="tabs tabs-fixed-width" id="tabs">
         <li class="tab col s3"><a class="active" href="#data">Dados</a></li>
         <li class="tab col s3"><a href="#metadata">Metadados</a></li>
@@ -146,10 +156,6 @@
         {% include 'core/data-table.html' %}
         {% endwith %}
       </div>
-      <p>
-        Você também pode <a href="{{ dataset.files_url }}">baixar o dataset completo</a> ou
-        <a href="{% url 'api:dataset-detail' dataset.slug %}">utilizar nossa API</a>.
-      </p>
 
     </div>
     <div id="metadata" class="col s12">
