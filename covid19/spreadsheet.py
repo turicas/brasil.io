@@ -44,7 +44,11 @@ def merge_state_data(state):
 
     ordered_cases = []
     for row in final_cases:
-        ordered_cases.append(row_with_sorted_columns(row))
+        row = row_with_sorted_columns(row)
+        city_info = get_city_info(row["municipio"], state)
+        if city_info:
+            row["municipio"] = city_info.city
+        ordered_cases.append(row)
 
     original_data_errors.raise_if_errors()
     return {"reports": final_reports, "cases": ordered_cases}
