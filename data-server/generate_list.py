@@ -74,7 +74,7 @@ if __name__ == "__main__":
     list_template = TEMPLATE_PATH / "list.html"
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("list_type", choices=["mirror"])
+    parser.add_argument("list_type", choices=["mirror", "dataset"])
     parser.add_argument("dataset")
     parser.add_argument("capture_date")
     parser.add_argument("files_path")

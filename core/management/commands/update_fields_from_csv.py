@@ -15,13 +15,14 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         csv_filename = kwargs["csv_filename"]
         table = rows.import_from_csv(csv_filename, force_types={"options": rows.fields.JSONField})
-        expected_field_names = set(
+        expected_fieldset = set(
             "dataset_slug description frontend_filter has_choices "
             "link_template order null name options obfuscate show "
             "show_on_frontend table_name title type version_name searchable".split()
         )
-        if set(table.field_names) != expected_field_names:
-            raise ValueError("Field names didn't match")
+        fieldset = set(table.field_names)
+        if fieldset != expected_fieldset:
+            raise ValueError(f"Field names didn't match ({fieldset - expected_fieldset} / {expected_fieldset - fieldset})")
 
         with transaction.atomic():
             fields_to_save, tables_created = [], []

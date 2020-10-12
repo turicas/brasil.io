@@ -110,6 +110,7 @@ def detect_schema(dataset_slug, tablename, version_name, filename, encoding, sam
                 ("show_on_frontend", fields.BoolField),
                 ("frontend_filter", fields.BoolField),
                 ("link_template", fields.TextField),
+                ("searchable", fields.BoolField),
             ]
         )
     )
@@ -148,6 +149,7 @@ def detect_schema(dataset_slug, tablename, version_name, filename, encoding, sam
                 "title": title,
                 "type": field_type,
                 "version_name": version_name,
+                "searchable": field_type in ("string", "text"),
             }
         )
     return result
