@@ -22,7 +22,9 @@ class Command(BaseCommand):
         )
         fieldset = set(table.field_names)
         if fieldset != expected_fieldset:
-            raise ValueError(f"Field names didn't match ({fieldset - expected_fieldset} / {expected_fieldset - fieldset})")
+            raise ValueError(
+                f"Field names didn't match ({fieldset - expected_fieldset} / {expected_fieldset - fieldset})"
+            )
 
         with transaction.atomic():
             fields_to_save, tables_created = [], []
