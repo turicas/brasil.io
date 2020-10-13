@@ -34,6 +34,21 @@ nav.nav-state-selector ul {
   text-align: center;
 }
 
+#dashboard-links {
+  margin-bottom: 20px;
+  overflow: auto;
+  white-space: nowrap;
+}
+
+#dashboard-links a {
+  display: inline-block;
+  margin: 5px;
+}
+
+.chart{
+  height: 40vh; 
+  margin-bottom: 130px;
+}
 
 .info {
   padding: 6px 8px;

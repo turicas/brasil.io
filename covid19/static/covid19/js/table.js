@@ -3,8 +3,8 @@ var dt;
 jQuery(document).ready(function() {
   if (selectedStateId === undefined) {
     var columns = [
-      { "width": "18%" },
-      { "width": "18%" },
+      { "width": "14%" },
+      { "width": "22%" },
       { "width": "14%" },
       { "width": "10%" },
       { "width": "10%" },
@@ -15,8 +15,8 @@ jQuery(document).ready(function() {
   }
   else {
     var columns = [
-      { "width": "25%" },
-      { "width": "25%" },
+      { "width": "20%" },
+      { "width": "30%" },
       { "width": "10%" },
       { "width": "10%" },
       { "width": "10%" },
@@ -28,6 +28,7 @@ jQuery(document).ready(function() {
     "autoWidth": false,
     "columns": columns,
     "scrollY":        "600px",
+    "scrollX": true,
     "scrollCollapse": true,
     "paging":         false,
     "searching":      true,

@@ -28,6 +28,7 @@ class MultiLineChart {
     this.yLabels = options.yLabels;
     this.yData = options.yData;
     this.chartOptions = {
+      maintainAspectRatio: false,
       animation: {duration: this.animationDuration},
       bezierCurve: false,
       legend: {
