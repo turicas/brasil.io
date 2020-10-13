@@ -63,6 +63,9 @@ admin.site.register(models.Table, TableAdmin)
 
 
 class FieldAdmin(admin.ModelAdmin):
+    list_filter = ["dataset", "table"]
+    search_fields = ["table__name", "name"]
+
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("dataset", "version", "table")
 
