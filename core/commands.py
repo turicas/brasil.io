@@ -41,8 +41,7 @@ class ImportDataCommand:
     def execute(cls, dataset_slug, tablename, filename, **options):
         table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
         self = cls(table, **options)
-        data_table = DataTable.new_data_table(table)  # in memory instance, not persisted in the DB
-
+        data_table = DataTable.new_data_table(self.table)  # in memory instance, not persisted in the DB
         Model = table.get_model(cache=False, data_table=data_table)
 
         # Create the table if not exists
@@ -82,7 +81,7 @@ class ImportDataCommand:
 
         if self.flag_clear_view_cache:
             self.log("Clearing view and table caches...")
-            table.invalidate_cache()
+            self.table.invalidate_cache()
             cache.clear()
 
     def import_data(self, filename, Model):
