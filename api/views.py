@@ -6,6 +6,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 
 from api.serializers import DatasetDetailSerializer, DatasetSerializer, GenericSerializer
+from api.versioning import check_api_version_redirect
 from core.filters import parse_querystring
 from core.forms import get_table_dynamic_form
 from core.models import Dataset, Table
@@ -18,10 +19,15 @@ class DatasetViewSet(viewsets.ModelViewSet):
     serializer_class = DatasetSerializer
     queryset = Dataset.objects.api_visible()
 
+    @check_api_version_redirect
     def retrieve(self, request, slug):
         obj = get_object_or_404(self.get_queryset(), slug=slug)
         serializer = DatasetDetailSerializer(obj, context=self.get_serializer_context(),)
         return Response(serializer.data)
+
+    @check_api_version_redirect
+    def list(self, *args, **kwargs):
+        return super().list(*args, **kwargs)
 
 
 class InvalidFiltersException(Exception):
@@ -87,6 +93,10 @@ class DatasetDataListView(ListAPIView):
             return Response(exc.errors_list, status=400)
         else:
             return super().handle_exception(exc)
+
+    @check_api_version_redirect
+    def get(self, *args, **kwargs):
+        return super().get(*args, **kwargs)
 
 
 dataset_list = DatasetViewSet.as_view({"get": "list"})

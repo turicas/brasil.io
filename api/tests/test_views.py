@@ -1,9 +1,12 @@
-from django.test import override_settings
+from django.contrib.auth import get_user_model
+from django.test import TestCase, override_settings
 from django.urls import reverse, reverse_lazy
 from model_bakery import baker
 
 from core.tests.utils import BaseTestCaseWithSampleDataset
 from traffic_control.tests.util import TrafficControlClient
+
+User = get_user_model()
 
 
 class DatasetViewSetTests(BaseTestCaseWithSampleDataset):
@@ -118,3 +121,28 @@ class DatasetTableDataTests(BaseTestCaseWithSampleDataset):
         self.dataset.save()
         response = self.client.get(self.url, **self.auth_header)
         assert 404 == response.status_code
+
+
+class TestRedirectsFromPreviousRoutingToVersioned(TestCase):
+    client_class = TrafficControlClient
+
+    def test_redirects(self):
+        self.client.force_login(baker.make(User))
+
+        path_assertions = [
+            (reverse("api-v0:dataset-list"), reverse("api-v1:dataset-list")),
+            (reverse("api-v0:dataset-detail", args=["slug"]), reverse("api-v1:dataset-detail", args=["slug"])),
+            (
+                reverse("api-v0:dataset-table-data", args=["slug", "tablename"]),
+                reverse("api-v1:dataset-table-data", args=["slug", "tablename"]),
+            ),
+            (reverse("api-v0:resource-graph"), reverse("api-v1:resource-graph")),
+            (reverse("api-v0:partnership-paths"), reverse("api-v1:partnership-paths")),
+            (reverse("api-v0:subsequent-partnerships"), reverse("api-v1:subsequent-partnerships")),
+            (reverse("api-v0:company-groups"), reverse("api-v1:company-groups")),
+            (reverse("api-v0:node-data"), reverse("api-v1:node-data")),
+        ]
+
+        for url, redirect_url in path_assertions:
+            response = self.client.get(url)
+            self.assertRedirects(response, redirect_url, msg_prefix=url, fetch_redirect_response=False, status_code=301)

@@ -9,6 +9,7 @@ from ratelimit.exceptions import Ratelimited
 from rest_framework.exceptions import Throttled
 from rest_framework.views import exception_handler
 
+from api.versioning import redirect_from_older_version
 from traffic_control.logging import log_blocked_request
 
 rate_limit_msg = """
@@ -50,6 +51,10 @@ def handler_403(request, exception):
 def api_exception_handler(exc, context):
     response = exception_handler(exc, context)
     status_code = getattr(response, "status_code", None)
+
+    redirect = redirect_from_older_version(exc)
+    if redirect:
+        return redirect
 
     if isinstance(exc, Throttled):
         custom_response_data = {"message": api_throtthling_msg, "available_in": f"{exc.wait} seconds"}
