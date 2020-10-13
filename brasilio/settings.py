@@ -181,6 +181,7 @@ if THROTTLING_RATE:
         }
     )
 API_DEMO_URL = env("API_DEMO_URL", default="https://gist.github.com/turicas/3e3621d61415e3453cd03a1997f7473f")
+API_KEYS_BLOGPOST_URL = env("API_KEYS_BLOGPOST_URL", default="https://blog.brasil.io/")
 
 
 RATELIMIT_ENABLE = env("RATELIMIT_ENABLE", cast=bool, default=False)
