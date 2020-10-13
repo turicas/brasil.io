@@ -88,3 +88,22 @@ class DynamicModelFormTests(BaseTestCaseWithSampleDataset):
         assert "city" in form.fields
         assert isinstance(form.fields["uf"], type(self.get_model_field("uf").formfield()))
         assert isinstance(form.fields["city"], type(self.get_model_field("city").formfield()))
+
+    def test_none_value_should_display_vazio(self):
+        self.table.field_set.filter(name__in=["uf"]).update(frontend_filter=True)
+        uf_field = self.table.get_field("uf")
+        uf_field.has_choices = True
+        uf_field.choices = {"data": ["RJ", "SP", "MG", "None"]}
+        uf_field.save()
+        expected = [
+            ("", "Todos"),
+            ("RJ", "RJ"),
+            ("SP", "SP"),
+            ("MG", "MG"),
+            ("None", "(vazio)"),
+        ]
+
+        # valid form
+        DynamicFormClasss = get_table_dynamic_form(self.table, cache=False)
+
+        assert sorted(expected) == sorted(DynamicFormClasss().fields["uf"].choices)

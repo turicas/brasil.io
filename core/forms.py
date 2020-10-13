@@ -113,7 +113,9 @@ def get_table_dynamic_form(table, cache=True):
         field_factory = model_field.formfield
 
         if dynamic_field.has_choices and dynamic_field.choices:
-            kwargs["choices"] = [("", "Todos")] + [(c, c) for c in dynamic_field.choices.get("data", [])]
+            kwargs["choices"] = [("", "Todos")] + [
+                (c, c if c != "None" else "(vazio)") for c in dynamic_field.choices.get("data", [])
+            ]
             field_factory = forms.ChoiceField
 
         return field_factory(**kwargs)
