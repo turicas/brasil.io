@@ -69,9 +69,9 @@ class ImportDataCommand:
             with transaction.atomic():
                 if self.flag_fill_choices:
                     self.fill_choices(Model, data_table)
-                if self.flag_import_data:
-                    if table.data_table is not None:
-                        table.data_table.deactivate(drop_table=self.flag_delete_old_table)
+
+                if self.table.data_table is not None:
+                    self.table.data_table.deactivate(drop_table=self.flag_delete_old_table)
 
                 data_table.activate()
                 self.table.refresh_from_db()  # To have data_table filled
