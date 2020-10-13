@@ -43,12 +43,21 @@ class ImportDataCommand:
         self = cls(table, **options)
         data_table = DataTable.new_data_table(table)  # in memory instance, not persisted in the DB
 
+        Model = table.get_model(cache=False, data_table=data_table)
+
+        # Create the table if not exists
+        with transaction.atomic():
+            try:
+                Model.delete_table()
+            except ProgrammingError:  # Does not exist
+                pass
+            finally:
+                Model.create_table(indexes=False)
+                Model.create_triggers()
+
         if self.flag_import_data:
             self.log(f"Importing data to new table {data_table.db_table_name}")
-            Model = table.get_model(cache=False, data_table=data_table)
             self.import_data(filename, Model)
-        else:
-            Model = table.get_model(cache=False)
 
         # Vaccum and concurrent index creation cannot run inside a transaction block
         if self.flag_vacuum:
@@ -76,16 +85,6 @@ class ImportDataCommand:
             cache.clear()
 
     def import_data(self, filename, Model):
-        # Create the table if not exists
-        with transaction.atomic():
-            try:
-                Model.delete_table()
-            except ProgrammingError:  # Does not exist
-                pass
-            finally:
-                Model.create_table(indexes=False)
-                Model.create_triggers()
-
         # Get file object, header and set command to run
         table_name = Model._meta.db_table
         database_uri = os.environ["DATABASE_URL"]
