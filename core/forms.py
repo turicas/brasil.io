@@ -112,6 +112,7 @@ def get_table_dynamic_form(table, cache=True):
         kwargs = {"required": False, "label": dynamic_field.title}
         field_factory = model_field.formfield
 
+        # null values are being saved as "None"
         if dynamic_field.has_choices and dynamic_field.choices:
             kwargs["choices"] = [("", "Todos")] + [
                 (c, c if c != "None" else "(vazio)") for c in dynamic_field.choices.get("data", [])
