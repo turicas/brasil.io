@@ -14,7 +14,7 @@ class DatasetViewSetTests(BaseTestCaseWithSampleDataset):
         {"name": "sample_field", "options": {"max_length": 10}, "type": "text", "null": False},
     ]
 
-    url = reverse_lazy("api:dataset-detail", args=[DATASET_SLUG])
+    url = reverse_lazy("api-v1:dataset-detail", args=[DATASET_SLUG])
 
     def setUp(self):
         self.dataset.show = True
@@ -50,7 +50,7 @@ class DatasetViewSetTests(BaseTestCaseWithSampleDataset):
         assert 401 == response.status_code
 
     def test_404_if_dataset_does_not_exist(self):
-        url = reverse_lazy("api:dataset-detail", args=["foooo"])
+        url = reverse_lazy("api-v1:dataset-detail", args=["foooo"])
         response = self.client.get(url, **self.auth_header)
         assert 404 == response.status_code
 
@@ -92,7 +92,7 @@ class DatasetTableDataTests(BaseTestCaseWithSampleDataset):
         },
     ]
 
-    url = reverse_lazy("api:dataset-table-data", args=[DATASET_SLUG, TABLE_NAME])
+    url = reverse_lazy("api-v1:dataset-table-data", args=[DATASET_SLUG, TABLE_NAME])
 
     def setUp(self):
         self.dataset.show = True
