@@ -163,7 +163,10 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
     "EXCEPTION_HANDLER": "traffic_control.handlers.api_exception_handler",
-    "DEFAULT_AUTHENTICATION_CLASSES": ["api.authentication.TokenAuthentication",],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "api.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
     "DEFAULT_PERMISSION_CLASSES": ["api.permissions.ApiIsAuthenticated"],
 }
 MAX_NUM_API_TOKEN_PER_USER = env("MAX_NUM_API_TOKEN_PER_USER", cast=int, default=10)
