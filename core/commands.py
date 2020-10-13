@@ -42,17 +42,8 @@ class ImportDataCommand:
         table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
         self = cls(table, **options)
         data_table = DataTable.new_data_table(self.table)  # in memory instance, not persisted in the DB
-        Model = table.get_model(cache=False, data_table=data_table)
 
-        # Create the table if not exists
-        with transaction.atomic():
-            try:
-                Model.delete_table()
-            except ProgrammingError:  # Does not exist
-                pass
-            finally:
-                Model.create_table(indexes=False)
-                Model.create_triggers()
+        Model = self.refresh_model_table(data_table)
 
         if self.flag_import_data:
             self.log(f"Importing data to new table {data_table.db_table_name}")
@@ -83,6 +74,21 @@ class ImportDataCommand:
             self.log("Clearing view and table caches...")
             self.table.invalidate_cache()
             cache.clear()
+
+    def refresh_model_table(self, data_table):
+        Model = self.table.get_model(cache=False, data_table=data_table)
+
+        # Create the table if not exists
+        with transaction.atomic():
+            try:
+                Model.delete_table()
+            except ProgrammingError:  # Does not exist
+                pass
+            finally:
+                Model.create_table(indexes=False)
+                Model.create_triggers()
+
+        return Model
 
     def import_data(self, filename, Model):
         # Get file object, header and set command to run
