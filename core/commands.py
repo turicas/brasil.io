@@ -41,14 +41,13 @@ class ImportDataCommand:
     def execute(cls, dataset_slug, tablename, filename, **options):
         table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
         self = cls(table, **options)
-        data_table = DataTable.new_data_table(table)  # in memory instance, not persisted in the DB
+        data_table = DataTable.new_data_table(self.table)  # in memory instance, not persisted in the DB
+
+        Model = self.refresh_model_table(data_table)
 
         if self.flag_import_data:
             self.log(f"Importing data to new table {data_table.db_table_name}")
-            Model = table.get_model(cache=False, data_table=data_table)
             self.import_data(filename, Model)
-        else:
-            Model = table.get_model(cache=False)
 
         # Vaccum and concurrent index creation cannot run inside a transaction block
         if self.flag_vacuum:
@@ -60,11 +59,12 @@ class ImportDataCommand:
             with transaction.atomic():
                 if self.flag_fill_choices:
                     self.fill_choices(Model, data_table)
-                if self.flag_import_data:
-                    if table.data_table is not None:
-                        table.data_table.deactivate(drop_table=self.flag_delete_old_table)
-                    data_table.activate()
-                    table.refresh_from_db()  # To have data_table filled
+
+                if self.table.data_table is not None:
+                    self.table.data_table.deactivate(drop_table=self.flag_delete_old_table)
+
+                data_table.activate()
+                self.table.refresh_from_db()  # To have data_table filled
         except Exception as e:
             self.log(f"Deleting import table {data_table.db_table_name} due to an error.")
             data_table.delete_data_table()
@@ -72,10 +72,12 @@ class ImportDataCommand:
 
         if self.flag_clear_view_cache:
             self.log("Clearing view and table caches...")
-            table.invalidate_cache()
+            self.table.invalidate_cache()
             cache.clear()
 
-    def import_data(self, filename, Model):
+    def refresh_model_table(self, data_table):
+        Model = self.table.get_model(cache=False, data_table=data_table)
+
         # Create the table if not exists
         with transaction.atomic():
             try:
@@ -86,6 +88,9 @@ class ImportDataCommand:
                 Model.create_table(indexes=False)
                 Model.create_triggers()
 
+        return Model
+
+    def import_data(self, filename, Model):
         # Get file object, header and set command to run
         table_name = Model._meta.db_table
         database_uri = os.environ["DATABASE_URL"]
