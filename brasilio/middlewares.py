@@ -5,6 +5,7 @@ from django.urls.base import set_urlconf
 def host_based_url_conf(get_response):
     def middleware(request):
         if request.get_host() == settings.BRASILIO_API_HOST:
+            set_urlconf(settings.API_ROOT_URLCONF)
             setattr(request, "urlconf", settings.API_ROOT_URLCONF)
         else:
             set_urlconf(None)
