@@ -88,7 +88,7 @@ def home(request):
     context = {
         "datasets": Dataset.objects.filter(show=True).order_by("?")[:6],
         "recent_activities": recent_activities(
-            days_ago=settings.NUM_RECENT_ACTIVITES_HOMEPAGE, limit=settings.DAYS_RANGE_RECENT_ACTIVITES_HOMEPAGE
+            days_ago=settings.DAYS_RANGE_RECENT_ACTIVITES_HOMEPAGE, limit=settings.NUM_RECENT_ACTIVITES_HOMEPAGE
         ),
     }
     return render(request, "core/home.html", context)
