@@ -67,7 +67,7 @@ class Command(BaseCommand):
                 table.search_fields = [
                     field.name
                     for action, field in fields_to_save
-                    if field.table == table and field.type in ("text", "string")
+                    if field.table == table and field.type in ("text", "string") and field.searchable
                 ]
                 table.save()
 
