@@ -3,12 +3,14 @@ import os
 import random
 from functools import lru_cache
 
+from django.conf import settings
 from django.shortcuts import render
 from django.urls import reverse
 from ratelimit.exceptions import Ratelimited
 from rest_framework.exceptions import Throttled
 from rest_framework.views import exception_handler
 
+from api.versioning import redirect_from_older_version
 from traffic_control.logging import log_blocked_request
 
 rate_limit_msg = """
@@ -51,6 +53,10 @@ def api_exception_handler(exc, context):
     response = exception_handler(exc, context)
     status_code = getattr(response, "status_code", None)
 
+    redirect = redirect_from_older_version(exc)
+    if redirect:
+        return redirect
+
     if isinstance(exc, Throttled):
         custom_response_data = {"message": api_throtthling_msg, "available_in": f"{exc.wait} seconds"}
         response.data = custom_response_data
@@ -58,8 +64,8 @@ def api_exception_handler(exc, context):
     if 400 <= status_code < 500:
         log_blocked_request(context["request"], status_code)
         if 401 == status_code:
-            url = reverse("brasilio_auth:list_api_tokens")
-            msg = f"As credenciais de autenticação não foram fornecidas. Acesse https://brasil.io{url} para gerenciar suas chaves de acesso a API."
+            url = reverse("brasilio_auth:list_api_tokens", urlconf=settings.ROOT_URLCONF)
+            msg = f"As credenciais de autenticação não foram fornecidas ou estão inválidas. Acesse https://brasil.io{url} para gerenciar suas chaves de acesso a API."
             response.data = {"message": msg}
 
     return response

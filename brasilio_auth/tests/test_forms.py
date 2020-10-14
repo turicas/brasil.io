@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 from captcha.fields import ReCaptchaField
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm as DjangoUserCreationForm
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from model_bakery import baker
 
 from brasilio_auth.forms import TokenApiManagementForm, UserCreationForm
@@ -152,3 +152,8 @@ class TestTokenApiManagementForm(TestCase):
 
         assert len(form.errors) == len(required_fields)
         assert all([f in form.errors for f in required_fields])
+
+    @override_settings(DISABLE_RECAPTCHA=True)
+    def test_captcha_validades_if_disabled(self):
+        form = TokenApiManagementForm({"captcha": "foo"})
+        assert form.is_valid(), form.errors

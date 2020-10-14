@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "django_registration",
 ]
 MIDDLEWARE = [
+    "brasilio.middlewares.host_based_url_conf",
     "django.middleware.security.SecurityMiddleware",
     "traffic_control.middlewares.block_suspicious_requests",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -70,6 +71,9 @@ if DEBUG and env("DEBUG_SQL", cast=bool, default=True):
     MIDDLEWARE.append("utils.sqlprint.SqlPrintingMiddleware")
 
 ROOT_URLCONF = "brasilio.urls"
+API_ROOT_URLCONF = "brasilio.api_urls"
+BRASILIO_API_HOST = env("BRASILIO_API_HOST", default="api.brasil.io")
+
 APPEND_SLASH = True
 TEMPLATES = [
     {
@@ -163,8 +167,12 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
     "EXCEPTION_HANDLER": "traffic_control.handlers.api_exception_handler",
-    "DEFAULT_AUTHENTICATION_CLASSES": ["api.authentication.TokenAuthentication",],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "api.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
     "DEFAULT_PERMISSION_CLASSES": ["api.permissions.ApiIsAuthenticated"],
+    "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.NamespaceVersioning",
 }
 MAX_NUM_API_TOKEN_PER_USER = env("MAX_NUM_API_TOKEN_PER_USER", cast=int, default=10)
 ENABLE_API_AUTH = env("ENABLE_API_AUTH", cast=bool, default=False)
@@ -181,6 +189,7 @@ if THROTTLING_RATE:
         }
     )
 API_DEMO_URL = env("API_DEMO_URL", default="https://gist.github.com/turicas/3e3621d61415e3453cd03a1997f7473f")
+API_KEYS_BLOGPOST_URL = env("API_KEYS_BLOGPOST_URL", default="https://blog.brasil.io/")
 
 
 RATELIMIT_ENABLE = env("RATELIMIT_ENABLE", cast=bool, default=False)
@@ -228,6 +237,7 @@ LOGOUT_REDIRECT_URL = "/"
 LOGIN_REDIRECT_URL = "/"
 LOGIN_URL = reverse_lazy("brasilio_auth:login")
 
+DISABLE_RECAPTCHA = env("DISABLE_RECAPTCHA", cast=bool, default=False)
 RECAPTCHA_PUBLIC_KEY = env("RECAPTCHA_PUBLIC_KEY")
 RECAPTCHA_PRIVATE_KEY = env("RECAPTCHA_PRIVATE_KEY")
 

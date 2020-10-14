@@ -1,12 +1,12 @@
 import re
 
-from captcha.fields import ReCaptchaField
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from core.data_models import EmpresaTableConfig
 from core.models import get_table_model
+from utils.forms import FlagedReCaptchaField as ReCaptchaField
 
 
 def numbers_only(value):

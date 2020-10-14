@@ -1,8 +1,9 @@
-from captcha.fields import ReCaptchaField
 from django import forms
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from django_registration.forms import RegistrationFormUniqueEmail
+
+from utils.forms import FlagedReCaptchaField as ReCaptchaField
 
 
 class UserCreationForm(RegistrationFormUniqueEmail):
