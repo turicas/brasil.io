@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 from django.urls import reverse, reverse_lazy
@@ -123,7 +124,7 @@ class DatasetTableDataTests(BaseTestCaseWithSampleDataset):
         assert 404 == response.status_code
 
 
-class TestRedirectsFromPreviousRoutingToVersioned(TestCase):
+class TestAPIRedirectsFromPreviousRoutingToVersioned(TestCase):
     client_class = TrafficControlClient
 
     def test_redirects(self):
@@ -146,3 +147,40 @@ class TestRedirectsFromPreviousRoutingToVersioned(TestCase):
         for url, redirect_url in path_assertions:
             response = self.client.get(url)
             self.assertRedirects(response, redirect_url, msg_prefix=url, fetch_redirect_response=False, status_code=301)
+
+        assert "/api/datasets/" == path_assertions[0][0]
+        assert "/api/v1/datasets/" == path_assertions[0][1]
+
+    def test_redirects_from_api_host(self):
+        self.client.force_login(baker.make(User))
+
+        urlconf = settings.API_ROOT_URLCONF
+        path_assertions = [
+            (reverse("api-v0:dataset-list", urlconf=urlconf), reverse("api-v1:dataset-list", urlconf=urlconf)),
+            (
+                reverse("api-v0:dataset-detail", args=["slug"], urlconf=urlconf),
+                reverse("api-v1:dataset-detail", args=["slug"], urlconf=urlconf),
+            ),
+            (
+                reverse("api-v0:dataset-table-data", args=["slug", "tablename"], urlconf=urlconf),
+                reverse("api-v1:dataset-table-data", args=["slug", "tablename"], urlconf=urlconf),
+            ),
+            (reverse("api-v0:resource-graph", urlconf=urlconf), reverse("api-v1:resource-graph", urlconf=urlconf)),
+            (
+                reverse("api-v0:partnership-paths", urlconf=urlconf),
+                reverse("api-v1:partnership-paths", urlconf=urlconf),
+            ),
+            (
+                reverse("api-v0:subsequent-partnerships", urlconf=urlconf),
+                reverse("api-v1:subsequent-partnerships", urlconf=urlconf),
+            ),
+            (reverse("api-v0:company-groups", urlconf=urlconf), reverse("api-v1:company-groups", urlconf=urlconf)),
+            (reverse("api-v0:node-data", urlconf=urlconf), reverse("api-v1:node-data", urlconf=urlconf)),
+        ]
+
+        for url, redirect_url in path_assertions:
+            response = self.client.get(url, HTTP_HOST="api.brasil.io")
+            self.assertRedirects(response, redirect_url, msg_prefix=url, fetch_redirect_response=False, status_code=301)
+
+        assert "/datasets/" == path_assertions[0][0]
+        assert "/v1/datasets/" == path_assertions[0][1]

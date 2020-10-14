@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "django_registration",
 ]
 MIDDLEWARE = [
+    "brasilio.middlewares.host_based_url_conf",
     "django.middleware.security.SecurityMiddleware",
     "traffic_control.middlewares.block_suspicious_requests",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -70,6 +71,9 @@ if DEBUG and env("DEBUG_SQL", cast=bool, default=True):
     MIDDLEWARE.append("utils.sqlprint.SqlPrintingMiddleware")
 
 ROOT_URLCONF = "brasilio.urls"
+API_ROOT_URLCONF = "brasilio.api_urls"
+BRASILIO_API_HOST = env("BRASILIO_API_HOST", default="api.brasil.io")
+
 APPEND_SLASH = True
 TEMPLATES = [
     {
