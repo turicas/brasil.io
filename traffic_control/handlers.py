@@ -3,6 +3,7 @@ import os
 import random
 from functools import lru_cache
 
+from django.conf import settings
 from django.shortcuts import render
 from django.urls import reverse
 from ratelimit.exceptions import Ratelimited
@@ -63,7 +64,7 @@ def api_exception_handler(exc, context):
     if 400 <= status_code < 500:
         log_blocked_request(context["request"], status_code)
         if 401 == status_code:
-            url = reverse("brasilio_auth:list_api_tokens")
+            url = reverse("brasilio_auth:list_api_tokens", urlconf=settings.ROOT_URLCONF)
             msg = f"As credenciais de autenticação não foram fornecidas. Acesse https://brasil.io{url} para gerenciar suas chaves de acesso a API."
             response.data = {"message": msg}
 
