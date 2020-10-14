@@ -39,7 +39,7 @@ class DatasetViewSetTests(BaseTestCaseWithSampleDataset):
 
     def test_unauthorized_response_if_request_without_auth_token(self):
         url = reverse("brasilio_auth:list_api_tokens")
-        expected_msg = f"As credenciais de autenticação não foram fornecidas. Acesse https://brasil.io{url} para gerenciar suas chaves de acesso a API."
+        expected_msg = f"As credenciais de autenticação não foram fornecidas ou estão inválidas. Acesse https://brasil.io{url} para gerenciar suas chaves de acesso a API."
         response = self.client.get(self.url)
         content = response.json()
         assert 401 == response.status_code

@@ -65,7 +65,7 @@ def api_exception_handler(exc, context):
         log_blocked_request(context["request"], status_code)
         if 401 == status_code:
             url = reverse("brasilio_auth:list_api_tokens", urlconf=settings.ROOT_URLCONF)
-            msg = f"As credenciais de autenticação não foram fornecidas. Acesse https://brasil.io{url} para gerenciar suas chaves de acesso a API."
+            msg = f"As credenciais de autenticação não foram fornecidas ou estão inválidas. Acesse https://brasil.io{url} para gerenciar suas chaves de acesso a API."
             response.data = {"message": msg}
 
     return response
