@@ -5,8 +5,7 @@ from django.urls import include, path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", include("api.urls_v0", namespace="api-v0")),
-    path("api/v1/", include("api.urls", namespace="api-v1")),
+    path("api/", include("brasilio.api_urls")),
     path("auth/", include("brasilio_auth.urls", namespace="brasilio_auth")),
     path("covid19/", include("covid19.urls", namespace="covid19")),
     path("django-rq/", include("django_rq.urls")),
