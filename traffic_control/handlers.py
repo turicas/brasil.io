@@ -11,8 +11,8 @@ from rest_framework.exceptions import Throttled
 from rest_framework.views import exception_handler
 
 from api.versioning import redirect_from_older_version
+from core.models import DataUrlRedirect
 from traffic_control.logging import log_blocked_request
-from traffic_control.models import DataUrlRedirect
 
 rate_limit_msg = """
 <p>Você atingiu o limite de requisições e, por isso, essa requisição foi bloqueada. Caso você precise acessar várias páginas de um dataset, por favor, baixe o dataset completo em vez de percorrer várias páginas na interface (o link para baixar o arquivo completo encontra-se na <a href="https://brasil.io/datasets/">página do dataset</a>).</p>

@@ -3,7 +3,6 @@ from copy import deepcopy
 from itertools import chain
 
 from django.db import models
-from django.urls import reverse
 from django.utils import timezone
 
 
@@ -78,37 +77,3 @@ class BlockedRequest(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
-
-
-class DataUrlRedirect(models.Model):
-    dataset_prev = models.SlugField(default="")
-    dataset_dest = models.SlugField(default="")
-
-    tablename_prev = models.SlugField(default="")
-    tablename_dest = models.SlugField(default="")
-
-    field_prev = models.SlugField(default="")
-    field_dest = models.SlugField(default="")
-
-    @property
-    def redirect_map(self):
-        dataset_url_names = [
-            "core:dataset-detail",
-            "core:dataset-files-detail",
-            "api-v1:dataset-detail",
-        ]
-
-        return {reverse(n, args=[self.dataset_prev]): reverse(n, args=[self.dataset_dest]) for n in dataset_url_names}
-
-    @classmethod
-    def redirect_from(cls, path):
-        redirects = {}
-
-        for data_url_redirect in cls.objects.all().iterator():
-            redirects.update(**data_url_redirect.redirect_map)
-
-        # Order prefixes begining by the most complex ones
-        for url_prefix in sorted(redirects, reverse=True):
-            if path.startswith(url_prefix):
-                redirect_url_prefix = redirects[url_prefix]
-                return path.replace(url_prefix, redirect_url_prefix)

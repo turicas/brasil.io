@@ -1,10 +1,5 @@
 from django.conf import settings
 from django.test import TestCase, override_settings
-from django.urls import reverse
-from model_bakery import baker
-
-from traffic_control.models import DataUrlRedirect
-from traffic_control.tests.util import TrafficControlClient
 
 
 class BlockSuspiciousRequestsMiddlewareTests(TestCase):
@@ -41,63 +36,3 @@ class BlockSuspiciousRequestsMiddlewareTests(TestCase):
         with override_settings(APPEND_SLASH=False):
             response = self.client.get(url, HTTP_USER_AGENT="other_agent")
             assert 404 == response.status_code
-
-
-class HandlerRedirectsTests(TestCase):
-    client_class = TrafficControlClient
-
-    def setUp(self):
-        self.dataset_redirects = [
-            baker.make(DataUrlRedirect, dataset_prev="gastos_diretos", dataset_dest="govbr"),
-            baker.make(DataUrlRedirect, dataset_prev="bens_candidatos", dataset_dest="bem_declarado"),
-        ]
-
-    def test_redirect_dataset_urls(self):
-        response = self.client.get("/dataset/gastos_diretos/")
-
-        self.assertRedirects(response, "/dataset/govbr/", fetch_redirect_response=False)
-
-    def test_dataset_redirect_fetch_data_from_db(self):
-        for ds_redirect in self.dataset_redirects:
-            url = reverse("core:dataset-detail", args=[ds_redirect.dataset_prev])
-            redirect_url = reverse("core:dataset-detail", args=[ds_redirect.dataset_dest])
-
-            response = self.client.get(url)
-
-            self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
-
-    def test_dataset_redirect_fetch_data_from_db_for_files_urls(self):
-        for ds_redirect in self.dataset_redirects:
-            url = reverse("core:dataset-files-detail", args=[ds_redirect.dataset_prev])
-            redirect_url = reverse("core:dataset-files-detail", args=[ds_redirect.dataset_dest])
-
-            response = self.client.get(url)
-
-            self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
-
-    def test_dataset_redirect_fetch_data_from_db_for_api_urls(self):
-        for ds_redirect in self.dataset_redirects:
-            url = reverse("api-v1:dataset-detail", args=[ds_redirect.dataset_prev])
-            redirect_url = reverse("api-v1:dataset-detail", args=[ds_redirect.dataset_dest])
-
-            response = self.client.get(url)
-
-            self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
-
-    def test_dataset_redirect_fetch_data_from_db_for_tabledata(self):
-        for ds_redirect in self.dataset_redirects:
-            url = reverse("core:dataset-table-detail", args=[ds_redirect.dataset_prev, "caso"])
-            redirect_url = reverse("core:dataset-table-detail", args=[ds_redirect.dataset_dest, "caso"])
-
-            response = self.client.get(url)
-
-            self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
-
-    def test_dataset_redirect_fetch_data_from_db_for_api_tabledata(self):
-        for ds_redirect in self.dataset_redirects:
-            url = reverse("api-v1:dataset-table-data", args=[ds_redirect.dataset_prev, "caso"])
-            redirect_url = reverse("api-v1:dataset-table-data", args=[ds_redirect.dataset_dest, "caso"])
-
-            response = self.client.get(url)
-
-            self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
