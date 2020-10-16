@@ -1,8 +1,7 @@
-from model_bakery import baker
-
 from django.conf import settings
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from model_bakery import baker
 
 from traffic_control.models import DataUrlRedirect
 from traffic_control.tests.util import TrafficControlClient
@@ -67,10 +66,19 @@ class HandlerRedirectsTests(TestCase):
 
             self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
 
-    def test_dataset_redirect_fetch_data_from_db_for_files(self):
+    def test_dataset_redirect_fetch_data_from_db_for_files_urls(self):
         for ds_redirect in self.dataset_redirects:
             url = reverse("core:dataset-files-detail", args=[ds_redirect.dataset_prev])
             redirect_url = reverse("core:dataset-files-detail", args=[ds_redirect.dataset_dest])
+
+            response = self.client.get(url)
+
+            self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+    def test_dataset_redirect_fetch_data_from_db_for_api_urls(self):
+        for ds_redirect in self.dataset_redirects:
+            url = reverse("api-v1:dataset-detail", args=[ds_redirect.dataset_prev])
+            redirect_url = reverse("api-v1:dataset-detail", args=[ds_redirect.dataset_dest])
 
             response = self.client.get(url)
 

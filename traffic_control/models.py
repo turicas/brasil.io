@@ -99,6 +99,9 @@ class DataUrlRedirect(models.Model):
             reverse("core:dataset-files-detail", args=[self.dataset_prev]): reverse(
                 "core:dataset-files-detail", args=[self.dataset_dest]
             ),
+            reverse("api-v1:dataset-detail", args=[self.dataset_prev]): reverse(
+                "api-v1:dataset-detail", args=[self.dataset_dest]
+            ),
         }
 
     @classmethod
