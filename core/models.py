@@ -698,7 +698,8 @@ class DataUrlRedirect(models.Model):
         return {reverse(n, args=[self.dataset_prev]): reverse(n, args=[self.dataset_dest]) for n in dataset_url_names}
 
     @classmethod
-    def redirect_from(cls, path):
+    def redirect_from(cls, request):
+        path = request.path
         redirects = {}
 
         for data_url_redirect in cls.objects.all().iterator():

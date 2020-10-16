@@ -7,13 +7,13 @@ from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import StreamingHttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from core.filters import parse_querystring
 from core.forms import ContactForm, DatasetSearchForm, get_table_dynamic_form
 from core.middlewares import disable_non_logged_user_cache
-from core.models import Dataset, Table
+from core.models import Dataset, DataUrlRedirect, Table
 from core.templatetags.utils import obfuscate
 from core.util import cached_http_get_json
 from data_activities_log.activites import recent_activities
@@ -109,6 +109,10 @@ def dataset_detail(request, slug, tablename=""):
     try:
         dataset = Dataset.objects.get(slug=slug)
     except Dataset.DoesNotExist:
+        redirect_url = DataUrlRedirect.redirect_from(request)
+        if redirect_url:
+            return redirect(redirect_url)
+
         context = {"message": "Dataset does not exist"}
         return render(request, "404.html", context, status=404)
 
@@ -233,7 +237,16 @@ def contributors(request):
 
 
 def dataset_files_detail(request, slug):
-    dataset = get_object_or_404(Dataset, slug=slug)
+    try:
+        dataset = Dataset.objects.get(slug=slug)
+    except Dataset.DoesNotExist:
+        redirect_url = DataUrlRedirect.redirect_from(request)
+        if redirect_url:
+            return redirect(redirect_url)
+
+        context = {"message": "Dataset does not exist"}
+        return render(request, "404.html", context, status=404)
+
     try:
         all_files = dataset.all_files
     except ObjectDoesNotExist:

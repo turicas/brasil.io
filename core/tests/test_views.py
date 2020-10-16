@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -129,6 +130,7 @@ class DataRedirectsTests(TestCase):
     client_class = TrafficControlClient
 
     def setUp(self):
+        self.client.force_login(baker.make(settings.AUTH_USER_MODEL))
         self.dataset_redirects = [
             baker.make(DataUrlRedirect, dataset_prev="gastos_diretos", dataset_dest="govbr"),
             baker.make(DataUrlRedirect, dataset_prev="bens_candidatos", dataset_dest="bem_declarado"),

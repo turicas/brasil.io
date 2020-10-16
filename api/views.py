@@ -1,6 +1,7 @@
 from collections import Sequence
 
-from django.shortcuts import get_object_or_404
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect
 from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
@@ -9,7 +10,7 @@ from api.serializers import DatasetDetailSerializer, DatasetSerializer, GenericS
 from api.versioning import check_api_version_redirect
 from core.filters import parse_querystring
 from core.forms import get_table_dynamic_form
-from core.models import Dataset, Table
+from core.models import Dataset, DataUrlRedirect, Table
 from core.templatetags.utils import obfuscate
 
 from . import paginators
@@ -21,7 +22,14 @@ class DatasetViewSet(viewsets.ModelViewSet):
 
     @check_api_version_redirect
     def retrieve(self, request, slug):
-        obj = get_object_or_404(self.get_queryset(), slug=slug)
+        try:
+            obj = self.get_queryset().get(slug=slug)
+        except Dataset.DoesNotExist:
+            redirect_url = DataUrlRedirect.redirect_from(request)
+            if redirect_url:
+                return redirect(redirect_url)
+            raise Http404
+
         serializer = DatasetDetailSerializer(obj, context=self.get_serializer_context(),)
         return Response(serializer.data)
 
@@ -92,6 +100,10 @@ class DatasetDataListView(ListAPIView):
         if isinstance(exc, InvalidFiltersException):
             return Response(exc.errors_list, status=400)
         else:
+            if isinstance(exc, Http404):
+                redirect_url = DataUrlRedirect.redirect_from(self.request)
+                if redirect_url:
+                    return redirect(redirect_url)
             return super().handle_exception(exc)
 
     @check_api_version_redirect
