@@ -100,14 +100,13 @@ class DatasetDataListView(ListAPIView):
         if isinstance(exc, InvalidFiltersException):
             return Response(exc.errors_list, status=400)
         else:
-            if isinstance(exc, Http404):
-                redirect_url = DataUrlRedirect.redirect_from(self.request)
-                if redirect_url:
-                    return redirect(redirect_url)
             return super().handle_exception(exc)
 
     @check_api_version_redirect
     def get(self, *args, **kwargs):
+        redirect_url = DataUrlRedirect.redirect_from(self.request)
+        if redirect_url:
+            return redirect(redirect_url)
         return super().get(*args, **kwargs)
 
 
