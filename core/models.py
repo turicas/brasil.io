@@ -689,13 +689,36 @@ class DataUrlRedirect(models.Model):
 
     @property
     def redirect_map(self):
+        map = {}
         dataset_url_names = [
             "core:dataset-detail",
             "core:dataset-files-detail",
             "api-v1:dataset-detail",
         ]
 
-        return {reverse(n, args=[self.dataset_prev]): reverse(n, args=[self.dataset_dest]) for n in dataset_url_names}
+        if self.dataset_prev != self.dataset_dest:
+            map.update(
+                **{
+                    reverse(n, args=[self.dataset_prev]): reverse(n, args=[self.dataset_dest])
+                    for n in dataset_url_names
+                }
+            )
+
+        if self.tablename_dest != self.tablename_prev:
+            table_url_names = [
+                "core:dataset-table-detail",
+                "api-v1:dataset-table-data",
+            ]
+            map.update(
+                **{
+                    reverse(n, args=[self.dataset_prev, self.tablename_prev]): reverse(
+                        n, args=[self.dataset_dest, self.tablename_dest]
+                    )
+                    for n in table_url_names
+                }
+            )
+
+        return map
 
     @classmethod
     def redirect_from(cls, request):

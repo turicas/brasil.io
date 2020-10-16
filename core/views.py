@@ -126,6 +126,9 @@ def dataset_detail(request, slug, tablename=""):
     except Table.DoesNotExist:
         context = {"message": "Table does not exist"}
         try:
+            redirect_url = DataUrlRedirect.redirect_from(request)
+            if redirect_url:
+                return redirect(redirect_url)
             # log 404 request only if hidden table exist
             hidden_table = dataset.get_table(tablename, allow_hidden=True)
             if hidden_table:
