@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.test import TestCase, override_settings
 
+from traffic_control.tests.util import TrafficControlClient
+
 
 class BlockSuspiciousRequestsMiddlewareTests(TestCase):
     def assert429(self, response):
@@ -36,3 +38,12 @@ class BlockSuspiciousRequestsMiddlewareTests(TestCase):
         with override_settings(APPEND_SLASH=False):
             response = self.client.get(url, HTTP_USER_AGENT="other_agent")
             assert 404 == response.status_code
+
+
+class HandlerRedirectsTests(TestCase):
+    client_class = TrafficControlClient
+
+    def test_redirect_dataset_urls(self):
+        response = self.client.get("/datasets/gastos_diretos/")
+
+        self.assertRedirects(response, "/datasets/govbr/", fetch_redirect_response=False)

@@ -58,6 +58,7 @@ MIDDLEWARE = [
     "traffic_control.middlewares.block_suspicious_requests",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "traffic_control.middlewares.redirect_requests_from_expired_routes",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.cache.UpdateCacheMiddleware",
     "django.middleware.common.CommonMiddleware",

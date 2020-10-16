@@ -4,7 +4,7 @@ import random
 from functools import lru_cache
 
 from django.conf import settings
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from ratelimit.exceptions import Ratelimited
 from rest_framework.exceptions import Throttled
@@ -69,3 +69,8 @@ def api_exception_handler(exc, context):
             response.data = {"message": msg}
 
     return response
+
+
+def handler_redirects(request):
+    if request.path in ["/datasets/gastos_diretos/"]:
+        return redirect("/datasets/govbr/")

@@ -5,6 +5,7 @@ from ratelimit.core import is_ratelimited
 from ratelimit.exceptions import Ratelimited
 
 from traffic_control.constants import RATELIMITED_VIEW_ATTR
+from traffic_control.handlers import handler_redirects
 from traffic_control.util import ratelimit_key
 
 
@@ -37,5 +38,13 @@ def block_suspicious_requests(get_response):
                     raise Ratelimited()
 
         return get_response(request)
+
+    return middleware
+
+
+def redirect_requests_from_expired_routes(get_response):
+    def middleware(request):
+        redirect = handler_redirects(request)
+        return get_response(request) if not redirect else redirect
 
     return middleware
