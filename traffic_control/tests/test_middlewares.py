@@ -1,6 +1,10 @@
+from model_bakery import baker
+
 from django.conf import settings
 from django.test import TestCase, override_settings
+from django.urls import reverse
 
+from traffic_control.models import DataUrlRedirect
 from traffic_control.tests.util import TrafficControlClient
 
 
@@ -43,7 +47,31 @@ class BlockSuspiciousRequestsMiddlewareTests(TestCase):
 class HandlerRedirectsTests(TestCase):
     client_class = TrafficControlClient
 
-    def test_redirect_dataset_urls(self):
-        response = self.client.get("/datasets/gastos_diretos/")
+    def setUp(self):
+        self.dataset_redirects = [
+            baker.make(DataUrlRedirect, dataset_prev="gastos_diretos", dataset_dest="govbr"),
+            baker.make(DataUrlRedirect, dataset_prev="bens_candidatos", dataset_dest="bem_declarado"),
+        ]
 
-        self.assertRedirects(response, "/datasets/govbr/", fetch_redirect_response=False)
+    def test_redirect_dataset_urls(self):
+        response = self.client.get("/dataset/gastos_diretos/")
+
+        self.assertRedirects(response, "/dataset/govbr/", fetch_redirect_response=False)
+
+    def test_dataset_redirect_fetch_data_from_db(self):
+        for ds_redirect in self.dataset_redirects:
+            url = reverse("core:dataset-detail", args=[ds_redirect.dataset_prev])
+            redirect_url = reverse("core:dataset-detail", args=[ds_redirect.dataset_dest])
+
+            response = self.client.get(url)
+
+            self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+    def test_dataset_redirect_fetch_data_from_db_for_files(self):
+        for ds_redirect in self.dataset_redirects:
+            url = reverse("core:dataset-files-detail", args=[ds_redirect.dataset_prev])
+            redirect_url = reverse("core:dataset-files-detail", args=[ds_redirect.dataset_dest])
+
+            response = self.client.get(url)
+
+            self.assertRedirects(response, redirect_url, fetch_redirect_response=False)

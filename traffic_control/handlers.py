@@ -12,6 +12,7 @@ from rest_framework.views import exception_handler
 
 from api.versioning import redirect_from_older_version
 from traffic_control.logging import log_blocked_request
+from traffic_control.models import DataUrlRedirect
 
 rate_limit_msg = """
 <p>Você atingiu o limite de requisições e, por isso, essa requisição foi bloqueada. Caso você precise acessar várias páginas de um dataset, por favor, baixe o dataset completo em vez de percorrer várias páginas na interface (o link para baixar o arquivo completo encontra-se na <a href="https://brasil.io/datasets/">página do dataset</a>).</p>
@@ -71,6 +72,7 @@ def api_exception_handler(exc, context):
     return response
 
 
-def handler_redirects(request):
-    if request.path in ["/datasets/gastos_diretos/"]:
-        return redirect("/datasets/govbr/")
+def handler_redirects(request, permanent=False):
+    redirect_url = DataUrlRedirect.redirect_from(request.path)
+    if redirect_url:
+        return redirect(redirect_url, permanent=permanent)

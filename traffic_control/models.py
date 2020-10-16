@@ -3,6 +3,7 @@ from copy import deepcopy
 from itertools import chain
 
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 
 
@@ -88,3 +89,23 @@ class DataUrlRedirect(models.Model):
 
     field_prev = models.SlugField(default="")
     field_dest = models.SlugField(default="")
+
+    @property
+    def redirect_map(self):
+        return {
+            reverse("core:dataset-detail", args=[self.dataset_prev]): reverse(
+                "core:dataset-detail", args=[self.dataset_dest]
+            ),
+            reverse("core:dataset-files-detail", args=[self.dataset_prev]): reverse(
+                "core:dataset-files-detail", args=[self.dataset_dest]
+            ),
+        }
+
+    @classmethod
+    def redirect_from(cls, path):
+        redirects = {}
+
+        for data_url_redirect in cls.objects.all().iterator():
+            redirects.update(**data_url_redirect.redirect_map)
+
+        return redirects.get(path, "")
