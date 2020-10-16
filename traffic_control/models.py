@@ -77,3 +77,14 @@ class BlockedRequest(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class DataUrlRedirect(models.Model):
+    dataset_prev = models.SlugField(default="")
+    dataset_dest = models.SlugField(default="")
+
+    tablename_prev = models.SlugField(default="")
+    tablename_dest = models.SlugField(default="")
+
+    field_prev = models.SlugField(default="")
+    field_dest = models.SlugField(default="")
