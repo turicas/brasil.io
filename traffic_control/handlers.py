@@ -4,14 +4,13 @@ import random
 from functools import lru_cache
 
 from django.conf import settings
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 from django.urls import reverse
 from ratelimit.exceptions import Ratelimited
 from rest_framework.exceptions import Throttled
 from rest_framework.views import exception_handler
 
 from api.versioning import redirect_from_older_version
-from core.models import DataUrlRedirect
 from traffic_control.logging import log_blocked_request
 
 rate_limit_msg = """
@@ -70,9 +69,3 @@ def api_exception_handler(exc, context):
             response.data = {"message": msg}
 
     return response
-
-
-def handler_redirects(request, permanent=False):
-    redirect_url = DataUrlRedirect.redirect_from(request.path)
-    if redirect_url:
-        return redirect(redirect_url, permanent=permanent)
