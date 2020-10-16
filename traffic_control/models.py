@@ -107,4 +107,8 @@ class DataUrlRedirect(models.Model):
         for data_url_redirect in cls.objects.all().iterator():
             redirects.update(**data_url_redirect.redirect_map)
 
-        return redirects.get(path, "")
+        # Order prefixes begining by the most complex ones
+        for url_prefix in sorted(redirects, reverse=True):
+            if path.startswith(url_prefix):
+                redirect_url_prefix = redirects[url_prefix]
+                return path.replace(url_prefix, redirect_url_prefix)

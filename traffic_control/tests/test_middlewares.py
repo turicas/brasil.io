@@ -83,3 +83,21 @@ class HandlerRedirectsTests(TestCase):
             response = self.client.get(url)
 
             self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+    def test_dataset_redirect_fetch_data_from_db_for_tabledata(self):
+        for ds_redirect in self.dataset_redirects:
+            url = reverse("core:dataset-table-detail", args=[ds_redirect.dataset_prev, "caso"])
+            redirect_url = reverse("core:dataset-table-detail", args=[ds_redirect.dataset_dest, "caso"])
+
+            response = self.client.get(url)
+
+            self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+    def test_dataset_redirect_fetch_data_from_db_for_api_tabledata(self):
+        for ds_redirect in self.dataset_redirects:
+            url = reverse("api-v1:dataset-table-data", args=[ds_redirect.dataset_prev, "caso"])
+            redirect_url = reverse("api-v1:dataset-table-data", args=[ds_redirect.dataset_dest, "caso"])
+
+            response = self.client.get(url)
+
+            self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
