@@ -6,3 +6,4 @@ urlpatterns = [
 ]
 
 handler403 = "traffic_control.handlers.handler_403"
+handler404 = "traffic_control.handlers.handler_404"
