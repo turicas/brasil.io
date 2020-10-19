@@ -679,14 +679,12 @@ class TableFile(models.Model):
 
 
 class DataUrlRedirect(models.Model):
-    dataset_prev = models.SlugField(default="")
-    dataset_dest = models.SlugField(default="")
-
-    tablename_prev = models.SlugField(default="")
-    tablename_dest = models.SlugField(default="")
-
-    field_prev = models.SlugField(default="")
-    field_dest = models.SlugField(default="")
+    dataset_prev = models.SlugField(default="", blank=True)
+    dataset_dest = models.SlugField(default="", blank=True)
+    tablename_prev = models.SlugField(default="", blank=True)
+    tablename_dest = models.SlugField(default="", blank=True)
+    field_prev = models.SlugField(default="", blank=True)
+    field_dest = models.SlugField(default="", blank=True)
 
     @property
     def redirect_map(self):

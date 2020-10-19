@@ -267,7 +267,7 @@ class DataRedirectsTests(TestCase):
         url = reverse("api-v1:dataset-table-data", args=[ds_redirect.dataset_prev, "caso2020"])
         redirect_url = (
             reverse("api-v1:dataset-table-data", args=[ds_redirect.dataset_dest, "caso2020"])
-            + "?newquery=foo&query2=bar"
+            + "?newquery=foo&query2=bar"  # noqa
         )
         response = self.client.get(url, data={"query1": "foo", "query2": "bar"})
 
@@ -284,7 +284,7 @@ class DataRedirectsTests(TestCase):
         url = reverse("api-v1:dataset-table-data", args=[ds_redirect.dataset_prev, "caso2019"])
         redirect_url = (
             reverse("api-v1:dataset-table-data", args=[ds_redirect.dataset_dest, "caso2020"])
-            + "?newquery=foo&query2=bar"
+            + "?newquery=foo&query2=bar"  # noqa
         )
         response = self.client.get(url, data={"query1": "foo", "query2": "bar"})
 
