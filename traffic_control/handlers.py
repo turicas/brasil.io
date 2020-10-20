@@ -28,12 +28,6 @@ Lembre-se: o Brasil.IO é um projeto colaborativo, desenvolvido por voluntários
 """.strip()
 
 
-@lru_cache(maxsize=10)
-def gen_big_payload(msg_size):
-    data = base64.b64encode(os.urandom(msg_size * 1024 * 1024)).decode("ascii")
-    return "<!-- " + data + " -->"
-
-
 def handler_403(request, exception):
     """
     Handler to deal with Ratelimited exception as exepcted. Reference:
@@ -44,7 +38,6 @@ def handler_403(request, exception):
 
     if isinstance(exception, Ratelimited):
         status, msg = 429, rate_limit_msg
-        msg += gen_big_payload(random.randint(1, 10))
 
     log_blocked_request(request, status)
     context = {"title_4xx": status, "message": msg}
