@@ -24,6 +24,7 @@ def merge_state_data(state):
     # dates which show up in DB.
     final_cases = []
     original_data_errors = SpreadsheetValidationErrors()
+    original_cities = set()
     for row in original_cases:
         row = row.copy()
         city = row["municipio"]
@@ -35,12 +36,34 @@ def merge_state_data(state):
                 msg = f'Nome inválido de cidade "{city}" na planilha do Google.'
                 original_data_errors.new_error(msg)
 
+        original_cities.add(city)
         for date, values_for_date in new_cases.items():
             date_str = f"{date.day:02d}_{date.month:02d}"
             city_on_date = values_for_date.get(city, {})
             row[f"confirmados_{date_str}"] = city_on_date.get("confirmed", None)
             row[f"mortes_{date_str}"] = city_on_date.get("deaths", None)
         final_cases.append(row)
+
+    # recent IBGE data can add new cities that weren't present in the original data
+    new_rows = {}
+    for date, values_for_date in new_cases.items():
+        date_str = f"{date.day:02d}_{date.month:02d}"
+        for city, data in values_for_date.items():
+            city_info = get_city_info(city, state)
+            if city_info:
+                city = city_info.city
+
+            if city in original_cities:
+                continue
+            elif city not in new_rows:
+                new_rows[city] = {"municipio": city}
+
+            row = new_rows[city]
+            row[f"confirmados_{date_str}"] = data.get("confirmed", None)
+            row[f"mortes_{date_str}"] = data.get("deaths", None)
+
+    if new_rows:
+        final_cases.extend(new_rows.values())
 
     ordered_cases = []
     for row in final_cases:
