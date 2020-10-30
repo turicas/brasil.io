@@ -144,9 +144,14 @@ class TestAPIRedirectsFromPreviousRoutingToVersioned(TestCase):
             (reverse("api-v0:node-data"), reverse("api-v1:node-data")),
         ]
 
+        qs = "?foo=1&bar=2"
         for url, redirect_url in path_assertions:
             response = self.client.get(url)
             self.assertRedirects(response, redirect_url, msg_prefix=url, fetch_redirect_response=False, status_code=301)
+            response = self.client.get(url + qs)
+            self.assertRedirects(
+                response, redirect_url + qs, msg_prefix=url, fetch_redirect_response=False, status_code=301
+            )
 
         assert "/api/datasets/" == path_assertions[0][0]
         assert "/api/v1/datasets/" == path_assertions[0][1]
