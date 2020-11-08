@@ -92,7 +92,7 @@ TEMPLATES = [
     }
 ]
 WSGI_APPLICATION = "brasilio.wsgi.application"
-
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
@@ -304,6 +304,6 @@ REGISTRATION_SALT = env("REGISTRATION_SALT", default=SECRET_KEY)
 REGISTRATION_OPEN = env("REGISTRATION_OPEN", cast=bool, default=True)
 
 
-# Brasil.io presentation config
+# Brasil.IO presentation config
 NUM_RECENT_ACTIVITES_HOMEPAGE = env("NUM_RECENT_ACTIVITES_HOMEPAGE", cast=int, default=5)
 DAYS_RANGE_RECENT_ACTIVITES_HOMEPAGE = env("DAYS_RANGE_RECENT_ACTIVITES_HOMEPAGE", cast=int, default=30)
