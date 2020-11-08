@@ -15,9 +15,8 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir -U pip \
   && pip install --no-cache-dir -r /app/requirements.txt
 
+COPY --chown=django:django . /app/
 ADD srv/nginx.conf.sigil /app/
-
-COPY --chown=django:django . /app
 RUN chown django:django /app
 USER django
 WORKDIR /app

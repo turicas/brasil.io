@@ -65,7 +65,7 @@ class DynamicModelMixin:
                 fieldnames = ",\n                            ".join(fieldnames)
                 query = dedent(
                     f"""
-                    CREATE INDEX CONCURRENTLY {index.name}
+                    CREATE INDEX CONCURRENTLY IF NOT EXISTS {index.name}
                         ON {cls.tablename()} USING {index_type} (
                             {fieldnames}
                         );
