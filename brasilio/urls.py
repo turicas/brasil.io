@@ -14,3 +14,4 @@ urlpatterns = [
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler403 = "traffic_control.handlers.handler_403"
+handler404 = "traffic_control.handlers.handler_404"
