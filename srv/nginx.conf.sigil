@@ -15,7 +15,7 @@ server {
   return 301 https://$host:{{ $.PROXY_SSL_PORT }}$request_uri;
 {{ else }}
   location ~ ^/api(.*) {
-      return 301 $scheme://api.brasil.io$1$is_args$args;
+      return 301 $scheme://api.$domain$1$is_args$args;
   }
 
   location    / {
@@ -77,7 +77,7 @@ server {
   {{ if and (eq $.SPDY_SUPPORTED "true") (ne $.HTTP2_SUPPORTED "true") }}add_header          Alternate-Protocol  {{ $.PROXY_SSL_PORT }}:npn-spdy/2;{{ end }}
 
   location ~ ^/api(.*) {
-      return 301 $scheme://api.brasil.io$1$is_args$args;
+      return 301 $scheme://api.$domain$1$is_args$args;
   }
 
   location    / {
