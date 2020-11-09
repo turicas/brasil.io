@@ -34,6 +34,11 @@ def handler_403(request, exception):
 
     if isinstance(exception, Ratelimited):
         status, msg = 429, rate_limit_msg
+        from_api = request.get_host() == settings.BRASILIO_API_HOST
+        if from_api:
+            msg = api_throtthling_msg
+            data = {"message": msg}
+            return JsonResponse(data=data, status=status)
 
     log_blocked_request(request, status)
     context = {"title_4xx": status, "message": msg}

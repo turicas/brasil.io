@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from django.conf import settings
 from django.core.management import call_command
 from django.test import override_settings
 from django.urls import reverse
@@ -77,6 +78,17 @@ class SampleDatasetDetailView(DjangoAssertionsMixin, BaseTestCaseWithSampleDatas
         assert "Você atingiu o limite de requisições" in response.context["message"]
         assert 429 == response.context["title_4xx"]
         assert mocked_ratelimit.called is False  # this ensures the middleware is the one raising the 429 error
+
+    @override_settings(RATELIMIT_ENABLE=True)
+    @override_settings(RATELIMIT_RATE="0/s")
+    @patch("traffic_control.decorators.ratelimit")
+    def test_enforce_rate_limit_if_flagged_for_api(self, mocked_ratelimit):
+        urlconf = settings.API_ROOT_URLCONF
+        self.url = reverse("api-v1:dataset-table-data", args=["sample", "sample_table"], urlconf=urlconf)
+        response = self.client.get(self.url, HTTP_HOST=settings.BRASILIO_API_HOST)
+        content = response.json()
+        assert 429 == response.status_code
+        assert content["message"]
 
 
 class TestDatasetFilesDetailView(DjangoAssertionsMixin, BaseTestCaseWithSampleDataset):
