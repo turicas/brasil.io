@@ -15,3 +15,4 @@ urlpatterns = [
 
 handler403 = "traffic_control.handlers.handler_403"
 handler404 = "traffic_control.handlers.handler_404"
+handler500 = "traffic_control.handlers.handler_500"

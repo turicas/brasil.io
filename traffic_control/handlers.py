@@ -2,7 +2,7 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
-from django.views.defaults import page_not_found
+from django.views.defaults import page_not_found, server_error
 from ratelimit.exceptions import Ratelimited
 from rest_framework.exceptions import Throttled
 from rest_framework.views import exception_handler
@@ -44,6 +44,13 @@ def handler_404(request, exception):
         data = {"message": "O recurso ou rota que você requisitou não existe na API."}
         return JsonResponse(data=data, status=404)
     return page_not_found(request, exception)
+
+
+def handler_500(request, *args, **kwargs):
+    if request.get_host() == settings.BRASILIO_API_HOST:
+        data = {"message": "Ocorreu algum erro em nossos servidores."}
+        return JsonResponse(data=data, status=500)
+    return server_error(request, *args, **kwargs)
 
 
 def api_exception_handler(exc, context):
