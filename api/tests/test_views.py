@@ -181,6 +181,7 @@ class TestAPIRedirectsFromPreviousRoutingToVersioned(TestCase):
             ),
             (reverse("api-v0:company-groups", urlconf=urlconf), reverse("api-v1:company-groups", urlconf=urlconf)),
             (reverse("api-v0:node-data", urlconf=urlconf), reverse("api-v1:node-data", urlconf=urlconf)),
+            (reverse("api-v0:api-root", urlconf=urlconf), reverse("api-v1:api-root", urlconf=urlconf)),
         ]
 
         for url, redirect_url in path_assertions:
@@ -189,3 +190,23 @@ class TestAPIRedirectsFromPreviousRoutingToVersioned(TestCase):
 
         assert "/datasets/" == path_assertions[0][0]
         assert "/v1/datasets/" == path_assertions[0][1]
+
+
+class ApiRootViewTests(TestCase):
+    client_class = TrafficControlClient
+    url = reverse_lazy("api-v1:api-root")
+
+    def setUp(self):
+        self.token = baker.make("api.Token", user__is_active=True)
+        auth = f"Token {self.token.key}"
+        self.auth_header = {"HTTP_AUTHORIZATION": auth}
+
+    def test_serialize_api_info(self):
+        response = self.client.get(self.url, **self.auth_header)
+        data = response.json()
+
+        assert 200 == response.status_code
+        assert "Brasil.io API" == data["title"]
+        assert "api-v1" == data["version"]
+        assert reverse("api-v1:dataset-list") == data["datasets_url"]
+        assert data["description"]

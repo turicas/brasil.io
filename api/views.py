@@ -1,9 +1,11 @@
 from collections import Sequence
 
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from api.serializers import DatasetDetailSerializer, DatasetSerializer, GenericSerializer
 from api.versioning import check_api_version_redirect
@@ -99,6 +101,26 @@ class DatasetDataListView(ListAPIView):
         return super().get(*args, **kwargs)
 
 
+api_description = """
+Está é a API do Brasil.io. Aqui você poderá acessar os dados disponiíveis no site do Brasil.io de maneira automatizada.
+Gostaríamos de lembrar que utilizar a API desnecessariamente e de maneira não otimizada onera muito nossos servidores e atrapalha a experiência de outros usuários. Caso você precise de todos os dados de uma tabela ou dataset, por favor, utilize os arquivos com os dados completos disponibilizados no nosso site.
+Lembre-se: o Brasil.IO é um projeto colaborativo, desenvolvido por voluntários e mantido por financiamento coletivo, você pode doar para o projeto em: https://apoia.se/brasilio
+""".strip()
+
+
+class ApiRootView(APIView):
+    @check_api_version_redirect
+    def get(self, request):
+        data = {
+            "title": "Brasil.io API",
+            "version": self.request.version,
+            "description": api_description,
+            "datasets_url": reverse("api-v1:dataset-list"),
+        }
+        return Response(data=data)
+
+
 dataset_list = DatasetViewSet.as_view({"get": "list"})
 dataset_detail = DatasetViewSet.as_view({"get": "retrieve"}, lookup_field="slug")
 dataset_data = DatasetDataListView.as_view()
+api_root = ApiRootView.as_view()
