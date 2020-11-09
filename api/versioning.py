@@ -6,7 +6,7 @@ from api.exceptions import ApiEndpointFromOldVersionException
 
 @decorator
 def check_api_version_redirect(func, self, request, *args, **kwargs):
-    if request.version == "api-v0":
+    if request.version == "v0":
         raise ApiEndpointFromOldVersionException(request)
 
     return func(self, request, *args, **kwargs)

@@ -115,7 +115,7 @@ class ApiRootView(APIView):
             "title": "Brasil.io API",
             "version": self.request.version,
             "description": api_description,
-            "datasets_url": reverse("api-v1:dataset-list"),
+            "datasets_url": reverse("v1:dataset-list"),
         }
         return Response(data=data)
 

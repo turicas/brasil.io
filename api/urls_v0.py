@@ -5,7 +5,7 @@ from traffic_control.decorators import enable_ratelimit
 
 from . import views
 
-app_name = "api-v0"
+app_name = "v0"
 
 
 urlpatterns = [
