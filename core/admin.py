@@ -190,4 +190,17 @@ class TableFileAdmin(admin.ModelAdmin):
         return request.user.is_superuser
 
 
+class DataUrlRedirectAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "dataset_prev",
+        "dataset_dest",
+        "tablename_prev",
+        "tablename_dest",
+        "field_prev",
+        "field_dest",
+    ]
+
+
 admin.site.register(models.TableFile, TableFileAdmin)
+admin.site.register(models.DataUrlRedirect, DataUrlRedirectAdmin)

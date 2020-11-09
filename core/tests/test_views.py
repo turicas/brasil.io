@@ -1,11 +1,12 @@
 from unittest.mock import patch
 
+from django.conf import settings
 from django.core.management import call_command
-from django.test import override_settings
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from model_bakery import baker
 
-from core.models import TableFile
+from core.models import Dataset, DataUrlRedirect, TableFile
 from core.tests.utils import BaseTestCaseWithSampleDataset
 from traffic_control.tests.util import TrafficControlClient
 from utils.tests import DjangoAssertionsMixin
@@ -123,3 +124,211 @@ class TestDatasetFilesDetailView(DjangoAssertionsMixin, BaseTestCaseWithSampleDa
         assert 200 == response.status_code
         self.assertTemplateUsed(response, "404.html")
         assert response.context["message"]
+
+
+class DataRedirectsTests(TestCase):
+    client_class = TrafficControlClient
+
+    def setUp(self):
+        self.client.force_login(baker.make(settings.AUTH_USER_MODEL))
+        self.dataset_redirects = [
+            baker.make(DataUrlRedirect, dataset_prev="gastos_diretos", dataset_dest="govbr"),
+            baker.make(DataUrlRedirect, dataset_prev="bens_candidatos", dataset_dest="bem_declarado"),
+        ]
+
+    def test_redirect_dataset_urls(self):
+        response = self.client.get("/dataset/gastos_diretos/")
+
+        self.assertRedirects(response, "/dataset/govbr/", fetch_redirect_response=False)
+
+    def test_dataset_redirect_fetch_data_from_db(self):
+        for ds_redirect in self.dataset_redirects:
+            url = reverse("core:dataset-detail", args=[ds_redirect.dataset_prev])
+            redirect_url = reverse("core:dataset-detail", args=[ds_redirect.dataset_dest])
+
+            response = self.client.get(url)
+
+            self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+    def test_dataset_redirect_fetch_data_from_db_for_files_urls(self):
+        for ds_redirect in self.dataset_redirects:
+            url = reverse("core:dataset-files-detail", args=[ds_redirect.dataset_prev])
+            redirect_url = reverse("core:dataset-files-detail", args=[ds_redirect.dataset_dest])
+
+            response = self.client.get(url)
+
+            self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+    def test_dataset_redirect_fetch_data_from_db_for_api_urls(self):
+        for ds_redirect in self.dataset_redirects:
+            url = reverse("api-v1:dataset-detail", args=[ds_redirect.dataset_prev])
+            redirect_url = reverse("api-v1:dataset-detail", args=[ds_redirect.dataset_dest])
+
+            response = self.client.get(url)
+
+            self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+    def test_dataset_redirect_fetch_data_from_db_for_tabledata(self):
+        for ds_redirect in self.dataset_redirects:
+            url = reverse("core:dataset-table-detail", args=[ds_redirect.dataset_prev, "caso"])
+            redirect_url = reverse("core:dataset-table-detail", args=[ds_redirect.dataset_dest, "caso"])
+
+            response = self.client.get(url)
+
+            self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+    def test_dataset_redirect_fetch_data_from_db_for_api_tabledata(self):
+        for ds_redirect in self.dataset_redirects:
+            url = reverse("api-v1:dataset-table-data", args=[ds_redirect.dataset_prev, "caso"])
+            redirect_url = reverse("api-v1:dataset-table-data", args=[ds_redirect.dataset_dest, "caso"])
+
+            response = self.client.get(url)
+
+            self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+    def test_dataset_redirect_fetch_data_from_db_for_tabledata_with_table_redirect(self):
+        ds_redirect = self.dataset_redirects[0]
+        ds_redirect.tablename_prev = "caso2019"
+        ds_redirect.tablename_dest = "caso2020"
+        ds_redirect.save()
+
+        url = reverse("core:dataset-table-detail", args=[ds_redirect.dataset_prev, "caso2019"])
+        redirect_url = reverse("core:dataset-table-detail", args=[ds_redirect.dataset_dest, "caso2020"])
+
+        response = self.client.get(url)
+
+        self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+    def test_dataset_redirect_fetch_data_from_db_for_api_tabledata_with_table_redirect(self):
+        ds_redirect = self.dataset_redirects[0]
+        ds_redirect.tablename_prev = "caso2019"
+        ds_redirect.tablename_dest = "caso2020"
+        ds_redirect.save()
+
+        url = reverse("api-v1:dataset-table-data", args=[ds_redirect.dataset_prev, "caso2019"])
+        redirect_url = reverse("api-v1:dataset-table-data", args=[ds_redirect.dataset_dest, "caso2020"])
+
+        response = self.client.get(url)
+
+        self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+    def test_table_only_redirect(self):
+        baker.make(Dataset, slug="covid19")
+        ds_redirect = self.dataset_redirects[0]
+        ds_redirect.dataset_prev = "covid19"
+        ds_redirect.dataset_dest = "covid19"
+        ds_redirect.tablename_prev = "caso2020"
+        ds_redirect.tablename_dest = "caso2021"
+        ds_redirect.save()
+
+        url = reverse("core:dataset-table-detail", args=["covid19", "caso2020"])
+        redirect_url = reverse("core:dataset-table-detail", args=["covid19", "caso2021"])
+
+        response = self.client.get(url)
+
+        self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+        # API as well
+        url = reverse("api-v1:dataset-table-data", args=["covid19", "caso2020"])
+        redirect_url = reverse("api-v1:dataset-table-data", args=["covid19", "caso2021"])
+
+    def test_avoid_infinite_redirect_if_same_dataset_config(self):
+        ds_redirect = self.dataset_redirects[0]
+        ds_redirect.dataset_prev = "foo"
+        ds_redirect.dataset_dest = "foo"
+        ds_redirect.save()
+
+        url = reverse("core:dataset-detail", args=[ds_redirect.dataset_prev])
+        response = self.client.get(url)
+
+        assert 404 == response.status_code
+
+    def test_avoid_infinite_redirect_if_same_dataset_config_in_table(self):
+        ds_redirect = self.dataset_redirects[0]
+        ds_redirect.dataset_prev = "foo"
+        ds_redirect.dataset_dest = "foo"
+        ds_redirect.tablename_prev = "bar"
+        ds_redirect.tablename_dest = "bar"
+        ds_redirect.save()
+
+        url = reverse("api-v1:dataset-table-data", args=["foo", "bar"])
+        response = self.client.get(url)
+
+        assert 404 == response.status_code
+
+    def test_redirect_dataset_plus_field_name_redirect(self):
+        ds_redirect = self.dataset_redirects[0]
+        ds_redirect.tablename_prev = "caso2020"
+        ds_redirect.tablename_dest = "caso2020"
+        ds_redirect.field_prev = "query1"
+        ds_redirect.field_dest = "newquery"
+        ds_redirect.save()
+
+        url = reverse("api-v1:dataset-table-data", args=[ds_redirect.dataset_prev, "caso2020"])
+        redirect_url = (
+            reverse("api-v1:dataset-table-data", args=[ds_redirect.dataset_dest, "caso2020"])
+            + "?newquery=foo&query2=bar"  # noqa
+        )
+        response = self.client.get(url, data={"query1": "foo", "query2": "bar"})
+
+        self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+    def test_redirect_dataset_plus_table_pluse_field_name_redirect(self):
+        ds_redirect = self.dataset_redirects[0]
+        ds_redirect.tablename_prev = "caso2019"
+        ds_redirect.tablename_dest = "caso2020"
+        ds_redirect.field_prev = "query1"
+        ds_redirect.field_dest = "newquery"
+        ds_redirect.save()
+
+        url = reverse("api-v1:dataset-table-data", args=[ds_redirect.dataset_prev, "caso2019"])
+        redirect_url = (
+            reverse("api-v1:dataset-table-data", args=[ds_redirect.dataset_dest, "caso2020"])
+            + "?newquery=foo&query2=bar"  # noqa
+        )
+        response = self.client.get(url, data={"query1": "foo", "query2": "bar"})
+
+        self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+    def test_redirect_only_querystring_using_new_fieldname(self):
+        ds_redirect = self.dataset_redirects[0]
+        ds_redirect.dataset_dest = "dataset"
+        ds_redirect.dataset_prev = "dataset"
+        ds_redirect.tablename_prev = "caso2020"
+        ds_redirect.tablename_dest = "caso2020"
+        ds_redirect.field_prev = "query1"
+        ds_redirect.field_dest = "newquery"
+        ds_redirect.save()
+        baker.make("core.Table", dataset__slug="dataset", name="caso2020", dataset__show=True)
+
+        # API endpoint
+        url = reverse("api-v1:dataset-table-data", args=["dataset", "caso2020"])
+        redirect_url = reverse("api-v1:dataset-table-data", args=["dataset", "caso2020"]) + "?newquery=foo&query2=bar"
+        response = self.client.get(url, data={"query1": "foo", "query2": "bar"})
+        self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+        # Dataset table route
+        url = reverse("core:dataset-table-detail", args=["dataset", "caso2020"])
+        redirect_url = reverse("core:dataset-table-detail", args=["dataset", "caso2020"]) + "?newquery=foo&query2=bar"
+        response = self.client.get(url, data={"query1": "foo", "query2": "bar"})
+        self.assertRedirects(response, redirect_url, fetch_redirect_response=False)
+
+    def test_avoid_infinite_redirect_if_same_fieldname_config(self):
+        ds_redirect = self.dataset_redirects[0]
+        ds_redirect.dataset_dest = "dataset"
+        ds_redirect.dataset_prev = "dataset"
+        ds_redirect.tablename_prev = "caso2020"
+        ds_redirect.tablename_dest = "caso2020"
+        ds_redirect.field_prev = "query1"
+        ds_redirect.field_dest = "query1"
+        ds_redirect.save()
+
+        # API url
+        url = reverse("api-v1:dataset-table-data", args=[ds_redirect.dataset_prev, ds_redirect.tablename_prev])
+        response = self.client.get(url, data={"query1": "foo", "query2": "bar"})
+        self.assertEqual(404, response.status_code)
+
+        # Dataset table route
+        url = reverse("core:dataset-table-detail", args=[ds_redirect.dataset_prev, ds_redirect.tablename_prev])
+        response = self.client.get(url, data={"query1": "foo", "query2": "bar"})
+        self.assertEqual(404, response.status_code)

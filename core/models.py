@@ -2,8 +2,9 @@ import hashlib
 import random
 import string
 from collections import OrderedDict, namedtuple
+from copy import deepcopy
 from textwrap import dedent
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 import django.contrib.postgres.indexes as pg_indexes
 import django.db.models.indexes as django_indexes
@@ -675,3 +676,89 @@ class TableFile(models.Model):
     @property
     def admin_url(self):
         return reverse("admin:core_tablefile_change", args=[self.id])
+
+
+class DataUrlRedirect(models.Model):
+    dataset_prev = models.SlugField(default="", blank=True)
+    dataset_dest = models.SlugField(default="", blank=True)
+    tablename_prev = models.SlugField(default="", blank=True)
+    tablename_dest = models.SlugField(default="", blank=True)
+    field_prev = models.SlugField(default="", blank=True)
+    field_dest = models.SlugField(default="", blank=True)
+
+    @property
+    def redirect_map(self):
+        map = {}
+        dataset_url_names = [
+            "core:dataset-detail",
+            "core:dataset-files-detail",
+            "api-v1:dataset-detail",
+        ]
+
+        if self.dataset_prev != self.dataset_dest:
+            map.update(
+                **{
+                    reverse(n, args=[self.dataset_prev]): reverse(n, args=[self.dataset_dest])
+                    for n in dataset_url_names
+                }
+            )
+
+        if self.tablename_dest != self.tablename_prev:
+            table_url_names = [
+                "core:dataset-table-detail",
+                "api-v1:dataset-table-data",
+            ]
+            map.update(
+                **{
+                    reverse(n, args=[self.dataset_prev, self.tablename_prev]): reverse(
+                        n, args=[self.dataset_dest, self.tablename_dest]
+                    )
+                    for n in table_url_names
+                }
+            )
+
+        return map
+
+    @classmethod
+    def redirect_from(cls, request):
+        path = request.path
+        redirects = {}
+        fields_map = {}
+
+        for r in cls.objects.all().iterator():
+            redirects.update(**r.redirect_map)
+
+            if r.field_prev != r.field_dest:
+                key = (r.dataset_dest, r.tablename_dest, r.field_prev)
+                fields_map[key] = r.field_dest
+
+        # Order prefixes begining by the most complex ones
+        redirect_url = ""
+        for url_prefix in sorted(redirects, reverse=True):
+            if path.startswith(url_prefix):
+                redirect_url_prefix = redirects[url_prefix]
+                redirect_url = path.replace(url_prefix, redirect_url_prefix)
+                break
+
+        qs = ""
+        query_params = getattr(request, "GET", {})
+        redirect_qs = deepcopy(query_params)
+        if query_params:
+            url = redirect_url or path
+            for key in fields_map:
+                dataset, tablename, field_prev = key
+                has_field_update = all([f"/{dataset}/" in url, f"/{tablename}/" in url, field_prev in redirect_qs])
+                if has_field_update:
+                    value = redirect_qs[field_prev]
+                    redirect_qs.pop(field_prev)
+                    redirect_qs[fields_map[key]] = value
+
+            qs = urlencode(redirect_qs)
+
+        if not redirect_url and qs and set(query_params.keys()) != set(redirect_qs.keys()):
+            redirect_url = path
+
+        if not redirect_url:
+            return ""
+
+        return redirect_url + (f"?{qs}" if qs else "")
