@@ -1,5 +1,11 @@
+from unittest.mock import Mock
+
+import pytest
 from django.conf import settings
-from django.test import TestCase, override_settings
+from django.test import RequestFactory, TestCase, override_settings
+from ratelimit.exceptions import Ratelimited
+
+from traffic_control.middlewares import BLOCKED_REQUEST_ATTR, block_suspicious_requests
 
 
 class BlockSuspiciousRequestsMiddlewareTests(TestCase):
@@ -36,3 +42,14 @@ class BlockSuspiciousRequestsMiddlewareTests(TestCase):
         with override_settings(APPEND_SLASH=False):
             response = self.client.get(url, HTTP_USER_AGENT="other_agent")
             assert 404 == response.status_code
+
+    def test_flag_request_with_blocked_request_attr(self):
+        get_response = Mock()
+        request = RequestFactory().get("/")
+
+        middleware = block_suspicious_requests(get_response)
+        with pytest.raises(Ratelimited):
+            middleware(request)
+
+        assert not get_response.called
+        assert getattr(request, BLOCKED_REQUEST_ATTR, False)

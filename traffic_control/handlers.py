@@ -9,6 +9,7 @@ from rest_framework.views import exception_handler
 
 from api.versioning import redirect_from_older_version
 from traffic_control.logging import log_blocked_request
+from traffic_control.middlewares import BLOCKED_REQUEST_ATTR
 
 rate_limit_msg = """
 <p>Você atingiu o limite de requisições e, por isso, essa requisição foi bloqueada. Caso você precise acessar várias páginas de um dataset, por favor, baixe o dataset completo em vez de percorrer várias páginas na interface (o link para baixar o arquivo completo encontra-se na <a href="https://brasil.io/datasets/">página do dataset</a>).</p>
@@ -47,9 +48,16 @@ def handler_404(request, exception):
 
 
 def handler_500(request, *args, **kwargs):
-    if request.get_host() == settings.BRASILIO_API_HOST:
-        data = {"message": "Ocorreu algum erro em nossos servidores."}
-        return JsonResponse(data=data, status=500)
+    is_ratelimited = getattr(request, BLOCKED_REQUEST_ATTR, False)
+    from_api = request.get_host() == settings.BRASILIO_API_HOST
+    if from_api:
+        if is_ratelimited:
+            msg, status = api_throtthling_msg, 429
+        else:
+            msg, status = "Ocorreu algum erro em nossos servidores.", 500
+
+        data = {"message": msg}
+        return JsonResponse(data=data, status=status)
     return server_error(request, *args, **kwargs)
 
 
