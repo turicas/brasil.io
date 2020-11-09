@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render
-from django.urls import reverse
 from django.views.defaults import page_not_found, server_error
 from ratelimit.exceptions import Ratelimited
 from rest_framework.exceptions import Throttled
@@ -81,8 +80,9 @@ def api_exception_handler(exc, context):
     if 400 <= status_code < 500:
         log_blocked_request(context["request"], status_code)
         if 401 == status_code:
-            url = reverse("brasilio_auth:list_api_tokens", urlconf=settings.ROOT_URLCONF)
-            msg = f"As credenciais de autenticação não foram fornecidas ou estão inválidas. Acesse https://brasil.io{url} para gerenciar suas chaves de acesso a API."
+            url = "https://brasil.io/auth/tokens-api/"
+            blog_url = settings.API_KEYS_BLOGPOST_URL
+            msg = f"As credenciais de autenticação não foram fornecidas ou estão inválidas. Acesse {url} para gerenciar suas chaves de acesso a API ou nosso blog post com o passo-a-passo da autenticação em {blog_url}"
             response.data = {"message": msg}
 
     return response
