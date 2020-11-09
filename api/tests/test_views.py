@@ -18,7 +18,7 @@ class DatasetViewSetTests(BaseTestCaseWithSampleDataset):
         {"name": "sample_field", "options": {"max_length": 10}, "type": "text", "null": False},
     ]
 
-    url = reverse_lazy("api-v1:dataset-detail", args=[DATASET_SLUG])
+    url = reverse_lazy("v1:dataset-detail", args=[DATASET_SLUG])
 
     def setUp(self):
         self.dataset.show = True
@@ -38,8 +38,9 @@ class DatasetViewSetTests(BaseTestCaseWithSampleDataset):
         assert 401 == response.status_code
 
     def test_unauthorized_response_if_request_without_auth_token(self):
-        url = reverse("brasilio_auth:list_api_tokens")
-        expected_msg = f"As credenciais de autenticação não foram fornecidas ou estão inválidas. Acesse https://brasil.io{url} para gerenciar suas chaves de acesso a API."
+        url = "https://brasil.io/auth/tokens-api/"
+        blog_url = settings.API_KEYS_BLOGPOST_URL
+        expected_msg = f"As credenciais de autenticação não foram fornecidas ou estão inválidas. Acesse {url} para gerenciar suas chaves de acesso a API ou nosso blog post com o passo-a-passo da autenticação em {blog_url}"
         response = self.client.get(self.url)
         content = response.json()
         assert 401 == response.status_code
@@ -54,7 +55,7 @@ class DatasetViewSetTests(BaseTestCaseWithSampleDataset):
         assert 401 == response.status_code
 
     def test_404_if_dataset_does_not_exist(self):
-        url = reverse_lazy("api-v1:dataset-detail", args=["foooo"])
+        url = reverse_lazy("v1:dataset-detail", args=["foooo"])
         response = self.client.get(url, **self.auth_header)
         assert 404 == response.status_code
 
@@ -96,7 +97,7 @@ class DatasetTableDataTests(BaseTestCaseWithSampleDataset):
         },
     ]
 
-    url = reverse_lazy("api-v1:dataset-table-data", args=[DATASET_SLUG, TABLE_NAME])
+    url = reverse_lazy("v1:dataset-table-data", args=[DATASET_SLUG, TABLE_NAME])
 
     def setUp(self):
         self.dataset.show = True
@@ -131,17 +132,17 @@ class TestAPIRedirectsFromPreviousRoutingToVersioned(TestCase):
         self.client.force_login(baker.make(User))
 
         path_assertions = [
-            (reverse("api-v0:dataset-list"), reverse("api-v1:dataset-list")),
-            (reverse("api-v0:dataset-detail", args=["slug"]), reverse("api-v1:dataset-detail", args=["slug"])),
+            (reverse("v0:dataset-list"), reverse("v1:dataset-list")),
+            (reverse("v0:dataset-detail", args=["slug"]), reverse("v1:dataset-detail", args=["slug"])),
             (
-                reverse("api-v0:dataset-table-data", args=["slug", "tablename"]),
-                reverse("api-v1:dataset-table-data", args=["slug", "tablename"]),
+                reverse("v0:dataset-table-data", args=["slug", "tablename"]),
+                reverse("v1:dataset-table-data", args=["slug", "tablename"]),
             ),
-            (reverse("api-v0:resource-graph"), reverse("api-v1:resource-graph")),
-            (reverse("api-v0:partnership-paths"), reverse("api-v1:partnership-paths")),
-            (reverse("api-v0:subsequent-partnerships"), reverse("api-v1:subsequent-partnerships")),
-            (reverse("api-v0:company-groups"), reverse("api-v1:company-groups")),
-            (reverse("api-v0:node-data"), reverse("api-v1:node-data")),
+            (reverse("v0:resource-graph"), reverse("v1:resource-graph")),
+            (reverse("v0:partnership-paths"), reverse("v1:partnership-paths")),
+            (reverse("v0:subsequent-partnerships"), reverse("v1:subsequent-partnerships")),
+            (reverse("v0:company-groups"), reverse("v1:company-groups")),
+            (reverse("v0:node-data"), reverse("v1:node-data")),
         ]
 
         qs = "?foo=1&bar=2"
@@ -161,26 +162,24 @@ class TestAPIRedirectsFromPreviousRoutingToVersioned(TestCase):
 
         urlconf = settings.API_ROOT_URLCONF
         path_assertions = [
-            (reverse("api-v0:dataset-list", urlconf=urlconf), reverse("api-v1:dataset-list", urlconf=urlconf)),
+            (reverse("v0:dataset-list", urlconf=urlconf), reverse("v1:dataset-list", urlconf=urlconf)),
             (
-                reverse("api-v0:dataset-detail", args=["slug"], urlconf=urlconf),
-                reverse("api-v1:dataset-detail", args=["slug"], urlconf=urlconf),
+                reverse("v0:dataset-detail", args=["slug"], urlconf=urlconf),
+                reverse("v1:dataset-detail", args=["slug"], urlconf=urlconf),
             ),
             (
-                reverse("api-v0:dataset-table-data", args=["slug", "tablename"], urlconf=urlconf),
-                reverse("api-v1:dataset-table-data", args=["slug", "tablename"], urlconf=urlconf),
+                reverse("v0:dataset-table-data", args=["slug", "tablename"], urlconf=urlconf),
+                reverse("v1:dataset-table-data", args=["slug", "tablename"], urlconf=urlconf),
             ),
-            (reverse("api-v0:resource-graph", urlconf=urlconf), reverse("api-v1:resource-graph", urlconf=urlconf)),
+            (reverse("v0:resource-graph", urlconf=urlconf), reverse("v1:resource-graph", urlconf=urlconf)),
+            (reverse("v0:partnership-paths", urlconf=urlconf), reverse("v1:partnership-paths", urlconf=urlconf),),
             (
-                reverse("api-v0:partnership-paths", urlconf=urlconf),
-                reverse("api-v1:partnership-paths", urlconf=urlconf),
+                reverse("v0:subsequent-partnerships", urlconf=urlconf),
+                reverse("v1:subsequent-partnerships", urlconf=urlconf),
             ),
-            (
-                reverse("api-v0:subsequent-partnerships", urlconf=urlconf),
-                reverse("api-v1:subsequent-partnerships", urlconf=urlconf),
-            ),
-            (reverse("api-v0:company-groups", urlconf=urlconf), reverse("api-v1:company-groups", urlconf=urlconf)),
-            (reverse("api-v0:node-data", urlconf=urlconf), reverse("api-v1:node-data", urlconf=urlconf)),
+            (reverse("v0:company-groups", urlconf=urlconf), reverse("v1:company-groups", urlconf=urlconf)),
+            (reverse("v0:node-data", urlconf=urlconf), reverse("v1:node-data", urlconf=urlconf)),
+            (reverse("v0:api-root", urlconf=urlconf), reverse("v1:api-root", urlconf=urlconf)),
         ]
 
         for url, redirect_url in path_assertions:
@@ -189,3 +188,23 @@ class TestAPIRedirectsFromPreviousRoutingToVersioned(TestCase):
 
         assert "/datasets/" == path_assertions[0][0]
         assert "/v1/datasets/" == path_assertions[0][1]
+
+
+class ApiRootViewTests(TestCase):
+    client_class = TrafficControlClient
+    url = reverse_lazy("v1:api-root")
+
+    def setUp(self):
+        self.token = baker.make("api.Token", user__is_active=True)
+        auth = f"Token {self.token.key}"
+        self.auth_header = {"HTTP_AUTHORIZATION": auth}
+
+    def test_serialize_api_info(self):
+        response = self.client.get(self.url, **self.auth_header)
+        data = response.json()
+
+        assert 200 == response.status_code
+        assert "Brasil.io API" == data["title"]
+        assert "v1" == data["version"]
+        assert reverse("v1:dataset-list") == data["datasets_url"]
+        assert data["description"]

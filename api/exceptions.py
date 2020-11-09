@@ -10,7 +10,7 @@ class ApiEndpointFromOldVersionException(Exception):
     @property
     def should_redirect_to(self):
         match = resolve(self.request.path)
-        url = reverse(f"api-v1:{match.url_name}", args=match.args, kwargs=match.kwargs)
+        url = reverse(f"v1:{match.url_name}", args=match.args, kwargs=match.kwargs)
 
         qs = urlencode(self.request.query_params)
         if qs:

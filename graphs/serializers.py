@@ -8,7 +8,7 @@ from graphs import graph_extractor
 
 
 def get_node_urls(node_data):
-    urls = {"graph": reverse("api-v1:resource-graph"), "node": reverse("api-v1:node-data")}
+    urls = {"graph": reverse("v1:resource-graph"), "node": reverse("v1:node-data")}
     node_type = node_data["tipo"]
 
     if node_type == "NomeExterior":
@@ -18,7 +18,7 @@ def get_node_urls(node_data):
     else:  # Pessoa Jurídica
         id_ = node_data["cnpj_root"]
         graph_params = {"tipo": 1, "identificador": id_}
-        subsequent_partnerships = reverse("api-v1:subsequent-partnerships") + f"?identificador={id_}"
+        subsequent_partnerships = reverse("v1:subsequent-partnerships") + f"?identificador={id_}"
         urls["sociedades_subsequentes"] = subsequent_partnerships
 
     graph_qs = urlencode(graph_params)
