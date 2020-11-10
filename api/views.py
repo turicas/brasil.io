@@ -102,9 +102,18 @@ class DatasetDataListView(ListAPIView):
 
 
 api_description = """
-Está é a API do Brasil.io. Aqui você poderá acessar os dados disponiíveis no site do Brasil.io de maneira automatizada.
-Gostaríamos de lembrar que utilizar a API desnecessariamente e de maneira não otimizada onera muito nossos servidores e atrapalha a experiência de outros usuários. Caso você precise de todos os dados de uma tabela ou dataset, por favor, utilize os arquivos com os dados completos disponibilizados no nosso site.
-Lembre-se: o Brasil.IO é um projeto colaborativo, desenvolvido por voluntários e mantido por financiamento coletivo, você pode doar para o projeto em: https://apoia.se/brasilio
+Esta é a API do Brasil.io. Aqui você poderá acessar os dados disponíveis no
+Brasil.IO de maneira automatizada. Porém, a API não é a maneira mais eficiente
+de acessar nossos dados! Leia mais em:
+https://blog.brasil.io/2020/10/10/como-acessar-os-dados-do-brasil-io/
+
+Gostaríamos enfatizar que utilizar a API desnecessariamente e de maneira não
+otimizada onera muito nossos servidores e atrapalha a experiência de outros
+usuários, então sempre que possível opte por baixar os dados completos.
+
+O Brasil.IO é um projeto colaborativo, desenvolvido por voluntários e mantido
+por financiamento coletivo. Se o projeto é útil para você, considere fazer uma
+doação em: https://apoia.se/brasilio
 """.strip()
 
 
