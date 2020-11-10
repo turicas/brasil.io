@@ -70,6 +70,7 @@ MIDDLEWARE = [
 if DEBUG and env("DEBUG_SQL", cast=bool, default=True):
     MIDDLEWARE.append("utils.sqlprint.SqlPrintingMiddleware")
 
+SESSION_COOKIE_DOMAIN = env("SESSION_COOKIE_DOMAIN", default=None)  # ".brasil.io"  # wildcard brasil.io subdomains
 ROOT_URLCONF = "brasilio.urls"
 API_ROOT_URLCONF = "brasilio.api_urls"
 BRASILIO_API_HOST = env("BRASILIO_API_HOST", default="api.brasil.io")
