@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Documentação da API{% endblock %}
+
+{% block content %}
+
+<div class="section">
+  <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <p class="card-title">Documentação da API</p>
+            <p>Aqui você pode encontrar a listagem de todos os datasets, tabelas e campos disponíveis na API do Brasil.io. Além disso, você também encontrará informações sobre como fazer requisições para a API respeitando a autenticação.</p>
+            <p><b>Importante:</b> Utilizar a API desnecessariamente e de maneira não otimizada onera muito nossos servidores e atrapalha a experiência de outros usuários. Por conta disso, nessa documentação vocè também encontrará os links para os arquivos de dados completos de todos os datasets.</p>
+
+            <br/>
+            <p class="card-title">Índice</p>
+            <ul>
+              <li><a href="#autenticacao">Autenticação</a></li>
+            {% for dataset in datasets %}
+              <li><a href="#{{ dataset.slug }}">{{ dataset.name }}</a></li>
+            {% endfor %}
+            </ul>
+
+            <span>Legendas</span>
+            <ul style="margin: 0">
+              <li><small><i class="fa fa-search"></i> Campos que permitem filtragem via query string na URL</small></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <h3 id="autenticacao">Autenticação</h3>
+  <hr>
+  <p>Para ter mais contexto sobre os porquês dessa autenticação, leia o nosso blogpost <a href="https://blog.brasil.io/2020/10/31/nossa-api-sera-obrigatoriamente-autenticada/" target="_blank">"Nossa API será obrigatoriamente autenticada"</a>.</p>
+  <p>A API do Brasil.IO implementa utilizando o <b>cabeçalho HTTP Authorizaton</b>. Ela espera que o valor desse cabeçalho seja sempre algo no formato <code>Token sua_chave_de_api_aqui</code>. Este é um exemplo de uma requisição para a raiz da API utilizando o Curl:</p>
+  <p><code>curl -X GET -k -H 'Authorization: Token 123412341234' -i 'https://api.brasil.io/v1/'</code></p>
+  <p>Para criar e gerenciar suas chaves de API, autentique-se no sistema e acesse a página <a href="{% url 'brasilio_auth:list_api_tokens' %}">Chaves da API</a>.</p>
+
+  <h3>Datasets</h3>
+  <hr>
+  <p>Exemplo de requisição para listar todos os datasets disponíveis na API do Brasil.io:</p>
+  <p><code>curl -X GET -k -H 'Authorization: Token 123412341234' -i 'https://api.brasil.io/v1/datasets/'</code></p>
+
+  {% for dataset in datasets %}
+    {% include "api/snippets/dataset_docs.html" with dataset=dataset %}
+  {% endfor %}
+
+  </div>
+{% endblock %}

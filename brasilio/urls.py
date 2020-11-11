@@ -3,9 +3,12 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from api.docs.views import dynamic_api_docs_view
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("brasilio.api_urls")),
+    path("documentacao-api/", dynamic_api_docs_view, name="api_docs"),
     path("auth/", include("brasilio_auth.urls", namespace="brasilio_auth")),
     path("covid19/", include("covid19.urls", namespace="covid19")),
     path("django-rq/", include("django_rq.urls")),
