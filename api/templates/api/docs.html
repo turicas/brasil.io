@@ -17,6 +17,7 @@
             <p class="card-title">Índice</p>
             <ul>
               <li><a href="#autenticacao">Autenticação</a></li>
+              <li><a href="#datasets">Datasets</a></li>
             {% for dataset in datasets %}
               <li><a href="#{{ dataset.slug }}">{{ dataset.name }}</a></li>
             {% endfor %}
@@ -38,7 +39,7 @@
   <p><code>curl -X GET -k -H 'Authorization: Token 123412341234' -i 'https://api.brasil.io/v1/'</code></p>
   <p>Para criar e gerenciar suas chaves de API, autentique-se no sistema e acesse a página <a href="{% url 'brasilio_auth:list_api_tokens' %}">Chaves da API</a>.</p>
 
-  <h3>Datasets</h3>
+  <h3 id="datasets">Datasets</h3>
   <hr>
   <p>Exemplo de requisição para listar todos os datasets disponíveis na API do Brasil.io:</p>
   <p><code>curl -X GET -k -H 'Authorization: Token 123412341234' -i 'https://api.brasil.io/v1/datasets/'</code></p>
