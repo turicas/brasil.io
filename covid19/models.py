@@ -148,10 +148,10 @@ class StateSpreadsheet(models.Model):
 
     objects = StateSpreadsheetManager.from_queryset(StateSpreadsheetQuerySet)()
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, null=False, blank=False, on_delete=models.PROTECT)
-    date = models.DateField(null=False, blank=False)
-    state = models.CharField(max_length=2, null=False, blank=False, choices=STATE_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    user = models.ForeignKey(User, null=False, blank=False, on_delete=models.PROTECT, db_index=True)
+    date = models.DateField(null=False, blank=False, db_index=True)
+    state = models.CharField(max_length=2, null=False, blank=False, choices=STATE_CHOICES, db_index=True)
     file = models.FileField(upload_to=format_spreadsheet_name)
     peer_review = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL)
     automatically_created = models.BooleanField(default=False)
@@ -181,6 +181,11 @@ class StateSpreadsheet(models.Model):
     # pro mesmo estado pra mesma data (ele cancela o upload anterior pra essa
     # data/estado automaticamente caso suba uma atualizacao)
     cancelled = models.BooleanField(default=False)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["date", "state"])
+        ]
 
     def __str__(self):
         active = "Ativa" if not self.cancelled else "Cancelada"
