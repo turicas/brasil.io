@@ -106,6 +106,9 @@ def dataset_list(request):
 
 
 def dataset_detail(request, slug, tablename=""):
+    if len(request.GET) > 0 and not request.user.is_authenticated:
+        return redirect(f"{settings.LOGIN_URL}?next={request.get_full_path()}")
+
     try:
         dataset = Dataset.objects.get(slug=slug)
     except Dataset.DoesNotExist:
