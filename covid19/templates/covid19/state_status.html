@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load l10n %}
+{% load static %}
+{% block title %}Covid19 Status de Importação {{ state.name }}- Brasil.IO{% endblock %}
+
+{% block head %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
+<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'covid19/css/status.css' %}"/>
+{% endblock %}
+
+{% block content %}{% localize on %}
+<div id="dashboard-header">
+  <h1> Histórico de Importação {{ state.name }} </h1>
+  {% include 'covid19/text.html' %}
+  {% include 'covid19/links.html' %}
+</div>
+
+<div id="table_container" class="row">
+
+  <div id="table-col" class="col xl12 l12 m12 s12">
+    <table class="table" id="status-data-table">
+      <thead>
+        <tr>
+          <th> Data </th>
+          <th> Confirmados </th>
+          <th> Óbitos </th>
+          <th> Com dados de Muncípio? </th>
+          {% if is_covid19_contributor %}
+          <th> Link  </th>
+          {% endif %}
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for import_date, row in data.items %}
+        <tr>
+          <td data-order="{{ import_date|date:"Y-m-d"}}"> {{ import_date }} </td>
+          <td data-order="{% localize off %}{{ row.total_confirmed }}{% endlocalize %}"> {% localize off %} {{ row.total_confirmed|default:'' }} {% endlocalize %} </td>
+          <td data-order="{% localize off %}{{ row.total_deaths }}{% endlocalize %}"> {% localize off %} {{ row.total_deaths|default:'' }} {% endlocalize %} </td>
+          <td data-order="{{ row.has_city_data }}"> {{ row.has_city_data }}</td>
+          {% if is_covid19_contributor %}
+          <td><a href="{{ row.current_deployed.admin_url }}">Ver no admin</a></td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <p style="clear: both"></p>
+</div>
+{% endlocalize %}
+{% endblock %}
+
+{% block script %}
+{{ block.super }}
+<script type="text/javascript">
+
+jQuery(document).ready(function() {
+  jQuery('#status-data-table').DataTable({
+    "paging":         false,
+    "searching":      false,
+    "bInfo":          false,
+    "order":          [0, "desc"],
+  });
+});
+
+</script>
+
+{% endblock %}

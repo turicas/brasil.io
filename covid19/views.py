@@ -15,7 +15,7 @@ from covid19.exceptions import SpreadsheetValidationErrors
 from covid19.geo import city_geojson, state_geojson
 from covid19.models import DailyBulletin, StateSpreadsheet
 from covid19.spreadsheet import merge_state_data
-from covid19.stats import Covid19Stats, max_values
+from covid19.stats import Covid19Stats, max_values, state_deployed_data
 
 stats = Covid19Stats()
 
@@ -317,6 +317,18 @@ def status(request):
 
     data.sort(key=row_sort)
     return render(request, "covid19/status.html", {"import_data": data})
+
+
+@disable_non_logged_user_cache
+def state_status(request, state):
+    if state not in STATE_BY_ACRONYM:
+        raise Http404
+
+    context = {
+        "data": state_deployed_data(state),
+        'state': STATE_BY_ACRONYM[state],
+    }
+    return render(request, "covid19/state_status.html", context)
 
 
 @disable_non_logged_user_cache

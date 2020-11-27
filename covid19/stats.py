@@ -394,3 +394,30 @@ class Covid19Stats:
     def excess_deaths_registry_data_for_state_per_epiweek(self, state=None):
         data = self.historical_registry_data_for_state_per_epiweek(state=state)
         return group_deaths(data)
+
+
+def state_deployed_data(state):
+    from covid19.models import StateSpreadsheet
+
+    start_date = (
+        StateSpreadsheet.objects.filter(status=StateSpreadsheet.DEPLOYED)
+        .order_by("date", "-created_at")
+        .values_list("date", flat=True)
+        .first()
+    )
+    deployed_state_spreadsheets = list(
+        StateSpreadsheet.objects.filter(state=state, status=StateSpreadsheet.DEPLOYED).order_by("date")
+    )
+    state_data = {}
+    for date, spreadsheets in groupby(deployed_state_spreadsheets, key=lambda row: row.date):
+        spreadsheets = list(spreadsheets)
+        most_recent = spreadsheets[0]
+        total = most_recent.get_total_data()
+        state_data[date] = {
+            "has_city_data": any(not sp.only_with_total_entry for sp in spreadsheets),
+            "current_deployed": spreadsheets[0],
+            "total_confirmed": total['confirmed'],
+            "total_deaths": total['deaths'],
+        }
+
+    return state_data
