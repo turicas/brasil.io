@@ -1,11 +1,16 @@
 from collections import Counter
+from datetime import timedelta
 from itertools import groupby
 
+from django.contrib.auth import get_user_model
 from django.db.models import Max, Sum
+from django.utils import timezone
 
 from brazil_data.cities import brazilian_cities_per_state
 from core.models import get_table_model
 from covid19.serializers import CityCaseSerializer
+
+User = get_user_model()
 
 
 def max_values(data):
@@ -405,19 +410,47 @@ def state_deployed_data(state):
         .values_list("date", flat=True)
         .first()
     )
-    deployed_state_spreadsheets = list(
-        StateSpreadsheet.objects.filter(state=state, status=StateSpreadsheet.DEPLOYED).order_by("date")
-    )
+    state_spreadsheets = list(StateSpreadsheet.objects.filter(state=state).order_by("date", "-created_at"))
+
+    grouped_by_date = {k: list(v) for k, v in groupby(state_spreadsheets, key=lambda row: row.date)}
+
     state_data = {}
-    for date, spreadsheets in groupby(deployed_state_spreadsheets, key=lambda row: row.date):
-        spreadsheets = list(spreadsheets)
-        most_recent = spreadsheets[0]
-        total = most_recent.get_total_data()
+    users_cache = {}
+    date = start_date
+    today = timezone.now().date()
+    while date <= today:
+        try:
+            spreadsheets = list(grouped_by_date[date])
+        except KeyError:
+            state_data[date] = {
+                "has_city_data": None,
+                "collaborators": [],
+                "deployed_has_city": None,
+                "current_deployed": None,
+            }
+
+            date += timedelta(days=1)
+            continue
+
+        users = set()
+        deployed_list = []
+        for sp in spreadsheets:
+            if sp.user_id not in users_cache:
+                users_cache[sp.user_id] = User.objects.get(id=sp.user_id)
+            users.add(users_cache[sp.user_id].username)
+            if sp.deployed:
+                deployed_list.append(sp)
+
+        deployed = None if not deployed_list else deployed_list[0]
+
+        has_city_data = any(not sp.only_with_total_entry for sp in deployed_list)
         state_data[date] = {
-            "has_city_data": any(not sp.only_with_total_entry for sp in spreadsheets),
-            "current_deployed": spreadsheets[0],
-            "total_confirmed": total['confirmed'],
-            "total_deaths": total['deaths'],
+            "has_city_data": has_city_data,
+            "deployed_has_city": None if not deployed else not deployed.only_with_total_entry,
+            "collaborators": users,
+            "current_deployed": deployed,
         }
+
+        date += timedelta(days=1)
 
     return state_data

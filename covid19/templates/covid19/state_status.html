@@ -24,11 +24,11 @@
       <thead>
         <tr>
           <th> Data </th>
-          <th> Confirmados </th>
-          <th> Óbitos </th>
-          <th> Com dados de Muncípio? </th>
+          <th> Colaboradores </th>
+          <th> Status das Planilhas </th>
+          <th> Deployed </th>
           {% if is_covid19_contributor %}
-          <th> Link  </th>
+          <th> Histórico Detalhado </th>
           {% endif %}
         </tr>
       </thead>
@@ -37,11 +37,11 @@
         {% for import_date, row in data.items %}
         <tr>
           <td data-order="{{ import_date|date:"Y-m-d"}}"> {{ import_date }} </td>
-          <td data-order="{% localize off %}{{ row.total_confirmed }}{% endlocalize %}"> {% localize off %} {{ row.total_confirmed|default:'' }} {% endlocalize %} </td>
-          <td data-order="{% localize off %}{{ row.total_deaths }}{% endlocalize %}"> {% localize off %} {{ row.total_deaths|default:'' }} {% endlocalize %} </td>
-          <td data-order="{{ row.has_city_data }}"> {{ row.has_city_data }}</td>
+          <td><ul>{% for c in row.collaborators %}<li>{{ c }}</li>{% endfor %}</ul></td>
+          <td> {{ row.has_city_data|yesno:"Com dados municipais,Apenas dados totais,Nenhum dado para essa data" }}</td>
+          <td> {{ row.deployed_has_city|yesno:"Com dados municipais,Apenas dados totais,Nenhuma planilha deployed" }}{% if row.current_deployed and is_covid19_contributor%}<span> | <a href="{{ row.current_deployed.admin_url }}">admin</a></span>{% endif %}</td>
           {% if is_covid19_contributor %}
-          <td><a href="{{ row.current_deployed.admin_url }}">Ver no admin</a></td>
+          <td><a href="{{ row.detailed_history_url }}">Ver todas planilhas</a></td>
           {% endif %}
         </tr>
         {% endfor %}

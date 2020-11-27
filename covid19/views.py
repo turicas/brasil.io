@@ -3,8 +3,9 @@ import random
 
 from django.http import Http404, JsonResponse
 from django.shortcuts import render
-from django.utils import timezone
 from django.urls import reverse
+from django.utils import timezone
+from django.utils.http import urlencode
 
 from brazil_data.cities import get_state_info
 from brazil_data.states import STATE_BY_ACRONYM, STATES
@@ -296,7 +297,7 @@ def status(request):
             "report_date": None,
             "report_date_str": "",
             "spreadsheet": None,
-            "history_url": reverse('covid19:state_status', args=[uf]),
+            "history_url": reverse("covid19:state_status", args=[uf]),
         }
 
         most_recent = qs.first()
@@ -326,9 +327,15 @@ def state_status(request, state):
     if state not in STATE_BY_ACRONYM:
         raise Http404
 
+    state_data = state_deployed_data(state)
+    for date in state_data:
+        url = reverse("admin:covid19_statespreadsheet_changelist")
+        qs = urlencode({"state": state, "date__range__gte": date, "date__range__lte": date})
+        state_data[date]["detailed_history_url"] = f"{url}?{qs}"
+
     context = {
-        "data": state_deployed_data(state),
-        'state': STATE_BY_ACRONYM[state],
+        "data": state_data,
+        "state": STATE_BY_ACRONYM[state],
     }
     return render(request, "covid19/state_status.html", context)
 
