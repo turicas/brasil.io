@@ -4,6 +4,7 @@ import random
 from django.http import Http404, JsonResponse
 from django.shortcuts import render
 from django.utils import timezone
+from django.urls import reverse
 
 from brazil_data.cities import get_state_info
 from brazil_data.states import STATE_BY_ACRONYM, STATES
@@ -295,6 +296,7 @@ def status(request):
             "report_date": None,
             "report_date_str": "",
             "spreadsheet": None,
+            "history_url": reverse('covid19:state_status', args=[uf]),
         }
 
         most_recent = qs.first()

@@ -28,6 +28,9 @@
           <th> Status </th>
           <th> Confirmados </th>
           <th> Óbitos </th>
+          {% if is_covid19_contributor %}
+          <th> Histórico </th>
+          {% endif %}
         </tr>
       </thead>
 
@@ -39,6 +42,9 @@
           <td data-order="{{ row.status }}"> {{ row.status|default:'' }} </td>
           <td data-order="{% localize off %}{{ row.total_confirmed }}{% endlocalize %}"> {% localize off %} {{ row.total_confirmed|default:'' }} {% endlocalize %} </td>
           <td data-order="{% localize off %}{{ row.total_deaths }}{% endlocalize %}"> {% localize off %} {{ row.total_deaths|default:'' }} {% endlocalize %} </td>
+          {% if is_covid19_contributor %}
+          <td><a href="{{ row.history_url }}">Ver hstórico</a></td>
+          {% endif %}
         </tr>
         {% endfor %}
       </tbody>
