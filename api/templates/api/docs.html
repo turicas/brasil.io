@@ -42,7 +42,7 @@
   <h3 id="datasets">Datasets</h3>
   <hr>
   <p>Exemplo de requisição para listar todos os datasets disponíveis na API do Brasil.io:</p>
-  <p><code>curl -X GET -k -H 'Authorization: Token 123412341234' -i 'https://api.brasil.io/v1/datasets/'</code></p>
+  <p><code>curl -X GET -k -H 'Authorization: Token 123412341234' -i 'https://{{ api_host }}/v1/datasets/'</code></p>
 
   {% for dataset in datasets %}
     {% include "api/snippets/dataset_docs.html" with dataset=dataset %}

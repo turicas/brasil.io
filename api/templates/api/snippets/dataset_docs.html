@@ -2,14 +2,14 @@
 <hr/>
 
 <p>Exemplo de requisição para apresentar informações sobre esse dataset:</p>
-<p><code>curl -X GET -k -H 'Authorization: Token 123412341234' -i 'https://api.brasil.io/v1/dataset/{{ dataset.slug }}/'</code></p>
+<p><code>curl -X GET -k -H 'Authorization: Token 123412341234' -i 'https://{{ api_host }}/v1/dataset/{{ dataset.slug }}/'</code></p>
 <p>O <b>dataset completo</b> pode ser baixado diretamente <a href="{{ dataset.files_url }}">nesta página</a>. Por favor, dê preferência a baixar o dataset completo caso você vá precisar de todos aos dados ao invés de utilizar a API.</p>
 
 {% for table in dataset.tables %}
   {% if table.api_enabled %}
   <h5 id="{{ dataset.slug }}-{{ dataset.table }}">Tabela {{ table.name }}</h5>
   <p>Exemplo de requisição para os dados desta tabela:</p>
-  <p><code>curl -X GET -k -H 'Authorization: Token 123412341234' -i 'https://api.brasil.io/v1/dataset/{{ dataset.slug }}/{{ table.name }}/data/'</code></p>
+  <p><code>curl -X GET -k -H 'Authorization: Token 123412341234' -i 'https://{{ api_host }}/v1/dataset/{{ dataset.slug }}/{{ table.name }}/data/'</code></p>
   <h6>Colunas</h6>
 
   <ul class="table-fields">
