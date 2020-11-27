@@ -15,7 +15,7 @@
   <ul class="table-fields">
     {% for field in table.fields %}
       {% if field.show %}
-        <li>{% if field.frontend_filter %}<i title="Pode ser utilizado como filtro via query string" class="fa fa-search"></i> {% endif %}<code>{{ field.name }}</code> ({{ field.title }}){% if field.description %}: {{ field.description }}{% endif %}</li>
+        <li><code>{{ field.name }}</code> ({{ field.get_type_display }}): {{ field.title }} </li>
       {% endif %}
     {% endfor %}
   </ul>
