@@ -14,9 +14,22 @@
 
   <ul class="table-fields">
     {% for field in table.fields %}
-      {% if field.show %}
-        <li><code>{{ field.name }}</code> ({{ field.get_type_display }}): {{ field.title }} </li>
-      {% endif %}
+        <li><code>{{ field.name }}</code> ({{ field.get_type_display }})
+
+        {% if field.show %}
+          {% if field.show_on_frontend %}<i class="fa fa-eye" title="Esse campo é visível na interface Web, na API e no download completo"></i>{% endif %}
+          {% if not field.show_on_frontend %}<i class="fa fa-low-vision" title="Esse campo não é visível na interface Web, apenas na API e no download completo"></i>{% endif %}
+        {% else %}
+          {% if not field.show_on_frontend %}<i class="fa fa-eye-slash" title="Esse campo é usado internamente e fica visível apenas no download completo"></i>{% endif %}
+        {% endif %}
+
+        {% if field.frontend_filter %}<i class="fa fa-filter" title="Você pode fazer filtros por esse campo na interface Web e na API"></i>{% endif %}
+
+        {% if field.searchable %}<i class="fa fa-search" title="Você pode utilizar a busca de texto completo nesse campo"></i>{% endif %}
+
+        {% if field.has_choices %}<i class="fa fa-list-ul" title="Esse campo possui valores categóricos"></i>{% endif %}
+
+        : {{ field.title }} </li>
     {% endfor %}
   </ul>
   {% endif %}
