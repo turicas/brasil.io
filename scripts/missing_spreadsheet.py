@@ -6,18 +6,10 @@ import rows
 
 def state_deployed_data(state, start_date):
     deployed_state_spreadsheets = list(
-        StateSpreadsheet.objects
-        .filter(state=state, status=StateSpreadsheet.DEPLOYED)
-        .order_by("date")
+        StateSpreadsheet.objects.filter(state=state, status=StateSpreadsheet.DEPLOYED).order_by("date")
     )
     groups = groupby(deployed_state_spreadsheets, key=lambda row: row.date)
-    has_city_data = {
-        date: any(
-            not sp.only_with_total_entry
-            for sp in spreadsheets
-        )
-        for date, spreadsheets in groups
-    }
+    has_city_data = {date: any(not sp.only_with_total_entry for sp in spreadsheets) for date, spreadsheets in groups}
 
     today = datetime.datetime.now().date()
     date = start_date
