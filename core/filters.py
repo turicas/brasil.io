@@ -1,19 +1,26 @@
 def clean_value(key, value):
-    if value == "false":
-        return key, False
-    if value == "true":
-        return key, True
     if value == "None":
         return f"{key}__isnull", True
     return key, value
 
 
+def parse_query_value(value):
+    if str(value).lower() in ["false", "f"]:
+        return False
+    if str(value).lower() in ["true", "t"]:
+        return True
+    return value
+
+
 def parse_querystring(querystring):
-    query = querystring.copy()
+    query = {
+        key: parse_query_value(value) for key, value in querystring.items() if value
+    }
     order_by = query.pop("order-by", [""])
-    order_by = [field.strip().lower() for field in order_by[0].split(",") if field.strip()]
+    order_by = [
+        field.strip().lower() for field in order_by[0].split(",") if field.strip()
+    ]
     search_query = query.pop("search", [""])[0]
-    query = {key: value for key, value in query.items() if value}
     return query, search_query, order_by
 
 
