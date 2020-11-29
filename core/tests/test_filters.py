@@ -30,7 +30,6 @@ class TestDynamicModelFilter(TestCase):
         expected = {"foo": "bar"}
         self.assertEqual(filter_processor.filters, expected)
 
-
     def test_clean_string_None_to_isnull(self):
         filtering = {"foo": "bar", "fu": "bá", "none": "None"}
         allowed_filters = ["foo", "fu", "none"]
@@ -39,7 +38,6 @@ class TestDynamicModelFilter(TestCase):
 
         expected = {"foo": "bar", "fu": "bá", "none__isnull": True}
         self.assertEqual(filter_processor.filters, expected)
-
 
     def test_parse_querystring_values(self):
         querystring = {"foo": "true", "fu": "false", "bar": "t", "lorem": "F"}
