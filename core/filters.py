@@ -13,13 +13,9 @@ def parse_query_value(value):
 
 
 def parse_querystring(querystring):
-    query = {
-        key: parse_query_value(value) for key, value in querystring.items() if value
-    }
+    query = {key: parse_query_value(value) for key, value in querystring.items() if value}
     order_by = query.pop("order-by", [""])
-    order_by = [
-        field.strip().lower() for field in order_by[0].split(",") if field.strip()
-    ]
+    order_by = [field.strip().lower() for field in order_by[0].split(",") if field.strip()]
     search_query = query.pop("search", [""])[0]
     return query, search_query, order_by
 
