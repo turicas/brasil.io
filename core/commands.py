@@ -234,6 +234,7 @@ class UpdateTableFileCommand:
             self.minio.fput_object(
                 bucket, dest_name, self.output_file.name, progress=progress, content_type=content_type
             )
+            # TODO: use core.util.upload_file
         elif not is_same_file:
             self.log(f"Copying {source} to bucket {bucket}")
             self.minio.copy_object(bucket, dest_name, source)

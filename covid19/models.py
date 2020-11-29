@@ -183,9 +183,7 @@ class StateSpreadsheet(models.Model):
     cancelled = models.BooleanField(default=False)
 
     class Meta:
-        indexes = [
-            models.Index(fields=["date", "state"])
-        ]
+        indexes = [models.Index(fields=["date", "state"])]
 
     def __str__(self):
         active = "Ativa" if not self.cancelled else "Cancelada"
