@@ -6,13 +6,9 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('covid19', '0015_auto_20201124_1216'),
+        ("covid19", "0015_auto_20201124_1216"),
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='statespreadsheet',
-            name='date',
-            field=models.DateField(),
-        ),
+        migrations.AlterField(model_name="statespreadsheet", name="date", field=models.DateField(),),
     ]

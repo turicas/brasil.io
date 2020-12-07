@@ -412,12 +412,15 @@ class Table(models.Model):
         filtering = self.filtering or []
         search = self.search or []
         indexes = []
-        # TODO: add has_choices fields also
+
         if ordering and ordering != ["id"]:
             indexes.append(django_indexes.Index(name=make_index_name(db_table, "order", ordering), fields=ordering,))
         if filtering:
             for field_name in filtering:
-                if field_name in ordering:
+                if ordering and field_name == ordering[0]:
+                    # This index is not needed, since it's covered by compound
+                    # index from `ordering`. More info at:
+                    # <https://github.com/gregnavis/active_record_doctor#removing-extraneous-indexes>
                     continue
                 indexes.append(
                     django_indexes.Index(name=make_index_name(db_table, "filter", [field_name]), fields=[field_name])
