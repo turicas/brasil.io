@@ -44,7 +44,7 @@ class Command(BaseCommand):
                     dataset=row["dataset"],
                     version=row["version"],
                     name=row.pop("table_name"),
-                    defaults={"default": False, "ordering": ["id"], "search_fields": []},
+                    defaults={"default": False, "ordering": ["id"]},
                 )
                 existing_field = Field.objects.filter(
                     dataset=row["dataset"], version=row["version"], table=row["table"], name=row["name"],
@@ -62,14 +62,6 @@ class Command(BaseCommand):
                 fields_to_save.append((action, field))
                 if table_created:
                     tables_created.append(row["table"])
-
-            for table in tables_created:
-                table.search_fields = [
-                    field.name
-                    for action, field in fields_to_save
-                    if field.table == table and field.type in ("text", "string") and field.searchable
-                ]
-                table.save()
 
             for action, field in fields_to_save:
                 print(f"{action}: {field}")
