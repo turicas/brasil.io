@@ -150,7 +150,7 @@ class StateSpreadsheet(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     user = models.ForeignKey(User, null=False, blank=False, on_delete=models.PROTECT, db_index=True)
-    date = models.DateField(null=False, blank=False, db_index=True)
+    date = models.DateField(null=False, blank=False)
     state = models.CharField(max_length=2, null=False, blank=False, choices=STATE_CHOICES, db_index=True)
     file = models.FileField(upload_to=format_spreadsheet_name)
     peer_review = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL)

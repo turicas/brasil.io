@@ -413,11 +413,11 @@ class Table(models.Model):
         search = self.search or []
         indexes = []
         # TODO: add has_choices fields also
-        if ordering:
+        if ordering and ordering != ["id"]:
             indexes.append(django_indexes.Index(name=make_index_name(db_table, "order", ordering), fields=ordering,))
         if filtering:
             for field_name in filtering:
-                if ordering == [field_name]:
+                if field_name in ordering:
                     continue
                 indexes.append(
                     django_indexes.Index(name=make_index_name(db_table, "filter", [field_name]), fields=[field_name])
