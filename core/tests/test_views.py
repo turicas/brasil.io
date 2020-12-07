@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.core.management import call_command
 from django.test import override_settings
@@ -27,9 +28,21 @@ class SampleDatasetDetailView(DjangoAssertionsMixin, BaseTestCaseWithSampleDatas
         },
     ]
 
+    def create_user(self):
+        self.username, self.password = "testuser", "supersecret"
+        User = get_user_model()
+        user = User.objects.create(username=self.username, is_active=True)
+        user.set_password(self.password)
+        user.save()
+
+    def login(self):
+        return self.client.login(username=self.username, password=self.password)
+
     def setUp(self):
         self.url = reverse("core:dataset-table-detail", args=["sample", "sample_table"])
         call_command("clear_cache")
+
+        self.create_user()
 
     def test_display_dataset_table_data_with_expected_template(self):
         response = self.client.get(self.url)
@@ -38,6 +51,8 @@ class SampleDatasetDetailView(DjangoAssertionsMixin, BaseTestCaseWithSampleDatas
         assert "" == response.context["search_term"]
 
     def test_400_if_invalid_filter_choice(self):
+        self.login()
+
         url = self.url + "?sample_field=xpto&search=algo"
         response = self.client.get(url)
         assert 400 == response.status_code
@@ -55,7 +70,9 @@ class SampleDatasetDetailView(DjangoAssertionsMixin, BaseTestCaseWithSampleDatas
         assert 10 == len(context["data"].paginator.object_list)
         assert all(d in context["data"].paginator.object_list for d in data)
 
-    def test_apply_fronent_filter(self):
+    def test_apply_frontend_filter(self):
+        self.login()
+
         match = baker.make(self.TableModel, sample_field="bar")
         baker.make(self.TableModel, sample_field="foo")
         baker.make(self.TableModel, sample_field="other")
