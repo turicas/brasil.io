@@ -50,10 +50,10 @@ class ImportDataCommand:
             self.import_data(filename, Model)
 
         # Vaccum and concurrent index creation cannot run inside a transaction block
-        if self.flag_vacuum:
-            self.run_vacuum(Model)
         if self.flag_create_filter_indexes:
             self.create_filter_indexes(Model)
+        if self.flag_vacuum:
+            self.run_vacuum(Model)
 
         try:
             with transaction.atomic():
