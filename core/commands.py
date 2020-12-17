@@ -33,6 +33,7 @@ class ImportDataCommand:
         self.flag_fill_choices = options["fill_choices"]
         self.flag_delete_old_table = options["delete_old_table"]
         self.collect_date = options["collect_date"]
+        self.unlogged = options["unlogged"]
 
     def log(self, msg, *args, **kwargs):
         print(msg, *args, **kwargs)
@@ -119,6 +120,7 @@ class ImportDataCommand:
                 timeout=timeout,
                 callback=progress.update,
                 schema=schema,
+                unlogged=self.unlogged,
             )
         except RuntimeError as exception:
             progress.close()

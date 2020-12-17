@@ -12,6 +12,7 @@ class Command(BaseCommand):
         parser.add_argument("dataset_slug")
         parser.add_argument("tablename")
         parser.add_argument("filename")
+        parser.add_argument("--unlogged", required=False, action="store_true")
         parser.add_argument("--no-input", required=False, action="store_true")
         parser.add_argument("--no-import-data", required=False, action="store_true")
         parser.add_argument("--no-vacuum", required=False, action="store_true")
@@ -34,6 +35,7 @@ class Command(BaseCommand):
         dataset_slug = kwargs["dataset_slug"]
         tablename = kwargs["tablename"]
         filename = kwargs["filename"]
+        unlogged = kwargs["unlogged"]
         ask_confirmation = not kwargs["no_input"]
         import_data = not kwargs["no_import_data"]
         vacuum = not kwargs["no_vacuum"]
@@ -60,4 +62,5 @@ class Command(BaseCommand):
             fill_choices=fill_choices,
             delete_old_table=delete_old_table,
             collect_date=collect_date,
+            unlogged=unlogged,
         )
