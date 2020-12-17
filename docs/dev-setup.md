@@ -1,138 +1,118 @@
-# Setup para desenvolvimento
+# Setup para Desenvolvimento
 
-Nesta página você encontrará informações sobre como preparar o seu ambiente local para conseguir rodar o projeto, importar dados, executar os testes e poder começar a contribuir no código do Brasil.io.
+O projeto e todos os serviços necessários (como bancos de dados) rodam
+completamente dentro de *containers* Docker. Para rodá-lo localmente, você
+precisa ter instalado em seu computador:
 
-## Passos gerais
+- [git](https://git-scm.com/)
+- [Docker](https://docker.io/)
+- [docker-compose](https://docs.docker.com/compose/)
 
-1. Copie o projeto para o seu usuário. Na página do repositório (<https://github.com/turicas/brasil.io>), use o botão "Fork", no canto superior direito
+Existem outras formas de rodar o projeto localmente, como executando o Django
+na própria máquina (fora de um *container*), porém recomendamos utilizar
+*containers* para simplificar o processo e evitar conflitos de versões.
 
-2. Certifique-se de que você tenha instalados:
 
-- git
-- [pyenv](https://github.com/pyenv/pyenv) com
-  [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv) e Python 3.7.9
+## Criação do Ambiente Local
 
-3. Clone seu repositório na máquina em que for trabalhar:
+Para começar, faça um clone local do repositório original:
 
-```bash
-# Clonar o repositório:
-git clone https://github.com/<seu-usuario-github>/brasil.io.git
+```shell
+git clone https://github.com/turicas/brasil.io
 ```
 
-4. Há duas formas de rodar o projeto em sua máquina, uma utilizando o PostgreSQL como um container Docker e outra utilizando o PostgreSQL rodando diretamente em sua máquina. Aqui você vai encontrar o processo para ambas as formas.
+Entre no repositório e suba os *containers* pelo docker-compose:
 
-### Configuração usando Docker
-
-1. Certifique-se de que você tenha instalado o [docker](https://www.docker.com/).
-
-Esse exemplo usa o script em get.docker.com para instalar a última versão do Docker Engine - Community no Linux.
-
-Aviso: Sempre examine scripts baixados da internet antes de rodá-los localmente.
-
-```bash
-
-# Para instalar o docker
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-
-# Para permitir seu usuário rodar comandos docker sem "sudo"
-sudo usermod -aG docker $USER
-sudo service docker restart
-
-```
-
-Além disso é necessário ter também o
-[`docker-compose`](https://docs.docker.com/compose/install/) configurado:
-
-```bash
-sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-docker-compose --version
-```
-
-Lembre-se de sair do terminal e entrar novamente, para que produza o efeito desejado!
-
-2. Entre na pasta brasil.io e siga os passos:
-
-```bash
-
-# O python 3.7.9 espera que alguns pacotes dev estejam instalados. Para isso, rode:
-sudo apt install python3-dev libpq-dev zlib1g-dev libbz2-dev libffi-dev liblzma-dev
-
+```shell
 cd brasil.io
-
-# Instale o Python 3.7.9 usando o pyenv:
-pyenv install 3.7.9
-
-# Criar um virtualenv:
-pyenv virtualenv 3.7.9 brasil.io
-
-# Copie o arquivo de env de exemplo e edite o .env de acordo com suas preferências
-cp env.example .env
-
-# Ativar o virtualenv
-source .activate
-
-# Instalar dependências
-pip install -r requirements.txt
-
-# Iniciar os containers (bancos de dados, e-mail)
-docker-compose up -d
-
-# Criar schema e popular base de dados
-python manage.py migrate
-python manage.py update_data
-
-# Iniciar o servidor HTTP
-python manage.py runserver
+docker-compose -p brasil.io -f docker-compose.yml up -d
 ```
 
-### Configuração sem usar o Docker
+O processo acima deve demorar em torno de 10 minutos para executar, pois irá
+construir a imagem Docker que executará o Django e baixará as demais
+imagens/dependências. Quando finalizar, faça as migrações de dados iniciais
+executando:
 
-1. Certifiques-e de que você tenha instalado o [PostgreSQL](https://www.postgresql.org/)
-
-Após instalar o PostgreSQL crie o banco de dados que será utilizado pelo
-projeto. Como o docker não está sendo utilizado será necessário comentar
-algumas linhas no arquivo `.activate`. Comente as seguintes linhas:
-
-```bash
-DOCKER_COMPOSE_FILE=docker-compose.yml
-
-if [ -f "$DOCKER_COMPOSE_FILE" ]; then
-   docker-compose -p $PROJECT_NAME -f $DOCKER_COMPOSE_FILE up -d
-fi
+```shell
+docker-compose -p brasil.io -f docker-compose.yml exec web python manage.py migrate
+docker-compose -p brasil.io -f docker-compose.yml exec web python manage.py update_data
+docker-compose -p brasil.io -f docker-compose.yml run web python manage.py createsuperuser
 ```
 
-e siga os passos:
+Pronto! A plataforma poderá ser acessada pelo seu navegador Web em
+[localhost:4200](http://localhost:4200).
 
-```bash
-# Instale o Python 3.7.9 usando o pyenv:
-pyenv install 3.7.9
+Caso termine de trabalhar no projeto e queira parar os serviços, execute:
 
-# Criar um virtualenv:
-pyenv virtualenv 3.7.9 brasil.io
-
-# Modifique o arquivo .env para as configurações do seu banco de dados
-# Caso você use as configurações padrões, o arquivo será parecido com:
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=<senha>
-POSTGRES_DB=brasilio
-DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/brasilio
-
-# Ativar o virtualenv
-cd brasil.io
-source .activate
-
-# Instalar dependências
-pip install -r requirements.txt
-
-# Criar schema e popular metadados dos datasets
-python manage.py migrate
-python manage.py update_data
-
-# Iniciar o servidor HTTP
-python manage.py runserver
+```shell
+docker-compose -p brasil.io -f docker-compose.yml down
 ```
+
+Nas próximas vezes que for trabalhar no projeto, basta executar um comando:
+
+```shell
+docker-compose -p brasil.io -f docker-compose.yml up -d
+```
+
+### Notas
+
+1. Caso não queira executar o `docker-compose` com todos os parâmetros acima,
+   utilize o atalho `compose` definido no script `.activate`.
+2. O banco de dados principal (PostgreSQL) foi configurado para ser executado
+   em um computador com 8 cores, 16GB de RAM e SSD. Caso esse não seja seu
+   computador, considere alterar o arquivo `docker/postgresql/postgresql.conf`
+   (você precisará reiniciar o serviço `db` do docker-compose). Para saber as
+   melhores configurações para sua máquina, consulte o
+   [PgTune](https://pgtune.leopard.in.ua/).
+
+
+## Importando Dados
+
+Antes de importar dados em um dataset, você precisa executar o script de
+importação de dados ou baixar os dados já convertidos. Nesse exemplo, vamos
+baixar 3 tabelas do [dataset covid19](https://brasil.io/dataset/covid19/) para
+a pasta `docker/data/app/` e executar o comando de importação para cada uma
+delas:
+
+```shell
+for table in boletim caso caso_full obito_cartorio; do
+	wget \
+		-O "docker/data/app/${table}.csv.gz" \
+		"https://data.brasil.io/dataset/covid19/${table}.csv.gz"
+	compose run web \
+		python manage.py import_data \
+			--unlogged \
+			--no-input \
+			covid19 \
+			"$table" \
+			"/data/${table}.csv.gz"
+done
+```
+
+### Notas
+
+1. Por conta das permissões em que o Docker executa os containers, talvez os
+   diretórios em `docker/data` sejam acessíveis apenas pelo usuário `root` -
+   dessa forma, você precisará executar o comando `wget` acima como root
+   (utilizar `sudo wget` deve funcionar).
+2. A opção `--unlogged` do comando `import_data` executará a importação mais
+   rapidamente, mas fará com que a tabela possa ser perdida caso os dados do
+   PostgreSQL sejam corrompidos (e também não será replicada, caso existam
+   réplicas configuradas). Em geral, para ambientes de desenvolvimento, essas
+   questões não são problemas.
+
+
+## Contribuindo
+
+1. Crie um *fork* do projeto em sua conta no GitHub, clicando no botão "*fork*"
+   em <https://github.com/turicas/brasil.io>
+2. Caso já tenha clonado o repositório original localmente, adicione seu *fork*
+   como um repositório remoto com o comando:
+   `git remote add <seu-username> https://github.com/<seu-username>/brasil.io`.
+3. Caso ainda não tenha clonado o repositório em sua máquina, clone-o com o
+   comando: `git clone https://github.com/<seu-username>/brasil.io`.
+4. Crie um *branch* em seu repositório local para trabalhar nas alterações que
+   deseja, onde você executará os *commits*.
+5. Suba seu *branch* para seu *fork* com o comando
+   `git push <seu-username> <nome-do-branch>` e crie um *pull request* no
+   repositório principal.

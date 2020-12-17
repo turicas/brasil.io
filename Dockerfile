@@ -2,6 +2,7 @@
 FROM python:3.8-slim-buster
 
 ENV PYTHONUNBUFFERED 1
+ARG DEV_BUILD
 WORKDIR /app
 
 RUN apt update \
@@ -10,8 +11,10 @@ RUN apt update \
   && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /app/
+COPY requirements-development.txt /app/
 RUN pip install --no-cache-dir -U pip \
-  && pip install --no-cache-dir -r /app/requirements.txt
+  && pip install --no-cache-dir -r /app/requirements.txt \
+  && if [ "$DEV_BUILD" = "true" ]; then pip install --no-cache-dir -r /app/requirements-development.txt; fi
 
 ADD srv/nginx.conf.sigil /app/
 COPY . /app/

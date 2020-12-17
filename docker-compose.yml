@@ -1,49 +1,60 @@
 version: '3.2'
 
 services:
+    web:
+      container_name: brasilio_web
+      env_file: .env
+      build:
+        context: .
+        dockerfile: Dockerfile
+        args:
+          - DEV_BUILD=true
+      volumes:
+        - .:/app
+        - ./docker/data/app:/data
+      ports:
+        - 4200:5000
+      depends_on:
+        - db
+        - mail
+        - redis
+        - graph_db
 
     db:
-        image: postgres:11.3
-        shm_size: 256m
-        container_name: brasilio_postgres
-        env_file: .env
-        ports:
-            - "39001:5432"
-        volumes:
-            - ./docker/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
-            - ./docker/postgresql/data:/var/lib/postgresql/data
-        command: -c "config_file=/etc/postgresql/postgresql.conf"
-        healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U postgres"]
-            interval: 30s
-            retries: 3
+      image: postgres:11.3
+      container_name: brasilio_postgres
+      env_file: .env
+      shm_size: 256m
+      volumes:
+        - ./docker/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
+        - ./docker/data/postgres:/var/lib/postgresql/data
+      command: -c "config_file=/etc/postgresql/postgresql.conf"
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U postgres"]
+        interval: 30s
+        retries: 3
 
     graph_db:
-        image: neo4j:3.3
-        container_name: brasilio_neo4j
-        environment:
-            - NEO4J_AUTH=none
-            - NEO4J_dbms_connector_bolt_listen__address=0.0.0.0:7687
-            - NEO4J_dbms_connector_bolt_address=0.0.0.0:7687
-            - NEO4J_dbms_connectors_default__listen__address=0.0.0.0:7474
-        ports:
-            - "39002:7474"
-            - "39003:7687"
-        volumes:
-            - ./docker/neo4j/data/:/data/
+      image: neo4j:3.3
+      container_name: brasilio_neo4j
+      environment:
+        - NEO4J_AUTH=none
+        - NEO4J_dbms_connector_bolt_listen__address=0.0.0.0:7687
+        - NEO4J_dbms_connector_bolt_address=0.0.0.0:7687
+        - NEO4J_dbms_connectors_default__listen__address=0.0.0.0:7474
+      volumes:
+        - ./docker/data/neo4j:/data
 
     mail:
-        image: mailhog/mailhog
-        container_name: brasilio_mailhog
-        env_file: .env
-        ports:
-            - "39004:1025"
-            - "39005:8025"
+      image: mailhog/mailhog
+      container_name: brasilio_mailhog
+      env_file: .env
+      ports:
+        - "4201:8025"
 
     redis:
-        image: redis:alpine
-        hostname: brasilio_redis
-        ports:
-            - "39006:6379"
-        volumes:
-            - "./docker/redis/:/data/"
+      image: redis:alpine
+      container_name: brasilio_redis
+      env_file: .env
+      volumes:
+        - "./docker/data/redis:/data"
