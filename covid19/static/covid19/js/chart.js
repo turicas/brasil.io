@@ -22,8 +22,8 @@ jQuery(document).ready(function(){
   var deathsSourceLink = 'Fonte: <a href="https://transparencia.registrocivil.org.br/registral-covid" title="Ver fonte">Registro Civil</a>.';
   var deathsSourceNote = " *Nota: as últimas 2 semanas não estão representadas pois os dados estão em processamento pelos cartórios.";
   var deathsSource = deathsSourceLink + deathsSourceNote;
-  var deathsGroupSource = deathsSourceLink + " Grupos: COVID-19 (suspeita ou confirmação por COVID-19), Outras respiratórias (pneumonia + insuf. resp. + SRAG), Outras (septicemia + indeterminada + outras causas naturais não externas)." + deathsSourceNote;
-  var deathsExcessSource = deathsSourceLink + " Excesso por semana = novos óbitos totais na semana em 2020 - novos óbitos totais na semana em 2019." + deathsSourceNote;
+  var deathsGroupSource = deathsSourceLink + " Grupos: COVID-19 (suspeita ou confirmação por COVID-19), Outras respiratórias (pneumonia + insuf. resp. + SRAG), Outras (septicemia + indeterminada + outras causas naturais não externas). Dados de 2021 ainda sendo consolidados." + deathsSourceNote;
+  var deathsExcessSource = deathsSourceLink + " Excesso por semana = novos óbitos totais na semana em 2020 - novos óbitos totais na semana em 2019. Dados de 2021 ainda sendo consolidados." + deathsSourceNote;
 
   graphSource += ". *Nota: dados sendo consolidados para os últimos dias.";
   jQuery.getJSON(dataURL.historicalDaily, function (data) {

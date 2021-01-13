@@ -82,14 +82,20 @@ def historical_data(request, period):
         from_registries_excess = stats.excess_deaths_registry_data_for_state_per_epiweek(state)
 
     # Remove last period since it won't be complete
+    diff_days = -14
+    if timezone.now().year == 2021:
+        # TODO: remove this hack with up-to-date data
+        diff_days -= (
+            timezone.now() - datetime.datetime(2021, 1, 1, 0, 0, 0, tzinfo=timezone.get_current_timezone())
+        ).days
     if period == "daily":
         from_states = clean_daily_data(from_states, skip=0, diff=-1)
-        from_registries = clean_daily_data(from_registries, skip=7, diff=-14)
-        from_registries_excess = clean_daily_data(from_registries_excess, skip=7, diff=-14)
+        from_registries = clean_daily_data(from_registries, skip=7, diff=diff_days)
+        from_registries_excess = clean_daily_data(from_registries_excess, skip=7, diff=diff_days)
     if period == "weekly":
         from_states = clean_weekly_data(from_states, diff_days=-7)
-        from_registries = clean_weekly_data(from_registries, skip=1, diff_days=-14)
-        from_registries_excess = clean_weekly_data(from_registries_excess, skip=1, diff_days=-14)
+        from_registries = clean_weekly_data(from_registries, skip=1, diff_days=diff_days)
+        from_registries_excess = clean_weekly_data(from_registries_excess, skip=1, diff_days=diff_days)
 
     state_data = row_to_column(from_states)
     registry_data = row_to_column(from_registries)
