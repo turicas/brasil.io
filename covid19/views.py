@@ -179,7 +179,7 @@ def make_aggregate(
         {
             "decimal_places": 0,
             "title": "População desses municípios",
-            "tooltip": "População dos municípios com casos confirmados (segundo estimativa IBGE 2019)",
+            "tooltip": "População dos municípios com casos confirmados (segundo estimativa IBGE 2020)",
             "value": f"{affected_population / 1_000_000:.0f}M",
             "value_percent": 100 * (affected_population / population),
         },

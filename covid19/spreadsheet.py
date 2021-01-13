@@ -39,6 +39,7 @@ def merge_state_data(state):
         original_cities.add(city)
         for date, values_for_date in new_cases.items():
             date_str = f"{date.day:02d}_{date.month:02d}"
+            # TODO: date problem here
             city_on_date = values_for_date.get(city, {})
             row[f"confirmados_{date_str}"] = city_on_date.get("confirmed", None)
             row[f"mortes_{date_str}"] = city_on_date.get("deaths", None)
@@ -48,6 +49,7 @@ def merge_state_data(state):
     new_rows = {}
     for date, values_for_date in new_cases.items():
         date_str = f"{date.day:02d}_{date.month:02d}"
+        # TODO: date problem here
         for city, data in values_for_date.items():
             city_info = get_city_info(city, state)
             if city_info:
