@@ -1,11 +1,11 @@
-import rq
+from rq import Worker
 from rq.contrib.sentry import register_sentry
 
 from raven import Client
 from raven.transport import HTTPTransport
 
 
-class SentryAwareWorker(rq.Worker):
+class SentryAwareWorker(Worker):
     def __init__(self, *args, **kwargs):
         from django.conf import settings
 

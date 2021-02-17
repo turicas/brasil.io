@@ -26,11 +26,7 @@ def merge_state_data(state):
     original_reports = gs_data["reports"]
     # Fix format of old data from Google Spreadsheets (add year to date)
     original_cases = [
-        {
-            fix_key(key): value
-            for key, value in city_cases.items()
-            if not key.startswith("field_")
-        }
+        {fix_key(key): value for key, value in city_cases.items() if not key.startswith("field_")}
         for city_cases in gs_data["cases"]
     ]
 
@@ -102,11 +98,7 @@ def merge_state_data(state):
 
 
 def row_with_sorted_columns(row):
-    row_dates = set(
-        key.split("_")[1]
-        for key in row.keys()
-        if key.startswith("confirmados_")
-    )
+    row_dates = set(key.split("_")[1] for key in row.keys() if key.startswith("confirmados_"))
 
     new = {"municipio": row["municipio"]}
     for date_str in sorted(row_dates, reverse=True):
