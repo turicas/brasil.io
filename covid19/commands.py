@@ -70,10 +70,10 @@ class UpdateStateTotalsCommand:
                 return
             elif confirmed < data["confirmed"] or deaths < data["deaths"]:
                 if self.force and state in self.force:
-                    message = f"{state} - WARNING - Would skip (already deployed for {date} and numbers of deployed are greater than ours: (ours vs deployed) {confirmed} vs {data['confirmed']}, {deaths} vs {data['deaths']}), but updating because of --force"
+                    message = f"{state} - WARNING - Would skip (already deployed for {recent_deploy.date} and numbers of deployed are greater than ours: (ours vs deployed) {confirmed} vs {data['confirmed']}, {deaths} vs {data['deaths']}), but updating because of --force"
                 else:
                     self.debug(
-                        f"{state} - SKIPPING - Already deployed for {date} and numbers of deployed are greater than ours: (ours vs deployed) {confirmed} vs {data['confirmed']}, {deaths} vs {data['deaths']}"
+                        f"{state} - SKIPPING - Already deployed for {recent_deploy.date} and numbers of deployed are greater than ours: (ours vs deployed) {confirmed} vs {data['confirmed']}, {deaths} vs {data['deaths']}"
                     )
                     return
             else:
