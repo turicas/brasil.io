@@ -11,10 +11,38 @@ function hexToRGBA(hex, rgba) {
   return `rgba(${red}, ${green}, ${blue}, ${rgba})`;
 }
 
+function arraySum(arr) {
+  return arr.reduce(function (total, n) { return total + n; });
+}
+
+function arrayToInt(arr) {
+  return arr.map(function (value) {
+    return value !== null ? parseInt((value).toFixed(0)) : null;
+  });
+}
+
+function movingAverage(values, n) {
+  var lastValues = [];
+  var movingAvg = [];
+
+  for (i = 0; i < values.length; i++) {
+    var value = values[i];
+    lastValues.push(value);
+    if (i + 1 < n) {
+      movingAvg.push(null);
+    }
+    else {
+      movingAvg.push(arraySum(lastValues) / lastValues.length);
+      lastValues.shift();
+    }
+  }
+  return movingAvg;
+}
+
 class MultiLineChart {
 
   chartType() {
-    return "line";
+    return ["line"];
   }
 
   constructor(options) {
@@ -28,15 +56,20 @@ class MultiLineChart {
     this.yLabels = options.yLabels;
     this.yData = options.yData;
     this.chartOptions = {
-      maintainAspectRatio: false,
       animation: {duration: this.animationDuration},
       bezierCurve: false,
+      elements: {
+        point: {
+          radius: 0,
+        },
+      },
       legend: {
         display: this.options.showYLabels === undefined ? true : this.options.showYLabels,
         labels: {
           filter: function (legendItem, data) { return legendItem.text !== undefined; },
         },
       },
+      maintainAspectRatio: false,
       scales: {
         yAxes: this.yAxes(),
         xAxes: this.xAxes(),
@@ -44,6 +77,9 @@ class MultiLineChart {
       title: {
         display: true,
         text: options.title,
+      },
+      tooltips: {
+        mode: "label",
       },
     };
   }
@@ -101,7 +137,7 @@ class MultiLineChart {
         labels: this.xData,
       },
       options: this.chartOptions,
-      type: this.chartType(),
+      type: this.chartType()[0],
     });
     if (this.options.source !== undefined) {
       var newNode = document.createElement("p");
@@ -112,10 +148,48 @@ class MultiLineChart {
   }
 }
 
+class MultiBarLineChart extends MultiLineChart {
+
+  chartType() {
+    return ["bar", "line"];
+  }
+
+  datasets() {
+    var result = new Array();
+    for (var index = 0; index < this.yLabels.length; index++) {
+      // TODO: constructor should receive chart type and this if/else could use
+      // it and execute a LineChart/BarChart method to create the data pushed
+      // into result.
+      if (index == 0) {  // Bar
+        result.push({
+          backgroundColor: this.colors[index],
+          data: this.yData[index],
+          label: this.getYLabel(index),
+          type: "bar",
+          yAxisID: 1,
+        });
+      }
+      else {  // Line
+        result.push({
+          borderColor: this.colors[index],
+          data: this.yData[index],
+          fill: false,
+          label: this.getYLabel(index),
+          type: "line",
+          yAxisID: 1,
+        });
+      }
+    }
+    return result;
+  }
+
+}
+
+
 class MultiBarChart extends MultiLineChart {
 
   chartType() {
-    return "bar";
+    return ["bar"];
   }
 
   datasets() {
@@ -125,7 +199,7 @@ class MultiBarChart extends MultiLineChart {
         backgroundColor: this.colors[index],
         data: this.yData[index],
         label: this.getYLabel(index),
-        type: this.chartType(),
+        type: this.chartType()[0],
         yAxisID: 1,
       });
     }
@@ -145,7 +219,7 @@ class StackedBarChart extends MultiBarChart {
           data: this.yData[stackIndex][index],
           label: this.yLabels[stackIndex][index],
           stack: stackIndex,
-          type: this.chartType(),
+          type: this.chartType()[0],
           yAxisID: 1,
         });
       }
