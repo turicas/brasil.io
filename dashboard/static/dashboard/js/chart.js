@@ -14,7 +14,7 @@ function hexToRGBA(hex, rgba) {
 class MultiLineChart {
 
   chartType() {
-    return "line";
+    return ["line"];
   }
 
   constructor(options) {
@@ -28,15 +28,20 @@ class MultiLineChart {
     this.yLabels = options.yLabels;
     this.yData = options.yData;
     this.chartOptions = {
-      maintainAspectRatio: false,
       animation: {duration: this.animationDuration},
       bezierCurve: false,
+      elements: {
+        point: {
+          radius: 0,
+        },
+      },
       legend: {
         display: this.options.showYLabels === undefined ? true : this.options.showYLabels,
         labels: {
           filter: function (legendItem, data) { return legendItem.text !== undefined; },
         },
       },
+      maintainAspectRatio: false,
       scales: {
         yAxes: this.yAxes(),
         xAxes: this.xAxes(),
@@ -44,6 +49,9 @@ class MultiLineChart {
       title: {
         display: true,
         text: options.title,
+      },
+      tooltips: {
+        mode: "label",
       },
     };
   }
@@ -101,7 +109,7 @@ class MultiLineChart {
         labels: this.xData,
       },
       options: this.chartOptions,
-      type: this.chartType(),
+      type: this.chartType()[0],
     });
     if (this.options.source !== undefined) {
       var newNode = document.createElement("p");
@@ -115,7 +123,7 @@ class MultiLineChart {
 class MultiBarChart extends MultiLineChart {
 
   chartType() {
-    return "bar";
+    return ["bar"];
   }
 
   datasets() {
@@ -125,7 +133,7 @@ class MultiBarChart extends MultiLineChart {
         backgroundColor: this.colors[index],
         data: this.yData[index],
         label: this.getYLabel(index),
-        type: this.chartType(),
+        type: this.chartType()[0],
         yAxisID: 1,
       });
     }
@@ -145,7 +153,7 @@ class StackedBarChart extends MultiBarChart {
           data: this.yData[stackIndex][index],
           label: this.yLabels[stackIndex][index],
           stack: stackIndex,
-          type: this.chartType(),
+          type: this.chartType()[0],
           yAxisID: 1,
         });
       }
