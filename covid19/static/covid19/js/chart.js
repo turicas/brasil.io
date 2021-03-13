@@ -7,6 +7,7 @@ var caseDailyNewChart,
   deathWeeklyExcessChart,
   excessDeathsWeeklyChart;
 
+
 jQuery(document).ready(function(){
   var graphSource, titleAppend;
   if (placeType() == "country") {
@@ -27,40 +28,40 @@ jQuery(document).ready(function(){
 
   graphSource += ". *Nota: dados sendo consolidados para os últimos dias.";
   jQuery.getJSON(dataURL.historicalDaily, function (data) {
+    caseDailyNewChart = new MultiBarLineChart({
+      colors: [hexToRGBA(dataConfig.confirmed.color, 0.5), dataConfig.confirmed.color],
+      divId: "case-daily-chart-1",
+      title: `Novos casos confirmados por dia${titleAppend}`,
+      xData: data.from_states.date,
+      yLabels: ["Casos confirmados", "Média móvel 7 dias"],
+      yData: [data.from_states.new_confirmed, arrayToInt(movingAverage(data.from_states.new_confirmed, 7))],
+      source: graphSource,
+    }).draw();
+    deathDailyNewChart = new MultiBarLineChart({
+      colors: [hexToRGBA(dataConfig.deaths.color, 0.5), dataConfig.deaths.color],
+      divId: "death-daily-chart-1",
+      title: `Novos óbitos confirmados por dia${titleAppend}`,
+      xData: data.from_states.date,
+      yLabels: ["Óbitos confirmados", "Média móvel 7 dias"],
+      yData: [data.from_states.new_deaths, arrayToInt(movingAverage(data.from_states.new_deaths, 7))],
+      source: graphSource,
+    }).draw();
     caseDailyTotalChart = new MultiLineChart({
       colors: [dataConfig.confirmed.color],
-      divId: "case-daily-chart-1",
+      divId: "case-daily-chart-2",
       title: `Casos confirmados acumulados por dia${titleAppend}`,
       xData: data.from_states.date,
       yLabels: ["Casos confirmados"],
       yData: [data.from_states.confirmed],
       source: graphSource,
     }).draw();
-    caseDailyNewChart = new MultiBarChart({
-      colors: [hexToRGBA(dataConfig.confirmed.color, 0.5)],
-      divId: "case-daily-chart-2",
-      title: `Novos casos confirmados por dia${titleAppend}`,
-      xData: data.from_states.date,
-      yLabels: ["Casos confirmados"],
-      yData: [data.from_states.new_confirmed],
-      source: graphSource,
-    }).draw();
     deathDailyTotalChart = new MultiLineChart({
       colors: [dataConfig.deaths.color],
-      divId: "death-daily-chart-1",
+      divId: "death-daily-chart-2",
       title: `Óbitos confirmados acumulados por dia${titleAppend}`,
       xData: data.from_states.date,
       yLabels: ["Óbitos confirmados"],
       yData: [data.from_states.deaths],
-      source: graphSource,
-    }).draw();
-    deathDailyNewChart = new MultiBarChart({
-      colors: [hexToRGBA(dataConfig.deaths.color, 0.5)],
-      divId: "death-daily-chart-2",
-      title: `Novos óbitos confirmados por dia${titleAppend}`,
-      xData: data.from_states.date,
-      yLabels: ["Óbitos confirmados"],
-      yData: [data.from_states.new_deaths],
       source: graphSource,
     }).draw();
   });

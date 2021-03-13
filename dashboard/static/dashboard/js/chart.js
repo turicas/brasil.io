@@ -11,6 +11,34 @@ function hexToRGBA(hex, rgba) {
   return `rgba(${red}, ${green}, ${blue}, ${rgba})`;
 }
 
+function arraySum(arr) {
+  return arr.reduce(function (total, n) { return total + n; });
+}
+
+function arrayToInt(arr) {
+  return arr.map(function (value) {
+    return value !== null ? parseInt((value).toFixed(0)) : null;
+  });
+}
+
+function movingAverage(values, n) {
+  var lastValues = [];
+  var movingAvg = [];
+
+  for (i = 0; i < values.length; i++) {
+    var value = values[i];
+    lastValues.push(value);
+    if (i + 1 < n) {
+      movingAvg.push(null);
+    }
+    else {
+      movingAvg.push(arraySum(lastValues) / lastValues.length);
+      lastValues.shift();
+    }
+  }
+  return movingAvg;
+}
+
 class MultiLineChart {
 
   chartType() {
@@ -119,6 +147,44 @@ class MultiLineChart {
     return this;
   }
 }
+
+class MultiBarLineChart extends MultiLineChart {
+
+  chartType() {
+    return ["bar", "line"];
+  }
+
+  datasets() {
+    var result = new Array();
+    for (var index = 0; index < this.yLabels.length; index++) {
+      // TODO: constructor should receive chart type and this if/else could use
+      // it and execute a LineChart/BarChart method to create the data pushed
+      // into result.
+      if (index == 0) {  // Bar
+        result.push({
+          backgroundColor: this.colors[index],
+          data: this.yData[index],
+          label: this.getYLabel(index),
+          type: "bar",
+          yAxisID: 1,
+        });
+      }
+      else {  // Line
+        result.push({
+          borderColor: this.colors[index],
+          data: this.yData[index],
+          fill: false,
+          label: this.getYLabel(index),
+          type: "line",
+          yAxisID: 1,
+        });
+      }
+    }
+    return result;
+  }
+
+}
+
 
 class MultiBarChart extends MultiLineChart {
 
