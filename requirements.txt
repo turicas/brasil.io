@@ -1,4 +1,4 @@
-Jinja2==2.11.2
+Jinja2==2.11.3
 Markdown==3.2.2
 boto3==1.12.39
 cached-property==1.5.1
