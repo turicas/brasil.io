@@ -35,7 +35,6 @@ INSTALLED_APPS = [
     # Project apps
     "api",
     "core",
-    "graphs",
     "brasilio_auth",
     "covid19.apps.Covid19Config",
     "dashboard",

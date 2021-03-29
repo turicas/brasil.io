@@ -138,11 +138,6 @@ class TestAPIRedirectsFromPreviousRoutingToVersioned(TestCase):
                 reverse("v0:dataset-table-data", args=["slug", "tablename"]),
                 reverse("v1:dataset-table-data", args=["slug", "tablename"]),
             ),
-            (reverse("v0:resource-graph"), reverse("v1:resource-graph")),
-            (reverse("v0:partnership-paths"), reverse("v1:partnership-paths")),
-            (reverse("v0:subsequent-partnerships"), reverse("v1:subsequent-partnerships")),
-            (reverse("v0:company-groups"), reverse("v1:company-groups")),
-            (reverse("v0:node-data"), reverse("v1:node-data")),
         ]
 
         qs = "?foo=1&bar=2"
@@ -171,14 +166,6 @@ class TestAPIRedirectsFromPreviousRoutingToVersioned(TestCase):
                 reverse("v0:dataset-table-data", args=["slug", "tablename"], urlconf=urlconf),
                 reverse("v1:dataset-table-data", args=["slug", "tablename"], urlconf=urlconf),
             ),
-            (reverse("v0:resource-graph", urlconf=urlconf), reverse("v1:resource-graph", urlconf=urlconf)),
-            (reverse("v0:partnership-paths", urlconf=urlconf), reverse("v1:partnership-paths", urlconf=urlconf),),
-            (
-                reverse("v0:subsequent-partnerships", urlconf=urlconf),
-                reverse("v1:subsequent-partnerships", urlconf=urlconf),
-            ),
-            (reverse("v0:company-groups", urlconf=urlconf), reverse("v1:company-groups", urlconf=urlconf)),
-            (reverse("v0:node-data", urlconf=urlconf), reverse("v1:node-data", urlconf=urlconf)),
             (reverse("v0:api-root", urlconf=urlconf), reverse("v1:api-root", urlconf=urlconf)),
         ]
 

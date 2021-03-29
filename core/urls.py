@@ -29,14 +29,4 @@ urlpatterns = [
         login_required(views_special.document_detail, login_url=sign_up_url),
         name="special-document-detail",
     ),
-    path(
-        "especiais/caminho/",
-        login_required(views_special.trace_path, login_url=sign_up_url),
-        name="special-trace-path",
-    ),
-    path(
-        "especiais/grupos/",
-        login_required(views_special.company_groups, login_url=sign_up_url),
-        name="special-company-groups",
-    ),
 ]

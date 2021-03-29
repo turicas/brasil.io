@@ -10,7 +10,6 @@ from django.urls import reverse
 from core.data_models import EmpresaTableConfig
 from core.forms import CompanyGroupsForm, TracePathForm
 from core.models import get_table, get_table_model
-from graphs.serializers import CNPJCompanyGroupsSerializer, PathSerializer
 
 cipher_suite = Fernet(settings.FERNET_KEY)
 
@@ -172,89 +171,3 @@ def document_detail(request, document):
         "partners_fields": partners_fields,
     }
     return render(request, "specials/document-detail.html", context)
-
-
-def _get_path(origin, destination):
-    types = {"pessoa-juridica": 1, "pessoa-fisica": 2}
-    identifiers = {
-        "pessoa-juridica": lambda document: str(document or "")[:8],
-        "pessoa-fisica": lambda document: document,
-    }
-    serializer = PathSerializer(
-        data={
-            "tipo1": types[origin[0]],
-            "identificador1": identifiers[origin[0]](origin[1]),
-            "tipo2": types[destination[0]],
-            "identificador2": identifiers[destination[0]](destination[1]),
-            "all_shortest_paths": False,
-        }
-    )
-    serializer.is_valid()
-    path = serializer.data["path"]
-    return {"nodes": path["nodes"], "links": path["links"]}
-
-
-def fix_nodes(nodes):
-    """Add `cnpj` to company nodes"""
-
-    Documents = get_table_model("documentos-brasil", "documents")
-
-    result = []
-    for node in nodes:
-        node = node.copy()
-        cnpj_root = node.get("cnpj_root")
-        if cnpj_root:
-            documents = Documents.objects.filter(document_type="CNPJ", docroot=cnpj_root).order_by("document")
-            if documents:
-                cnpj = documents.first().document
-            else:
-                cnpj = f"{cnpj_root}000100"
-
-            node["cnpj"] = cnpj
-        result.append(node)
-    return result
-
-
-def trace_path(request):
-    form = TracePathForm(request.GET or None)
-    errors, path, origin_name, destination_name = None, None, None, None
-
-    if form.is_valid():
-        origin_name = form.cleaned_data["origin_name"]
-        destination_name = form.cleaned_data["destination_name"]
-        path = _get_path(
-            (form.cleaned_data["origin_type"], form.cleaned_data["origin_identifier"]),
-            (form.cleaned_data["destination_type"], form.cleaned_data["destination_identifier"],),
-        )
-
-    context = {
-        "destination_name": destination_name,
-        "errors": errors,
-        "form": form,
-        "origin_name": origin_name,
-        "nodes": fix_nodes(path["nodes"] if path else []),
-        "links": path["links"] if path else [],
-    }
-    return render(request, "specials/trace-path.html", context)
-
-
-def _get_groups(company):
-    data = {"identificador": company.cnpj}
-    serializer = CNPJCompanyGroupsSerializer(data=data)
-    serializer.is_valid()
-    network = serializer.data["network"]
-    return {"nodes": network["nodes"], "links": network["links"]}
-
-
-def company_groups(request):
-    form = CompanyGroupsForm(request.GET or None)
-    company, nodes, links = None, [], []
-
-    if form.is_valid():
-        company = form.cleaned_data["company"]
-        groups = _get_groups(company)
-        nodes = groups["nodes"]
-        links = groups["links"]
-
-    context = {"form": form, "company": company, "nodes": nodes, "links": links}
-    return render(request, "specials/company-groups.html", context)
