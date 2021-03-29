@@ -11,9 +11,9 @@ class UsernameOrEmailBackend(ModelBackend):
             return None
         elif "@" in username:
             # Won't allow anybody having "@" in username to log in
-            query = Q(email=username)
+            query = Q(email=username) # TODO: use lower of both
         else:
-            query = Q(username=username)
+            query = Q(username=username)  # TODO: use lower of both
 
         try:
             user = User.objects.get(query)
