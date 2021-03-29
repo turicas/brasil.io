@@ -30,7 +30,7 @@ lxml==4.6.2
 networkx==2.1
 openpyxl==3.0.5
 psycopg2-binary==2.8.5
-py2neo==3.1.2
+py2neo==4.0.0
 pytest-django==3.2.1
 pytz==2020.1
 requests-cache==0.5.2
