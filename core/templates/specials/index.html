@@ -34,26 +34,6 @@
         Universidade Federal do Paraná
       </a>.
     </li>
-    <li>
-      <a href="{% url 'core:special-trace-path' %}" title="Ver Caminhos nas relações pessoais (física e/ou jurídica)">Caminhos nas relações
-        pessoais (física e/ou jurídica)</a> - a partir de duas pessoas (físicas
-      e/ou jurídicas) o visitante conseguirá verificar a existência de uma
-      relação de sociedade, independente do nível (exemplo: A é sócio da
-      empresa X, que é sócia da empresa Y e tem como sócio também Z - dessa
-      forma, A é indiretamente sócio de Z). Exemplo real:
-      <a href="{% url 'core:special-trace-path' %}?origin_type=pessoa-juridica&origin_identifier=15102288000182&destination_type=pessoa-juridica&destination_identifier=61065751000180" title="Ver ligação entre Rossi Residencial SA e a Construtora Norberto Odebrecht">qual a
-        ligação entre a Rossi Residencial SA e a Construtora Norberto Odebrecht
-      SA?</a>
-    </li>
-    <li>
-      <a href="{% url 'core:special-company-groups' %}" title="Ver Grupos Empresariais de uma empresa">Grupos Empresariais de uma empresa</a> -
-      Com o CNPJ de uma empresa, podemos listar a qual ou quais grupos empresariais
-      a empresa pertence. Um grupo empresarial é determinado através das relações
-      de sociedades entre empresas (exemplo: a empresa A é sócia de B que também tem
-      como sócia a empresa C - dessa forma, B pertence aos grupos empresariais de A e C).
-      Exemplo real: <a href="{% url 'core:special-company-groups' %}?identifier=24657281000123" title="Veja os grupos empresariais da empresa Passos Construções SPE LTDA">qual
-      os grupos empresariais da empresa Passos Construções SPE LTDA?</a>
-    </li>
   </ul>
 
 
