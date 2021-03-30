@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
@@ -24,7 +26,13 @@ class UserCreationForm(RegistrationFormUniqueEmail):
 
     def clean_username(self):
         username = self.cleaned_data.get("username", "")
-        return username.lower()
+        username = username.lower()
+        non_valid_chars = re.search(r"[^a-z0-9_]", username)
+        if non_valid_chars:
+            raise forms.ValidationError(
+                "Nome de usário somente pode conter letras, números e '_'"
+            )
+        return username
 
     def clean_email(self):
         email = self.cleaned_data.get("email")

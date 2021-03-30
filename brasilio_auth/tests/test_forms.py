@@ -142,6 +142,21 @@ class UserCreationFormTests(TestCase):
         assert not form.is_valid()
         assert "captcha" in form.errors
 
+    @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
+    def test_invalid_username_characters(self):
+        passwd = "verygoodpassword"
+        data = {
+            "username": "foo@",
+            "email": "foo@bar.com",
+            "password1": passwd,
+            "password2": passwd,
+            "captcha": "captcha-validation",
+        }
+
+        form = UserCreationForm(data)
+        assert not form.is_valid()
+        assert "username" in form.errors
+
 
 class TestTokenApiManagementForm(TestCase):
     def test_required_fields(self):
