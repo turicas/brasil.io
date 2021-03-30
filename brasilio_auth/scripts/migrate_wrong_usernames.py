@@ -43,8 +43,7 @@ def possible_usernames(username:str, email:str, n_suffix:int = 10) -> Tuple[str,
     return (username, possible_2, possible_3, *possible_with_suffix)
 
 
-def migrate_usernames(filepath=None):
-    filepath = filepath or "/data/fixed-usernames.csv"
+def migrate_usernames(filepath):
     with open(filepath, mode="w") as fobj:
         writer = csv.DictWriter(
             fobj, fieldnames=["old_username", "new_username", "email"]
@@ -65,3 +64,8 @@ def migrate_usernames(filepath=None):
                     changed = True
                     user.username = username
                     user.save()
+
+
+def run():
+    filepath = "/data/fixed-usernames.csv"
+    migrate_usernames(filepath)
