@@ -1,22 +1,23 @@
 """
-TODO: relatar problema da issue de login
-"""
+Anteriormente, os usuários podiam cadastrar seu username utilizando o caractere
+inválido '@'.
+Este script corrige esse problema alterando os usernames que contem '@' por
+variações únicas baseadas no nome de usuário e/ou no e-mail de cada registro.
 
-def possible_usernames(username, email):
-    """
-    >>> possible_usernames('test@example.com', 'test@example.com')
-    ('test', 'test', 'test_example')
-    >>> possible_usernames('@test', 'test@example.com')
-    ('test', 'test', 'test_example')
-    >>> possible_usernames('test@', 'test@example.com')
-    ('test', 'test', 'test_example')
-    >>> possible_usernames('@test@', 'test@example.com')
-    ('test', 'test', 'test_example')
-    >>> possible_usernames('test@123', 'test@example.com')
-    ('test_123', 'test', 'test_example')
-    >>> possible_usernames('test@exampl.com', 'test@example.com')
-    ('test', 'test', 'test_example')
-    """
+Exemplo:
+    old_username = 'name@'
+    new_username = 'name'
+"""
+import csv
+from typing import Tuple
+
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
+
+
+def possible_usernames(username:str, email:str, n_suffix:int = 10) -> Tuple[str, ...]:
     username = username.strip()
     email = email.strip()
 
@@ -38,23 +39,29 @@ def possible_usernames(username, email):
     email_parts = email.split("@")
     possible_2 = email_parts[0]
     possible_3 = email_parts[0] + "_" + email_parts[1].split(".")[0]
-    return (username, possible_2, possible_3)
+    possible_with_suffix = [f"{username}_{i}" for i in range(1, n_suffix)]
+    return (username, possible_2, possible_3, *possible_with_suffix)
 
 
-def migrate_usernames():
-    # with open("/data/fixed-usernames.csv", mode="w") as fobj:
-    # writer = csv.DictWriter(fobj, fieldnames=["old_username", "new_username", "email"])
-    for user in User.objects.filter(username__contains="@"):
-        possible = possible_usernames(user.username, user.email)
-        changed = False
-        for username in possible:
-            if not User.objects.filter(username=username).exists():
-                # writer.writerow(...)
-                changed = True
-                # TODO: save user.email in CSV
-                # TODO: create script to send email
-                #user.username = new
-                #user.save()
-                pass
-        if not changed:
-            print(f"Conflict in: {user.username} / {user.email} (would be: {new} but already exists)")
+def migrate_usernames(filepath=None):
+    filepath = filepath or "/data/fixed-usernames.csv"
+    with open(filepath, mode="w") as fobj:
+        writer = csv.DictWriter(
+            fobj, fieldnames=["old_username", "new_username", "email"]
+        )
+        writer.writeheader()
+        for user in User.objects.filter(username__contains="@"):
+            possible = possible_usernames(user.username, user.email)
+            changed = False
+            for username in possible:
+                if not User.objects.filter(username=username).exists() and not changed:
+                    writer.writerow(
+                        {
+                            "old_username": user.username,
+                            "new_username": username,
+                            "email": user.email
+                        }
+                    )
+                    changed = True
+                    user.username = username
+                    user.save()
