@@ -51,9 +51,8 @@ def migrate_usernames(filepath):
         writer.writeheader()
         for user in User.objects.filter(username__contains="@"):
             possible = possible_usernames(user.username, user.email)
-            changed = False
             for username in possible:
-                if not User.objects.filter(username=username).exists() and not changed:
+                if not User.objects.filter(username=username).exists():
                     writer.writerow(
                         {
                             "old_username": user.username,
@@ -61,9 +60,9 @@ def migrate_usernames(filepath):
                             "email": user.email
                         }
                     )
-                    changed = True
                     user.username = username
                     user.save()
+                    break
 
 
 def run():
