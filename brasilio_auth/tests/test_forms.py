@@ -43,24 +43,6 @@ class UserCreationFormTests(TestCase):
         assert not NewsletterSubscriber.objects.filter(user=user).exists()
 
     @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
-    def test_force_lower_for_username(self):
-        passwd = "verygoodpassword"
-        data = {
-            "username": "FOO",
-            "email": "foo@bar.com",
-            "password1": passwd,
-            "password2": passwd,
-            "captcha": "captcha-validation",
-        }
-
-        form = UserCreationForm(data)
-        assert form.is_valid() is True
-        user = form.save()
-        user.refresh_from_db()
-
-        assert "foo" == user.username
-
-    @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
     def test_respect_abstract_user_max_length_for_username(self):
         passwd = "verygoodpassword"
         data = {
@@ -156,6 +138,22 @@ class UserCreationFormTests(TestCase):
         form = UserCreationForm(data)
         assert not form.is_valid()
         assert "username" in form.errors
+
+    @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
+    def test_do_not_set_username_to_lowercase(self):
+        passwd = "verygoodpassword"
+        username = "Foo"
+        data = {
+            "username": username,
+            "email": "foo@bar.com",
+            "password1": passwd,
+            "password2": passwd,
+            "captcha": "captcha-validation",
+        }
+
+        form = UserCreationForm(data)
+        assert form.is_valid()
+        assert form.cleaned_data["username"] == username
 
 
 class TestTokenApiManagementForm(TestCase):

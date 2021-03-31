@@ -8,7 +8,7 @@ from django_registration.forms import RegistrationFormUniqueEmail
 from utils.forms import FlagedReCaptchaField as ReCaptchaField
 
 
-USERNAME_REGEXP = re.compile(r"[^a-z0-9_]")
+USERNAME_REGEXP = re.compile(r"[^A-Za-z0-9_]")
 
 
 class UserCreationForm(RegistrationFormUniqueEmail):
@@ -29,7 +29,6 @@ class UserCreationForm(RegistrationFormUniqueEmail):
 
     def clean_username(self):
         username = self.cleaned_data.get("username", "")
-        username = username.lower()
         non_valid_chars = USERNAME_REGEXP.search(username)
         if non_valid_chars:
             raise forms.ValidationError(
