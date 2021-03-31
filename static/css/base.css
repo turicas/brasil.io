@@ -202,3 +202,10 @@ a {
   color: #ee6e73;
   font-size: 1rem;
 }
+
+#id_username {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="60"><text x="5" y="29" style="font-family: Roboto, sans-serif; font-size:16px; fill:rgb(50,50,50)">@</text></svg>') no-repeat;
+  padding-left: 1.4rem !important;
+  width: 100%;
+  box-sizing: border-box !important;
+}
