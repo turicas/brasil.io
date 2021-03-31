@@ -8,6 +8,9 @@ from django_registration.forms import RegistrationFormUniqueEmail
 from utils.forms import FlagedReCaptchaField as ReCaptchaField
 
 
+USERNAME_REGEXP = re.compile(r"[^a-z0-9_]")
+
+
 class UserCreationForm(RegistrationFormUniqueEmail):
     username = forms.CharField(widget=forms.TextInput(attrs={"style": "text-transform: lowercase"}),)
     email = forms.EmailField()
@@ -27,7 +30,7 @@ class UserCreationForm(RegistrationFormUniqueEmail):
     def clean_username(self):
         username = self.cleaned_data.get("username", "")
         username = username.lower()
-        non_valid_chars = re.search(r"[^a-z0-9_]", username)
+        non_valid_chars = USERNAME_REGEXP.search(username)
         if non_valid_chars:
             raise forms.ValidationError(
                 "Nome de usário somente pode conter letras, números e '_'"
