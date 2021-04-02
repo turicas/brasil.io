@@ -9,12 +9,16 @@ Exemplo:
     new_username = 'name'
 """
 import csv
+import string
 from typing import Tuple
 
 from django.contrib.auth import get_user_model
+from rows.utils import slug
 
+from brasilio_auth.forms import UserCreationForm
 
 User = get_user_model()
+possible_chars = string.ascii_letters + string.digits + "_"
 
 
 def possible_usernames(username:str, email:str, n_suffix:int = 10) -> Tuple[str, ...]:
@@ -49,8 +53,17 @@ def migrate_usernames(filepath):
             fobj, fieldnames=["old_username", "new_username", "email"]
         )
         writer.writeheader()
-        for user in User.objects.filter(username__contains="@"):
-            possible = possible_usernames(user.username, user.email)
+        for user in User.objects.all():
+            if user.username.lower() == slug(user.username, permitted_chars=possible_chars):
+                # Valid username
+                continue
+
+            # Define possible usernames based on current and remove any
+            # non-allowed chars
+            possible = [
+                slug(username, permitted_chars=possible_chars)
+                for username in possible_usernames(user.username, user.email)
+            ]
             for username in possible:
                 if not User.objects.filter(username=username).exists():
                     writer.writerow(
@@ -63,6 +76,7 @@ def migrate_usernames(filepath):
                     user.username = username
                     user.save()
                     break
+            print(f"ERROR: could not migrate {user} (tried: {', '.join(possible)})")
 
 
 def run():
