@@ -100,6 +100,7 @@ class SampleDatasetDetailView(DjangoAssertionsMixin, BaseTestCaseWithSampleDatas
     @override_settings(RATELIMIT_RATE="0/s")
     @patch("traffic_control.decorators.ratelimit")
     def test_enforce_rate_limit_if_flagged_for_api(self, mocked_ratelimit):
+        settings.ALLOWED_HOSTS.append(settings.BRASILIO_API_HOST)
         urlconf = settings.API_ROOT_URLCONF
         self.url = reverse("v1:dataset-table-data", args=["sample", "sample_table"], urlconf=urlconf)
         response = self.client.get(self.url, HTTP_HOST=settings.BRASILIO_API_HOST)
