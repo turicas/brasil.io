@@ -10,6 +10,7 @@ from utils.forms import FlagedReCaptchaField as ReCaptchaField
 
 USERNAME_REGEXP = re.compile(r"[^A-Za-z0-9_]")
 PUNCT_REGEXP = re.compile("[-/ .]")
+User = get_user_model()
 
 
 def is_valid_username(username):
@@ -42,13 +43,14 @@ class UserCreationForm(RegistrationFormUniqueEmail):
             raise forms.ValidationError(
                 "Nome de usuário pode conter apenas letras, números e '_' e não deve ser um documento"
             )
+        elif username and User.objects.filter(username__iexact=username).exists():
+            raise forms.ValidationError(f"Nome de usuário já existente (escolha um diferente).")
         return username
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
-        if email:
-            if get_user_model().objects.filter(email__iexact=email).exists():
-                raise forms.ValidationError(f"Usuário com o email {email} já cadastrado.")
+        if email and User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError(f"Usuário com o email {email} já cadastrado.")
         return email
 
 
