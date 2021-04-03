@@ -3,11 +3,8 @@ from tempfile import NamedTemporaryFile
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from model_bakery import baker
-from brasilio_auth.scripts.migrate_wrong_usernames import (
-    possible_usernames,
-    migrate_usernames,
-)
 
+from brasilio_auth.scripts.migrate_wrong_usernames import migrate_usernames, possible_usernames
 
 User = get_user_model()
 
@@ -79,26 +76,16 @@ class TestPossibleUsernames(TestCase):
 
 class TestReplaceUsernameWithSuggestions(TestCase):
     def setUp(self):
-        self.user_1 = baker.make(
-            User,
-            username="test@",
-            email="test@example.com",
-        )
+        self.user_1 = baker.make(User, username="test@", email="test@example.com",)
         self.expected_username_1 = "test"
 
-        self.user_2 = baker.make(
-            User,
-            username="@test@",
-            email="name@example.com"
-        )
+        self.user_2 = baker.make(User, username="@test@", email="name@example.com")
         #  teste would already exists because of self.username_1
         self.expected_username_2 = "name"
 
         self.temp_file = NamedTemporaryFile(mode="r")
         self.expected_csv = (
-            "old_username,new_username,email\n"
-            "test@,test,test@example.com\n"
-            "@test@,name,name@example.com\n"
+            "old_username,new_username,email\n" "test@,test,test@example.com\n" "@test@,name,name@example.com\n"
         )
 
     def test_happy_path_wrong_usernames_replacement(self):

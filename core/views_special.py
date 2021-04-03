@@ -8,7 +8,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from core.data_models import EmpresaTableConfig
-from core.forms import CompanyGroupsForm, TracePathForm
 from core.models import get_table, get_table_model
 
 cipher_suite = Fernet(settings.FERNET_KEY)

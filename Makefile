@@ -2,7 +2,7 @@ lint:
 	autoflake --in-place --recursive --remove-unused-variables --remove-all-unused-imports .
 	isort --skip migrations --skip brasilio/wsgi.py -rc .
 	black . --exclude "docker" -l 120
-	flake8
+	flake8 --ignore=E203,E231
 
 test:
 	pytest

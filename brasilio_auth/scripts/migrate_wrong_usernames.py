@@ -21,7 +21,7 @@ User = get_user_model()
 possible_chars = string.ascii_letters + string.digits + "_"
 
 
-def possible_usernames(username:str, email:str, n_suffix:int = 10) -> Tuple[str, ...]:
+def possible_usernames(username: str, email: str, n_suffix: int = 10) -> Tuple[str, ...]:
     username = username.strip()
     email = email.strip()
 
@@ -34,7 +34,7 @@ def possible_usernames(username:str, email:str, n_suffix:int = 10) -> Tuple[str,
             username = username[:-1]
         if "@" in username:
             stop = username.find("@")
-            before, after = username[:stop], username[stop + 1:]
+            before, after = username[:stop], username[stop + 1 :]
             if "." in after:
                 username = before
             else:
@@ -49,9 +49,7 @@ def possible_usernames(username:str, email:str, n_suffix:int = 10) -> Tuple[str,
 
 def migrate_usernames(filepath):
     with open(filepath, mode="w") as fobj:
-        writer = csv.DictWriter(
-            fobj, fieldnames=["old_username", "new_username", "email"]
-        )
+        writer = csv.DictWriter(fobj, fieldnames=["old_username", "new_username", "email"])
         writer.writeheader()
         for user in User.objects.all():
             if is_valid_username(user.username):
@@ -65,13 +63,7 @@ def migrate_usernames(filepath):
             ]
             for username in possible:
                 if not User.objects.filter(username=username).exists():
-                    writer.writerow(
-                        {
-                            "old_username": user.username,
-                            "new_username": username,
-                            "email": user.email
-                        }
-                    )
+                    writer.writerow({"old_username": user.username, "new_username": username, "email": user.email})
                     user.username = username
                     user.save()
                     break

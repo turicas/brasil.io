@@ -174,11 +174,7 @@ class TestAPIRedirectsFromPreviousRoutingToVersioned(TestCase):
         ]
 
         for url, redirect_url in path_assertions:
-            response = self.client.get(
-                url,
-                HTTP_HOST=settings.BRASILIO_API_HOST,
-                **auth_header,
-            )
+            response = self.client.get(url, HTTP_HOST=settings.BRASILIO_API_HOST, **auth_header,)
             self.assertRedirects(response, redirect_url, msg_prefix=url, fetch_redirect_response=False, status_code=301)
 
         assert "/datasets/" == path_assertions[0][0]

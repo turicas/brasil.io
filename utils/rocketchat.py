@@ -27,7 +27,8 @@ class RocketChat:
         response = getattr(requests, method)(*args, **kwargs)
         if response.status_code >= 400:
             raise RuntimeError(
-                f"HTTP {response.status_code} error when processing request to {response.url} (body: {response.content})"
+                f"HTTP {response.status_code} error when processing request "
+                f"to {response.url} (body: {response.content})"
             )
         return response
 
