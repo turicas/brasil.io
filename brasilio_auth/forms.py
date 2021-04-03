@@ -9,6 +9,15 @@ from utils.forms import FlagedReCaptchaField as ReCaptchaField
 
 
 USERNAME_REGEXP = re.compile(r"[^A-Za-z0-9_]")
+PUNCT_REGEXP = re.compile("[-/ .]")
+
+
+def is_valid_username(username):
+    return not (
+        PUNCT_REGEXP.sub("", username).isdigit()
+        or
+        USERNAME_REGEXP.search(username)
+    )
 
 
 class UserCreationForm(RegistrationFormUniqueEmail):
@@ -28,11 +37,10 @@ class UserCreationForm(RegistrationFormUniqueEmail):
         fields = ("username", "email")
 
     def clean_username(self):
-        username = self.cleaned_data.get("username", "")
-        non_valid_chars = USERNAME_REGEXP.search(username)
-        if non_valid_chars:
+        username = self.cleaned_data.get("username", "").strip()
+        if not is_valid_username(username):
             raise forms.ValidationError(
-                "Nome de usário somente pode conter letras, números e '_'"
+                "Nome de usuário pode conter apenas letras, números e '_' e não deve ser um documento"
             )
         return username
 

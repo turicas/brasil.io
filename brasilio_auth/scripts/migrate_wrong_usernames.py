@@ -15,7 +15,7 @@ from typing import Tuple
 from django.contrib.auth import get_user_model
 from rows.utils import slug
 
-from brasilio_auth.forms import UserCreationForm
+from brasilio_auth.forms import is_valid_username
 
 User = get_user_model()
 possible_chars = string.ascii_letters + string.digits + "_"
@@ -54,8 +54,7 @@ def migrate_usernames(filepath):
         )
         writer.writeheader()
         for user in User.objects.all():
-            if user.username.lower() == slug(user.username, permitted_chars=possible_chars):
-                # Valid username
+            if is_valid_username(user.username):
                 continue
 
             # Define possible usernames based on current and remove any

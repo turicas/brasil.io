@@ -11,6 +11,10 @@ from brasilio_auth.models import NewsletterSubscriber
 
 
 class UserCreationFormTests(TestCase):
+    username_invalid_error = "Nome de usuário pode conter apenas letras, números e '_' e não deve ser um documento"
+    username_max_length_error = "Certifique-se de que o valor tenha no máximo 150 caracteres (ele possui 151)."
+    username_exists_error = "Um usuário com este nome de usuário já existe."
+
     def test_required_fields(self):
         required_fields = ["username", "email", "password1", "password2", "captcha"]
 
@@ -60,6 +64,7 @@ class UserCreationFormTests(TestCase):
         form = UserCreationForm(data)
         assert not form.is_valid()
         assert "username" in form.errors
+        assert form.errors["username"] == [self.username_max_length_error]
 
     @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
     def test_invalid_username_if_already_exists(self):
@@ -76,6 +81,7 @@ class UserCreationFormTests(TestCase):
         form = UserCreationForm(data)
         assert form.is_valid() is False
         assert "username" in form.errors
+        assert form.errors["username"] == [self.username_exists_error]
 
     @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
     def test_invalid_email_if_user_already_exists(self):
@@ -138,6 +144,23 @@ class UserCreationFormTests(TestCase):
         form = UserCreationForm(data)
         assert not form.is_valid()
         assert "username" in form.errors
+        assert form.errors["username"] == [self.username_invalid_error]
+
+    @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
+    def test_invalid_username_digits(self):
+        passwd = "verygoodpassword"
+        data = {
+            "username": "123.456.789-01",
+            "email": "foo@bar.com",
+            "password1": passwd,
+            "password2": passwd,
+            "captcha": "captcha-validation",
+        }
+
+        form = UserCreationForm(data)
+        assert not form.is_valid()
+        assert "username" in form.errors
+        assert form.errors["username"] == [self.username_invalid_error]
 
     @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
     def test_do_not_set_username_to_lowercase(self):
