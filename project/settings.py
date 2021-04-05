@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "covid19.apps.Covid19Config",
     "dashboard",
     "traffic_control",
+    "clipping",
 ]
 MIDDLEWARE = [
     "project.middlewares.host_based_url_conf",
@@ -212,3 +213,12 @@ if SENTRY_DSN:
         send_default_pii=True,
     )
     # TODO: add environment
+
+
+# Clipping app
+CONTENTS = {"core": ["dataset", "table"]}
+CATEGORY_CHOICES = [
+    ("noticias_e_entrevistas", "Notícias e Entrevistas"),
+    ("analises", "Análises"),
+    ("podcasts_e_radio", "Podcasts e Rádio"),
+]
