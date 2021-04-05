@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "covid19.apps.Covid19Config",
     "dashboard",
     "traffic_control",
+    "clipping",
     # Third-party apps
     "cachalot",
     "captcha",
@@ -290,3 +291,11 @@ REGISTRATION_OPEN = env("REGISTRATION_OPEN", cast=bool, default=True)
 # Brasil.IO presentation config
 NUM_RECENT_ACTIVITES_HOMEPAGE = env("NUM_RECENT_ACTIVITES_HOMEPAGE", cast=int, default=5)
 DAYS_RANGE_RECENT_ACTIVITES_HOMEPAGE = env("DAYS_RANGE_RECENT_ACTIVITES_HOMEPAGE", cast=int, default=30)
+
+# Clipping config
+CONTENTS = {'core': ['dataset', 'table']}
+CATEGORY_CHOICES = [
+    ('noticias_e_entrevistas', 'Notícias e Entrevistas'),
+    ('analises', 'Análises'),
+    ('podcasts_e_radio', 'Podcasts e Rádio'),
+]
