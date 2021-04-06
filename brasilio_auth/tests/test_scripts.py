@@ -9,7 +9,7 @@ from model_bakery import baker
 from api.models import Token
 from brasilio_auth.models import NewsletterSubscriber
 from brasilio_auth.scripts.migrate_wrong_usernames import migrate_usernames, possible_usernames
-from brasilio_auth.scripts.migrate_duplicate_emails import run as run_migrate_duplicate_emails
+from brasilio_auth.scripts.migrate_duplicate_emails import migrate_duplicate_emails
 from covid19.models import StateSpreadsheet
 
 User = get_user_model()
@@ -126,11 +126,13 @@ class TestMigrateDuplicateCaseInsentiveEmails(TestCase):
         self.user_email = "Email@example.com "
         self.user = baker.make(
             User,
+            username="username_1",
             email=self.user_email,
             date_joined=datetime(2020, 1, 1, 0, 0)
         )
         self.same_user = baker.make(
             User,
+            username="username_2",
             email=self.user_email.lower().strip(),
             date_joined=datetime(2020, 1, 2, 0, 0)
         )
@@ -154,8 +156,10 @@ class TestMigrateDuplicateCaseInsentiveEmails(TestCase):
             user=self.same_user
         )
 
+        self.temp_file = NamedTemporaryFile(mode="r")
+
     def test_happy_path_migrate_duplicate_emails(self):
-        run_migrate_duplicate_emails()
+        migrate_duplicate_emails(filepath=self.temp_file.name)
 
         self.user.refresh_from_db()
         assert self.user.email == self.user_email.lower().strip()
@@ -177,3 +181,29 @@ class TestMigrateDuplicateCaseInsentiveEmails(TestCase):
 
         with pytest.raises(User.DoesNotExist):
             self.same_user.refresh_from_db()
+
+    def test_export_csv_with_migrated_data(self):
+        new_username = "username_3"
+        another_duplicate_user = baker.make(
+            User,
+            username=new_username,
+            email=self.user_email.upper(),
+            date_joined=datetime(2020, 1, 3, 0, 0)
+        )
+
+        migrate_duplicate_emails(filepath=self.temp_file.name)
+
+        self.user.refresh_from_db()
+        expected_csv = (
+            "first_joined_username,first_joined_userid,later_joined_username,"
+            f"later_joined_userid,email\n{self.user.username},{self.user.id},"
+            f"{self.same_user.username},{self.same_user.id},{self.user.email}\n"
+            f"{self.user.username},{self.user.id},{another_duplicate_user.username},"
+            f"{another_duplicate_user.id},{self.user.email}\n"
+        )
+        self.temp_file.seek(0)
+
+        with pytest.raises(User.DoesNotExist):
+            another_duplicate_user.refresh_from_db()
+
+        assert self.temp_file.read() == expected_csv
