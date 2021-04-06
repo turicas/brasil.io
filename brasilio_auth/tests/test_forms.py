@@ -182,6 +182,23 @@ class UserCreationFormTests(TestCase):
         assert form.is_valid()
         assert form.cleaned_data["username"] == username
 
+    @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
+    def test_strip_and_force_lowercase_email(self):
+        passwd = "verygoodpassword"
+        username = "Foo"
+        data = {
+            "username": username,
+            "email": "FOO@bar.com ",
+            "password1": passwd,
+            "password2": passwd,
+            "captcha": "captcha-validation",
+        }
+
+        form = UserCreationForm(data)
+        expected_email = "foo@bar.com"
+        assert form.is_valid()
+        assert form.cleaned_data["email"] == expected_email
+
 
 class TestTokenApiManagementForm(TestCase):
     def test_required_fields(self):
