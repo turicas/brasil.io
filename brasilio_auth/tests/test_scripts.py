@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from tempfile import NamedTemporaryFile
 
 import pytest
