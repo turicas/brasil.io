@@ -1,3 +1,4 @@
+import django_rq
 import rows
 from django.core.management.base import BaseCommand
 from django.template import Context, Template
@@ -24,7 +25,8 @@ class Command(BaseCommand):
             context = Context(row._asdict())
             rendered_template = template_obj.render(context=context)
             if not kwargs["dry_run"]:
-                send_email(
+                django_rq.enqueue(
+                    send_email,
                     subject="Subject",
                     body=rendered_template,
                     from_email="from@example.com",
