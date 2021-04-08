@@ -12,6 +12,7 @@ from django.urls import reverse
 
 from core.filters import parse_querystring
 from core.forms import ContactForm, DatasetSearchForm, get_table_dynamic_form
+from core.email import send_email
 from core.middlewares import disable_non_logged_user_cache
 from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
@@ -41,14 +42,13 @@ def contact(request):
 
         if form.is_valid():
             data = form.cleaned_data
-            email = EmailMessage(
+            send_email(
                 subject=f"Contato no Brasil.IO: {data['name']}",
                 body=data["message"],
                 from_email=f'{data["name"]} (via Brasil.IO) <{settings.DEFAULT_FROM_EMAIL}>',
                 to=[settings.DEFAULT_FROM_EMAIL],
                 reply_to=[f'{data["name"]} <{data["email"]}>'],
             )
-            email.send()
             return redirect(reverse("core:contact") + "?sent=true")
 
     else:
