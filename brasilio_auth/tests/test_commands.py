@@ -38,3 +38,13 @@ class TestSendBulkEmails(TestCase):
         assert len(mail.outbox) == 2
         self.assert_sent_email_metadata(mail.outbox[0], self.expexted_send_email[0])
         self.assert_sent_email_metadata(mail.outbox[1], self.expexted_send_email[1])
+
+    def test_do_not_send_mail(self):
+        call_command(
+            "send_bulk_emails",
+            self.input_file.name,
+            self.email_template.name,
+            "--dry-run"
+        )
+
+        assert len(mail.outbox) == 0

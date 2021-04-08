@@ -23,9 +23,12 @@ class Command(BaseCommand):
         for row in table:
             context = Context(row._asdict())
             rendered_template = template_obj.render(context=context)
-            send_email(
-                subject="Subject",
-                body=rendered_template,
-                from_email="from@example.com",
-                to=["to@example.com"],
-            )
+            if not kwargs["dry_run"]:
+                send_email(
+                    subject="Subject",
+                    body=rendered_template,
+                    from_email="from@example.com",
+                    to=["to@example.com"],
+                )
+            else:
+                print(rendered_template)
