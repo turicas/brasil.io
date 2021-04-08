@@ -17,7 +17,7 @@ django-minio-storage==0.3.7
 django-ratelimit==3.0.1
 django-recaptcha==2.0.6
 django-redis==4.12.1
-django-registration==3.1.1
+django-registration==3.1.2
 django-rq==2.3.2
 django-storages==1.9.1
 django==3.1.6
