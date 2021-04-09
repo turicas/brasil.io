@@ -1,5 +1,3 @@
-from urllib.parse import urlparse
-
 import environ
 import sentry_sdk
 from django.urls import reverse_lazy

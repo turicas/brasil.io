@@ -153,7 +153,11 @@ class TestAPIRedirectsFromPreviousRoutingToVersioned(TestCase):
         assert "/api/v1/datasets/" == path_assertions[0][1]
 
     def test_redirects_from_api_host(self):
-        self.client.force_login(baker.make(User))
+        settings.ALLOWED_HOSTS.append(settings.BRASILIO_API_HOST)
+        user = baker.make(User, is_active=True)
+        self.client.force_login(user)
+        token = baker.make("api.Token", user=user)
+        auth_header = {"HTTP_AUTHORIZATION": f"Token {token.key}"}
 
         urlconf = settings.API_ROOT_URLCONF
         path_assertions = [
@@ -170,7 +174,7 @@ class TestAPIRedirectsFromPreviousRoutingToVersioned(TestCase):
         ]
 
         for url, redirect_url in path_assertions:
-            response = self.client.get(url, HTTP_HOST=settings.BRASILIO_API_HOST)
+            response = self.client.get(url, HTTP_HOST=settings.BRASILIO_API_HOST, **auth_header,)
             self.assertRedirects(response, redirect_url, msg_prefix=url, fetch_redirect_response=False, status_code=301)
 
         assert "/datasets/" == path_assertions[0][0]

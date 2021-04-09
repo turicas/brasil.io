@@ -76,11 +76,26 @@ class UserCreationViewTests(DjangoAssertionsMixin, TestCase):
         response = self.client.post(self.url, data=self.data)
         assert User.objects.filter(username="foo").exists()
 
-        self.data["username"] = "FOO"
+        new_username = "foo"
+        assert new_username == self.data["username"]  # same capitalization
+        self.data["username"] = new_username
         self.data["email"] = "new@foo.com"
         response = self.client.post(self.url, data=self.data)
         self.assertTemplateUsed(response, "brasilio_auth/user_creation_form.html")
-        print(response.context["form"].errors)
+        assert bool(response.context["form"].errors) is True
+
+    def test_form_error_if_trying_to_create_user_with_existing_username_uppercase(self):
+        response = self.client.post(self.url, data=self.data)
+        assert User.objects.filter(username="foo").exists()
+
+        new_username = "FOO"
+        # same username, different capitalization
+        assert new_username.lower() == self.data["username"].lower()
+        assert new_username != self.data["username"]
+        self.data["username"] = new_username
+        self.data["email"] = "new@foo.com"
+        response = self.client.post(self.url, data=self.data)
+        self.assertTemplateUsed(response, "brasilio_auth/user_creation_form.html")
         assert bool(response.context["form"].errors) is True
 
 

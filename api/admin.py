@@ -1,9 +1,6 @@
 from django.contrib import admin
-from django.contrib.auth import get_user_model
 
 from api.models import Token
-
-User = get_user_model()
 
 
 class TokenAdmin(admin.ModelAdmin):

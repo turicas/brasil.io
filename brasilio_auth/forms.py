@@ -1,9 +1,19 @@
+import re
+
 from django import forms
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from django_registration.forms import RegistrationFormUniqueEmail
 
 from utils.forms import FlagedReCaptchaField as ReCaptchaField
+
+USERNAME_REGEXP = re.compile(r"[^A-Za-z0-9_]")
+PUNCT_REGEXP = re.compile("[-/ .]")
+User = get_user_model()
+
+
+def is_valid_username(username):
+    return not (PUNCT_REGEXP.sub("", username).isdigit() or USERNAME_REGEXP.search(username))
 
 
 class UserCreationForm(RegistrationFormUniqueEmail):
@@ -23,14 +33,19 @@ class UserCreationForm(RegistrationFormUniqueEmail):
         fields = ("username", "email")
 
     def clean_username(self):
-        username = self.cleaned_data.get("username", "")
-        return username.lower()
+        username = self.cleaned_data.get("username", "").strip()
+        if not is_valid_username(username):
+            raise forms.ValidationError(
+                "Nome de usuário pode conter apenas letras, números e '_' e não deve ser um documento"
+            )
+        elif username and User.objects.filter(username__iexact=username).exists():
+            raise forms.ValidationError("Nome de usuário já existente (escolha um diferente).")
+        return username
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
-        if email:
-            if get_user_model().objects.filter(email__iexact=email).exists():
-                raise forms.ValidationError(f"Usuário com o email {email} já cadastrado.")
+        if email and User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError(f"Usuário com o email {email} já cadastrado.")
         return email
 
 
