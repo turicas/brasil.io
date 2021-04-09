@@ -293,9 +293,9 @@ NUM_RECENT_ACTIVITES_HOMEPAGE = env("NUM_RECENT_ACTIVITES_HOMEPAGE", cast=int, d
 DAYS_RANGE_RECENT_ACTIVITES_HOMEPAGE = env("DAYS_RANGE_RECENT_ACTIVITES_HOMEPAGE", cast=int, default=30)
 
 # Clipping config
-CONTENTS = {'core': ['dataset', 'table']}
+CONTENTS = {"core": ["dataset", "table"]}
 CATEGORY_CHOICES = [
-    ('noticias_e_entrevistas', 'Notícias e Entrevistas'),
-    ('analises', 'Análises'),
-    ('podcasts_e_radio', 'Podcasts e Rádio'),
+    ("noticias_e_entrevistas", "Notícias e Entrevistas"),
+    ("analises", "Análises"),
+    ("podcasts_e_radio", "Podcasts e Rádio"),
 ]
