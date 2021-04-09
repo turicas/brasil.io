@@ -18,6 +18,9 @@ from core.templatetags.utils import obfuscate
 from core.util import cached_http_get_json
 from data_activities_log.activites import recent_activities
 from traffic_control.logging import log_blocked_request
+from clipping.models import ClippingRelation
+from clipping.forms import ClippingForm
+from django.contrib.contenttypes.models import ContentType
 
 
 class Echo:
@@ -198,7 +201,32 @@ def dataset_detail(request, slug, tablename=""):
         if not value:
             del querystring[key]
 
+    clipping = []
+    clipping_type_dataset = ContentType.objects.get(app_label='core', model='dataset')
+    clipping_dataset = list(ClippingRelation.objects.filter(content_type=clipping_type_dataset.id, object_id=dataset.pk))
+    clipping.extend(clipping_dataset)
+    clipping_type_table = ContentType.objects.get(app_label='core', model='table')
+    clipping_table = list(ClippingRelation.objects.filter(content_type=clipping_type_table.id, object_id=table.pk))
+    clipping.extend(clipping_table)
+
+    message = None
+    if request.method == 'POST':
+        clipping_form = ClippingForm(request.POST)
+        if clipping_form.is_valid():
+            clipping = clipping_form.save(commit=False)
+            clipping.added_by = request.user
+            clipping.save()
+            clipping_form.added_by = request.user
+
+            clipping_form = ClippingForm()
+            message = "Sugestão enviada com sucesso"
+        else:
+            message = "Erro: Verifique o formulário novamente"
+    else:
+        clipping_form = ClippingForm()
+
     context = {
+        "clipping": clipping,
         "data": data,
         "dataset": dataset,
         "filter_form": filter_form,
@@ -209,6 +237,8 @@ def dataset_detail(request, slug, tablename=""):
         "table": table,
         "total_count": all_data.count(),
         "version": version,
+        "form": clipping_form,
+        "message": message
     }
 
     status = 200
