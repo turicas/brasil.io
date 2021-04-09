@@ -77,6 +77,7 @@
       <ul class="tabs tabs-fixed-width" id="tabs">
         <li class="tab col s3"><a class="active" href="#data">Dados</a></li>
         <li class="tab col s3"><a href="#metadata">Metadados</a></li>
+        <li class="tab col s3"><a href="#midia">Publicações na mídia</a></li>
       </ul>
     </div>
     <div id="data" class="col s12">
@@ -197,9 +198,91 @@
       </div>
 
     </div>
+    
+    <div id="midia" class="col s12">
+
+      <div class="row">
+        <div class="card horizontal">
+          <div class="card-stacked">
+            <div class="card-content">
+              <div>
+                <span class="card-title activator grey-text text-darken-4">
+                  Referências desta base de dados na mídia
+                </span>
+                <div>
+                  
+                </div>
+                <table class="highlight">
+                  <thead>
+                    <tr>
+                      <th>Título</th>
+                      <th>Autor</th>
+                      <th>Categoria</th>
+                      <th>Link</th>
+                    </tr>
+                  </thead>
+  
+                  <tbody>
+                    {% if clipping|length > 0 %}
+                      {% for link in clipping %}
+                        {% if link.clipping.published %}
+                          <tr onclick="window.open('{{ link.clipping.url }}', '_blank' )" style="cursor: pointer;" title="Clique para acessar o link">
+                            <td> {{ link.clipping.title }}</td>
+                            <td> {{ link.clipping.author }} </td>
+                            <td> {{ link.clipping.category }} </td>
+                            <td class="blue-text text-darken-2"> {{ link.clipping.url|truncatechars:30}}</td>
+                          </tr>
+                        {% endif %}
+                      {% endfor %}
+                    {% else %}
+                    <tr style="cursor: pointer;" >
+                      <td> --- </td>
+                      <td> --- </td>
+                      <td> Nenhum link publicado</td>
+                      <td> --- </td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+  
+                </table>
+                {% if user.is_authenticated %}
+                  <div style="padding-top: 50px;">
+                    <span class="card-title activator grey-text text-darken-4">
+                      Sugerir novo link
+                    </span>
+                    <div class="row" style="padding-top: 20px;">
+                      <form class="col s12" method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                          <div class="input-field col s6">
+                            {{field}}
+                            <label for="{{field.name}}">{{field.label}}</label>
+                            {% if field.errors %}
+                              <span class="helper-text red-text">{{field.errors}}</span>
+                            {% endif %}
+                          </div>
+                          {% endfor %}
+                          <div class="col s12">
+                            <button  class="btn">Enviar</button>
+                          </div>
+                      </form>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
 
   </div>
 </div>
+{% if message %}
+  <script type=text/javascript>M.toast({html: "{{message}}" })</script>
+{% endif %}
+
 {% endlocalize %}{% endblock %}
 
 {% block script %}
@@ -215,6 +298,29 @@
         "searching":      false,
         "ordering":       false,
         "bInfo":          false,
+    });
+    $('.datepicker').datepicker({
+      i18n: {
+        months: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+        monthsShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+        weekdays: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sabádo'],
+        weekdaysShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'],
+        weekdaysAbbrev: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'],
+        today: 'Hoje',
+        clear: 'Limpar',
+        cancel: 'Sair',
+        done: 'Confirmar',
+        labelMonthNext: 'Próximo mês',
+        labelMonthPrev: 'Mês anterior',
+        labelMonthSelect: 'Selecione um mês',
+        labelYearSelect: 'Selecione um ano',
+        selectMonths: true,
+        selectYears: true,
+      },
+      yearRange: [2010,new Date().getFullYear()],
+      format: 'yyyy-mm-dd',
+      container: 'body',
+      maxDate: new Date(),
     });
   });
 </script>
