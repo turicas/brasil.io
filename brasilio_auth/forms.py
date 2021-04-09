@@ -43,7 +43,7 @@ class UserCreationForm(RegistrationFormUniqueEmail):
         return username
 
     def clean_email(self):
-        email = self.cleaned_data.get("email")
+        email = self.cleaned_data.get("email", "").strip().lower()
         if email and User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError(f"Usuário com o email {email} já cadastrado.")
         return email

@@ -1,10 +1,16 @@
+from datetime import datetime
 from tempfile import NamedTemporaryFile
 
+import pytest
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from model_bakery import baker
 
+from api.models import Token
+from brasilio_auth.models import NewsletterSubscriber
 from brasilio_auth.scripts.migrate_wrong_usernames import migrate_usernames, possible_usernames
+from brasilio_auth.scripts.migrate_duplicate_emails import migrate_duplicate_emails
+from covid19.models import StateSpreadsheet
 
 User = get_user_model()
 
@@ -109,3 +115,95 @@ class TestReplaceUsernameWithSuggestions(TestCase):
         self.user_1.refresh_from_db()
 
         assert self.user_1.username == self.expected_username_1
+
+
+class TestMigrateDuplicateCaseInsentiveEmails(TestCase):
+    """
+        Alguns usuários possuem emails duplicados. Algumas das vezes
+        variando a duplicação em caixa-baixa e caixa-alta
+    """
+    def setUp(self):
+        self.user_email = "Email@example.com "
+        self.user = baker.make(
+            User,
+            username="username_1",
+            email=self.user_email,
+            date_joined=datetime(2020, 1, 1, 0, 0)
+        )
+        self.same_user = baker.make(
+            User,
+            username="username_2",
+            email=self.user_email.lower().strip(),
+            date_joined=datetime(2020, 1, 2, 0, 0)
+        )
+        self.regular_user = baker.make(User, email="regular@example.com")
+
+        self.user_token = baker.make(Token, user=self.user)
+        self.same_user_token = baker.make(Token, user=self.same_user)
+
+        self.user_state_spreadsheet = baker.make(
+            StateSpreadsheet,
+            user=self.user
+        )
+        self.same_user_state_spreadsheet = baker.make(
+            StateSpreadsheet,
+            user=self.same_user
+        )
+
+        self.user_newsletter = baker.make(NewsletterSubscriber, user=self.user)
+        self.same_user_newsletter = baker.make(
+            NewsletterSubscriber,
+            user=self.same_user
+        )
+
+        self.temp_file = NamedTemporaryFile(mode="r")
+
+    def test_happy_path_migrate_duplicate_emails(self):
+        migrate_duplicate_emails(filepath=self.temp_file.name)
+
+        self.user.refresh_from_db()
+        assert self.user.email == self.user_email.lower().strip()
+
+        self.user_token.refresh_from_db()
+        self.same_user_token.refresh_from_db()
+        assert self.user_token.user == self.user
+        assert self.same_user_token.user == self.user
+
+        self.user_state_spreadsheet.refresh_from_db()
+        self.same_user_state_spreadsheet.refresh_from_db()
+        assert self.user_state_spreadsheet.user == self.user
+        assert self.same_user_state_spreadsheet.user == self.user
+
+        self.user_newsletter.refresh_from_db()
+        assert self.user_newsletter.user == self.user
+        with pytest.raises(NewsletterSubscriber.DoesNotExist):
+            self.same_user_newsletter.refresh_from_db()
+
+        with pytest.raises(User.DoesNotExist):
+            self.same_user.refresh_from_db()
+
+    def test_export_csv_with_migrated_data(self):
+        new_username = "username_3"
+        another_duplicate_user = baker.make(
+            User,
+            username=new_username,
+            email=self.user_email.upper(),
+            date_joined=datetime(2020, 1, 3, 0, 0)
+        )
+
+        migrate_duplicate_emails(filepath=self.temp_file.name)
+
+        self.user.refresh_from_db()
+        expected_csv = (
+            "first_joined_username,first_joined_userid,later_joined_username,"
+            f"later_joined_userid,email\n{self.user.username},{self.user.id},"
+            f"{self.same_user.username},{self.same_user.id},{self.user.email}\n"
+            f"{self.user.username},{self.user.id},{another_duplicate_user.username},"
+            f"{another_duplicate_user.id},{self.user.email}\n"
+        )
+        self.temp_file.seek(0)
+
+        with pytest.raises(User.DoesNotExist):
+            another_duplicate_user.refresh_from_db()
+
+        assert self.temp_file.read() == expected_csv
