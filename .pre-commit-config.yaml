@@ -1,25 +1,42 @@
-exclude: 'docs|node_modules|.git|.tox'
-default_stages: [commit]
-fail_fast: true
+exclude: '.git|.tox|migrations|brasilio/wsgi.py|docker'
 
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: master
+    rev: v3.4.0
     hooks:
       - id: trailing-whitespace
         files: (^|/).+\.(py|html|sh|css|js)$
 
--   repo: local
-    hooks:
-      - id: flake8
-        name: flake8
-        entry: flake8
-        language: python
-        types: [python]
-        args: ['--config=setup.cfg']
-      - id: black
-        name: black
-        entry: black .
-        language: python
-        types: [python]
-        args: ['--check', '-l', '120', '--exclude', 'docker']
+- repo: local
+  hooks:
+    - id: autoflake
+      name: autoflake
+      entry: autoflake
+      language: python
+      types: 
+        - python
+      args: [--in-place, --recursive, --remove-unused-variables, --remove-all-unused-imports]
+      
+    - id: isort
+      name: "format imports with isort"
+      entry: isort
+      language: python
+      types:
+        - python
+      args: [--line-length=120]
+
+    - id: black
+      name: "format code with black"
+      entry: black
+      language: python
+      types:
+        - python
+      args: [--line-length=120]
+    
+    - id: flake8
+      name: "lint code with flake8"
+      entry: flake8
+      language: python
+      types:
+        - python
+      args: [--config=setup.cfg]
