@@ -13,11 +13,7 @@ class TestSendEmail(TestCase):
         reply_to = ["Reply To <replyto@example.com"]
 
         send_email(
-            subject=subject,
-            body=body,
-            from_email=from_email,
-            to=to,
-            reply_to=reply_to,
+            subject=subject, body=body, from_email=from_email, to=to, reply_to=reply_to,
         )
         assert len(mail.outbox) == 1
         assert body == mail.outbox[0].body

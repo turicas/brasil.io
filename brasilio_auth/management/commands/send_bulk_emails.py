@@ -43,9 +43,6 @@ class Command(BaseCommand):
                 "to": [row.to_email],
             }
             if not kwargs["dry_run"]:
-                django_rq.enqueue(
-                    send_email,
-                    **email_kwargs
-                )
+                django_rq.enqueue(send_email, **email_kwargs)
             else:
                 self.print_email_metadata(email_kwargs)
