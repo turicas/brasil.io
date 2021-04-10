@@ -12,6 +12,12 @@ class Command(BaseCommand):
         with open(email_template, "r") as fobj:
             return Template(fobj.read())
 
+    def print_email_metadata(self, metadata):
+        for key, value in metadata.items():
+            print(f"{key}: {value}")
+
+        print("-" * 80)
+
     def add_arguments(self, parser):
         parser.add_argument("input_filename")
         parser.add_argument("email_template")
@@ -30,13 +36,16 @@ class Command(BaseCommand):
         for row in table:
             context = Context(row._asdict())
             rendered_template = template_obj.render(context=context)
+            email_kwargs = {
+                "subject": row.subject,
+                "body": rendered_template,
+                "from_email": from_email,
+                "to": [row.to_email],
+            }
             if not kwargs["dry_run"]:
                 django_rq.enqueue(
                     send_email,
-                    subject=row.subject,
-                    body=rendered_template,
-                    from_email=from_email,
-                    to=[row.to_email],
+                    **email_kwargs
                 )
             else:
-                print(rendered_template)
+                self.print_email_metadata(email_kwargs)
