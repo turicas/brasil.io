@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load l10n %}
 {% load static %}
-{% block title %}Covid19 Status de Importação - Brasil.IO{% endblock %}
+{% block title %}Covid19 Status de Importação {{ state.name }}- Brasil.IO{% endblock %}
 
 {% block head %}
 {{ block.super }}
@@ -12,7 +12,7 @@
 
 {% block content %}{% localize on %}
 <div id="dashboard-header">
-  <h1> ESPECIAL COVID-19 - Status de Importação </h1>
+  <h1> Histórico de Importação {{ state.name }} </h1>
   {% include 'covid19/text.html' %}
   {% include 'covid19/links.html' %}
 </div>
@@ -23,39 +23,25 @@
     <table class="table" id="status-data-table">
       <thead>
         <tr>
-          <th> Estado </th>
           <th> Data </th>
-          <th> Status </th>
-          <th> Confirmados </th>
-          <th> Óbitos </th>
+          <th> Colaboradores </th>
+          <th> Status das Planilhas </th>
+          <th> Deployed </th>
           {% if is_covid19_contributor %}
-          <th> Histórico </th>
+          <th> Histórico Detalhado </th>
           {% endif %}
         </tr>
       </thead>
 
       <tbody>
-        {% for row in import_data %}
+        {% for import_date, row in data.items %}
         <tr>
-          <td data-order="{{ row.state }}">
-            <a class="state-option" href="{% url 'covid19:state_status' row.uf %}">{{ row.state }}</a>
-          </td>
-          <td data-order="{% localize off %}{{ row.report_date_str }}{% endlocalize %}">
-            {{ row.report_date|default:'' }}
-          </td>
-          <td data-order="{{ row.status }}">
-            {{ row.status|default:'' }}
-          </td>
-          <td data-order="{% localize off %}{{ row.total_confirmed }}{% endlocalize %}">
-            {% localize off %}{{ row.total_confirmed|default:'' }}{% endlocalize %}
-          </td>
-          <td data-order="{% localize off %}{{ row.total_deaths }}{% endlocalize %}">
-            {% localize off %}{{ row.total_deaths|default:'' }}{% endlocalize %}
-          </td>
+          <td data-order="{{ import_date|date:"Y-m-d"}}"> {{ import_date }} </td>
+          <td><ul>{% for c in row.collaborators %}<li>{{ c }}</li>{% endfor %}</ul></td>
+          <td> {{ row.has_city_data|yesno:"Com dados municipais,Apenas dados totais,Nenhum dado para essa data" }}</td>
+          <td> {{ row.deployed_has_city|yesno:"Com dados municipais,Apenas dados totais,Nenhuma planilha deployed" }}{% if row.current_deployed and is_covid19_contributor%}<span> | <a href="{{ row.current_deployed.admin_url }}">admin</a></span>{% endif %}</td>
           {% if is_covid19_contributor %}
-          <td>
-            <a href="{{ row.history_url }}">Ver hstórico</a>
-          </td>
+          <td><a href="{{ row.detailed_history_url }}">Ver todas planilhas</a></td>
           {% endif %}
         </tr>
         {% endfor %}
@@ -77,7 +63,7 @@ jQuery(document).ready(function() {
     "paging":         false,
     "searching":      false,
     "bInfo":          false,
-    "order":          [1, "asc"],
+    "order":          [0, "desc"],
   });
 });
 

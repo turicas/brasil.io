@@ -6,6 +6,7 @@ app_name = "covid19"
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
     path("status/", views.status, name="status"),
+    path("status/<str:state>/", views.state_status, name="state_status"),
     path("boletins/", views.list_bulletins, name="bulletins"),
     path("voluntarios/", views.volunteers, name="volunteers"),
     path("cities/cases/", views.cities, name="cities-cases"),
