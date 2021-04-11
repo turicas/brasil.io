@@ -37,13 +37,25 @@
       <tbody>
         {% for row in import_data %}
         <tr>
-          <td data-order="{{ row.state }}"> <a class="state-option" href="{% url 'covid19:dashboard' row.uf %}">{{ row.state }}</a> </td>
-          <td data-order="{% localize off %}{{ row.report_date_str }}{% endlocalize %}"> {{ row.report_date|default:'' }} </td>
-          <td data-order="{{ row.status }}"> {{ row.status|default:'' }} </td>
-          <td data-order="{% localize off %}{{ row.total_confirmed }}{% endlocalize %}"> {% localize off %} {{ row.total_confirmed|default:'' }} {% endlocalize %} </td>
-          <td data-order="{% localize off %}{{ row.total_deaths }}{% endlocalize %}"> {% localize off %} {{ row.total_deaths|default:'' }} {% endlocalize %} </td>
+          <td data-order="{{ row.state }}">
+            <a class="state-option" href="{% url 'covid19:state_status' row.uf %}">{{ row.state }}</a>
+          </td>
+          <td data-order="{% localize off %}{{ row.report_date_str }}{% endlocalize %}">
+            {{ row.report_date|default:'' }}
+          </td>
+          <td data-order="{{ row.status }}">
+            {{ row.status|default:'' }}
+          </td>
+          <td data-order="{% localize off %}{{ row.total_confirmed }}{% endlocalize %}">
+            {% localize off %}{{ row.total_confirmed|default:'' }}{% endlocalize %}
+          </td>
+          <td data-order="{% localize off %}{{ row.total_deaths }}{% endlocalize %}">
+            {% localize off %}{{ row.total_deaths|default:'' }}{% endlocalize %}
+          </td>
           {% if is_covid19_contributor %}
-          <td><a href="{{ row.history_url }}">Ver hstórico</a></td>
+          <td>
+            <a href="{{ row.history_url }}">Ver hstórico</a>
+          </td>
           {% endif %}
         </tr>
         {% endfor %}
