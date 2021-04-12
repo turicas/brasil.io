@@ -2,9 +2,9 @@ from functools import lru_cache
 
 from brazil_data.util import load_csv_from_url
 
-EPIWEEK_CSV_URL = "https://raw.githubusercontent.com/turicas/covid19-br/master/data/epidemiological-week.csv"  # noqa
+EPIWEEK_CSV_URL = "https://raw.githubusercontent.com/turicas/covid19-br/master/covid19br/data/epidemiological-week.csv"  # noqa
 EPIWEEK_SCHEMA_URL = (
-    "https://raw.githubusercontent.com/turicas/covid19-br/master/schema/epidemiological-week.csv"  # noqa
+    "https://raw.githubusercontent.com/turicas/covid19-br/master/covid19br/schema/epidemiological-week.csv" # noqa
 )
 
 
