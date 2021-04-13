@@ -37,7 +37,7 @@
 </head>
 
 <body>
-  <nav>
+  <nav class="nav-extended">
     <div class="nav-wrapper indigo">
       <a href="/" class="brand-logo" title="Ir à página inicial">
         <img id="logo" src="{% static 'img/logo/logo_br-io_fundo-escuro.png' %}" alt="Logo da Brasil.IO">
@@ -47,6 +47,7 @@
         {% include 'core/menu.html' with id_prefix='desktop' %}
       </ul>
     </div>
+    {% block nav %}{% endblock %}
   </nav>
 
   <ul class="sidenav" id="mobile-demo">
