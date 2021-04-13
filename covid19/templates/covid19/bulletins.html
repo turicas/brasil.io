@@ -13,17 +13,20 @@
   <link rel="stylesheet" type="text/css" href="{% static 'covid19/css/status.css' %}"/>
 {% endblock %}
 
-{% block content %}{% localize on %}
-<div id="dashboard-header">
-  <h1> ESPECIAL COVID-19 - Boletins Diários </h1>
-  {% include 'covid19/text.html' %}
+{% block nav %}
   {% include 'covid19/links.html' %}
-  <p>
-    Por questões de viabilidade e metodológicas, coletamos apenas das
-    Secretarias Estaduais de Saúde e, por isso, podem ocorrer divergências com
-    relação às Secretarias Municipais. Não pretendemos mudar essa prática (por
-    favor, não insista).
-  </p>
+{% endblock %}
+
+{% block content %}{% localize on %}
+<div id="dashboard-header" class="p-5">
+  <div class="card yellow lighten-5" style="padding: 20px; text-align: justify;">
+    <p>
+      Por questões de viabilidade e metodológicas, coletamos apenas das
+      Secretarias Estaduais de Saúde e, por isso, podem ocorrer divergências com
+      relação às Secretarias Municipais. Não pretendemos mudar essa prática (por
+      favor, não insista).
+    </p>
+  </div>
 </div>
 <div class="container">
   <div class="row">
