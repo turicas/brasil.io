@@ -10,58 +10,65 @@
 <link rel="stylesheet" type="text/css" href="{% static 'covid19/css/status.css' %}"/>
 {% endblock %}
 
+{% block nav %}
+  {% include 'covid19/links.html' %}
+{% endblock %}
+
 {% block content %}{% localize on %}
 <div id="dashboard-header">
-  <h1> ESPECIAL COVID-19 - Status de Importação </h1>
-  {% include 'covid19/text.html' %}
-  {% include 'covid19/links.html' %}
-</div>
-
-<div id="table_container" class="row">
-
-  <div id="table-col" class="col xl12 l12 m12 s12">
-    <table class="table" id="status-data-table">
-      <thead>
-        <tr>
-          <th> Estado </th>
-          <th> Data </th>
-          <th> Status </th>
-          <th> Confirmados </th>
-          <th> Óbitos </th>
-          {% if is_covid19_contributor %}
-          <th> Histórico </th>
-          {% endif %}
-        </tr>
-      </thead>
-
-      <tbody>
-        {% for row in import_data %}
-        <tr>
-          <td data-order="{{ row.state }}">
-            <a class="state-option" href="{% url 'covid19:state_status' row.uf %}">{{ row.state }}</a>
-          </td>
-          <td data-order="{% localize off %}{{ row.report_date_str }}{% endlocalize %}">
-            {{ row.report_date|default:'' }}
-          </td>
-          <td data-order="{{ row.status }}">
-            {{ row.status|default:'' }}
-          </td>
-          <td data-order="{% localize off %}{{ row.total_confirmed }}{% endlocalize %}">
-            {% localize off %}{{ row.total_confirmed|default:'' }}{% endlocalize %}
-          </td>
-          <td data-order="{% localize off %}{{ row.total_deaths }}{% endlocalize %}">
-            {% localize off %}{{ row.total_deaths|default:'' }}{% endlocalize %}
-          </td>
-          {% if is_covid19_contributor %}
-          <td>
-            <a href="{{ row.history_url }}">Ver hstórico</a>
-          </td>
-          {% endif %}
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="card yellow lighten-5" style="padding: 20px; margin-top: 15px; text-align: justify;">
+    {% include 'covid19/text.html' %}
   </div>
+  <h1> ESPECIAL COVID-19 - Status de Importação </h1>
+</div>
+<div class="card">
+  <dir class="card-content">
+    <div class="row">
+      <div id="table-col" class="col xl12 l12 m12 s12">
+        <table class="table" id="status-data-table">
+          <thead>
+            <tr>
+              <th> Estado </th>
+              <th> Data </th>
+              <th> Status </th>
+              <th> Confirmados </th>
+              <th> Óbitos </th>
+              {% if is_covid19_contributor %}
+              <th> Histórico </th>
+              {% endif %}
+            </tr>
+          </thead>
+    
+          <tbody>
+            {% for row in import_data %}
+            <tr>
+              <td data-order="{{ row.state }}">
+                <a class="state-option" href="{% url 'covid19:state_status' row.uf %}">{{ row.state }}</a>
+              </td>
+              <td data-order="{% localize off %}{{ row.report_date_str }}{% endlocalize %}">
+                {{ row.report_date|default:'' }}
+              </td>
+              <td data-order="{{ row.status }}">
+                {{ row.status|default:'' }}
+              </td>
+              <td data-order="{% localize off %}{{ row.total_confirmed }}{% endlocalize %}">
+                {% localize off %}{{ row.total_confirmed|default:'' }}{% endlocalize %}
+              </td>
+              <td data-order="{% localize off %}{{ row.total_deaths }}{% endlocalize %}">
+                {% localize off %}{{ row.total_deaths|default:'' }}{% endlocalize %}
+              </td>
+              {% if is_covid19_contributor %}
+              <td>
+                <a href="{{ row.history_url }}">Ver hstórico</a>
+              </td>
+              {% endif %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+  </dir>
+</div>
 
   <p style="clear: both"></p>
 </div>
