@@ -16,163 +16,232 @@
 <script type="text/javascript" language="javascript" src="{% static 'covid19/js/chart.js' %}"></script>
 <script type="text/javascript" language="javascript" src="{% static 'covid19/js/table.js' %}"></script>
 <script type="text/javascript" language="javascript" src="{% static 'covid19/js/map.js' %}"></script>
+
+{% endblock %}
+
+{% block nav %}
+  {% include 'covid19/links.html' %}
 {% endblock %}
 
 {% block content %}{% localize on %}
 <div id="dashboard-header">
-  <h1 class="header m-t-15 m-b-15"> ESPECIAL COVID-19 - Dados por Município </h1>
-  {% include 'covid19/text.html' %}
-  {% include 'covid19/links.html' %}
+  <div class="card yellow lighten-5" style="padding: 20px; text-align: justify;">
+    {% include 'covid19/text.html' %}
+  </div>
 </div>
 
-<div id="dashboard-country-aggregate" class="row card" style="height: 100%">
-  <div class="card-content teal-text card-title">
-    Panorama Nacional
-  </div>
-  {% for row in country_aggregate %}
-  <div class="col s12 m6 l4 xl2">
-    <div class="card">
-      <div class="card-content teal-text card-title">
-        <span class="tooltipped" data-position="bottom" data-tooltip="{{ row.tooltip }}">
-          <i class="material-icons">info</i>
-          {{row.title}}
-        </span>
+<div style="margin-top:20px">
+  <div style="padding: 5px;">
+      <div class="row">
+          <div class="col s12 m6 l6">
+            <h1 style="padding-top:15px">
+              {% if not state %}
+                Panorama nacional no Brasil
+              {% else %}
+                Panorama estadual - {{ state_name }}
+              {% endif %}
+            </h1>
+          </div>
+          <div class="col s12 m6 l6">
+              <div class="input-field">
+                  <select id="state-select">
+                      <option value="" disabled {% if not state %} selected {% endif %}>Escolha Panorama</option>
+                      {% if state %}
+                        <option value="{% url 'covid19:dashboard' %}">Nacional</option>
+                      {% endif %}
+                      {% for state_data in states %}
+                        <option {% if state == state_data.acronym %} selected {% endif %} value="{% url 'covid19:dashboard' state_data.acronym %}">{{ state_data.acronym }}</option>
+                      {% endfor %}
+                  </select>
+                  <label>Panorama</label>
+              </div>
+          </div>
       </div>
-      <div class="card-content card-body number">
-        {{ row.value }} {% if row.value_percent %}({{ row.value_percent|floatformat:row.decimal_places }}%){% endif %}
+  </div>
+  {% if not state %}
+  <div class="row">
+    {% for row in country_aggregate %}
+      <div class="col s12 m4 xl2">
+          <div class="card data-card tooltipped" data-position="bottom" data-tooltip="{{ row.tooltip }}">
+              <div class="card-content">
+                <p>{{row.title}}</p>
+                <span class="number"><b>{{ row.value }}</b></span>
+                {% if row.value_percent %}
+                  <span class="percent">({{ row.value_percent|floatformat:row.decimal_places }}%)</span>
+                {% endif %}
+              </div>
+          </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="row">
+    {% for row in state_aggregate %}
+      <div class="col s12 m4 xl2">
+          <div class="card data-card tooltipped" data-position="bottom" data-tooltip="{{ row.tooltip }}">
+              <div class="card-content">
+                <p>{{row.title}}</p>
+                <span class="number"><b>{{ row.value }}</b></span>
+                {% if row.value_percent %}
+                  <span class="percent">({{ row.value_percent|floatformat:row.decimal_places }}%)</span>
+                {% endif %}
+              </div>
+          </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <div class="row">
+    <!-- Map -->
+    <div id="map-col" class="col l12 m12 s12 xl6">
+      <div class="card">
+        <div class="card-content" style="padding: 15px;">
+          <div id="loading">
+            <span class="center-align valign-wrapper">
+              <img src="{% static 'covid19/img/loading.gif' %}" alt="Carregando" />
+              &nbsp;
+              Carregando mapa...
+            </span>
+          </div>
+          <div id="map"></div>
+          <div class="p-b-5">
+            <label class="right">Nota: casos importados não estão representados no mapa.</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Table -->
+    <div id="table-col" class="col l12 m12 s12 xl6">
+      <div class="card">
+        <div class="card-content">
+          <div class="row">
+            <div id="table-col" style="padding:30px; max-height: 857px; overflow: hidden;">
+              <table class="table mdl-data-table">
+                <thead>
+                  <tr>
+                    <th> Data </th>
+                    <th> Município </th>
+                    {% if not state %}<th> UF </th>{% endif %}
+                    <th> Confirmados </th>
+                    <th> Confirmados<br>por 100k hab. </th>
+                    <th> Óbitos </th>
+                    <th> Letalidade </th>
+                    <th> Óbitos<br>por 100k hab. </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {% for row in city_data %}
+                  <tr>
+                    <td data-search="{{ row.date|date:"d/m/Y" }}"
+                      data-order="{% localize off %}{{ row.date_str }}{% endlocalize %}"> {{ row.date|date:"d/m/Y" }}
+                    </td>
+                    <td data-search="{{ row.city_str }} {{ row.city }}" data-order="{{ row.city_str }}"> {{ row.city }}
+                    </td>
+                    {% if not state %}<td data-search="{{ row.state }}"> <a
+                        href="{% url 'covid19:dashboard' row.state %}" title="{{ row.state }}">{{ row.state }}</a> </td>
+                    {% endif %}
+                    <td data-order="{% localize off %}{{ row.confirmed }}{% endlocalize %}"> {{ row.confirmed }} </td>
+                    <td data-order="{% localize off %}{{ row.confirmed_per_100k_inhabitants }}{% endlocalize %}">
+                      {{ row.confirmed_per_100k_inhabitants|floatformat:2 }} </td>
+                    <td data-order="{% localize off %}{{ row.deaths }}{% endlocalize %}"> {{ row.deaths }} </td>
+                    <td data-order="{% localize off %}{{ row.death_rate_percent }}{% endlocalize %}">
+                      {{ row.death_rate_percent|floatformat:2 }}% </td>
+                    <td data-order="{% localize off %}{{ row.deaths_per_100k_inhabitants }}{% endlocalize %}">
+                      {{ row.deaths_per_100k_inhabitants|floatformat:2 }} </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+              <p class="right-align" style="margin-top: 15px;">
+                <a class="btn"
+                  href="{% url 'core:dataset-table-detail' 'covid19' 'caso' %}?is_last=True&amp;place_type=city{% if state %}&amp;state={{ state }}{% endif %}&amp;format=csv">
+                  Baixar dados em CSV
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  {% endfor %}
-  <div style="clear: both"></div>
-</div>
-
-<div id="dashboard-state-selector" class="row" style="clear: both">
-  <nav class="nav-state-selector">
-  <div class="nav-wrapper indigo">
-    <ul>
-      <li{% if not state %} class="active"{% endif %}>
-        <a class="state-option" href="{% url 'covid19:dashboard' %}">BR</a>
-      </li>
-      {% for state_data in states %}
-      <li{% if state == state_data.acronym %} class="active"{% endif %}>
-        <a class="state-option" href="{% url 'covid19:dashboard' state_data.acronym %}">{{ state_data.acronym }}</a>
-      </li>
-      {% endfor %}
-    </ul>
-  </div>
-  </nav>
-</div>
-
-<h1 class="header p-t-20 p-b-10">Casos de COVID-19 {% if state %}por estado: {{ state_name }}{% else %}no Brasil{% endif %}</h1>
-{% if state %}
-<div class="row card" style="height: 100%">
-  <div class="card-content teal-text card-title">
-    Panorama Estadual
-  </div>
-  {% for row in state_aggregate %}
-  <div class="col s12 m6 l4 xl2">
-    <div class="card">
-      <div class="card-content teal-text card-title">
-        <span class="tooltipped" data-position="bottom" data-tooltip="{{ row.tooltip }}">
-          <i class="material-icons">info</i>
-          {{row.title}}
-        </span>
+  <!-- Charts -->
+  <div class="row">
+    <div class="col s12 xl6">
+        <div class="card">
+            <div class="card-content">
+              <div class="chart">
+                <canvas id="case-daily-chart-1"></canvas>
+              </div>
+            </div>
+        </div>
+    </div>
+    <div class="col s12 xl6">
+      <div class="card">
+          <div class="card-content">
+            <div class="chart">
+              <canvas id="death-daily-chart-1"></canvas>
+            </div>
+          </div>
       </div>
-      <div class="card-content card-body number">
-        {{ row.value }} {% if row.value_percent %}({{ row.value_percent|floatformat:row.decimal_places }}%){% endif %}
+    </div>
+    <div class="col s12 xl6">
+      <div class="card">
+          <div class="card-content">
+            <div class="chart">
+              <canvas id="case-daily-chart-2"></canvas>
+            </div>
+          </div>
+      </div>
+    </div>
+    <div class="col s12 xl6">
+      <div class="card">
+          <div class="card-content">
+            <div class="chart">
+              <canvas id="death-daily-chart-2"></canvas>
+            </div>
+          </div>
+      </div>
+    </div>
+    <div class="col s12 xl6">
+      <div class="card">
+          <div class="card-content">
+            <div class="chart">
+              <canvas id="death-weekly-2020-chart"></canvas>
+            </div>
+          </div>
+      </div>
+    </div>
+    <div class="col s12 xl6">
+      <div class="card">
+          <div class="card-content">
+            <div class="chart">
+              <canvas id="death-weekly-years-chart"></canvas>
+            </div>
+          </div>
+      </div>
+    </div>
+    <div class="col s12 xl6">
+      <div class="card">
+          <div class="card-content">
+            <div class="chart">
+              <canvas id="death-weekly-excess-chart-1"></canvas>
+            </div>
+          </div>
+      </div>
+    </div>
+    <div class="col s12 xl6">
+      <div class="card">
+          <div class="card-content">
+            <div class="chart">
+              <canvas id="death-weekly-excess-chart-2"></canvas>
+            </div>
+          </div>
       </div>
     </div>
   </div>
-  {% endfor %}
-  <div style="clear: both"></div>
-</div>
-{% endif %}
-
-<div class="row">
-
-  <div id="map-col" class="col xl12 l12 m12 s12">
-    <div id="loading">
-      <span class="center-align valign-wrapper">
-        <img src="{% static 'covid19/img/loading.gif' %}" alt="Carregando" />
-        &nbsp;
-        Carregando mapa...
-      </span>
-    </div>
-    <div id="map"></div>
-    Nota: casos importados não estão representados no mapa.
-  </div>
-
-  <div id="table-col" class="col xl12 l12 m12 s12" style="margin-top:25px; height: 850px; overflow: hidden">
-    <table class="table mdl-data-table">
-      <thead>
-        <tr>
-          <th> Data </th>
-          <th> Município </th>
-          {% if not state %}<th> UF </th>{% endif %}
-          <th> Confirmados </th>
-          <th> Confirmados<br>por 100k hab. </th>
-          <th> Óbitos </th>
-          <th> Letalidade </th>
-          <th> Óbitos<br>por 100k hab. </th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {% for row in city_data %}
-        <tr>
-          <td data-search="{{ row.date|date:"d/m/Y" }}" data-order="{% localize off %}{{ row.date_str }}{% endlocalize %}"> {{ row.date|date:"d/m/Y" }} </td>
-          <td data-search="{{ row.city_str }} {{ row.city }}" data-order="{{ row.city_str }}"> {{ row.city }} </td>
-          {% if not state %}<td data-search="{{ row.state }}"> <a href="{% url 'covid19:dashboard' row.state %}" title="{{ row.state }}">{{ row.state }}</a> </td>{% endif %}
-          <td data-order="{% localize off %}{{ row.confirmed }}{% endlocalize %}"> {{ row.confirmed }} </td>
-          <td data-order="{% localize off %}{{ row.confirmed_per_100k_inhabitants }}{% endlocalize %}"> {{ row.confirmed_per_100k_inhabitants|floatformat:2 }} </td>
-          <td data-order="{% localize off %}{{ row.deaths }}{% endlocalize %}"> {{ row.deaths }} </td>
-          <td data-order="{% localize off %}{{ row.death_rate_percent }}{% endlocalize %}"> {{ row.death_rate_percent|floatformat:2 }}% </td>
-          <td data-order="{% localize off %}{{ row.deaths_per_100k_inhabitants }}{% endlocalize %}"> {{ row.deaths_per_100k_inhabitants|floatformat:2 }} </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    <p class="right-align">
-      <a class="btn" href="{% url 'core:dataset-table-detail' 'covid19' 'caso' %}?is_last=True&amp;place_type=city{% if state %}&amp;state={{ state }}{% endif %}&amp;format=csv">
-        Baixar dados em CSV
-      </a>
-    </p>
-  </div>
-
 </div>
 
-<div style="clear: both">
-</div>
-
-<div class="row">
-  <div class="col xl6 l6 m12 s12 chart">
-    <canvas id="case-daily-chart-1"></canvas>
-  </div>
-  <div class="col xl6 l6 m12 s12 chart">
-    <canvas id="death-daily-chart-1"></canvas>
-  </div>
-  <div class="col xl6 l6 m12 s12 chart">
-    <canvas id="case-daily-chart-2"></canvas>
-  </div>
-  <div class="col xl6 l6 m12 s12 chart">
-    <canvas id="death-daily-chart-2"></canvas>
-  </div>
-  <div class="col xl6 l6 m12 s12 chart">
-    <canvas id="death-weekly-2020-chart"></canvas>
-  </div>
-  <div class="col xl6 l6 m12 s12 chart">
-    <canvas id="death-weekly-years-chart"></canvas>
-  </div>
-  <div class="col xl6 l6 m12 s12 chart" style="margin-bottom: 180px;">
-    <canvas id="death-weekly-excess-chart-1"></canvas>
-  </div>
-  <div class="col xl6 l6 m12 s12 chart">
-    <canvas id="death-weekly-excess-chart-2"></canvas>
-  </div>
-</div>
-
-<div style="clear: both"></div>
 {% endlocalize %}
 {% endblock %}
 
@@ -192,6 +261,10 @@ var selectedCitySlug = {% if not city_id %}undefined{% else %}"{{ city_slug }}"{
 
 jQuery(document).ready(function(){
   jQuery('.tooltipped').tooltip();
+  $('select').formSelect();
+  $('#state-select').on('change', function () {
+        return $(this).val() ? window.location = $(this).val() : false;
+    });
 });
 </script>
 {% endblock %}
