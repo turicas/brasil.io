@@ -8,6 +8,7 @@ html {
 }
 
 body {
+  background-color: #fafafa;
   position: relative;
   margin: 0;
   min-height: 100%;
@@ -259,4 +260,16 @@ em {
 
 .header-subtitle {
   font-size: 1.5em;
+}
+
+#logo {
+  max-height:40px;
+  margin-left: 20px;
+  margin-top: 10px;
+}
+
+@media only screen and (max-width: 992px) {
+  #logo {
+    margin-left: 0px;
+  }
 }

@@ -40,8 +40,7 @@
   <nav>
     <div class="nav-wrapper indigo">
       <a href="/" class="brand-logo" title="Ir à página inicial">
-        <img src="{% static 'img/logo/logo_br-io_fundo-escuro.png' %}"
-          style="max-height:40px;margin-left: 20px; margin-top: 10px;" alt="Logo da Brasil.IO">
+        <img id="logo" src="{% static 'img/logo/logo_br-io_fundo-escuro.png' %}" alt="Logo da Brasil.IO">
       </a>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger" title="Menu"><i class="material-icons">menu</i></a>
       <ul class="right hide-on-med-and-down">
@@ -110,7 +109,7 @@
             <li><a href="https://twitter.com/brasil_io">
                 Nosso Twitter
                 <img style="height: 1.2em" src="{% static 'img/logo-twitter.png' %}" alt="Logo Twitter"></a>
-            </li>  
+            </li>
             <li><a href="{% url 'core:contact' %}">Entre em contato conosco</a></li>
             <li><a href="{% url 'core:collaborate' %}">Colabore conosco</a></li>
 
