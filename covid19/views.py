@@ -34,9 +34,9 @@ def cities(request):
     if state is not None and not get_state_info(state):
         raise Http404
 
-    brazil_city_data = stats.city_data
+    brazil_city_data = stats.city_data()
     if state:
-        city_data = stats.city_data_for_state(state)
+        city_data = stats.city_data(state)
         total_row = stats.state_row(state)
     else:
         city_data = brazil_city_data
@@ -141,10 +141,10 @@ def cities_geojson(request):
     elif state:
         state = state.upper()
         high_fidelity = True
-        city_data = stats.city_data_for_state(state)
+        city_data = stats.city_data(state)
     else:
         high_fidelity = False
-        city_data = stats.city_data
+        city_data = stats.city_data()
 
     city_ids = set(row["city_ibge_code"] for row in city_data)
     data = city_geojson(high_fidelity=high_fidelity)
@@ -222,7 +222,7 @@ def dashboard(request, state=None):
         cities_with_deaths=stats.cities_with_deaths,
     )
     if state:
-        city_data = stats.city_data_for_state(state)
+        city_data = stats.city_data(state)
         state_data = STATE_BY_ACRONYM[state]
         state_id = state_data.ibge_code
         state_name = state_data.name
@@ -238,7 +238,7 @@ def dashboard(request, state=None):
             for_state=True,
         )
     else:
-        city_data = stats.city_data
+        city_data = stats.city_data()
         state_id = state_name = None
         state_aggregate = None
 

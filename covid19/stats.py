@@ -178,10 +178,10 @@ class Covid19Stats:
 
     @property
     def cities_with_deaths(self):
-        return self.city_cases.filter(deaths__gt=0).count()
+        return self.affected_cities.filter(deaths__gt=0).count()
 
     def cities_with_deaths_for_state(self, state):
-        return self.city_cases.filter(state=state, deaths__gt=0).count()
+        return self.affected_cities.filter(state=state, deaths__gt=0).count()
 
     @property
     def number_of_cities(self):
@@ -298,16 +298,16 @@ class Covid19Stats:
     def affected_population_for_state(self, state):
         return self.city_totals_for_state(state)["total_population"]
 
-    @property
-    def city_data(self):
+    def city_data(self, state=None):
         # XXX: what should we do about "Importados/Indefinidos"?
-        city_cases = self.city_cases.filter(city_ibge_code__isnull=False)
+        if state is None:
+            city_cases = self.affected_cities
+        else:
+            city_cases = self.affected_cities_for_state(state)
+
         serializer = CityCaseSerializer(instance=city_cases, many=True)
         cities = [row for row in serializer.data if (row["confirmed"], row["deaths"]) != (0, 0)]
         return cities
-
-    def city_data_for_state(self, state):
-        return [row for row in self.city_data if row["state"] == state]
 
     def aggregate_state_data(self, select_columns, groupby_columns, state=None):
         qs = self.CasoFull.objects.filter(place_type="state")
