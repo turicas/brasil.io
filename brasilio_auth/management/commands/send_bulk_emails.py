@@ -3,6 +3,7 @@ import rows
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.template import Context, Template
+from tqdm import tqdm
 
 from core.email import send_email
 
@@ -19,10 +20,11 @@ class Command(BaseCommand):
         print("-" * 80)
 
     def add_arguments(self, parser):
+        parser.add_argument("--sender", default=settings.DEFAULT_FROM_EMAIL)
+        parser.add_argument("--dry-run", default=False, action="store_true")
+        parser.add_argument("--wait-time", default=15)
         parser.add_argument("input_filename")
-        parser.add_argument("email_template")
-        parser.add_argument("--from")
-        parser.add_argument("-d", "--dry-run", default=False, action="store_true")
+        parser.add_argument("template_filename")
 
     def handle(self, *args, **kwargs):
         input_filename = kwargs["input_filename"]
@@ -30,10 +32,11 @@ class Command(BaseCommand):
         error_msg = "Arquivo CSV deve conter campos 'to_email' e 'subject'"
         assert {"to_email", "subject"}.issubset(set(table.field_names)), error_msg
 
-        template_obj = self.load_email_template(kwargs["email_template"])
-        from_email = kwargs["from"] or settings.DEFAULT_FROM_EMAIL
+        template_obj = self.load_email_template(kwargs["template_filename"])
+        wait_time = kwargs["wait_time"]
+        from_email = kwargs["sender"]
 
-        for row in table:
+        for row in tqdm(table):
             context = Context(row._asdict())
             rendered_template = template_obj.render(context=context)
             email_kwargs = {
