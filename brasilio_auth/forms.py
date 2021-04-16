@@ -17,7 +17,7 @@ def is_valid_username(username):
 
 
 class UserCreationForm(RegistrationFormUniqueEmail):
-    username = forms.CharField(widget=forms.TextInput(attrs={"style": "text-transform: lowercase"}),)
+    username = forms.CharField(widget=forms.TextInput(),)
     email = forms.EmailField()
     password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
     password2 = forms.CharField(
