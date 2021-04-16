@@ -24,6 +24,13 @@ make run
 
 Nosso arquivo [Makefile](https://github.com/turicas/brasil.io/blob/develop/Makefile) possui outras entradas que podem te ser úteis durante o processo de desenvolvimento.
 
+### Utilizar Pre-commit hooks
+Com o pre-commit hooks toda vez que um novo commit for feito durante o desenvolvimento será verificado se o código commitado está no formato ideal. Caso não esteja, será automaticamente corrigido gerando uma modificação com as correções. Para ativá-lo o comando é:
+
+```
+pre-commit install
+```
+
 ### Padrões de arquivos de apps
 
 O projeto segue alguns padrões de organização dos arquivos das apps Django. Mais especificamente em relação aos arquivos estáticos, templates e de testes.
