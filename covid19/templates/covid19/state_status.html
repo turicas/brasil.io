@@ -6,12 +6,13 @@
 {% block head %}
 {{ block.super }}
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
-<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'covid19/css/status.css' %}"/>
+<script type="text/javascript" language="javascript"
+  src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'covid19/css/status.css' %}" />
 {% endblock %}
 
 {% block nav %}
-  {% include 'covid19/links.html' %}
+{% include 'covid19/links.html' %}
 {% endblock %}
 
 {% block content %}{% localize on %}
@@ -37,14 +38,19 @@
               {% endif %}
             </tr>
           </thead>
-    
+
           <tbody>
             {% for import_date, row in data.items %}
             <tr>
               <td data-order="{{ import_date|date:"Y-m-d"}}"> {{ import_date }} </td>
-              <td><ul>{% for c in row.collaborators %}<li>{{ c }}</li>{% endfor %}</ul></td>
-              <td> {{ row.has_city_data|yesno:"Com dados municipais,Apenas dados totais,Nenhum dado para essa data" }}</td>
-              <td> {{ row.deployed_has_city|yesno:"Com dados municipais,Apenas dados totais,Nenhuma planilha deployed" }}{% if row.current_deployed and is_covid19_contributor%}<span> | <a href="{{ row.current_deployed.admin_url }}">admin</a></span>{% endif %}</td>
+              <td>
+                <ul>{% for c in row.collaborators %}<li>{{ c }}</li>{% endfor %}</ul>
+              </td>
+              <td> {{ row.has_city_data|yesno:"Com dados municipais,Apenas dados totais,Nenhum dado para essa data" }}
+              </td>
+              <td>
+                {{ row.deployed_has_city|yesno:"Com dados municipais,Apenas dados totais,Nenhuma planilha deployed" }}{% if row.current_deployed and is_covid19_contributor%}<span>
+                  | <a href="{{ row.current_deployed.admin_url }}">admin</a></span>{% endif %}</td>
               {% if is_covid19_contributor %}
               <td><a href="{{ row.detailed_history_url }}">Ver todas planilhas</a></td>
               {% endif %}
@@ -53,7 +59,7 @@
           </tbody>
         </table>
       </div>
-     </div>
+    </div>
   </div>
 </div>
 {% endlocalize %}

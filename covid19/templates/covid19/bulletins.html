@@ -6,15 +6,16 @@
 
 {% block head %}
 {{ block.super }}
-  <!-- cdnjs -->
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
-  <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.9/jquery.lazy.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="{% static 'covid19/css/status.css' %}"/>
+<!-- cdnjs -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
+<script type="text/javascript" language="javascript"
+  src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.9/jquery.lazy.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'covid19/css/status.css' %}" />
 {% endblock %}
 
 {% block nav %}
-  {% include 'covid19/links.html' %}
+{% include 'covid19/links.html' %}
 {% endblock %}
 
 {% block content %}{% localize on %}
@@ -34,21 +35,22 @@
       {% regroup bulletins by date.month as bulletins_list %}
 
       {% for month in bulletins_list %}
-        <div class="divider"></div>
-        <h2 class="monthYearBulletins">{{ month.list.0.date|date:"F" }} {{ month.list.0.date|date:"Y" }}</h2>
-        {% for bulletin in month.list %}
-          <div style="display: inline-block; width: 200px; height: auto; margin: 1em">
-            <a href="{{ bulletin.image_url }}" target="_blank">
-            {% thumbnail bulletin.image_url "170x170" as im %}
-              <img class="lazy hoverable z-depth-2" id="{{ bulletin.pk }}" data-src="{{ im.url }}" width="200px" height="auto" name="Boletim - {{ bulletin.date }}"/>
-            {% endthumbnail %}
-            </a>
-            <div class="dateBulletins">
-              <span class="bDate">{{ bulletin.date }}</span>
-            </div>
-          </div>
-        {% endfor %}
-        <br><br>
+      <div class="divider"></div>
+      <h2 class="monthYearBulletins">{{ month.list.0.date|date:"F" }} {{ month.list.0.date|date:"Y" }}</h2>
+      {% for bulletin in month.list %}
+      <div style="display: inline-block; width: 200px; height: auto; margin: 1em">
+        <a href="{{ bulletin.image_url }}" target="_blank">
+          {% thumbnail bulletin.image_url "170x170" as im %}
+          <img class="lazy hoverable z-depth-2" id="{{ bulletin.pk }}" data-src="{{ im.url }}" width="200px"
+            height="auto" name="Boletim - {{ bulletin.date }}" />
+          {% endthumbnail %}
+        </a>
+        <div class="dateBulletins">
+          <span class="bDate">{{ bulletin.date }}</span>
+        </div>
+      </div>
+      {% endfor %}
+      <br><br>
       {% endfor %}
     </div>
   </div>

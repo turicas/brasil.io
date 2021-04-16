@@ -6,10 +6,15 @@
 {% block head %}
 {{ block.super }}
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
-<link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
-<link rel="stylesheet" type="text/css" href="{% static 'covid19/css/map.css' %}"/>
-<script type="text/javascript" language="javascript" src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
-<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+  integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+  crossorigin="" />
+<link rel="stylesheet" type="text/css" href="{% static 'covid19/css/map.css' %}" />
+<script type="text/javascript" language="javascript" src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+  integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+  crossorigin=""></script>
+<script type="text/javascript" language="javascript"
+  src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" language="javascript" src="https://www.chartjs.org/dist/2.9.3/Chart.min.js"></script>
 <script type="text/javascript" language="javascript" src="{% static 'dashboard/js/chart.js' %}"></script>
 <script type="text/javascript" language="javascript" src="{% static 'covid19/js/base.js' %}"></script>
@@ -20,7 +25,7 @@
 {% endblock %}
 
 {% block nav %}
-  {% include 'covid19/links.html' %}
+{% include 'covid19/links.html' %}
 {% endblock %}
 
 {% block content %}{% localize on %}
@@ -32,62 +37,63 @@
 
 <div style="margin-top:20px">
   <div style="padding: 5px;">
-      <div class="row">
-          <div class="col s12 m6 l6">
-            <h1 style="padding-top:15px">
-              {% if not state %}
-                Panorama nacional no Brasil
-              {% else %}
-                Panorama estadual - {{ state_name }}
-              {% endif %}
-            </h1>
-          </div>
-          <div class="col s12 m6 l6">
-              <div class="input-field">
-                  <select id="state-select">
-                      <option value="" disabled {% if not state %} selected {% endif %}>Escolha Panorama</option>
-                      {% if state %}
-                        <option value="{% url 'covid19:dashboard' %}">Nacional</option>
-                      {% endif %}
-                      {% for state_data in states %}
-                        <option {% if state == state_data.acronym %} selected {% endif %} value="{% url 'covid19:dashboard' state_data.acronym %}">{{ state_data.acronym }}</option>
-                      {% endfor %}
-                  </select>
-                  <label>Panorama</label>
-              </div>
-          </div>
+    <div class="row">
+      <div class="col s12 m6 l6">
+        <h1 style="padding-top:15px">
+          {% if not state %}
+          Panorama nacional no Brasil
+          {% else %}
+          Panorama estadual - {{ state_name }}
+          {% endif %}
+        </h1>
       </div>
+      <div class="col s12 m6 l6">
+        <div class="input-field">
+          <select id="state-select">
+            <option value="" disabled {% if not state %} selected {% endif %}>Escolha Panorama</option>
+            {% if state %}
+            <option value="{% url 'covid19:dashboard' %}">Nacional</option>
+            {% endif %}
+            {% for state_data in states %}
+            <option {% if state == state_data.acronym %} selected {% endif %}
+              value="{% url 'covid19:dashboard' state_data.acronym %}">{{ state_data.acronym }}</option>
+            {% endfor %}
+          </select>
+          <label>Panorama</label>
+        </div>
+      </div>
+    </div>
   </div>
   {% if not state %}
   <div class="row">
     {% for row in country_aggregate %}
-      <div class="col s12 m4 xl2">
-          <div class="card data-card tooltipped" data-position="bottom" data-tooltip="{{ row.tooltip }}">
-              <div class="card-content">
-                <p>{{row.title}}</p>
-                <span class="number"><b>{{ row.value }}</b></span>
-                {% if row.value_percent %}
-                  <span class="percent">({{ row.value_percent|floatformat:row.decimal_places }}%)</span>
-                {% endif %}
-              </div>
-          </div>
+    <div class="col s12 m4 xl2">
+      <div class="card data-card tooltipped" data-position="bottom" data-tooltip="{{ row.tooltip }}">
+        <div class="card-content">
+          <p>{{row.title}}</p>
+          <span class="number"><b>{{ row.value }}</b></span>
+          {% if row.value_percent %}
+          <span class="percent">({{ row.value_percent|floatformat:row.decimal_places }}%)</span>
+          {% endif %}
+        </div>
       </div>
+    </div>
     {% endfor %}
   </div>
   {% else %}
   <div class="row">
     {% for row in state_aggregate %}
-      <div class="col s12 m4 xl2">
-          <div class="card data-card tooltipped" data-position="bottom" data-tooltip="{{ row.tooltip }}">
-              <div class="card-content">
-                <p>{{row.title}}</p>
-                <span class="number"><b>{{ row.value }}</b></span>
-                {% if row.value_percent %}
-                  <span class="percent">({{ row.value_percent|floatformat:row.decimal_places }}%)</span>
-                {% endif %}
-              </div>
-          </div>
+    <div class="col s12 m4 xl2">
+      <div class="card data-card tooltipped" data-position="bottom" data-tooltip="{{ row.tooltip }}">
+        <div class="card-content">
+          <p>{{row.title}}</p>
+          <span class="number"><b>{{ row.value }}</b></span>
+          {% if row.value_percent %}
+          <span class="percent">({{ row.value_percent|floatformat:row.decimal_places }}%)</span>
+          {% endif %}
+        </div>
       </div>
+    </div>
     {% endfor %}
   </div>
   {% endif %}
@@ -168,75 +174,75 @@
   <!-- Charts -->
   <div class="row">
     <div class="col s12 xl6">
-        <div class="card">
-            <div class="card-content">
-              <div class="chart">
-                <canvas id="case-daily-chart-1"></canvas>
-              </div>
-            </div>
+      <div class="card">
+        <div class="card-content">
+          <div class="chart">
+            <canvas id="case-daily-chart-1"></canvas>
+          </div>
         </div>
-    </div>
-    <div class="col s12 xl6">
-      <div class="card">
-          <div class="card-content">
-            <div class="chart">
-              <canvas id="death-daily-chart-1"></canvas>
-            </div>
-          </div>
       </div>
     </div>
     <div class="col s12 xl6">
       <div class="card">
-          <div class="card-content">
-            <div class="chart">
-              <canvas id="case-daily-chart-2"></canvas>
-            </div>
+        <div class="card-content">
+          <div class="chart">
+            <canvas id="death-daily-chart-1"></canvas>
           </div>
+        </div>
       </div>
     </div>
     <div class="col s12 xl6">
       <div class="card">
-          <div class="card-content">
-            <div class="chart">
-              <canvas id="death-daily-chart-2"></canvas>
-            </div>
+        <div class="card-content">
+          <div class="chart">
+            <canvas id="case-daily-chart-2"></canvas>
           </div>
+        </div>
       </div>
     </div>
     <div class="col s12 xl6">
       <div class="card">
-          <div class="card-content">
-            <div class="chart">
-              <canvas id="death-weekly-2020-chart"></canvas>
-            </div>
+        <div class="card-content">
+          <div class="chart">
+            <canvas id="death-daily-chart-2"></canvas>
           </div>
+        </div>
       </div>
     </div>
     <div class="col s12 xl6">
       <div class="card">
-          <div class="card-content">
-            <div class="chart">
-              <canvas id="death-weekly-years-chart"></canvas>
-            </div>
+        <div class="card-content">
+          <div class="chart">
+            <canvas id="death-weekly-2020-chart"></canvas>
           </div>
+        </div>
       </div>
     </div>
     <div class="col s12 xl6">
       <div class="card">
-          <div class="card-content">
-            <div class="chart">
-              <canvas id="death-weekly-excess-chart-1"></canvas>
-            </div>
+        <div class="card-content">
+          <div class="chart">
+            <canvas id="death-weekly-years-chart"></canvas>
           </div>
+        </div>
       </div>
     </div>
     <div class="col s12 xl6">
       <div class="card">
-          <div class="card-content">
-            <div class="chart">
-              <canvas id="death-weekly-excess-chart-2"></canvas>
-            </div>
+        <div class="card-content">
+          <div class="chart">
+            <canvas id="death-weekly-excess-chart-1"></canvas>
           </div>
+        </div>
+      </div>
+    </div>
+    <div class="col s12 xl6">
+      <div class="card">
+        <div class="card-content">
+          <div class="chart">
+            <canvas id="death-weekly-excess-chart-2"></canvas>
+          </div>
+        </div>
       </div>
     </div>
   </div>

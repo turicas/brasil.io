@@ -6,12 +6,13 @@
 {% block head %}
 {{ block.super }}
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.material.min.css">
-<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'covid19/css/status.css' %}"/>
+<script type="text/javascript" language="javascript"
+  src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'covid19/css/status.css' %}" />
 {% endblock %}
 
 {% block nav %}
-  {% include 'covid19/links.html' %}
+{% include 'covid19/links.html' %}
 {% endblock %}
 
 {% block content %}{% localize on %}
@@ -38,7 +39,7 @@
               {% endif %}
             </tr>
           </thead>
-    
+
           <tbody>
             {% for row in import_data %}
             <tr>
@@ -70,7 +71,7 @@
   </dir>
 </div>
 
-  <p style="clear: both"></p>
+<p style="clear: both"></p>
 </div>
 {% endlocalize %}
 {% endblock %}

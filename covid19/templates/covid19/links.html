@@ -2,36 +2,37 @@
   <span style="font-size: 20px; letter-spacing: 3px;">Especial COVID-19</span>
 </div>
 <div class="nav-content indigo" style="overflow-x: auto;">
-    <ul class="tabs tabs-transparent" style="width: max-content;">
-        <li class="tab">
-          <a href="https://blog.brasil.io/2020/03/23/dados-coronavirus-por-municipio-mais-atualizados/">
-            Sobre o projeto
-          </a>
-        </li>
-        <li class="tab">
-          <a href="{% url 'core:dataset-detail' 'covid19' %}">
-            Dados completos
-          </a>
-        </li>
-        <li class="tab">
-          <a {% if request.resolver_match.url_name == 'bulletins' %} class="active" {% endif %} href="{% url 'covid19:bulletins' %}">
-            Boletins diários
-          </a>
-        </li>
-        <li class="tab">
-          <a href="https://github.com/turicas/covid19-br/tree/master/api.md">
-            Documentação da API
-          </a>
-        </li>
-        <li class="tab">
-          <a href="https://github.com/turicas/covid19-br/tree/master/clipping.md">
-            Quem está usando
-          </a>
-        </li>
-        <li class="tab">
-          <a href="{% url 'core:donate' %}">
-            Apoie o projeto
-          </a>
-        </li>
-    </ul>
+  <ul class="tabs tabs-transparent" style="width: max-content;">
+    <li class="tab">
+      <a href="https://blog.brasil.io/2020/03/23/dados-coronavirus-por-municipio-mais-atualizados/">
+        Sobre o projeto
+      </a>
+    </li>
+    <li class="tab">
+      <a href="{% url 'core:dataset-detail' 'covid19' %}">
+        Dados completos
+      </a>
+    </li>
+    <li class="tab">
+      <a {% if request.resolver_match.url_name == 'bulletins' %} class="active" {% endif %}
+        href="{% url 'covid19:bulletins' %}">
+        Boletins diários
+      </a>
+    </li>
+    <li class="tab">
+      <a href="https://github.com/turicas/covid19-br/tree/master/api.md">
+        Documentação da API
+      </a>
+    </li>
+    <li class="tab">
+      <a href="https://github.com/turicas/covid19-br/tree/master/clipping.md">
+        Quem está usando
+      </a>
+    </li>
+    <li class="tab">
+      <a href="{% url 'core:donate' %}">
+        Apoie o projeto
+      </a>
+    </li>
+  </ul>
 </div>
