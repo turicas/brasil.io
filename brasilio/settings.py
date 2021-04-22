@@ -242,7 +242,8 @@ CACHES = {
 }
 
 # django-rq config
-RQ_QUEUES = {"default": {"URL": REDIS_URL, "DEFAULT_TIMEOUT": 500,}}
+DEFAULT_QUEUE_NAME = "default"
+RQ_QUEUES = {DEFAULT_QUEUE_NAME: {"URL": REDIS_URL, "DEFAULT_TIMEOUT": 500,}}
 RQ = {
     "DEFAULT_RESULT_TTL": 60 * 60 * 24,  # 24-hours
 }
