@@ -1,14 +1,22 @@
+from datetime import timedelta
 from tempfile import NamedTemporaryFile
+from unittest import mock
 
 import pytest
 from django.conf import settings
-from django.core import mail
 from django.core.management import call_command
 from django.test import TestCase
+
+from core.email import send_email
 
 
 class TestSendBulkEmails(TestCase):
     def setUp(self):
+        self.p_queue_cls = mock.patch("brasilio_auth.management.commands.send_bulk_emails.Queue")
+        self.m_queue_cls = self.p_queue_cls.start()
+        self.m_queue = mock.Mock()
+        self.m_queue_cls.return_value = self.m_queue
+
         self.input_file = NamedTemporaryFile(suffix=".csv")
         self.email_template = NamedTemporaryFile(suffix=".txt")
 
@@ -38,27 +46,32 @@ class TestSendBulkEmails(TestCase):
             },
         ]
 
-    def assert_sent_email_metadata(self, email, metadata):
-        for key, value in metadata.items():
-            assert email.__getattribute__(key) == value
+    def tearDown(self):
+        self.p_queue_cls.stop()
 
     def test_send_bulk_emails(self):
         call_command("send_bulk_emails", self.input_file.name, self.email_template.name)
 
-        assert len(mail.outbox) == 2
-        self.assert_sent_email_metadata(mail.outbox[0], self.expexted_send_email[0])
-        self.assert_sent_email_metadata(mail.outbox[1], self.expexted_send_email[1])
+        self.m_queue.enqueue_in.assert_has_calls(
+            [
+                mock.call(timedelta(seconds=0), send_email, **self.expexted_send_email[0]),
+                mock.call(timedelta(seconds=15), send_email, **self.expexted_send_email[1]),
+            ]
+        )
 
     def test_send_email_custom_from_email(self):
-        kwargs = {"from": "Example Email <email@example.com>"}
+        kwargs = {"sender": "Example Email <email@example.com>"}
         call_command("send_bulk_emails", self.input_file.name, self.email_template.name, **kwargs)
 
-        self.expexted_send_email[0]["from_email"] = kwargs["from"]
-        self.expexted_send_email[1]["from_email"] = kwargs["from"]
+        self.expexted_send_email[0]["from_email"] = kwargs["sender"]
+        self.expexted_send_email[1]["from_email"] = kwargs["sender"]
 
-        assert len(mail.outbox) == 2
-        self.assert_sent_email_metadata(mail.outbox[0], self.expexted_send_email[0])
-        self.assert_sent_email_metadata(mail.outbox[1], self.expexted_send_email[1])
+        self.m_queue.enqueue_in.assert_has_calls(
+            [
+                mock.call(timedelta(seconds=0), send_email, **self.expexted_send_email[0]),
+                mock.call(timedelta(seconds=15), send_email, **self.expexted_send_email[1]),
+            ]
+        )
 
     def test_assert_mandatory_fields(self):
         with open(self.input_file.name, "w") as fobj:
@@ -71,4 +84,15 @@ class TestSendBulkEmails(TestCase):
     def test_do_not_send_mail(self):
         call_command("send_bulk_emails", self.input_file.name, self.email_template.name, "--dry-run")
 
-        assert len(mail.outbox) == 0
+        self.m_queue.assert_not_called()
+
+    def test_send_bulk_emails_schedule_with_wait_time(self):
+        kwargs = {"wait_time": 30}
+        call_command("send_bulk_emails", self.input_file.name, self.email_template.name, **kwargs)
+
+        self.m_queue.enqueue_in.assert_has_calls(
+            [
+                mock.call(timedelta(seconds=0), send_email, **self.expexted_send_email[0]),
+                mock.call(timedelta(seconds=30), send_email, **self.expexted_send_email[1]),
+            ]
+        )

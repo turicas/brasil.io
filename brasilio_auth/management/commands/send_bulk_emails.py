@@ -1,8 +1,11 @@
-import django_rq
+from datetime import timedelta
+
 import rows
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.template import Context, Template
+from rq import Queue
+from redis import Redis
 from tqdm import tqdm
 
 from core.email import send_email
@@ -22,11 +25,13 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--sender", default=settings.DEFAULT_FROM_EMAIL)
         parser.add_argument("--dry-run", default=False, action="store_true")
-        parser.add_argument("--wait-time", default=15)
+        parser.add_argument("--wait-time", default=15, type=int)
         parser.add_argument("input_filename")
         parser.add_argument("template_filename")
 
     def handle(self, *args, **kwargs):
+        queue = Queue(name=settings.DEFAULT_QUEUE_NAME, connection=Redis())
+
         input_filename = kwargs["input_filename"]
         table = rows.import_from_csv(input_filename)
         error_msg = "Arquivo CSV deve conter campos 'to_email' e 'subject'"
@@ -36,6 +41,7 @@ class Command(BaseCommand):
         wait_time = kwargs["wait_time"]
         from_email = kwargs["sender"]
 
+        time_offset = 0
         for row in tqdm(table):
             context = Context(row._asdict())
             rendered_template = template_obj.render(context=context)
@@ -46,6 +52,7 @@ class Command(BaseCommand):
                 "to": [row.to_email],
             }
             if not kwargs["dry_run"]:
-                django_rq.enqueue(send_email, **email_kwargs)
+                queue.enqueue_in(timedelta(seconds=time_offset), send_email, **email_kwargs)
+                time_offset += wait_time
             else:
                 self.print_email_metadata(email_kwargs)
