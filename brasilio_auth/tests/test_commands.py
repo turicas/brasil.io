@@ -6,12 +6,16 @@ import pytest
 from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase
+from redis import Redis
 
 from core.email import send_email
 
 
 class TestSendBulkEmails(TestCase):
     def setUp(self):
+        self.p_redis_from_url = mock.patch.object(Redis, "from_url")
+        self.m_redis_from_url = self.p_redis_from_url.start()
+
         self.p_queue_cls = mock.patch("brasilio_auth.management.commands.send_bulk_emails.Queue")
         self.m_queue_cls = self.p_queue_cls.start()
         self.m_queue = mock.Mock()
@@ -48,10 +52,12 @@ class TestSendBulkEmails(TestCase):
 
     def tearDown(self):
         self.p_queue_cls.stop()
+        self.m_redis_from_url.stop()
 
     def test_send_bulk_emails(self):
         call_command("send_bulk_emails", self.input_file.name, self.email_template.name)
 
+        self.m_redis_from_url.assert_called_once_with(settings.RQ_QUEUES[settings.DEFAULT_QUEUE_NAME]["URL"])
         self.m_queue.enqueue_in.assert_has_calls(
             [
                 mock.call(timedelta(seconds=0), send_email, **self.expexted_send_email[0]),

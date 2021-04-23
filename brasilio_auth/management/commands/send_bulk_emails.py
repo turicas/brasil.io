@@ -30,7 +30,8 @@ class Command(BaseCommand):
         parser.add_argument("template_filename")
 
     def handle(self, *args, **kwargs):
-        queue = Queue(name=settings.DEFAULT_QUEUE_NAME, connection=Redis())
+        redis_conn = Redis.from_url(settings.RQ_QUEUES[settings.DEFAULT_QUEUE_NAME]["URL"])
+        queue = Queue(name=settings.DEFAULT_QUEUE_NAME, connection=redis_conn)
 
         input_filename = kwargs["input_filename"]
         table = rows.import_from_csv(input_filename)
