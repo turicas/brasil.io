@@ -14,10 +14,14 @@ from core.filters import parse_querystring
 from core.forms import ContactForm, DatasetSearchForm, get_table_dynamic_form
 from core.middlewares import disable_non_logged_user_cache
 from core.models import Dataset, Table
+from core.queue import get_redis_queue
 from core.templatetags.utils import obfuscate
 from core.util import cached_http_get_json
 from data_activities_log.activites import recent_activities
 from traffic_control.logging import log_blocked_request
+
+
+QUEUE = get_redis_queue(settings.DEFAULT_QUEUE_NAME, settings.RQ_QUEUES[settings.DEFAULT_QUEUE_NAME]["URL"])
 
 
 class Echo:
@@ -41,13 +45,15 @@ def contact(request):
 
         if form.is_valid():
             data = form.cleaned_data
-            send_email(
+            QUEUE.enqueue(
+                send_email,
                 subject=f"Contato no Brasil.IO: {data['name']}",
                 body=data["message"],
                 from_email=f'{data["name"]} (via Brasil.IO) <{settings.DEFAULT_FROM_EMAIL}>',
                 to=[settings.DEFAULT_FROM_EMAIL],
                 reply_to=[f'{data["name"]} <{data["email"]}>'],
             )
+
             return redirect(reverse("core:contact") + "?sent=true")
 
     else:
