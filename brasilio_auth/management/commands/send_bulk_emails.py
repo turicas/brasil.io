@@ -4,11 +4,10 @@ import rows
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.template import Context, Template
-from rq import Queue
-from redis import Redis
 from tqdm import tqdm
 
 from core.email import send_email
+from core.queue import get_redis_queue
 
 
 class Command(BaseCommand):
@@ -30,8 +29,7 @@ class Command(BaseCommand):
         parser.add_argument("template_filename")
 
     def handle(self, *args, **kwargs):
-        redis_conn = Redis.from_url(settings.RQ_QUEUES[settings.DEFAULT_QUEUE_NAME]["URL"])
-        queue = Queue(name=settings.DEFAULT_QUEUE_NAME, connection=redis_conn)
+        queue = get_redis_queue(settings.DEFAULT_QUEUE_NAME, settings.RQ_QUEUES[settings.DEFAULT_QUEUE_NAME]["URL"])
 
         input_filename = kwargs["input_filename"]
         table = rows.import_from_csv(input_filename)

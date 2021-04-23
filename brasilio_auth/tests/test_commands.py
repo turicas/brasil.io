@@ -6,20 +6,16 @@ import pytest
 from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase
-from redis import Redis
 
 from core.email import send_email
 
 
 class TestSendBulkEmails(TestCase):
     def setUp(self):
-        self.p_redis_from_url = mock.patch.object(Redis, "from_url")
-        self.m_redis_from_url = self.p_redis_from_url.start()
-
-        self.p_queue_cls = mock.patch("brasilio_auth.management.commands.send_bulk_emails.Queue")
-        self.m_queue_cls = self.p_queue_cls.start()
+        self.p_redis_queue = mock.patch("brasilio_auth.management.commands.send_bulk_emails.get_redis_queue")
+        self.m_redis_queue = self.p_redis_queue.start()
         self.m_queue = mock.Mock()
-        self.m_queue_cls.return_value = self.m_queue
+        self.m_redis_queue.return_value = self.m_queue
 
         self.input_file = NamedTemporaryFile(suffix=".csv")
         self.email_template = NamedTemporaryFile(suffix=".txt")
@@ -51,13 +47,15 @@ class TestSendBulkEmails(TestCase):
         ]
 
     def tearDown(self):
-        self.p_queue_cls.stop()
-        self.m_redis_from_url.stop()
+        self.p_redis_queue.stop()
 
     def test_send_bulk_emails(self):
         call_command("send_bulk_emails", self.input_file.name, self.email_template.name)
 
-        self.m_redis_from_url.assert_called_once_with(settings.RQ_QUEUES[settings.DEFAULT_QUEUE_NAME]["URL"])
+        self.m_redis_queue.assert_called_once_with(
+            settings.DEFAULT_QUEUE_NAME,
+            settings.RQ_QUEUES[settings.DEFAULT_QUEUE_NAME]["URL"]
+        )
         self.m_queue.enqueue_in.assert_has_calls(
             [
                 mock.call(timedelta(seconds=0), send_email, **self.expexted_send_email[0]),
