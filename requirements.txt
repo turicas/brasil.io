@@ -20,7 +20,7 @@ django-redis==4.12.1
 django-registration==3.1.2
 django-rq==2.3.2
 django-storages==1.9.1
-django==3.1.8
+django==3.1.9
 djangorestframework==3.11.2
 feedparser==6.0.1
 gunicorn==20.0.4
