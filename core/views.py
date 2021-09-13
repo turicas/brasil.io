@@ -107,8 +107,40 @@ def dataset_list(request):
     context = {"datasets": Dataset.objects.filter(q).order_by("name"), "form": form}
     return render(request, "core/dataset-list.html", context)
 
+def dataset_list_detail(request, slug, listname):
+    if len(request.GET) > 0 and not request.user.is_authenticated:
+        return redirect(f"{settings.LOGIN_URL}?next={request.get_full_path()}")
 
-def dataset_detail(request, slug, tablename=""):
+    try:
+        dataset = Dataset.objects.get(slug=slug)
+    except Dataset.DoesNotExist:
+        context = {"message": "Dataset does not exist"}
+        return render(request, "404.html", context, status=404)
+    
+    context = {
+        "listname": listname.replace('_', ' '),
+        "dataset": dataset,
+    }
+
+    return render(request, "core/dataset-list-detail.html", context, status=200)
+
+def dataset_detail(request, slug):
+    if len(request.GET) > 0 and not request.user.is_authenticated:
+        return redirect(f"{settings.LOGIN_URL}?next={request.get_full_path()}")
+
+    try:
+        dataset = Dataset.objects.get(slug=slug)
+    except Dataset.DoesNotExist:
+        context = {"message": "Dataset does not exist"}
+        return render(request, "404.html", context, status=404)
+
+    context = {
+        "dataset": dataset,
+    }
+
+    return render(request, "core/dataset-detail.html", context, status=200)
+
+def dataset_table_detail(request, slug, tablename=""):
     if len(request.GET) > 0 and not request.user.is_authenticated:
         return redirect(f"{settings.LOGIN_URL}?next={request.get_full_path()}")
 
@@ -246,7 +278,7 @@ def dataset_detail(request, slug, tablename=""):
     status = 200
     if filter_form.errors:
         status = 400
-    return render(request, "core/dataset-detail.html", context, status=status)
+    return render(request, "core/dataset-table-detail.html", context, status=status)
 
 
 def dataset_suggestion(request):
