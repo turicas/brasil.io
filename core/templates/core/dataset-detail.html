@@ -2,216 +2,93 @@
 {% load cache %}
 {% load humanize %}
 {% load l10n %}
+{% load static %}
 {% load markdown %}
 {% load utils %}
 {% block title %}{{ dataset.name }} - Datasets - Brasil.IO{% endblock %}
+
+{% block head %}
+{{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'core/css/dataset-detail.css' %}"/>
+{% endblock %}
+
+{% block nav %}
+<div class="nav-content indigo">
+  <div class="breadcrumb">
+    <a href="{% url 'core:dataset-list' %}" title="Voltar para Dataset">Datasets</a> > {{ dataset.name }}
+  </div>
+</div>
+{% endblock %}
 {% block content %}{% localize off %}
 <div class="section">
-  <div id="dataset-detail">
-    <h4>{{ dataset.name }}</h4>
-    <p>
-      {{ dataset.description }}
-    </p>
-    <ul>
-      <li>
-        Fonte original: <a href="{{ dataset.source_url }}" title="Ver fonte original">{{ dataset.source_name }}</a>
-      </li>
-      <li>
-        Libertado por: <a href="{{ dataset.author_url }}" title="Ver liberador">{{ dataset.author_name }}</a>
-      </li>
-      <li>
-        Código-fonte: <a href="{{ dataset.code_url }}" title="Ver código-fonte">{{ dataset.code_url }}</a>
-      </li>
-      <li>
-        Licença: <a href="{{ dataset.license_url }}" title="Ver licença">{{ dataset.license_name }}</a>
-      </li>
-      {% if dataset.link_set.all %}
-      <li>
-        Links relacionados:
-        {% for link in dataset.link_set.all %}
-          <a href="{{ link.url }}" title="Ver mais" target="_blank">{{ link.title }}</a>{% if not forloop.last %}, {% endif %}
-        {% endfor %}
-      </li>
-      {% endif %}
-    </ul>
-  </div>
-
   <div class="row">
+    <div class="col s12 m7">
+      <div class="card small main-card">
+        <div class="card-content">
+          <i id="dataset-icon" class="material-icons icon-dataset">{{ dataset.icon }}</i>
+          <h1 class="main-card-title">{{ dataset.name|capfirst }}</h1>
+          <h2 class="main-card-util">{{ dataset.description }}</h2>
+          {% if dataset.long_description != None %}
+          <p>{{ dataset.long_description }}</p>
+          {% endif %}
+          {% if dataset.info != None %}
+          <h2 class="main-card-util">Informações úteis</h2>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col s12 m5">
+      <div class="card side-card small card-flex">
+          <div class="card-content secondary-card-content card-flex-item">
+              <h3 class="center secondary-card-title">Tabelas</h3>
+              <div style="padding: 0 35px 0;">
+                  <ul class="collection">
+                    {% for table in dataset.tables|slice:":4" %}
+                      <a href="{% url 'core:dataset-table-detail' dataset.slug table.name %}" class="collection-item">
+                        {{table.name|capfirst}}
+                      </a>
+                    {% endfor %}
+                  </ul>
+              </div>
+              {% if dataset.tables|length > 4 %}
+              <div class="center"><a href="{% url 'core:dataset-list-detail' dataset.slug 'tabelas' %}">Ver todas</a></div>
+              {% endif %}
+          </div>
+      </div>
+    </div>
     <div class="col s12">
-      Tabelas:
-      {% for dataset_table in dataset.tables %}
-        {% spaceless %}
-        {% if dataset_table == table %}
-        <strong>{{ dataset_table.name }}</strong>
-        {% else %}
-        <a href="{% url 'core:dataset-table-detail' dataset.slug dataset_table.name %}">{{ dataset_table.name }}</a>
-        {% endif %}
-        {% endspaceless %}{% if not forloop.last %}, {% else %}.{% endif %}
-      {% endfor %}
-
-    {% cache 3600 table_description table.description %}
-    {% if table.description %}
-    <div class="row">
-      <div class="col s12">
-        <div class="card">
-          <div class="card-content">
-            <span class="card-title">Informações úteis</span>
-            {{ table.description | markdownify | safe }}
-          </div>
-        </div>
-      </div>
-    </div>
-    {% endif %}
-    {% endcache %}
-
-      <p>
-        Quer <b>baixar os dados completos</b> ou precisa <b>acessá-los de
-          maneira automatizada</b>? Antes de mais nada, <a
-          href="https://blog.brasil.io/2020/10/10/como-acessar-os-dados-do-brasil-io/"><b>leia
-            a documentação</b></a> e depois <a href="{{ dataset.files_url }}">baixe
-          o dataset completo</a> ou
-        <a href="{% url 'v1:dataset-detail' dataset.slug %}">utilize
-          nossa API</a>.
-      </p>
-
-      <ul class="tabs tabs-fixed-width" id="tabs">
-        <li class="tab col s3"><a class="active" href="#data">Dados</a></li>
-        <li class="tab col s3"><a href="#metadata">Metadados</a></li>
-        <li class="tab col s3"><a href="#midia">Publicações na mídia</a></li>
-      </ul>
-    </div>
-    <div id="data" class="col s12">
-      <div class="row">
-        <div class="col s12 m12">
-          <h5>Filtros</h5>
-
-          <form method="get">
-            <div class="row">
-
-              <div class="input-field col s6">
-                <label class="active" for="search">Busca</label>
-                <input type="text" id="search" name="search" value="{{ search_term }}">
-
-              </div>
-
-              {% for field in filter_form %}
-              <div class="input-field col s6">
-                <label class="active" for="{{ field.name }}">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                  <span class="filter-error">{{ field.errors.as_text }}</span>
-                {% endif %}
-              </div>
-              {% endfor %}
-
-            </div>
-            <div class="row">
-              <input class="btn" type="submit" value="Filtrar">
-            </div>
-
-          </form>
-        </div>
-      </div>
-
-      <div class="row">
-        <p>
-          Dados capturados em {{ version.collected_at }}.
-          {% if table.import_date %}
-            Importação dos dados feita em {{ table.import_date }}.
-          {% endif %}
-        </p>
-
-        <div class="col s12 m7 left" style="padding-left: 0px;">
-          {% if total_count > 0 and total_count <= max_export_rows and querystring %}
-          <a class="btn" href="{% url 'core:dataset-table-detail' slug table.name %}?{% if querystring %}{{ querystring }}&amp;{% endif %}format=csv">
-            Baixar resultado em CSV*
-          </a>
-          <br>
-          * No máximo {{ max_export_rows|localize }} registros serão
-          exportados. Caso você necessite de mais dados, considere
-          <a href="{{ dataset.files_url }}">baixar o dataset completo</a>.
-          {% else %}
-          <a class="btn" href="{{ dataset.files_url }}" target="_blank">
-            Baixar dados completos em CSV
-          </a>
-          {% endif %}
-        </div>
-
-        <div class="col s12 m5 right">
-          <ul class="pagination right">
-             <li> {{ data.start_index|localize }}-{{ data.end_index|localize }} de um total de {{ total_count|localize }}</li>
-            {% if data.has_previous %}
-            <li> <a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ data.previous_page_number }}"><i class="material-icons">chevron_left</i></a> </li>
-            {% endif %}
-
-            {% if data.has_next %}
-            <li> <a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ data.next_page_number }}"><i class="material-icons">chevron_right</i></a> </li>
-            {% endif %}
-          </ul>
-        </div>
-
-      </div>
-
-      <div class="row table-container" style="padding-left: 0px;">
-        {% with table_id=dataset.slug fields=table.fields %}
-        {% include 'core/data-table.html' %}
-        {% endwith %}
-      </div>
-
-    </div>
-    <div id="metadata" class="col s12">
-
-      <div class="row">
-        <div class="card horizontal">
-          <div class="card-stacked">
-            <div class="card-content">
-              <span class="card-title activator grey-text text-darken-4">
-                Dicionário de Dados - Tabela {{ table.name }}
-              </span>
-
-              <table>
-                <thead>
-                  <tr>
-                    <th>Coluna</th>
-                    <th>Tipo</th>
-                    <th>Título</th>
-                    <th>Descrição</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {% for field in table.fields %}
-                  <tr>
-                    <td> {{ field.name }} </td>
-                    <td> {{ field.type }}{% if field.options_text %} ({{ field.options_text }}){% endif %}</td>
-                    <td> {{ field.title }} </td>
-                    <td> {{ field.description }} </td>
-                  </tr>
+      <div class="card medium">
+          <div class="card-content" >
+              <h2 class="side-card-title">{{dataset.name}}</h2>
+              <p>{{ dataset.description }}</p>
+              <ul class="metadata">
+                <li class="side-card-data">
+                  Fonte original: <a class="side-card-data-text" href="{{ dataset.source_url }}" title="Ver fonte original">{{ dataset.source_name }}</a>
+                </li>
+                <li class="side-card-data">
+                  Libertado por: <a class="side-card-data-text" href="{{ dataset.author_url }}" title="Ver liberador">{{ dataset.author_name }}</a>
+                </li>
+                <li class="side-card-data">
+                  Código-fonte: <a class="side-card-data-text" href="{{ dataset.code_url }}" title="Ver código-fonte">{{ dataset.code_url }}</a>
+                </li>
+                <li class="side-card-data">
+                  Licença: <a class="side-card-data-text" href="{{ dataset.license_url }}" title="Ver licença">{{ dataset.license_name }}</a>
+                </li>
+                <li class="side-card-data">
+                  Links relacionados:
+                  {% for link in dataset.link_set.all %}
+                    <a href="{{ link.url }}" title="Ver mais" target="_blank">{{ link.title }}</a>{% if not forloop.last %}, {% endif %}
                   {% endfor %}
-                </tbody>
-
-              </table>
-
-            </div>
+                </li>
+              </ul>
           </div>
-        </div>
       </div>
-
     </div>
-    
-    <div id="midia" class="col s12">
-
-      <div class="row">
-        <div class="card horizontal">
-          <div class="card-stacked">
-            <div class="card-content">
+    <div class="col s12">
+      <div class="card">
+          <div class="card-content" >
+              <h2 class="side-card-title">Referências desta base de dados na mídia</h2>
               <div>
-                <span class="card-title activator grey-text text-darken-4">
-                  Referências desta base de dados na mídia
-                </span>
-                <div>
-                  
-                </div>
                 <table class="highlight">
                   <thead>
                     <tr>
@@ -221,21 +98,20 @@
                       <th>Link</th>
                     </tr>
                   </thead>
-  
+
                   <tbody>
                     {% if clipping|length > 0 %}
-                      {% for link in clipping %}
-                        {% if link.clipping.published %}
-                          <tr onclick="window.open('{{ link.clipping.url }}', '_blank' )" style="cursor: pointer;" title="Clique para acessar o link">
-                            <td> {{ link.clipping.title }}</td>
-                            <td> {{ link.clipping.author }} </td>
-                            <td> {{ link.clipping.category }} </td>
-                            <td class="blue-text text-darken-2"> {{ link.clipping.url|truncatechars:30}}</td>
-                          </tr>
-                        {% endif %}
-                      {% endfor %}
+                    {% for link in clipping %}
+                    <tr onclick="window.open('{{ link.clipping.url }}', '_blank' )" style="cursor: pointer;"
+                      title="Clique para acessar o link">
+                      <td> {{ link.clipping.title }}</td>
+                      <td> {% if link.clipping.author %}{{ link.clipping.author }}{% else %} --- {% endif %} </td>
+                      <td> {{ link.clipping.category }} </td>
+                      <td class="blue-text text-darken-2"> {{ link.clipping.url|truncatechars:30}}</td>
+                    </tr>
+                    {% endfor %}
                     {% else %}
-                    <tr style="cursor: pointer;" >
+                    <tr style="cursor: pointer;">
                       <td> --- </td>
                       <td> --- </td>
                       <td> Nenhum link publicado</td>
@@ -243,40 +119,17 @@
                     </tr>
                     {% endif %}
                   </tbody>
-  
+
                 </table>
                 {% if user.is_authenticated %}
-                  <div style="padding-top: 50px;">
-                    <span class="card-title activator grey-text text-darken-4">
-                      Sugerir novo link
-                    </span>
-                    <div class="row" style="padding-top: 20px;">
-                      <form class="col s12" method="post">
-                        {% csrf_token %}
-                        {% for field in form %}
-                          <div class="input-field col s6">
-                            {{field}}
-                            <label for="{{field.name}}">{{field.label}}</label>
-                            {% if field.errors %}
-                              <span class="helper-text red-text">{{field.errors}}</span>
-                            {% endif %}
-                          </div>
-                          {% endfor %}
-                          <div class="col s12">
-                            <button  class="btn">Enviar</button>
-                          </div>
-                      </form>
-                    </div>
-                  </div>
+                <div style="margin-top: 5px;">
+                  <a href="{% url 'core:dataset-form-clipping' %}">Sugerir Referência </a>
+                </div>
                 {% endif %}
               </div>
-            </div>
           </div>
-        </div>
       </div>
-
     </div>
-
   </div>
 </div>
 {% if message %}
@@ -287,17 +140,18 @@
 
 {% block script %}
 {{ block.super }}
-<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" language="javascript"
+  src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
-  $(document).ready(function() {
+  $(document).ready(function () {
     M.Tabs.init(document.getElementById('tabs'));
     $('select').formSelect();
 
     $('.mdl-data-table').DataTable({
-        "paging":         false,
-        "searching":      false,
-        "ordering":       false,
-        "bInfo":          false,
+      "paging": false,
+      "searching": false,
+      "ordering": false,
+      "bInfo": false,
     });
     $('.datepicker').datepicker({
       i18n: {

@@ -19,6 +19,7 @@ urlpatterns = [
     path("dataset/<slug>/<tablename>/", enable_ratelimit(views.dataset_table_detail), name="dataset-table-detail"),
     path("dataset/<slug>/list_all/<listname>/", views.dataset_list_detail, name="dataset-list-detail"),
     path("datasets/sugira/", views.dataset_suggestion, name="dataset-suggestion"),
+    path("datasets/sugira-clipping/", views.dataset_clipping_suggestion, name="dataset-form-clipping"),
     path("manifesto/", views.manifesto, name="manifesto"),
     path("colabore/", views.collaborate, name="collaborate"),
     path("doe/", views.donate, name="donate"),
