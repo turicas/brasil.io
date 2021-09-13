@@ -17,7 +17,7 @@
     <div class="card-reveal grey lighten-5">
       <i class="material-icons icon-dataset">{{ dataset.icon }}</i>
       <span class="card-title grey-text text-darken-4">Tabelas<i class="material-icons right">close</i></span>
-      <span class="subtitle-tables">{{ dataset.name }}</span>
+      <a href="{% url 'core:dataset-detail' dataset.slug %}" class="subtitle-tables">{{ dataset.name }}</a>
       <div class="links">
         {% for table in dataset.tables %}
         {% spaceless %}
