@@ -1,0 +1,128 @@
+.breadcrumb {
+  letter-spacing: 3px;
+  margin-left: 21px;
+  padding-bottom: 12px;
+}
+
+h1 {
+  font-size: 25px;
+  margin-bottom: 25px;
+  margin-left: 7px;
+}
+
+.nav-content a:hover {
+  text-decoration: underline;
+}
+
+.main-card {
+  height: 291px;
+  overflow-y: auto;
+}
+
+.main-card-title {
+  font-size: x-large;
+  margin: 0 0 12px 0;
+}
+
+.main-card-util {
+  margin: 12px 0 9px 0;
+  font-size: medium;
+}
+
+#dataset-icon {
+  padding: 0 0 14px;
+}
+
+.side-card-title {
+  font-size: large;
+  font-weight: 500;
+  margin: 14px 0 10px 0;
+}
+
+.side-card-data {
+  font-weight: 500;
+  padding: 14px 0 2px 0;
+}
+
+.side-card-data a {
+  font-weight: 500;
+}
+
+.side-card-data-text {
+  font-weight: 400;
+}
+
+.side-card p {
+  max-width: 450px;
+}
+
+.main-card p {
+  max-width: 650px;
+}
+
+.secondary-card-title {
+  font-size: medium;
+  font-weight: 500;
+  margin: 4px 0 12px 0;
+}
+
+.secondary-card-content {
+  max-width: 900px;
+  margin: auto;
+}
+
+.metadata {
+  margin: 4px 0;
+}
+
+.metadata li {
+  padding: 5px 0;
+  font-weight: 600;
+}
+
+.collection-item {
+  font-weight: 500;
+  letter-spacing: 1px;
+  color:#007db6 !important;
+}
+
+.card-flex {
+  display: flex;
+}
+
+.card-flex-item {
+  flex-grow: 1;
+}
+
+/* Container style of BRiO */
+.container {
+  margin: 0 auto;
+  width: 90%;
+  max-width: 100%;
+}
+
+/* Table detail */
+
+.tab a.active {
+  background-color: rgba(203, 203, 255, 0.2) !important;
+}
+
+.tabs .tab a {
+  background-color: rgba(225, 225, 255, 0.1)
+}
+
+.tabs .indicator {
+  background-color: blue !important;
+}
+
+@media only screen and (min-width: 301px) {
+  .table-detail p {
+    max-width: 600px;
+  }
+}
+
+@media only screen and (min-width: 993px) {
+  .table-detail p {
+    max-width: 900px;
+  }
+}

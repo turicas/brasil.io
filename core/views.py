@@ -112,7 +112,15 @@ def dataset_list_detail(request, slug, listname):
         return redirect(f"{settings.LOGIN_URL}?next={request.get_full_path()}")
 
     try:
-        dataset = Dataset.objects.get(slug=slug)
+        clipping_dataset = []
+        if listname == "tabelas":
+            dataset = Dataset.objects.get(slug=slug)
+        else:
+            dataset = Dataset.objects.get(slug=slug)
+            clipping_type_dataset = ContentType.objects.get(app_label="core", model="dataset")
+            clipping_dataset = list(
+                ClippingRelation.objects.filter(content_type=clipping_type_dataset.id, object_id=dataset.pk, clipping__published=True).distinct("clipping__vehicle")
+            )
     except Dataset.DoesNotExist:
         context = {"message": "Dataset does not exist"}
         return render(request, "404.html", context, status=404)
@@ -120,6 +128,7 @@ def dataset_list_detail(request, slug, listname):
     context = {
         "listname": listname.replace('_', ' '),
         "dataset": dataset,
+        "clipping": clipping_dataset,
     }
 
     return render(request, "core/dataset-list-detail.html", context, status=200)
@@ -133,9 +142,15 @@ def dataset_detail(request, slug):
     except Dataset.DoesNotExist:
         context = {"message": "Dataset does not exist"}
         return render(request, "404.html", context, status=404)
+    
+    clipping_type_dataset = ContentType.objects.get(app_label="core", model="dataset")
+    clipping_dataset = list(
+        ClippingRelation.objects.filter(content_type=clipping_type_dataset.id, object_id=dataset.pk, clipping__published=True).distinct("clipping__vehicle")
+    )
 
     context = {
         "dataset": dataset,
+        "clipping": clipping_dataset,
     }
 
     return render(request, "core/dataset-detail.html", context, status=200)
@@ -233,31 +248,9 @@ def dataset_table_detail(request, slug, tablename=""):
         if not value:
             del querystring[key]
 
-    clipping = []
-    clipping_type_dataset = ContentType.objects.get(app_label="core", model="dataset")
-    clipping_dataset = list(
-        ClippingRelation.objects.filter(content_type=clipping_type_dataset.id, object_id=dataset.pk)
-    )
-    clipping.extend(clipping_dataset)
     clipping_type_table = ContentType.objects.get(app_label="core", model="table")
     clipping_table = list(ClippingRelation.objects.filter(content_type=clipping_type_table.id, object_id=table.pk))
-    clipping.extend(clipping_table)
-
-    message = None
-    if request.method == "POST":
-        clipping_form = ClippingForm(request.POST)
-        if clipping_form.is_valid():
-            clipping = clipping_form.save(commit=False)
-            clipping.added_by = request.user
-            clipping.save()
-            clipping_form.added_by = request.user
-
-            clipping_form = ClippingForm()
-            message = "Sugestão enviada com sucesso"
-        else:
-            message = "Erro: Verifique o formulário novamente"
-    else:
-        clipping_form = ClippingForm()
+    clipping = clipping_table
 
     context = {
         "clipping": clipping,
@@ -271,8 +264,6 @@ def dataset_table_detail(request, slug, tablename=""):
         "table": table,
         "total_count": all_data.count(),
         "version": version,
-        "form": clipping_form,
-        "message": message,
     }
 
     status = 200
@@ -280,6 +271,28 @@ def dataset_table_detail(request, slug, tablename=""):
         status = 400
     return render(request, "core/dataset-table-detail.html", context, status=status)
 
+def dataset_clipping_suggestion(request):
+    message = None
+    if request.method == "POST":
+        clipping_form = ClippingForm(request.POST)
+        if clipping_form.is_valid():
+            clipping = clipping_form.save(commit=False)
+            clipping.added_by = request.user
+            clipping.save()
+            clipping_form.added_by = request.user
+
+            message = "Sugestão enviada com sucesso"
+            return render(request, "core/dataset-list.html")
+        else:
+            message = "Erro: Verifique o formulário novamente"
+    else:
+        clipping_form = ClippingForm()
+    
+    context = {
+        "form": clipping_form,
+        "message": message,
+    }
+    return render(request, "core/dataset-form-clipping.html", context)
 
 def dataset_suggestion(request):
     return render(request, "core/dataset-suggestion.html", {})
