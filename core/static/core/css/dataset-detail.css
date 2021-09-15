@@ -4,6 +4,16 @@
   padding-bottom: 12px;
 }
 
+.breadcrumb .dropdown-trigger {
+  padding-right: 80px;
+}
+
+
+.breadcrumb a i.material-icons {
+  position: fixed;
+  line-height: 1;
+}
+
 h1 {
   font-size: 25px;
   margin-bottom: 25px;
