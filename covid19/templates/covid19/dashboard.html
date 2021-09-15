@@ -48,12 +48,9 @@
         </h1>
       </div>
       <div class="col s12 m6 l6">
-        <div class="input-field">
+        <div class="input-field" title="Selecione estado">
           <select id="state-select">
-            <option value="" disabled {% if not state %} selected {% endif %}>Escolha Panorama</option>
-            {% if state %}
-            <option value="{% url 'covid19:dashboard' %}">Nacional</option>
-            {% endif %}
+            <option value="{% url 'covid19:dashboard' %}" {% if not state %} selected {% endif %}>Brasil</option>
             {% for state_data in states %}
             <option {% if state == state_data.acronym %} selected {% endif %}
               value="{% url 'covid19:dashboard' state_data.acronym %}">{{ state_data.acronym }}</option>
