@@ -123,7 +123,7 @@
                 </table>
                 {% if user.is_authenticated %}
                 <div style="margin-top: 5px;">
-                  <a href="{% url 'core:dataset-form-clipping' %}">Sugerir Referência </a>
+                  <a href="{% url 'core:dataset-form-clipping' %}?next={{ request.path|urlencode }}">Sugerir Referência</a>
                 </div>
                 {% endif %}
               </div>
@@ -132,8 +132,10 @@
     </div>
   </div>
 </div>
-{% if message %}
-  <script type=text/javascript>M.toast({html: "{{message}}" })</script>
+{% if messages %}
+  {% for message in messages %}
+      <script type=text/javascript>M.toast({html: "{{message}}" })</script>
+  {% endfor %}
 {% endif %}
 
 {% endlocalize %}{% endblock %}
@@ -152,29 +154,6 @@
       "searching": false,
       "ordering": false,
       "bInfo": false,
-    });
-    $('.datepicker').datepicker({
-      i18n: {
-        months: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
-        monthsShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-        weekdays: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sabádo'],
-        weekdaysShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'],
-        weekdaysAbbrev: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'],
-        today: 'Hoje',
-        clear: 'Limpar',
-        cancel: 'Sair',
-        done: 'Confirmar',
-        labelMonthNext: 'Próximo mês',
-        labelMonthPrev: 'Mês anterior',
-        labelMonthSelect: 'Selecione um mês',
-        labelYearSelect: 'Selecione um ano',
-        selectMonths: true,
-        selectYears: true,
-      },
-      yearRange: [2010,new Date().getFullYear()],
-      format: 'yyyy-mm-dd',
-      container: 'body',
-      maxDate: new Date(),
     });
   });
 </script>

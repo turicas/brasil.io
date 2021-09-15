@@ -21,7 +21,7 @@ from core.templatetags.utils import obfuscate
 from core.util import cached_http_get_json
 from data_activities_log.activites import recent_activities
 from traffic_control.logging import log_blocked_request
-
+from django.contrib.messages import success
 
 class Echo:
     def write(self, value):
@@ -272,6 +272,9 @@ def dataset_table_detail(request, slug, tablename=""):
     return render(request, "core/dataset-table-detail.html", context, status=status)
 
 def dataset_clipping_suggestion(request):
+    if len(request.GET) > 0 and not request.user.is_authenticated:
+        return redirect(f"{settings.LOGIN_URL}?next={request.get_full_path()}")
+    
     message = None
     if request.method == "POST":
         clipping_form = ClippingForm(request.POST)
@@ -279,10 +282,10 @@ def dataset_clipping_suggestion(request):
             clipping = clipping_form.save(commit=False)
             clipping.added_by = request.user
             clipping.save()
-            clipping_form.added_by = request.user
 
-            message = "Sugestão enviada com sucesso"
-            return render(request, "core/dataset-list.html")
+            success(request, "Sugestão enviada com sucesso")
+            
+            return redirect(request.POST.get('next', '/'))
         else:
             message = "Erro: Verifique o formulário novamente"
     else:

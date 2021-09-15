@@ -175,7 +175,7 @@
                 </table>
                 {% if user.is_authenticated %}
                 <div>
-                  <a href="{% url 'core:dataset-form-clipping' %}">Sugerir Referência </a>
+                  <a href="{% url 'core:dataset-form-clipping' %}?next={{ request.path|urlencode }}">Sugerir Referência</a>
                 </div>
                 {% endif %}
               </div>
@@ -250,8 +250,10 @@
     </div>
   </div>
 </div>
-{% if message %}
-  <script type=text/javascript>M.toast({html: "{{message}}" })</script>
+{% if messages %}
+  {% for message in messages %}
+      <script type=text/javascript>M.toast({html: "{{message}}" })</script>
+  {% endfor %}
 {% endif %}
 {% endlocalize %}{% endblock %}
 
