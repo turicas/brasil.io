@@ -3,6 +3,7 @@ import uuid
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.messages import success
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -283,6 +284,9 @@ def dataset_table_detail(request, slug, tablename=""):
     return render(request, "core/dataset-table-detail.html", context, status=status)
 
 def dataset_clipping_suggestion(request):
+    if len(request.GET) > 0 and not request.user.is_authenticated:
+        return redirect(f"{settings.LOGIN_URL}?next={request.get_full_path()}")
+
     message = None
     if request.method == "POST":
         clipping_form = ClippingForm(request.POST)
@@ -290,10 +294,9 @@ def dataset_clipping_suggestion(request):
             clipping = clipping_form.save(commit=False)
             clipping.added_by = request.user
             clipping.save()
-            clipping_form.added_by = request.user
-            message = "Sugestão enviada com sucesso"
             send_clipping_mail.delay(clipping.pk)
-            return render(request, "core/dataset-list.html")
+            success(request, "Sugestão enviada com sucesso")
+            return redirect(request.POST.get('next', '/'))
         else:
             message = "Erro: Verifique o formulário novamente"
     else:

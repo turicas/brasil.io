@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Sugerir novo link - Brasil.IO{% endblock %}
+{% block content %}
+<div class="card" style="margin-top: 50px; padding: 50px 20px">
+    <div>
+        <span class="card-title activator grey-text text-darken-4">
+            Sugerir novo link
+        </span>
+        <div class="row" style="padding-top: 20px;">
+            <form class="col s12" method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="input-field col s6">
+                {{field}}
+                <label for="{{field.name}}">{{field.label}}</label>
+                {% if field.errors %}
+                <span class="helper-text red-text">{{field.errors}}</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+            <div class="col s12">
+                <button class="btn blue waves-effect right">Enviar</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% if message %}
+  <script type=text/javascript>M.toast({html: "{{message}}" })</script>
+{% endif %}
+{% endblock %}
+
+{% block script %}
+{{ block.super }}
+<script type="text/javascript" language="javascript"
+  src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function () {
+    $('select').formSelect();
+    $('.datepicker').datepicker({
+      i18n: {
+        months: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+        monthsShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+        weekdays: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sabádo'],
+        weekdaysShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'],
+        weekdaysAbbrev: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'],
+        today: 'Hoje',
+        clear: 'Limpar',
+        cancel: 'Sair',
+        done: 'Confirmar',
+        labelMonthNext: 'Próximo mês',
+        labelMonthPrev: 'Mês anterior',
+        labelMonthSelect: 'Selecione um mês',
+        labelYearSelect: 'Selecione um ano',
+        selectMonths: true,
+        selectYears: true,
+      },
+      yearRange: [2010,new Date().getFullYear()],
+      format: 'yyyy-mm-dd',
+      container: 'body',
+      maxDate: new Date(),
+    });
+  });
+</script>
+{% endblock %}
