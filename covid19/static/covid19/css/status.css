@@ -1,8 +1,3 @@
-#table_container {
-    margin-top: 2em;
-    margin-bottom: 4em;
-}
-
 .monthYearBulletins {
     margin: 1.2em;
     font-size: 1.5em;
@@ -13,3 +8,8 @@
     font-size: 1.1em;
 }
 
+h1 {
+    font-size: 25px;
+    margin-bottom: 25px;
+    margin: 25px 0 25px 7px;
+}

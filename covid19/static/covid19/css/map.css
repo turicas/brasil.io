@@ -20,11 +20,6 @@ nav.nav-state-selector ul {
 #map {
   margin-top: -40px;
   min-height: 850px;
-  min-width: 400px;
-}
-
-.card {
-  height: 10em;
 }
 
 .card > .card-content.card-body.number{
@@ -46,8 +41,9 @@ nav.nav-state-selector ul {
 }
 
 .chart{
-  height: 40vh; 
-  margin-bottom: 130px;
+  height: 50vh;
+  margin-bottom: 80px;
+  padding: 15px 20px;
 }
 
 .info {
@@ -103,24 +99,6 @@ nav.nav-state-selector ul {
   width: calc(100% - 7rem);
 }
 
-#map-col {
-  padding: 0 2px 0 0;
-}
-#table-col {
-  padding: 0 0 0 0;
-}
-
-.state-option {
-  font-size: 1em;
-  padding: 0 1em;
-}
-@media screen and (max-width: 1280px) {
-  .state-option {
-    font-size: 1em;
-    padding: 0 0.25em;
-  }
-}
-
 /* 
   Css para manter style da dashboard covid19
   com estilos de espaçamento e cards diferentes
@@ -170,4 +148,37 @@ nav.nav-state-selector ul {
   .container {
     width: 90%;
   }
+}
+
+/* 
+  Style de data cards
+*/
+
+.data-card {
+  display: flex;
+  align-items: center;
+  height: 130px;
+}
+
+.data-card .card-content p:first-child {
+  color:rgb(75, 75, 75) !important;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 5px 0;
+}
+
+.data-card .card-content .number {
+  color:rgb(53, 53, 53) !important;
+  font-size: 25px;
+  font-weight: 500;
+}
+
+.data-card .card-content .percent {
+  font-size: 13px;
+}
+
+h1 {
+  font-size: 25px;
+  margin-bottom: 25px;
+  margin-left: 7px;
 }
