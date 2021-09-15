@@ -27,9 +27,9 @@
         <div class="card-content">
           <i id="dataset-icon" class="material-icons icon-dataset">{{ dataset.icon }}</i>
           <h1 class="main-card-title">{{ dataset.name|capfirst }}</h1>
-          <h2 class="main-card-util">{{ dataset.description }}</h2>
-          {% if dataset.long_description != None %}
-          <p>{{ dataset.long_description }}</p>
+          <h2 class="main-card-util">{{ dataset.short_description }}</h2>
+          {% if dataset.description != None %}
+          <p>{{ dataset.description }}</p>
           {% endif %}
           {% if dataset.info != None %}
           <h2 class="main-card-util">Informações úteis</h2>
@@ -60,7 +60,7 @@
       <div class="card medium">
           <div class="card-content" >
               <h2 class="side-card-title">{{dataset.name}}</h2>
-              <p>{{ dataset.description }}</p>
+              <p>{{ dataset.short_description }}</p>
               <ul class="metadata">
                 <li class="side-card-data">
                   Fonte original: <a class="side-card-data-text" href="{{ dataset.source_url }}" title="Ver fonte original">{{ dataset.source_name }}</a>
