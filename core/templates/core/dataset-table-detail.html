@@ -17,8 +17,8 @@
     <a href="{% url 'core:dataset-detail' dataset.slug %}" title="Voltar para {{ dataset.name }}">{{ dataset.name }}</a>
     >
     <!-- Dropdown Trigger -->
-    <a class="dropdown-trigger" href="#!" data-target="dropdown_tables" style="padding-right: 80px;">
-      {{ table.name|capfirst }} <span style="font-size: 15px;">&#8675;</span>
+    <a class="dropdown-trigger" href="#!" data-target="dropdown_tables">
+      {{ table.name|capfirst }} <i class="material-icons">arrow_drop_down</i>
     </a>
   </div>
 </div>
