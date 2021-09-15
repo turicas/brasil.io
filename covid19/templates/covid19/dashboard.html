@@ -41,9 +41,9 @@
       <div class="col s12 m6 l6">
         <h1 style="padding-top:15px">
           {% if not state %}
-          Panorama nacional no Brasil
+          Localidade: Brasil
           {% else %}
-          Panorama estadual - {{ state_name }}
+          Localidade: {{ state_name }}
           {% endif %}
         </h1>
       </div>
@@ -59,7 +59,7 @@
               value="{% url 'covid19:dashboard' state_data.acronym %}">{{ state_data.acronym }}</option>
             {% endfor %}
           </select>
-          <label>Panorama</label>
+          <label>Localidade</label>
         </div>
       </div>
     </div>
