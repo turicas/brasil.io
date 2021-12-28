@@ -96,7 +96,6 @@ class ImportDataCommand:
         table_name = Model._meta.db_table
         database_uri = os.environ["DATABASE_URL"]
         encoding = "utf-8"  # TODO: receive as a parameter
-        timeout = 0.1  # TODO: receive as a parameter
         start_time = time.time()
         progress = rows.utils.ProgressBar(prefix="Importing data", unit="bytes")
 
@@ -117,7 +116,6 @@ class ImportDataCommand:
                 database_uri=database_uri,
                 table_name=table_name,
                 create_table=False,
-                timeout=timeout,
                 callback=progress.update,
                 schema=schema,
                 unlogged=self.unlogged,
