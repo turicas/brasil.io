@@ -85,10 +85,11 @@ def historical_data(request, period):
 
     # Remove last period since it won't be complete
     diff_days = -14
-    if timezone.now().year == 2021:
+    now = timezone.now()
+    if now.year != 2020:
         # TODO: remove this hack with up-to-date data
         diff_days -= (
-            timezone.now() - datetime.datetime(2021, 1, 1, 0, 0, 0, tzinfo=timezone.get_current_timezone())
+            timezone.now() - datetime.datetime(now.year, 1, 1, 0, 0, 0, tzinfo=timezone.get_current_timezone())
         ).days
     if period == "daily":
         from_states = clean_daily_data(from_states, skip=0, diff=-1)
