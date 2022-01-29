@@ -1,0 +1,31 @@
+.dataset-card {
+    @extend .bg-brio-light, .shadow, .border, .p-4, .rounded, .position-relative;
+
+    h3 {
+        @extend .d-flex, .align-items-center;
+        height: 5rem;
+    }
+}
+
+.tab-content-dataset {
+    @extend .tab-content;
+    height: 10rem;
+    overflow-y: auto;
+}
+
+.dataset-icon {
+    @extend .position-absolute, .d-flex, .flex-column, .justify-content-center, .align-items-center;
+    pointer-events: none;
+    top: 10%;
+    right: 5%;
+
+    i {
+        font-size: 5rem;
+        opacity: 15%;
+    }
+}
+
+
+.dataset-cards-list {
+    @extend .col-md-6, .col-lg-4;
+}

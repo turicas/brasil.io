@@ -1,0 +1,33 @@
+// Grid breakpoints
+// scss-docs-start grid-breakpoints
+
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px,
+  xxxl: 1840px,
+) !default;
+
+@import "../node_modules/bootstrap/scss/bootstrap";
+
+// Themed fontweight
+$fw-base: 400;
+$fw-heavy: 500;
+
+// Components
+@import "components/_navscroller.scss";
+@import "components/_datasetcard.scss";
+@import "components/_specialpagecard.scss";
+@import "components/_cardinfo.scss";
+
+// Layouts
+@import "layouts/dashboard.scss";
+@import "layouts/cardssection.scss";
+@import "layouts/datasetdetails.scss";
+@import "layouts/authbase.scss";
+@import "layouts/base.scss";
+@import "layouts/bulletins.scss";
+@import "layouts/_home.scss";

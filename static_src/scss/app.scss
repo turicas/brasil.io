@@ -1,0 +1,36 @@
+// Scss imports
+
+$primary: #525eb3;
+$secondary: #6c757d;
+$success: #198754;
+$warning: #ffc107;
+$danger: #dc3545;
+$info: #0dcaf0;
+$dark: #212529;
+$light: #f8f9fa;
+
+$brio-primary: $primary;
+$brio-success: #86ff84;
+$brio-warning: #feffdd;
+
+$main-banner-dark: #404392;
+$main-banner-light: #5280b3;
+$cards-section-bg: #dee2e6;
+
+$theme-colors: (
+    "primary": $primary,
+    "secondary": $secondary,
+    "success": $success,
+    "warning": $warning,
+    "danger": $danger,
+    "info": $info,
+    "dark": $dark,
+    "light": $light,
+    "brio-primary": $brio-primary,
+    "brio-success": $brio-success,
+    "brio-warning": $brio-warning,
+    "brio-success-secondary": #2a2730,
+    "brio-light": #fff,
+);
+
+@import "commonimports";
