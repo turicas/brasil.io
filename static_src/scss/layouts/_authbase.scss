@@ -1,0 +1,7 @@
+.auth-base-section {
+    @extend .modal, .position-static, .d-block, .py-5;
+}
+
+.auth-btn {
+    @extend .w-100, .my-2, .btn, .btn-lg, .btn-primary;
+}
