@@ -4,9 +4,9 @@
 
 {% block content %}
 <div class="section">
-  <div class="row">
-
-  <pre>
+  <h1>Exemplo de uso de Chaves API - Brasil.IO</h1>
+  <div class="row bg-light border shadow-sm p-5 mt-4">
+    <pre>
 ### Exemplo em Python 3
 import json
 from urllib.request import Request, urlopen
@@ -17,8 +17,7 @@ request = Request(url, headers={"Authorization": f"Token {token}"})
 response = urlopen(request)
 data = json.load(response)
 print(data)
-  </pre>
-
+    </pre>
   </div>
 </div>
 {% endblock %}
