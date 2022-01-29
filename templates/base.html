@@ -1,131 +1,216 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html class="h-100">
 
 <head>
   {% block head %}
-  <meta charset="utf-8">
-  <!--Import Google Icon Font-->
-  <link rel="stylesheet" type="text/css" href="{% static 'css/material_icons.css' %}">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-  <link rel="stylesheet" type="text/css" href="{% static 'css/materialize-social.css' %}">
+    <meta charset="utf-8">
 
-  <!-- Compiled and minified CSS -->
-  <link rel="stylesheet" type="text/css" href="{% static 'css/materialize.min.css' %}">
-  <link rel="stylesheet" type="text/css" href="{% static 'css/dataTables.material.min.css' %}">
-  <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
-  <link rel="stylesheet" type="text/css" href="{% static 'css/application.css' %}">
-  <!--Let browser know website is optimized for mobile-->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
-  <title>{% block title %}Brasil.IO{% endblock %}</title>
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="{% static 'css/main.css' %}" rel="stylesheet" />
 
-  {% block script %}
-  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117698282-1"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'UA-117698282-1');
-  </script>
-  <script src="{% static 'js/jquery.js' %}"></script>
-  <script src="{% static 'js/materialize.min.js' %}"></script>
-  <script src="{% static 'js/application.js' %}"></script>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap-icons.css' %}">
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
+    <title>{% block title %}Brasil.IO{% endblock %}</title>
+    {% block script %}
+      <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117698282-1"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'UA-117698282-1');
+      </script>
+      <script src="{% static 'js/jquery.js' %}"></script>
+    {% endblock %}
   {% endblock %}
-  {% endblock %}
-
 </head>
 
-<body>
-  <nav class="nav-extended">
-    <div class="nav-wrapper indigo">
-      <a href="/" class="brand-logo" title="Ir à página inicial">
-        <img id="logo" src="{% static 'img/logo/logo_br-io_fundo-escuro.png' %}" alt="Logo da Brasil.IO">
-      </a>
-      <a href="#" data-target="mobile-demo" class="sidenav-trigger" title="Menu"><i class="material-icons">menu</i></a>
-      <ul class="right hide-on-med-and-down">
-        {% include 'core/menu.html' with id_prefix='desktop' %}
-      </ul>
+<body class="d-flex flex-column h-100">
+  <nav class="navbar navbar-expand-lg navbar-dark brio-navbar px-0">
+    <div class="container py-1">
+        <a class="navbar-brand py-0  d-flex justify-content-center align-items-center" href="/" aria-label="Brasil.io Logo">
+          <img 
+            class="logo-img" 
+            src="{% static 'img/logo/logo_br-io_fundo-escuro-no-text.svg' %}" 
+            alt="Brasil.io logo" width="55px"
+          >
+          <span class="fs-4 ms-2">Brasil.io</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+          aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-lg-end" id="navbarSupportedContent">
+          {% include 'core/menu.html' %}
+        </div>
     </div>
-    {% block nav %}{% endblock %}
   </nav>
+  <div class="flex-shrink-0">
+    {% block nav %}
+    {% endblock %}
+  </div>
 
-  <ul class="sidenav" id="mobile-demo">
-    {% include 'core/menu.html' with id_prefix='mobile'%}
-  </ul>
 
-  {% block top %}{% endblock %}
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11">      
+    {% block alert %}
+    {% endblock %}
+  </div>      
 
-  <main class="container">
+  <main class="flex-shrink-0">
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="page-footer indigo darken-3">
+  <footer class="border-top mt-auto">
     <div class="container">
-      <div class="row">
-        <div class="col l6 s12">
-          <h5 class="white-text">Receba nossas novidades</h5>
-          <!-- Begin MailChimp Signup Form -->
-          <div id="mc_embed_signup">
-            <form
-              action="https://cafe.us18.list-manage.com/subscribe/post?u=80b85fdff0e6a974bff762825&amp;id=ef97ff9b61"
-              method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate"
-              target="_blank" novalidate>
-
-              <div id="mc_embed_signup_scroll ">
-                <div class="row">
-                  <div class="mc-field-group input-field col m4">
-                    <input type="email" placeholder="Digite seu e-mail" value="" name="EMAIL"
-                      class="required email white-text email-newsletter" id="mce-EMAIL">
-                    <label for="mce-EMAIL">Newsletter</label>
-                  </div>
-
-                  <div id="mce-responses" class="clear">
-                    <div class="response" id="mce-error-response" style="display:none"></div>
-                    <div class="response" id="mce-success-response" style="display:none"></div>
-                  </div>
-                  <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-                  <div style="position: absolute; left: -5000px;" aria-hidden="true">
-                    <input type="text" name="b_80b85fdff0e6a974bff762825_ef97ff9b61" tabindex="-1" value="">
-                  </div>
-                  <div class="clear col m4">
-                    <input type="submit" value="Inscrever" name="subscribe" id="mc-embedded-subscribe"
-                      class=" btn btn-dark-blue" style="float: left;">
-                  </div>
-                </div>
-              </div>
-
-            </form>
+      <div class="row px-2">
+        <div class="col-6 col-md-4 col-lg-2 mt-5 px-5 px-lg-0">
+          <div class="d-flex flex-column mb-3 mb-lg-0">
+              <h5>Principal</h5>
           </div>
-          <!--End mc_embed_signup-->
+          <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+              <a href="https://blog.brasil.io/" class="footer-link">Blog</a>
+            </li>
+            <li class="nav-item mb-2">
+              <a href="{% url 'core:dataset-list' %}" class="footer-link">Datasets</a>
+            </li>
+            <li class="nav-item mb-2">
+              <a href="{% url 'core:specials' %}" class="footer-link">Páginas especiais</a>
+            </li>
+            <li class="nav-item mb-2">
+              <a href="{% url 'v1:api-root' %}" class="footer-link">API</a>
+            </li>
+          </ul>
         </div>
-
-        <div class="col l4 offset-l2 s12">
-          <h5 class="white-text">Links</h5>
-          <ul>
-            <li><a href="https://t.me/brasil_io">
-                Nosso Canal no Telegram
-                <img style="height: 1.2em" src="{% static 'img/logo-telegram.png' %}" alt="Logo Telegram"></a>
+        <div class="col-6 col-md-4 col-lg-2 mt-5 px-5 px-lg-0">
+          <div class="d-flex flex-column mb-3 mb-lg-0">
+            <h5>Links</h5>
+          </div>
+          <ul class="nav flex-column">
+            <li class="nav-item mb-2 d-flex gap-2">
+              <a href="https://t.me/brasil_io" class="footer-link">Telegram</a>
+              <img style="height: 1.2em" src="{% static 'img/logo-telegram.png' %}" alt="Logo Telegram"></a>
             </li>
-            <li><a href="https://twitter.com/brasil_io">
-                Nosso Twitter
-                <img style="height: 1.2em" src="{% static 'img/logo-twitter.png' %}" alt="Logo Twitter"></a>
+            <li class="nav-item mb-2 d-flex gap-2">
+              <a href="https://twitter.com/brasil_io"class="footer-link">Twitter</a>
+              <img style="height: 1.2em" src="{% static 'img/logo-twitter.png' %}" alt="Logo Twitter"></a>
             </li>
-            <li><a href="{% url 'core:contact' %}">Entre em contato conosco</a></li>
-            <li><a href="{% url 'core:collaborate' %}">Colabore conosco</a></li>
+            <li class="nav-item mb-2">
+              <a href="{% url 'core:contact' %}"class="footer-link">Nosso Contato</a>
+            </li>
 
           </ul>
         </div>
+        <div class="col-6 col-md-4 col-lg-2 mt-5 px-5 px-lg-0">
+          <div class="d-flex flex-column mb-3 mb-lg-0">
+            <h5>Sobre</h5>
+          </div>
+          <ul class="nav flex-column">
+              <li class="nav-item mb-2">
+                <a href="{% url 'core:manifesto' %}" class="footer-link">Manifesto</a>
+              </li>
+              <li class="nav-item mb-2">
+                <a href="{% url 'core:collaborate' %}"class="footer-link">Colabore</a>
+              </li>
+          </ul>
+        </div>
+        <!-- Begin MailChimp Signup Form -->
+        <div class="col-12 col-lg-6 mt-5 d-flex justify-content-center justify-content-lg-end" id="mc_embed_signup_scroll">
+          <form
+              action="https://cafe.us18.list-manage.com/subscribe/post?u=80b85fdff0e6a974bff762825&amp;id=ef97ff9b61"
+              method="post" 
+              id="mc-embedded-subscribe-form" 
+              name="mc-embedded-subscribe-form" class="validate"
+              target="_blank" 
+              novalidate
+          >
+            <h5>Inscreva-se na nossa newsletter</h5>
+            <p>Receba nossas novidades.</p>
+
+            <div class="d-flex w-100 gap-2">
+              <div id="mc_embed_signup_scroll ">          
+                <div class="mc-field-group">
+                  <label for="newsletter1" class="visually-hidden">Email address</label>
+                  <input 
+                    type="email" placeholder="Digite seu e-mail" value="" name="EMAIL"
+                    class="form-control required email" id="mce-EMAIL"
+                  >
+                </div>
+              </div>
+
+              <div id="mce-responses" class="clear">
+                <div class="response" id="mce-error-response" style="display:none"></div>
+                <div class="response" id="mce-success-response" style="display:none"></div>
+              </div>
+              <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+              <div style="position: absolute; left: -5000px;" aria-hidden="true">
+                <input type="text" name="b_80b85fdff0e6a974bff762825_ef97ff9b61" tabindex="-1" value="">
+              </div>
+              <input 
+                type="submit"
+                value="Inscrever" 
+                name="subscribe" 
+                id="mc-embedded-subscribe"
+                class=" btn btn-primary" 
+                style="float: left;"
+              >
+            </div>
+          </form>
+        </div>
+        <!--End mc_embed_signup-->
       </div>
-    </div>
-    <div class="footer-copyright">
-      <div class="container left">
-        O Brasil.io é mantido com muito carinho por
-        <a href="https://twitter.com/turicas">Álvaro Justen</a> e
-        <a href="{% url 'core:contributors' %}">contribuidores.</a>
+
+      <div class="d-flex justify-content-between py-4 my-4 border-top">
+        <p>
+          O Brasil.io é mantido com muito carinho por.      
+          <a href="https://twitter.com/turicas">Álvaro Justen</a> e
+          <a href="{% url 'core:contributors' %}">contribuidores.</a>
+        </p>
+        <ul class="list-unstyled d-flex">
+          <li class="ms-3">
+            <a href="https://github.com/turicas/brasil.io">
+                <i class="fab fa-github fs-4"></i>
+            </a>
+          </li>
+          <li class="ms-3">
+            <a href="https://twitter.com/brasil_io">
+                <i class="fab fa-twitter fs-4"></i>
+            </a>
+          </li>
+          <li class="ms-3">
+            <a href="https://t.me/brasil_io">
+                <i class="fab fa-telegram-plane fs-4"></i>
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
   </footer>
+
+  {% block bodyscript %}
+    <!-- Bootstrap core JS-->
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script>
+      // Query and show all toasts
+      const toasts = document.querySelectorAll(".toast");
+      if (toasts.length > 0) {
+        for (let toast of toasts) {
+          toast = new bootstrap.Toast(toast);
+          toast.show();
+        }
+      }
+      // Activating tolltips
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+      })
+    </script>
+ {% endblock %}
 
 </body>
 

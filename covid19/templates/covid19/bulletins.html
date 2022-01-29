@@ -11,50 +11,47 @@
 <script type="text/javascript" language="javascript"
   src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.9/jquery.lazy.min.js"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'covid19/css/status.css' %}" />
 {% endblock %}
 
 {% block nav %}
-{% include 'covid19/links.html' %}
+  {% include 'covid19/links.html' %}
 {% endblock %}
 
 {% block content %}{% localize on %}
-<div id="dashboard-header" class="p-5">
-  <div class="card yellow lighten-5" style="padding: 20px; text-align: justify;">
-    <p>
-      Por questões de viabilidade e metodológicas, coletamos apenas das
-      Secretarias Estaduais de Saúde e, por isso, podem ocorrer divergências com
-      relação às Secretarias Municipais. Não pretendemos mudar essa prática (por
-      favor, não insista).
-    </p>
-  </div>
-</div>
-<div class="container">
-  <div class="row">
-    <div class="center" style="display: block">
-      {% regroup bulletins by date.month as bulletins_list %}
-
-      {% for month in bulletins_list %}
-      <div class="divider"></div>
-      <h2 class="monthYearBulletins">{{ month.list.0.date|date:"F" }} {{ month.list.0.date|date:"Y" }}</h2>
-      {% for bulletin in month.list %}
-      <div style="display: inline-block; width: 200px; height: auto; margin: 1em">
-        <a href="{{ bulletin.image_url }}" target="_blank">
-          {% thumbnail bulletin.image_url "170x170" as im %}
-          <img class="lazy hoverable z-depth-2" id="{{ bulletin.pk }}" data-src="{{ im.url }}" width="200px"
-            height="auto" name="Boletim - {{ bulletin.date }}" />
-          {% endthumbnail %}
-        </a>
-        <div class="dateBulletins">
-          <span class="bDate">{{ bulletin.date }}</span>
-        </div>
-      </div>
-      {% endfor %}
-      <br><br>
-      {% endfor %}
+<section class="section">
+  <div class="card bg-brio-warning text-black pt-2">
+    <div class="card-body">
+      <p>
+        Por questões de viabilidade e metodológicas, coletamos apenas das
+        Secretarias Estaduais de Saúde e, por isso, podem ocorrer divergências com
+        relação às Secretarias Municipais. Não pretendemos mudar essa prática (por
+        favor, não insista).
+      </p>
     </div>
   </div>
-</div>
+</section>
+
+<section class="bulletins">
+  <h1>Boletins</h1>
+  {% regroup bulletins by date.month as bulletins_list %}
+  {% for month in bulletins_list %}
+    <hr>
+    <h2>{{ month.list.0.date|date:"F" }} {{ month.list.0.date|date:"Y" }}</h2>
+    <div class="row gy-4">
+      {% for bulletin in month.list %}
+        <div class="bulletin-element">
+          <a href="{{ bulletin.image_url }}" target="_blank">
+            {% thumbnail bulletin.image_url "170x170" as im %}
+            <img class="lazy" id="{{ bulletin.pk }}" data-src="{{ im.url }}" width="200px"
+              height="auto" name="Boletim - {{ bulletin.date }}" />
+            {% endthumbnail %}
+          </a>
+          <span class="small mt-2">{{ bulletin.date }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endfor %}
+</section>
 
 {% endlocalize %}
 {% endblock %}

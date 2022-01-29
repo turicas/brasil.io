@@ -2,11 +2,11 @@
 {% load static %}
 {% block title %}Voluntários COVID-19 - Brasil.IO{% endblock %}
 {% block content %}
-<div class="section">
-  <h4>Voluntários COVID-19</h4>
-  <div class="divider"></div>
+<section class="section">
+  <h1 class="fs-2">Voluntários COVID-19</h1>
+  <hr>
 
-  <div class="row text-center">
+  <div class="row">
     <p>
       A base de dados de casos e óbitos da COVID-19 é possível graças ao
       trabalho árduo de dezenas de pessoas que, diariamente, compilam os
@@ -15,47 +15,51 @@
     </p>
   </div>
 
-  <div class="row text-center">
-    <h5>Atuais</h5>
+  <div class="row g-4 pb-4">
+    <h2 class="fs-3">Atuais</h2>
     {% for volunteer in volunteers %}
-    {% if volunteer.active %}
-    <div class="col s12 m3" style="height: 12rem">
-      <span class="fa-stack fa-4x text-center">
-        <a href="{{ volunteer.personal_url }}" target="_blank" title="Visitar perfil de {{ volunteer.name }}">
-          <img class="circle responsive-img" src="{{ volunteer.avatar_url }}" alt="Imagem de {{ volunteer.name }}">
-        </a>
-      </span>
-      <h6> <a href="{{  volunteer.personal_url }}" title="Visitar perfil de {{ volunteer.name }}">{{ volunteer.name }}</a> </h6>
-    </div>
-    {% endif %}
+      {% if volunteer.active %}
+        <div class="col-sm-6 col-lg-3 d-flex flex-column align-items-center">
+          <a href="{{ volunteer.personal_url }}" target="_blank" title="Visitar perfil de {{ volunteer.name }}">
+            <img class="rounded-3 mb-2" src="{{ volunteer.avatar_url }}" alt="Imagem de {{ volunteer.name }}" width="200">
+          </a>
+          <a href="{{  volunteer.personal_url }}" title="Visitar perfil de {{ volunteer.name }}">
+            {{ volunteer.name }}
+          </a>
+        </div>
+      {% endif %}
     {% endfor %}
   </div>
+</section>
 
-  <div class="row text-center">
-    <h5>Ex-voluntárias(os)</h5>
-    {% for volunteer in volunteers %}
-    {% if not volunteer.active %}
-    <div class="col s12 m3" style="height: 12rem">
-      <span class="fa-stack fa-4x text-center">
-        <a href="{{ volunteer.personal_url }}" target="_blank" title="Visitar perfil de {{ volunteer.name }}">
-          <img class="circle responsive-img" src="{{ volunteer.avatar_url }}" alt="Imagem de {{ volunteer.name }}">
-        </a>
-      </span>
-      <h6> <a href="{{  volunteer.personal_url }}" title="Visitar perfil de {{ volunteer.name }}">{{ volunteer.name }}</a> </h6>
+<div class="bg-light bg-gradient border border-primary">
+  <section class="section">
+    <div class="row g-4 pb-4">
+      <h2 class="fs-3">Ex-voluntárias(os)</h2>
+      {% for volunteer in volunteers %}
+        {% if not volunteer.active %}
+          <div class="col-sm-6 col-lg-3 d-flex flex-column align-items-center justify-content-center">
+            <a href="{{ volunteer.personal_url }}" target="_blank" title="Visitar perfil de {{ volunteer.name }}">
+              <img class="rounded-3 mb-2" src="{{ volunteer.avatar_url }}" alt="Imagem de {{ volunteer.name }}" width="200">
+            </a>
+            <a href="{{  volunteer.personal_url }}" title="Visitar perfil de {{ volunteer.name }}">
+              {{ volunteer.name }}
+            </a>
+          </div>
+        {% endif %}
+      {% endfor %}
     </div>
-    {% endif %}
-    {% endfor %}
-  </div>
-
-  <div class="row text-center">
-    <p>
-      Além das pessoas que contribuem na coleta de dados, veja também as que <a
-        href="https://apoia.se/brasilio" title="Apoie o Brasil.IO"><b>contribuem financeiramente</b></a>
-      e as que <a href="{% url 'core:contributors' %}" title="Nossos contribuidores"><b>contribuem com
-          código</b></a>. Diversas outras pessoas também colaboram com
-      <b>informações, sugestões, correções e na divulgação dos dados</b>.
-    </p>
-  </div>
-
+  </section>
 </div>
+
+<section class="section">
+  <p>
+    Além das pessoas que contribuem na coleta de dados, veja também as que <a
+      href="https://apoia.se/brasilio" title="Apoie o Brasil.IO"><b>contribuem financeiramente</b></a>
+    e as que <a href="{% url 'core:contributors' %}" title="Nossos contribuidores"><b>contribuem com
+        código</b></a>. Diversas outras pessoas também colaboram com
+    <b>informações, sugestões, correções e na divulgação dos dados</b>.
+  </p>
+</section>
+
 {% endblock %}

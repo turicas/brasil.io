@@ -1,43 +1,45 @@
-{% extends 'base.html' %}
-{% block title %}Especiais - Brasil.IO{% endblock %}
+{% extends 'base.html' %} {% block title %}Especiais - Brasil.IO{% endblock %}
 {% block content %}
+<section class="section-main">
+  <h1>Aplicações Especiais</h1>
+  <hr />
 
-<h3>Aplicações Especiais</h3>
-<div class="divider"></div>
-
-<div class="section">
   <p>
-    O Brasil.IO disponibiliza diversos datasets em formatos mais acessíveis
-    que nas fontes originais de dados e acreditamos que assim conseguiremos
-    não somente melhorar o acesso a dados públicos brasileiros, mas também
-    gerar um impacto positivo para a criação de uma nação mais democrática. Porém,
-    muitas vezes os datasets sozinhos não são suficientes para descobrir fatos
-    - em diversos casos precisamos cruzar datasets para identificar padrões.
-    Para resolver esse problema criamos as <b>Aplicações Especiais</b>.
+    O Brasil.IO disponibiliza diversos datasets em formatos mais acessíveis que
+    nas fontes originais de dados e acreditamos que assim conseguiremos não
+    somente melhorar o acesso a dados públicos brasileiros, mas também gerar um
+    impacto positivo para a criação de uma nação mais democrática. Porém, muitas
+    vezes os datasets sozinhos não são suficientes para descobrir fatos - em
+    diversos casos precisamos cruzar datasets para identificar padrões. Para
+    resolver esse problema criamos as <b>Aplicações Especiais</b>.
   </p>
   <p>
     <b>Aplicações Especiais</b> são páginas que cruzam dados de diversos
     datasets e facilitam o trabalho investigativo. Se você tiver ideia de dados
-    que poderíamos cruzar, <a href="{% url 'core:contact' %}">entre em contato</a>.
+    que poderíamos cruzar,
+    <a href="{% url 'core:contact' %}">entre em contato</a>.
   </p>
 
-  <h4>Aplicações Disponíveis</h4>
+  <h2>Aplicações Disponíveis</h2>
 
   <ul>
     <li>
-      <b>Dossiê de Pessoa (Física ou Jurídica)</b> - a partir de uma <a
-        href="{% url 'core:dataset-detail' slug='documentos-brasil' %}">busca
-        por nome ou documento</a> o visitante poderá acessar um dossiê do
-      documento (CPF ou CNPJ), onde serão mostradas ocorrências em vários
-      datasets disponíveis no portal. Exemplo:
-      <a href="{% url 'core:special-document-detail' document='75095679000149' %}" title="Ver Universidade Federal do Paraná">
-        Universidade Federal do Paraná
-      </a>.
+      <b>Dossiê de Pessoa (Física ou Jurídica)</b> - a partir de uma
+      <a href="{% url 'core:dataset-detail' slug='documentos-brasil' %}"
+        >busca por nome ou documento</a
+      >
+      o visitante poderá acessar um dossiê do documento (CPF ou CNPJ), onde
+      serão mostradas ocorrências em vários datasets disponíveis no portal.
+      Exemplo:
+      <a
+        href="{% url 'core:special-document-detail' document='75095679000149' %}"
+        title="Ver Universidade Federal do Paraná"
+      >
+        Universidade Federal do Paraná </a
+      >.
     </li>
   </ul>
 
-
-{% include 'core/contas-gratuitas.html' %}
-
-</div>
+  {% include 'core/includes/contas-gratuitas.html' %}
+</section>
 {% endblock %}
