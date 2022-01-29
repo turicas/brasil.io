@@ -1,0 +1,76 @@
+{% load cache %}
+{% cache 600 dataset-card name table.name %}
+  <div class="dataset-card">
+    <a 
+      class="text-decoration-none link-dark" 
+      {% if tables %}
+        href="{% url 'core:dataset-detail' slug %}"
+      {% else %}
+        href="{% url 'core:dataset-suggestion' %}"
+      {% endif %}
+    >
+      <h3 class="my-1 fs-5 col-9" title="{{ name }}">{{ name | truncatechars:45 }}</h3>
+    </a>
+    <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button 
+          class="nav-link active" id="{{ slug }}-home-tab" data-bs-toggle="pill"
+          data-bs-target="#{{ slug }}-home" type="button" role="tab" 
+          aria-controls="{{ slug }}-home" aria-selected="true"
+        >
+          Descrição
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button 
+            class="nav-link" id="{{ slug }}-talbe-tab" data-bs-toggle="pill"
+            data-bs-target="#{{ slug }}-talbe" type="button" role="tab"
+            aria-controls="{{ slug }}-talbe" aria-selected="false"
+        >
+          {% if tables %} Tabelas {% else %} Link {% endif %}
+        </button>
+      </li>
+    </ul>
+    <div class="tab-content-dataset" id="pills-tabContent">
+      <div class="tab-pane fade show active" id="{{ slug }}-home" role="tabpanel"
+        aria-labelledby="{{ slug }}-home-tab">
+        <p class="col-11">
+          {{ short_description }}
+        </p>
+      </div>
+      <div class="tab-pane fade" id="{{ slug }}-talbe" role="tabpanel"
+        aria-labelledby="{{ slug }}-talbe-tab">
+        <div class="list-group">
+          {% if tables %}
+            {% for table in tables %}
+              {% spaceless %}
+                <a 
+                  href="{% url 'core:dataset-table-detail' slug table.name %}" 
+                  type="button" 
+                  class="list-group-item list-group-item-action"
+                >
+                  {% if table.default %}
+                    <b>{{ table.name | capfirst }}</b>
+                  {% else %}
+                    {{ table.name | capfirst }}
+                  {% endif %}
+                </a>
+              {% endspaceless %}
+            {% endfor %}
+          {% else %}
+            <a 
+              href="{% url 'core:dataset-suggestion' %}" 
+              type="button" 
+              class="list-group-item list-group-item-action"
+            >
+              Sugerir
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="dataset-icon">
+      <i class="bi {{ icon }} icon-dataset"></i>
+    </div>
+  </div>
+{% endcache %}

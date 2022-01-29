@@ -1,58 +1,58 @@
-{% extends "base.html" %}
+{% extends "brasilio_auth/auth_base.html" %}
 
-{% block content %}
+{% block alert %}
+  {% if form.errors %}
+    {% for error in form.non_field_errors %}
+        {% with message=error|safe type="danger" %}
+          {% include 'includes/toast.html' %}
+        {% endwith %}
+    {% endfor %}
+  {% endif %}
 
-  <div class="row m-t-15">
-    <div class="col s12 m8 offset-m2">
-      <h4>Login</h4>
+  {% if next %}
+    {% if user.is_authenticated %}
+      {% with message="Seu usuário não possui permissão para acessar esta página. Para seguir, por favor utilize algum usuário com permissão." type="warning" %}
+        {% include 'includes/toast.html' %}
+      {% endwith %}
+    {% else %}
+      {% with message="Faça o login para acessar a página." type="primary" %}
+        {% include 'includes/toast.html' %}
+      {% endwith %}
+    {% endif %}
+  {% endif %}
+{% endblock %}
 
-      {% if form.errors %}
-          {% for field in form %}
-              {% for error in field.errors %}
-                  <p class="red-text text-lighten-3">
-                      {{ error|escape }}
-                  </p>
-              {% endfor %}
-          {% endfor %}
-          {% for error in form.non_field_errors %}
-              <p class="red-text text-lighten-3">
-                  {{ error|escape }}
-              </p>
-          {% endfor %}
-      {% endif %}
+{% block cardtitle %}
+  Login
+{%endblock%}
 
-      {% if next %}
-          {% if user.is_authenticated %}
-            <p class="red-text text-lighten-3">
-              Seu usuário não possui permissão para acessar esta página.
-              Para seguir, por favor utilize algum usuário com permissão.
-            </p>
-          {% else %}
-            <p class="red-text text-lighten-3">
-              Faça o login para acessar a página.
-            </p>
-          {% endif %}
-      {% endif %}
-
-      <form method="post" action="{% url 'brasilio_auth:login' %}">
-        {% csrf_token %}
-        {{ form.username.label_tag }}
-        {{ form.username }}
-
-        {{ form.password.label_tag }}
-        {{ form.password }}
-
-        <div class="text-center">
-          <input class="btn" type="submit" value="login" />
-          <input type="hidden" name="next" value="{{ next }}" />
-          <p>
-            <a href="{% url 'brasilio_auth:password_reset' %}">
-              Esqueci minha senha
-            </a>
-          </p>
-        </div>
-      </form>
+{% block cardcontent %}
+  <form method="post" action="{% url 'brasilio_auth:login' %}">
+    {% csrf_token %}
+    <div class="input-group input-group-lg mb-3">
+      <span class="input-group-text" id="basic-addon1">@</span>
+      <input 
+          name="username" type="text" class="form-control"
+          placeholder="Usuário" aria-label="Usuário"
+          aria-describedby="Campo usuário"
+          required
+      >
     </div>
-  </div>
-
+    <div class="input-group input-group-lg mb-4">
+      <span class="input-group-text" id="basic-addon1">
+        <i class="bi bi-lock-fill"></i>
+      </span>
+      <input 
+        name="password" type="password" 
+        class="form-control" placeholder="Senha" 
+        aria-label="Senha"aria-describedby="Campo senha"
+        required
+      >
+    </div>
+    <button class="auth-btn" type="submit">Acessar</button>
+    <input type="hidden" name="next" value="{{ next }}" />
+    <div class="text-center mt-2">
+      <a href="{% url 'brasilio_auth:password_reset' %}">Esqueceu sua senha?</a>
+    </div>
+  </form>
 {% endblock %}

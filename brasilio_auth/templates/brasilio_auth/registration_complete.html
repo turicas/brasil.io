@@ -1,15 +1,25 @@
-{% extends "base.html" %}
+{% extends "brasilio_auth/auth_base.html" %}
 
-{% block content %}
-  <div class="row m-t-15 center">
-    <div class="col s12 m8 p8 offset-m2">
-      <h4>Verifique seu e-mail!</h4>
-      <p>
-        Enviamos um e-mail com o link para ativar seu cadastro. Acesse seu e-mail e clique no link para começar a desfrutar de tudo que o <a href="https://brasil.io/">Brasil.IO</a> pode te oferecer. :-)
-      </p>
-      <p>
-        O <a href="https://brasil.io/">Brasil.IO</a> é <b>desenvolvido colaborativamente por voluntários</b>, fica aqui o convite para <a href="{% url "core:collaborate" %}">colaborar com o projeto</a>. :-) Considere também <a href="{% url "core:donate" %}">fazer-nos uma doação</a>.
-      </p>
-    </div>
+{% block cardtitle %}
+  Verifique seu e-mail
+{% endblock %}
+
+{% block cardcontent %}
+  <p>
+    Enviamos um e-mail com o link para ativar seu cadastro. 
+    Acesse seu e-mail e clique no link para começar a desfrutar de
+    tudo que o <a href="https://brasil.io/">Brasil.IO</a> pode te oferecer. :-)
+  </p>
+  <p>
+    O <a href="https://brasil.io/">Brasil.IO</a> é 
+    <b>desenvolvido colaborativamente por voluntários</b>, 
+    fica aqui o convite para <a href="{% url "core:collaborate" %}">colaborar com o projeto</a>.
+    :-)
+  </p>
+  <p>
+    Considere também <a href="{% url "core:donate" %}">fazer-nos uma doação</a>.
+  </p>
+  <div class="mt-2">
+    <a class="auth-btn" href="/" >Voltar para tela de Início</a>
   </div>
 {% endblock %}

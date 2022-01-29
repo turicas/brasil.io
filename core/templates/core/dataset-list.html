@@ -2,62 +2,55 @@
 {% block title %}Lista de datasets - Brasil.IO{% endblock %}
 
 {% block content %}
-<div class="section">
-  <div class="row">
-
-    <div class="col s12 m7">
-      <h1 class="header hide-on-small-only">Datasets</h1>
-      <h1 class="header-small hide-on-med-and-up">Datasets</h1>
-    </div>
-
-    <div class="col s12 m5">
-      <form action="{% url 'core:dataset-list' %}" method='get'>
-        <div class="row">
-          <div class="col s12 m8 input-field">
-            {{ form.search.label_tag }}
-            {{ form.search }}
-          </div>
-          <div class="col m4 m-t-15">
-            <button class="btn">Buscar</button>
-          </div>
+  <section class="section">
+    <div class="my-xl-4 overflow-hidden">
+      <div class="row align-items-center gx-5">
+        <div class="col-12 col-lg-8">
+          <h2 class="fw-bolder">Datasets</h2>
+          <p class="lead fw-normal text-muted col-md-8">
+            Veja alguns dos nossos datasets. Na lista de links selecione a base de dados que deseja
+            acessar.
+          </p>
         </div>
-      </form>
-    </div>
-  </div>
-
-
-  <div class="row">
-
-    {% for dataset in datasets %}
-    {% include 'core/dataset-card.html' %}
-    {% endfor %}
-
-    <div class="col s12 m6 l4 unselectable">
-      <div class="card small hoverable">
-        <div class="card-content-horizontal activator hoverable">
-          <div class="center">
-            <i class="material-icons icon-dataset">rate_review</i>
-          </div>
-          <h3 class="activator">Sugira um dataset</h3>
-          <p class="activator">Quais outros dados precisam ser libertados? Sugira aqui.</p>
-          <div class="center activator">
-            <span class="black-text">
-              <i class="material-icons">keyboard_arrow_up</i>
-            </span>
-          </div>
-        </div>
-        <div class="card-reveal grey lighten-5">
-          <i class="material-icons icon-dataset">rate_review</i>
-          <span class="card-title grey-text text-darken-4">Sugira um dataset<i class="material-icons right">close</i></span>
-          <span class="subtitle-tables">:)</span>
-          <div class="links">
-            <a href="{% url 'core:dataset-suggestion' %}">Sugerir</a>
-          </div>
+        <div class="col-12 col-lg-4">
+          <form action="{% url 'core:dataset-list' %}" method='get'>
+            <div class="input-group input-group-lg">
+              <input 
+                type="text"
+                name="search" 
+                class="form-control" 
+                placeholder="Pesquisar datasets" 
+                aria-label="Pesquisar datasets"
+                aria-describedby="Campo de pesquisa de datasets"
+              >
+              <button type="submit" class="input-group-text" title="Clique para executar pesquisa">
+                <i class="bi bi-search"></i>
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
+  </section>
 
-  </div>
-
-</div>
+  <section 
+    class="cards-section-bg border-top border-bottom border-primary py-4 d-flex justify-content-center"
+  >
+    <div class="container">
+      <div class="row g-4 py-2">
+        {% for dataset in datasets %}
+          <div class="dataset-cards-list">
+            {% with name=dataset.name icon=dataset.icon short_description=dataset.short_description slug=dataset.slug tables=dataset.tables %}
+              {% include 'core/includes/dataset-card.html' %}
+            {% endwith %}
+          </div>
+        {% endfor %}
+        {% with name='Sugira um dataset :)' icon='rate_review' short_description='Quais outros dados precisam ser libertados?' slug='dataset-suggestion' %}
+          <div class="dataset-cards-list">
+            {% include 'core/includes/dataset-card.html' %}
+          </div>
+        {% endwith %}
+      </div>
+    </div>
+  </section>
 {% endblock %}

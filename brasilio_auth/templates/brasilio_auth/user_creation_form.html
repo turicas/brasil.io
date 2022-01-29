@@ -1,63 +1,54 @@
-{% extends "base.html" %}
+{% extends "brasilio_auth/auth_base.html" %}
 {% load static %}
 
-{% block content %}
+{% block cardtitle %}
+  Cadastro
+{% endblock %}
 
-<div class="row m-t-15">
-  <div class="col s12 m8 offset-m2">
-    {% if next %}
-    {% include 'core/contas-gratuitas.html' %}
-    {% endif %}
-    <h4>Cadastre-se</h4>
-
-    <form method="post">
-      {% csrf_token %}
-
-      {{ form.username.errors }}
-      <label for="id_username"> Usuário: </label>
-      {{ form.username }}
-
-
-      {{ form.email.errors }}
-      <label for="id_email"> Email: </label>
-      {{ form.email }}
-
-
-      {{ form.password1.errors }}
-      <label for="id_password1"> Senha: </label>
-      {{ form.password1 }}
-
-
-      {{ form.password2.errors }}
-      <label for="id_password2"> Confirmação de senha: </label>
-      {{ form.password2 }}
-
-      <label>
-        {{ form.subscribe_newsletter }}
-        <span> Deseja assinar nossa newsletter? </span>
-      </label>
-
-      {{ form.captcha }}
-
-      <p class="valign-wrapper">
-        Saiba das nossas novidades rapidamente:
-        &nbsp;
-        <a href="https://t.me/brasil_io" title="Ir ao Telegram do Brasil.IO">
-          <img src="{% static 'img/logo-telegram.png' %}" style="height: 2em" alt="Logo Telegram">
-        </a>
-        &nbsp;
-        <a href="https://t.me/brasil_io">assine nosso canal no Telegram</a>
-      </p>
-
-      <div class="text-center m-t-10">
-        {% if next %}
-        <input type="hidden" name="next" value="{{ next }}" />
+{% block cardcontent %}
+  {% if next %}
+    {% include 'core/includes/contas-gratuitas.html' %}
+  {% endif %}
+  <form class="row" method="post">
+    {% csrf_token %}
+    
+    {% for field in form %}
+      <div class="gy-2">
+        {% if field.label != "Captcha" %}
+          <label class="form-label">{{ field.label }}</label>
+          {% if field.label == "Usuário" %}
+            <div class="input-group">
+              <span class="input-group-text" id="basic-addon1">@</span>
+              {{ field }}
+            </div>
+          {% else %}
+            {{ field }}
+          {% endif %}
+          {% if field.errors %}
+            <div class="small text-danger">
+              {{ field.errors }}
+            </div>
+          {% endif %}
+        {% else %}
+          <div class="mb-2">
+            <label class="form-label mb-2">{{ field.label }}</label>
+            {{ field }}
+          </div>
         {% endif %}
-        <input class='btn' type="submit" value="Salvar" />
       </div>
+    {% endfor %}
 
-    </form>
-  </div>
-</div>
-
+    {% if next %}
+      <input type="hidden" name="next" value="{{ next }}" />
+    {% endif %}
+    
+    <button class="auth-btn" type="submit" value="Salvar">Salvar</button>
+    
+    <div class="text-center mt-2">
+      <a href="https://t.me/brasil_io">
+        <span>Assine nosso canal no Telegram</span>
+        <img src="{% static 'img/logo-telegram.png' %}" style="height: 1.5em" alt="Logo Telegram">
+      </a>
+    </div>
+  </form>
 {% endblock %}

@@ -1,60 +1,58 @@
 {% extends 'base.html' %}
 {% block title %}Colabore - Brasil.IO{% endblock %}
 {% block content %}
-<div class="section">
-  <h4>Colabore</h4>
-  <div class="divider"></div>
+  <section class="section-main">
+    <h1>Colabore</h1>
+    <hr>
+    <p>
+      Que bom que você se interessou em colaborar com o projeto! =) <br>
+      Veja aqui algumas maneiras possíveis:
+    </p>
 
-  <p>
-    Que bom que você se interessou em colaborar com o projeto! =) <br>
-    Veja aqui algumas maneiras possíveis:
-  </p>
+    <h2>Tecnicamente</h2>
+    <p>
+      Desenvolver e manter a plataforma e novos scripts de libertação de dados é
+      de suma importância para que o projeto seja bem sucedido.
+      <a href="https://chat.brasil.io/">Entre em nosso chat</a> para conversarmos
+      melhor sobre como você pode nos ajudar!.
+    </p>
+    <p>
+      Aqui estão listadas algumas ações bem simples, mas que são de grande ajuda:
+    </p>
 
-  <h5>Tecnicamente</h5>
-  <p>
-    Desenvolver e manter a plataforma e novos scripts de libertação de dados é
-    de suma importância para que o projeto seja bem sucedido.
-    <a href="https://chat.brasil.io/">Entre em nosso chat</a> para conversarmos
-    melhor sobre como você pode nos ajudar!.
-  </p>
-  <p>
-    Aqui estão listadas algumas ações bem simples, mas que são de grande ajuda:
-  </p>
+    <ol>
+      <li>
+        Utilizar e citar os dados disponíveis no site
+      </li>
+      <li>
+        <a href="{% url 'core:dataset-suggestion' %}">Sugerir um novo dataset</a> para libertarmos
+      </li>
+      <li>
+        Nos contar os erros que você encontrar ao utilizar a plataforma
+      </li>
+      <li>
+        Sugerir coisas interessantes que você acha que irão contribuir para o projeto!
+      </li>
+    </ol>
 
-  <ol>
-    <li>
-      Utilizar e citar os dados disponíveis no site
-    </li>
-    <li>
-      <a href="{% url 'core:dataset-suggestion' %}">Sugerir um novo dataset</a> para libertarmos
-    </li>
-    <li>
-      Nos contar os erros que você encontrar ao utilizar a plataforma
-    </li>
-    <li>
-      Sugerir coisas interessantes que você acha que irão contribuir para o projeto!
-    </li>
-  </ol>
-
-  <h5>Financeiramente</h5>
-  <p>
-    Possuímos diversos gastos para manter o site online e desenvolver novas
-    funcionalidades e você pode também contribuir para a sustentabilidade
-    financeira do projeto. Se tiver interesse,
-    <a href="{% url 'core:contact' %}">entre em contato</a>.
-  </p>
-  <ol>
-    <li>
-      Encomendando a libertação de um novo dataset;
-    </li>
-    <li>
-      Encomendando análises e visualizações complexas nos dados que já temos
-      disponíveis;
-    </li>
-    <li>
-      <a href="{% url 'core:donate' %}" title="Faça uma doação!"><b>Doando recorrentemente</b></a>.
-    </li>
-  </ol>
-
-</div>
+    <h2>Financeiramente</h2>
+    <p>
+      Possuímos diversos gastos para manter o site online e desenvolver novas
+      funcionalidades e você pode também contribuir para a sustentabilidade
+      financeira do projeto. Se tiver interesse,
+      <a href="{% url 'core:contact' %}">entre em contato</a>.
+    </p>
+    <ol>
+      <li>
+        Encomendando a libertação de um novo dataset;
+      </li>
+      <li>
+        Encomendando análises e visualizações complexas nos dados que já temos
+        disponíveis;
+      </li>
+      <li>
+        <a href="{% url 'core:donate' %}" title="Faça uma doação!"><b>Doando recorrentemente</b></a>.
+      </li>
+    </ol>
+  </section>
 {% endblock %}
