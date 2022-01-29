@@ -1,0 +1,19 @@
+.main-links-list {
+    @extend .list-group, .list-group-horizontal-lg;
+
+    .list-element {
+        @extend .p-4, .mb-md-0, .h-100, .card, .border-0, .list-group-item, .list-group-item-action, .text-center;
+
+        a {
+            @extend .rounded-3, .mb-3, .p-4, .stretched-link;
+
+            div {
+                @extend .position-relative;
+
+                i {
+                    @extend .fs-4, .position-absolute, .top-50, .start-50, .translate-middle;
+                }
+            }
+        }
+    }
+}
