@@ -45,10 +45,26 @@ def _get_name(obj, person_type):
 
 
 class ContactForm(forms.Form):
-    name = forms.CharField(required=True, label="Nome")
-    email = forms.EmailField(required=True, label="E-mail")
+    name = forms.CharField(
+        required=True,
+        label="Nome",
+        widget=forms.TextInput(
+            attrs={"class": "form-control"}
+        )
+    )
+    email = forms.EmailField(
+        required=True,
+        label="E-mail",
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "autofocus": ""}
+        ),
+    )
     message = forms.CharField(
-        required=True, label="Mensagem", widget=forms.Textarea(attrs={"class": "materialize-textarea"}),
+        required=True,
+        label="Mensagem",
+        widget=forms.Textarea(
+            attrs={"class": "form-control"}
+        ),
     )
     captcha = ReCaptchaField()
 
@@ -60,15 +76,34 @@ class DatasetSearchForm(forms.Form):
 def get_table_dynamic_form(table, cache=True):
     def config_dynamic_filter(model_field):
         dynamic_field = table.get_field(model_field.name)
-        kwargs = {"required": False, "label": dynamic_field.title}
+        kwargs = {
+            "required": False,
+            "label": dynamic_field.title,
+            "widget": forms.TextInput(attrs={'type':'text', 'class':"form-control"}),
+        }
         field_factory = model_field.formfield
-
-        # null values are being saved as "None"
+        
         if dynamic_field.has_choices and dynamic_field.choices:
-            kwargs["choices"] = [("", "Todos")] + [
-                (c, c if c != "None" else "(vazio)") for c in dynamic_field.choices.get("data", [])
-            ]
-            field_factory = forms.ChoiceField
+            choices = dynamic_field.choices.get("data", [])
+            if dynamic_field.type == "date":
+                kwargs["widget"] = forms.TextInput(
+                    attrs={
+                        "type":"text",
+                        "class":"datepicker_input form-control",
+                        "placeholder":"aaaa-mm-dd",
+                        "autocomplete":"off",
+                        "data-min-date": min(choices),
+                        "data-max-date": max(choices),
+                    }
+                )
+                field_factory = forms.CharField
+            else:
+                kwargs["choices"] = [("", "Todos")] + [
+                    (c, c if c != "None" else "(vazio)") for c in choices
+                ]
+                kwargs["widget"] = forms.Select(attrs={'class':'form-select'})
+
+                field_factory = forms.ChoiceField
 
         return field_factory(**kwargs)
 
