@@ -18,47 +18,22 @@ def is_valid_username(username):
 
 class UserCreationForm(RegistrationFormUniqueEmail):
     username = forms.CharField(
-        widget=forms.TextInput(
-            attrs={
-                'type':'text', 
-                'class':"form-control"
-            }
-        ),
-        label=_("Usuário"),
-        required=True
+        widget=forms.TextInput(attrs={"type": "text", "class": "form-control"}), label=_("Usuário"), required=True
     )
 
     email = forms.EmailField(
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': 'ex@mail.com',
-                'type':'email',
-                'class':"form-control"
-            }
-        ),
-        required=True
+        widget=forms.TextInput(attrs={"placeholder": "ex@mail.com", "type": "email", "class": "form-control"}),
+        required=True,
     )
-    password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput(
-        attrs={
-            'class':"form-control"
-        }
-    ))
+    password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput(attrs={"class": "form-control"}))
     password2 = forms.CharField(
         label=_("Password confirmation"),
-        widget=forms.PasswordInput(
-        attrs={
-            'class':"form-control"
-        }),
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
         help_text=_("Enter the same password as above, for verification."),
     )
     captcha = ReCaptchaField()
-    subscribe_newsletter = forms.BooleanField(widget=forms.CheckboxInput(    
-            attrs={
-                'type':'checkbox',
-                'class':'form-check-input'
-            },
-        ),
-        required=False
+    subscribe_newsletter = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={"type": "checkbox", "class": "form-check-input"},), required=False
     )
 
     class Meta:
