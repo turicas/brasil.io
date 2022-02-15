@@ -7,13 +7,11 @@ import markdownx.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0031_auto_20210915_1605'),
+        ("core", "0031_auto_20210915_1605"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='dataset',
-            name='description',
-            field=markdownx.models.MarkdownxField(blank=True, null=True),
+            model_name="dataset", name="description", field=markdownx.models.MarkdownxField(blank=True, null=True),
         ),
     ]

@@ -6,13 +6,9 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0030_table_short_description'),
+        ("core", "0030_table_short_description"),
     ]
 
     operations = [
-        migrations.RenameField(
-            model_name='dataset',
-            old_name='description',
-            new_name='short_description',
-        ),
+        migrations.RenameField(model_name="dataset", old_name="description", new_name="short_description",),
     ]
