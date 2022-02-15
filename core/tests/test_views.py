@@ -47,18 +47,8 @@ class SampleDatasetDetailView(DjangoAssertionsMixin, BaseTestCaseWithSampleDatas
     def test_display_dataset_table_data_with_expected_template(self):
         response = self.client.get(self.url)
         assert 200 == response.status_code
-        self.assertTemplateUsed(response, "core/dataset-detail.html")
+        self.assertTemplateUsed(response, "core/dataset-table-detail.html")
         assert "" == response.context["search_term"]
-
-    def test_400_if_invalid_filter_choice(self):
-        self.login()
-
-        url = self.url + "?sample_field=xpto&search=algo"
-        response = self.client.get(url)
-        assert 400 == response.status_code
-        self.assertTemplateUsed(response, "core/dataset-detail.html")
-        assert "sample_field" in response.context["filter_form"].errors
-        assert "algo" == response.context["search_term"]
 
     def test_list_table_data_in_context_as_expected(self):
         data = baker.make(self.TableModel, _quantity=10)

@@ -13,7 +13,7 @@ import string
 from typing import Tuple
 
 from django.contrib.auth import get_user_model
-from rows.utils import slug
+from rows.fields import slug
 
 from brasilio_auth.forms import is_valid_username
 
