@@ -2,24 +2,23 @@
     @extend .container, .py-1;
 }
 
-#dashboard-table {
-    .dataTables_filter label {
-        @extend .d-flex, .flex-column, .justify-content-start;
-        text-align: left;
-        width: 100%;
-    }
-    .dataTables_wrapper .dataTables_filter input {
-        @extend .form-control, .my-2, .w-50;
-    }
-}
-
 .leaflet-control-container .leaflet-bottom .leaflet-left .info .legend .leaflet-control {
     @extend .d-flex, .flex-column;
 }
 
 .container-map-table {
-    @extend .px-3, .px-sm-5, .mx-sm-5, .py-4;
-    max-width: 2500px;
+    @extend .container, .py-2;
+}
+
+@include media-breakpoint-up(xxxl) {
+    .container-map-table,
+    .charts {
+        max-width: 2300px;
+    }
+}
+
+.card-dashboard {
+    @extend .card, .shadow-sm, .border-0;
 }
 
 #map {
@@ -28,7 +27,7 @@
 }
 
 .charts {
-    @extend .section-dashboard;
+    @extend .container-map-table;
     .card {
         @extend .d-flex, .justify-content-center, .align-items-center;
         height: 500px;
@@ -51,9 +50,7 @@
     }
 }
 
-
 .legend {
-
     i {
         width: 18px;
         line-height: inherit;
@@ -65,13 +62,12 @@
     > label {
         color: #000;
     }
-    
+
     > input {
         color: #000;
         font-size: 1em;
     }
 }
-
 
 #loading {
     position: relative;

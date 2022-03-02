@@ -1,0 +1,20 @@
+
+.card-data {
+    transition: all 0.3s ease-in-out;
+    color: $gray-700;
+    height: 7rem;
+
+    h2 {
+        @extend .d-flex, .align-items-center;
+        height: 2rem;
+    }
+    
+    &:hover {
+        @extend .border-warning, .bg-secondary;
+        color: $white;
+    }
+    
+    .value-percent {
+        width: 3rem;
+    }
+}
