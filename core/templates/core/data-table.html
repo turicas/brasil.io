@@ -22,7 +22,13 @@
         {% if field.link_template and value %}
           <td><a href="{{ field.link_template|render:row }}" title="Ver mais"> {{ value }} </a></td>
         {% else %}
-          <td>{{ value|default_if_none:'' }}</td>
+          {% if value|safe == "True" %}
+            <td><i class="bi bi-check-circle-fill text-success"></i></td>
+          {% elif value|safe == "False" %}
+            <td><i class="bi bi-x-circle-fill text-danger"></i></td>
+          {% else %}
+            <td>{{ value|default_if_none:'' }}</td>
+          {% endif %}
         {% endif %}
       {% endwith %}{% endif %}{% endfor %}
     </tr>
