@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from core.models import Dataset, Field, Link, Table
+from core.models import Dataset, Field, Link, Table, TableFile
 
 
 class LinkSerializer(serializers.ModelSerializer):
@@ -14,6 +14,12 @@ class FieldSerializer(serializers.ModelSerializer):
     class Meta:
         model = Field
         fields = ("name", "type")
+
+
+class TableFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TableFile
+        fields = ("file_url", "sha512sum", "filename", "size", "created_at")
 
 
 class TableSerializer(serializers.ModelSerializer):
