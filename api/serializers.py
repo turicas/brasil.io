@@ -40,9 +40,13 @@ class TableSerializer(serializers.ModelSerializer):
 
 class DatasetSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
+    files_url = serializers.SerializerMethodField()
 
     def get_id(self, obj):
         return reverse("v1:dataset-detail", kwargs={"slug": obj.slug}, request=self.context["request"])
+
+    def get_files_url(self, obj):
+        return reverse("v1:dataset-file-list", kwargs={"slug": obj.slug}, request=self.context["request"])
 
     class Meta:
         model = Dataset
@@ -58,6 +62,7 @@ class DatasetSerializer(serializers.ModelSerializer):
             "slug",
             "source_name",
             "source_url",
+            "files_url",
         )
 
 
@@ -66,6 +71,7 @@ class DatasetDetailSerializer(serializers.ModelSerializer):
     links = LinkSerializer(many=True, source="link_set")
     tables = serializers.SerializerMethodField()
     collected_at = serializers.SerializerMethodField()
+    files_url = serializers.SerializerMethodField()
 
     def get_id(self, obj):
         return reverse("v1:dataset-detail", kwargs={"slug": obj.slug}, request=self.context["request"])
@@ -75,6 +81,9 @@ class DatasetDetailSerializer(serializers.ModelSerializer):
 
     def get_tables(self, obj):
         return TableSerializer(instance=obj.tables.api_enabled(), many=True, context=self.context).data
+
+    def get_files_url(self, obj):
+        return reverse("v1:dataset-file-list", kwargs={"slug": obj.slug}, request=self.context["request"])
 
     class Meta:
         model = Dataset
@@ -93,6 +102,7 @@ class DatasetDetailSerializer(serializers.ModelSerializer):
             "source_url",
             "collected_at",
             "tables",
+            "files_url",
         )
 
 
