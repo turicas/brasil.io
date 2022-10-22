@@ -6,7 +6,7 @@ precisa ter instalado em seu computador:
 
 - [git](https://git-scm.com/)
 - [Docker](https://docker.io/)
-- [docker-compose](https://docs.docker.com/compose/)
+- [docker compose](https://docs.docker.com/compose/)
 
 Existem outras formas de rodar o projeto localmente, como executando o Django
 na própria máquina (fora de um *container*), porém recomendamos utilizar
@@ -21,11 +21,11 @@ Para começar, faça um clone local do repositório original:
 git clone https://github.com/turicas/brasil.io
 ```
 
-Entre no repositório e suba os *containers* pelo docker-compose:
+Entre no repositório e suba os *containers* pelo docker compose:
 
 ```shell
 cd brasil.io
-docker-compose -p brasil.io -f docker-compose.yml up -d
+docker compose -p brasil.io -f compose.yml up -d
 ```
 
 O processo acima deve demorar em torno de 10 minutos para executar, pois irá
@@ -34,9 +34,9 @@ imagens/dependências. Quando finalizar, faça as migrações de dados iniciais
 executando:
 
 ```shell
-docker-compose -p brasil.io -f docker-compose.yml exec web python manage.py migrate
-docker-compose -p brasil.io -f docker-compose.yml exec web python manage.py update_data
-docker-compose -p brasil.io -f docker-compose.yml run web python manage.py createsuperuser
+docker compose -p brasil.io -f compose.yml exec web python manage.py migrate
+docker compose -p brasil.io -f compose.yml exec web python manage.py update_data
+docker compose -p brasil.io -f compose.yml run web python manage.py createsuperuser
 ```
 
 Pronto! A plataforma poderá ser acessada pelo seu navegador Web em
@@ -45,23 +45,23 @@ Pronto! A plataforma poderá ser acessada pelo seu navegador Web em
 Caso termine de trabalhar no projeto e queira parar os serviços, execute:
 
 ```shell
-docker-compose -p brasil.io -f docker-compose.yml down
+docker compose -p brasil.io -f compose.yml down
 ```
 
 Nas próximas vezes que for trabalhar no projeto, basta executar um comando:
 
 ```shell
-docker-compose -p brasil.io -f docker-compose.yml up -d
+docker compose -p brasil.io -f compose.yml up -d
 ```
 
 ### Notas
 
-1. Caso não queira executar o `docker-compose` com todos os parâmetros acima,
+1. Caso não queira executar o `docker compose` com todos os parâmetros acima,
    utilize o atalho `compose` definido no script `.activate`.
 2. O banco de dados principal (PostgreSQL) foi configurado para ser executado
    em um computador com 8 cores, 16GB de RAM e SSD. Caso esse não seja seu
    computador, considere alterar o arquivo `docker/postgresql/postgresql.conf`
-   (você precisará reiniciar o serviço `db` do docker-compose). Para saber as
+   (você precisará reiniciar o serviço `db` do docker compose). Para saber as
    melhores configurações para sua máquina, consulte o
    [PgTune](https://pgtune.leopard.in.ua/).
 
