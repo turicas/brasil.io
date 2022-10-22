@@ -39,6 +39,9 @@ apt update
 apt install -y dokku
 dokku plugin:install-dependencies --core
 
+# don't keep `run` containers around
+dokku config:set --global DOKKU_RM_CONTAINER=1
+
 dokku plugin:install https://github.com/dokku/dokku-postgres.git postgres
 dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git
 dokku plugin:install https://github.com/dokku/dokku-maintenance.git maintenance
