@@ -2,7 +2,6 @@ version: '3.2'
 
 services:
     web:
-      container_name: brasilio_web
       env_file: .env
       build:
         context: .
@@ -11,7 +10,7 @@ services:
           - DEV_BUILD=true
       volumes:
         - .:/app
-        - ./docker/data/app:/data
+        - ./docker/data/web:/data
       ports:
         - 4200:5000
       depends_on:
@@ -21,28 +20,25 @@ services:
 
     db:
       image: postgres:11.3
-      container_name: brasilio_postgres
       env_file: .env
       shm_size: 256m
       volumes:
-        - ./docker/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
-        - ./docker/data/postgres:/var/lib/postgresql/data
+        - ./docker/postgresql.dev.conf:/etc/postgresql/postgresql.conf
+        - ./docker/data/db:/var/lib/postgresql/data
       command: -c "config_file=/etc/postgresql/postgresql.conf"
       healthcheck:
         test: ["CMD-SHELL", "pg_isready -U postgres"]
         interval: 30s
         retries: 3
 
+    redis:
+      image: redis:alpine
+      env_file: .env
+      volumes:
+        - ./docker/data/redis:/data
+
     mail:
       image: mailhog/mailhog
-      container_name: brasilio_mailhog
       env_file: .env
       ports:
         - "4201:8025"
-
-    redis:
-      image: redis:alpine
-      container_name: brasilio_redis
-      env_file: .env
-      volumes:
-        - "./docker/data/redis:/data"
