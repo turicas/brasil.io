@@ -7,11 +7,11 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.serializers import DatasetDetailSerializer, DatasetSerializer, GenericSerializer
+from api.serializers import DatasetDetailSerializer, DatasetSerializer, GenericSerializer, TableFileSerializer
 from api.versioning import check_api_version_redirect
 from core.filters import parse_querystring
 from core.forms import get_table_dynamic_form
-from core.models import Dataset, Table
+from core.models import Dataset, Table, TableFile
 from core.templatetags.utils import obfuscate
 
 from . import paginators
@@ -101,6 +101,16 @@ class DatasetDataListView(ListAPIView):
         return super().get(*args, **kwargs)
 
 
+class DatasetFileListView(APIView):
+    @check_api_version_redirect
+    def get(self, request, slug, format=None):
+        dataset = get_object_or_404(Dataset, slug=slug)
+        table_files = TableFile.objects.filter(table__in=dataset.tables)
+        serializer = TableFileSerializer(table_files, many=True)
+
+        return Response(serializer.data)
+
+
 api_description = """
 Esta é a API do Brasil.io. Aqui você poderá acessar os dados disponíveis no
 Brasil.IO de maneira automatizada. Porém, a API não é a maneira mais eficiente
@@ -132,4 +142,5 @@ class ApiRootView(APIView):
 dataset_list = DatasetViewSet.as_view({"get": "list"})
 dataset_detail = DatasetViewSet.as_view({"get": "retrieve"}, lookup_field="slug")
 dataset_data = DatasetDataListView.as_view()
+dataset_file_list = DatasetFileListView.as_view()
 api_root = ApiRootView.as_view()
