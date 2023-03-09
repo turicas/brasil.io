@@ -14,3 +14,4 @@ TEMPLATE_STRING_IF_INVALID = "%%%Invalid variable%%%"  # noqa
 TEMPLATES[0]["OPTIONS"]["string_if_invalid"] = TEMPLATE_STRING_IF_INVALID  # noqa
 ENABLE_API_AUTH = True
 DISABLE_RECAPTCHA = False
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

@@ -74,8 +74,8 @@ class StateSpreadsheetQuerySet(models.QuerySet):
 class StateSpreadsheetManager(models.Manager):
     def get_state_data(self, state):
         """Return all state cases, grouped by date"""
-        from covid19.spreadsheet_validator import TOTAL_LINE_DISPLAY
         from brazil_data.cities import get_city_info
+        from covid19.spreadsheet_validator import TOTAL_LINE_DISPLAY
 
         cases, reports = defaultdict(dict), {}
         qs = self.get_queryset()
