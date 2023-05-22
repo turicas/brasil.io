@@ -32,7 +32,7 @@ psycopg2-binary==2.8.5
 pytest-django==3.2.1
 pytz==2020.1
 requests-cache==0.5.2
-requests==2.24.0
+requests==2.31.0
 retry==0.9.2
 rq-scheduler==0.10.0
 sendgrid-django==4.2.0
