@@ -2,6 +2,7 @@ version: '3.2'
 
 services:
     web:
+      user: "${UID}:${GID}"
       env_file: .env
       build:
         context: .

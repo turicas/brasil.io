@@ -71,35 +71,28 @@ docker compose -p brasil.io -f compose.yml up -d
 Antes de importar dados em um dataset, você precisa executar o script de
 importação de dados ou baixar os dados já convertidos. Nesse exemplo, vamos
 baixar 3 tabelas do [dataset covid19](https://brasil.io/dataset/covid19/) para
-a pasta `docker/data/app/` e executar o comando de importação para cada uma
-delas:
+a pasta `docker/data/web/` e executar o comando de importação para cada uma
+delas.
+Antes, abra o shell do container `web` executando `docker compose exec web bash`. Depois, execute dentro do container
+os comandos abaixo:
 
 ```shell
 for table in boletim caso caso_full obito_cartorio; do
 	wget \
-		-O "docker/data/app/${table}.csv.gz" \
+		-O "/data/${table}.csv.gz" \
 		"https://data.brasil.io/dataset/covid19/${table}.csv.gz"
-	compose run web \
-		python manage.py import_data \
-			--unlogged \
-			--no-input \
-			covid19 \
-			"$table" \
-			"/data/${table}.csv.gz"
+	python manage.py import_data \
+		--unlogged \
+		--no-input \
+		covid19 \
+		"$table" \
+		"/data/${table}.csv.gz"
 done
 ```
 
-### Notas
-
-1. Por conta das permissões em que o Docker executa os containers, talvez os
-   diretórios em `docker/data` sejam acessíveis apenas pelo usuário `root` -
-   dessa forma, você precisará executar o comando `wget` acima como root
-   (utilizar `sudo wget` deve funcionar).
-2. A opção `--unlogged` do comando `import_data` executará a importação mais
-   rapidamente, mas fará com que a tabela possa ser perdida caso os dados do
-   PostgreSQL sejam corrompidos (e também não será replicada, caso existam
-   réplicas configuradas). Em geral, para ambientes de desenvolvimento, essas
-   questões não são problemas.
+> Nota: a opção `--unlogged` do comando `import_data` executará a importação mais rapidamente, mas fará com que a
+> tabela possa ser perdida caso os dados do PostgreSQL sejam corrompidos (e também não será replicada, caso existam
+> réplicas configuradas). Em geral, para ambientes de desenvolvimento, essas questões não são problemas.
 
 
 ## Contribuindo
