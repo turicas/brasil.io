@@ -1,0 +1,27 @@
+{
+  "healthchecks": {
+    "web": [
+      {
+        "type": "startup",
+        "name": "web home check",
+        "description": "Check /home",
+        "path": "/home",
+        "content": "O Brasil em dados libertos"
+      },
+      {
+        "type": "startup",
+        "name": "web colabore check",
+        "description": "Check /colabore",
+        "path": "/colabore",
+        "content": "Colabore - Brasil.IO"
+      },
+      {
+        "type": "startup",
+        "name": "web datasets check",
+        "description": "Check /datasets",
+        "path": "/datasets",
+        "content": "Lista de datasets - Brasil.IO"
+      }
+    ]
+  }
+}
