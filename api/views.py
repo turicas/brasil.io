@@ -1,4 +1,4 @@
-from collections import Sequence
+from collections.abc import Sequence
 
 from django.shortcuts import get_object_or_404
 from django.urls import reverse

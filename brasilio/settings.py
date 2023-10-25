@@ -96,6 +96,7 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 DATABASES = {"default": env.db("DATABASE_URL")}
 DB_STATEMENT_TIMEOUT = env("DB_STATEMENT_TIMEOUT", default=20000, cast=int)  # miliseconds
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 
 # Password validation

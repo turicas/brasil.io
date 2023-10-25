@@ -1,5 +1,5 @@
 # Django build (main image)
-FROM python:3.8-bullseye
+FROM python:3.11-bullseye
 
 ENV PYTHONUNBUFFERED 1
 ARG DEV_BUILD
