@@ -1,25 +1,44 @@
-lint:
-	autoflake --in-place --recursive --remove-unused-variables --remove-all-unused-imports .
-	isort --skip migrations --skip brasilio/wsgi.py -rc .
-	black . --exclude "docker" -l 120
-	flake8 --config setup.cfg
+bash:
+	docker compose exec web bash
 
-test:
-	pytest
+bash-root:
+	docker compose exec -u root web bash
+
+build:
+	docker compose build
+
+clean: stop
+	docker compose down -v --remove-orphans
 
 clear_cache:
 	python manage.py clear_cache
 
-run_django:
-	python manage.py runserver 0.0.0.0:8000
+lint:
+	docker compose exec web /app/lint.sh
 
-run_rqworker:
-	python manage.py rqworker  --sentry-dsn=""
+logs:
+	docker compose logs -f
 
-run_scheduler:
-	python manage.py rqscheduler
+rqworker:
+	docker compose exec web python manage.py rqworker --sentry-dsn=""
 
-run: clear_cache
-	make -j3 run_django run_rqworker run_scheduler
+scheduler:
+	docker compose exec web python manage.py rqscheduler
 
-.PHONY: black clear_cache run_django run_rqworker run
+shell:
+	docker compose exec web python manage.py shell
+
+start:
+	docker compose up -d
+
+stop:
+	docker compose kill
+	docker compose rm --force
+
+test:
+	docker compose exec web pytest
+
+test-v:
+	docker compose exec web pytest -vvv
+
+.PHONY: bash bash-root build clean clear_cache lint logs shell start stop test test-v
