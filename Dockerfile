@@ -23,11 +23,15 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt bullseye-pgdg main" > /etc
     && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir -U pip
 
+RUN addgroup --gid ${GID:-1000} django \
+  && adduser --gid ${GID:-1000} --uid ${UID:-1000} --home=/app django \
+  && chown -R django:django /app
+
 COPY requirements.txt requirements-development.txt /app/
 RUN pip install --no-cache-dir -r /app/requirements.txt
 RUN if [ "$DEV_BUILD" = "true" ]; then pip install --no-cache-dir -r /app/requirements-development.txt; fi
 
+USER django
 ADD srv/nginx.conf.sigil /app/
 COPY . /app/
-
 CMD "/app/bin/web.sh"
