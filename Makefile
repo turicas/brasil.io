@@ -19,8 +19,7 @@ lint:
 logs:
 	docker compose logs -f
 
-rqworker:
-	docker compose exec web python manage.py rqworker --sentry-dsn=""
+restart: stop start
 
 scheduler:
 	docker compose exec web python manage.py rqscheduler
@@ -41,4 +40,4 @@ test:
 test-v:
 	docker compose exec web pytest -vvv
 
-.PHONY: bash bash-root build clean clear_cache lint logs shell start stop test test-v
+.PHONY: bash-root bash build clean clear_cache lint logs restart scheduler shell start stop test-v test

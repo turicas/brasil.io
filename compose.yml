@@ -9,6 +9,7 @@ services:
         dockerfile: Dockerfile
         args:
           - DEV_BUILD=true
+      command: /bin/bash -c "/app/bin/release.sh && /app/bin/web.sh"
       volumes:
         - .:/app
         - ./docker/data/web:/data
@@ -18,6 +19,25 @@ services:
         - db
         - mail
         - redis
+
+    worker:
+      user: "${UID:-1000}:${GID:-1000}"
+      env_file: .env
+      build:
+        context: .
+        dockerfile: Dockerfile
+        args:
+          - DEV_BUILD=true
+      command: /app/bin/worker.sh
+      volumes:
+        - .:/app
+        - ./docker/data/web:/data
+      depends_on:
+        - db
+        - mail
+        - redis
+
+    # TODO: add scheduler also?
 
     db:
       image: postgres:11.3
