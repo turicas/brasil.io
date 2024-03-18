@@ -95,7 +95,8 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 DATABASES = {"default": env.db("DATABASE_URL")}
-DB_STATEMENT_TIMEOUT = env("DB_STATEMENT_TIMEOUT", default=20000, cast=int)  # miliseconds
+DATABASES["default"]["CONN_MAX_AGE"] = env("DB_CONN_MAX_AGE", default=3600, cast=int)  # seconds
+DB_STATEMENT_TIMEOUT = env("DB_STATEMENT_TIMEOUT", default=25000, cast=int)  # miliseconds
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 
