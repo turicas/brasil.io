@@ -14,6 +14,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
 from django.db import connection, models, transaction
 from django.db.models import F
+from django.db.models.functions import Substr
 from django.db.models.signals import post_delete, pre_delete
 from django.db.utils import ProgrammingError
 from django.urls import reverse
@@ -94,7 +95,27 @@ class DatasetTableModelQuerySet(models.QuerySet):
         # settings.
         model_filtering = self.model.extra["filtering"]
         processor = DynamicModelFilterProcessor(filtering, model_filtering)
-        return self.filter(**processor.filters)
+        kwargs = processor.filters
+
+        qs = self
+        for field in [f for f in self.model.extra["obfuscated"] if f in kwargs]:
+            value = kwargs[field]
+            if "*" not in value:
+                continue
+
+            # filter by obfuscated values such as CPFs ***34561****
+            kwargs.pop(field)
+            clean_value = value.replace("*", "")
+            start = value.index(clean_value) + 1
+
+            field_substr = f"{field}_substr"
+            annotate_kwargs = {
+                field_substr: Substr(field, start, len(clean_value)),
+            }
+            filter_kwargs = {field_substr: clean_value}
+            qs = qs.annotate(**annotate_kwargs).filter(**filter_kwargs)
+
+        return qs.filter(**kwargs)
 
     def apply_ordering(self, query):
         qs = self
@@ -408,6 +429,7 @@ class Table(models.Model):
         # in DYNAMIC_MODEL_REGISTRY and not cache)
         fields = {field.name: field.field_class for field in self.fields}
         fields["search_data"] = SearchVectorField(null=True)
+        obfuscated = [f.name for f in self.fields if f.obfuscate]
         ordering = self.ordering or []
         filtering = self.filtering or []
         search = self.search or []
@@ -440,6 +462,7 @@ class Table(models.Model):
         Model.extra = {
             "filtering": filtering,
             "ordering": ordering,
+            "obfuscated": obfuscated,
             "search": search,
             "table": self,
         }

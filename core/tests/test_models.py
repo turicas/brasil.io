@@ -10,6 +10,7 @@ from rows import fields
 
 from core.dynamic_models import DynamicModelMixin
 from core.models import Dataset, DataTable, Field, Table, TableFile, Version
+from core.tests.utils import BaseTestCaseWithSampleDataset
 from utils.file_info import human_readable_size
 
 
@@ -265,3 +266,49 @@ class DatasetModelTests(TestCase):
         Table.objects.all().update(hidden=True)
 
         assert [] == self.dataset.all_files
+
+
+class DynamicTableModelTest(BaseTestCaseWithSampleDataset):
+    DATASET_SLUG = "sample"
+    TABLE_NAME = "sample_table"
+    FIELDS_KWARGS = [
+        {
+            "name": "sample_field",
+            "options": {"max_length": 10},
+            "type": "text",
+            "null": False,
+            "filtering": True,
+            "choices": {"data": ["foo", "bar"]},
+        },
+        {
+            "name": "obfuscated_field",
+            "options": {"max_length": 10},
+            "type": "text",
+            "null": False,
+            "filtering": True,
+            "choices": {},
+            "obfuscate": True,
+        },
+    ]
+
+    def test_filter_by_obfuscate_exact_value(self):
+        value = "123456"
+        entry = baker.make(self.TableModel, obfuscated_field=value)
+        baker.make(self.TableModel, obfuscated_field="other")
+
+        query = {"obfuscated_field": value}
+        qs = self.TableModel.objects.apply_filters(query)
+
+        assert 1 == qs.count()
+        assert entry in qs
+
+    def test_filter_by_obfuscate_partial_value(self):
+        value = "123456"
+        entry = baker.make(self.TableModel, obfuscated_field=value)
+        baker.make(self.TableModel, obfuscated_field="other")
+
+        query = {"obfuscated_field": "**34**"}
+        qs = self.TableModel.objects.apply_filters(query)
+
+        assert 1 == qs.count()
+        assert entry in qs
