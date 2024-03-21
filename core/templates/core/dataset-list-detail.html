@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load cache %}
+{% load humanize %}
+{% load l10n %}
+{% load static %}
+{% block title %}{{ dataset.name }} - Datasets {{ listname|capfirst }} - Brasil.IO{% endblock %}
+{% block head %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'core/css/dataset-detail.css' %}"/>
+{% endblock %}
+{% block nav %}
+<div class="nav-content indigo">
+  <div class="breadcrumb">
+    <a href="{% url 'core:dataset-list' %}" title="Voltar para Dataset">Datasets</a> > <a
+      href="{% url 'core:dataset-detail' dataset.slug %}" title="Voltar para {{ dataset.name }}">{{ dataset.name }}</a>
+    > {{ listname|capfirst }}
+  </div>
+</div>
+{% endblock %}
+{% block content %}{% localize off %}
+<div class="section">
+  <div class="row">
+    <div class="col s12">
+      <div class="card">
+        <div class="card-content">
+          <h1 class="center secondary-card-title">
+            {{ listname|capfirst }}
+          </h1>
+          <div class="row">
+            <div class="col s12 l8 offset-l2 xl6 offset-xl3">
+              <ul class="collection">
+                {% if listname == "tabelas"%}
+                {% for table in dataset.tables %}
+                <a href="{% url 'core:dataset-table-detail' dataset.slug table.name %}" class="collection-item">
+                  {{table.name|capfirst}}
+                </a>
+                {% endfor %}
+                {% else %}
+                {% for link in clipping %}
+                <a href="#" class="collection-item">
+                  {{link.clipping.vehicle}}
+                </a>
+                {% endfor %}
+                {% endif %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endlocalize %}{% endblock %}

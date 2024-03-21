@@ -1,0 +1,43 @@
+{% extends "admin/change_form.html" %} {% block extrahead %} {{ block.super }}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript">
+  const populateSelect = () =>
+    $.getJSON(
+      "/clipping/get/contentype_instances/",
+      { id: $("select#id_content_type").val() },
+      function (j) {
+        var options = '<option value="">---------</option>';
+        for (var i = 0; i < j.length; i++) {
+          options +=
+            '<option value="' + j[i].id + '">' + j[i].name + "</option>";
+        }
+        // inspect html to check id of subcategory select
+        $("select#id_object_id").html(options);
+      }
+    );
+
+  // Populate content select then set element select
+  const setObjectIdSelect = async (j) => {
+    await populateSelect();
+    $("select#id_object_id").val(j);
+  };
+
+  /*
+    inspect html to check id of Content select, populate
+    select Element if change occurs
+  */
+  $(document).on("change", "select#id_content_type", populateSelect);
+
+  // Document ready
+  $(function () {
+    const objPk = $(location).attr("href").match("\/([0-9_]+)\/");
+    if (objPk && $("select#id_content_type").val()) {
+      $.getJSON("/clipping/get/selected_instance/", { id: objPk[1] }, (j) =>
+        setObjectIdSelect(j)
+      );
+    } else if($("select#id_content_type").val()) {
+      populateSelect()
+    }
+  });
+</script>
+{% endblock %}

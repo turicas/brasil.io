@@ -152,7 +152,8 @@ class Dataset(models.Model):
     author_name = models.CharField(max_length=255, null=False, blank=False)
     author_url = models.URLField(max_length=2000, null=True, blank=True)
     code_url = models.URLField(max_length=2000, null=False, blank=False)
-    description = models.TextField(null=False, blank=False)
+    short_description = MarkdownxField(null=True, blank=True)
+    description = MarkdownxField(null=True, blank=True)
     icon = models.CharField(max_length=31, null=False, blank=False)
     license_name = models.CharField(max_length=255, null=False, blank=False)
     license_url = models.URLField(max_length=2000, null=False, blank=False)
@@ -310,6 +311,7 @@ class Table(models.Model):
     version = models.ForeignKey(Version, on_delete=models.CASCADE, null=False, blank=False)
     import_date = models.DateTimeField(null=True, blank=True)
     description = MarkdownxField(null=True, blank=True)
+    short_description = MarkdownxField(null=True, blank=True)
     hidden = models.BooleanField(default=False)
     api_enabled = models.BooleanField(default=True)
 

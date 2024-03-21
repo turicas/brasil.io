@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+{% load cache %}
+{% load humanize %}
+{% load l10n %}
+{% load static %}
+{% load markdown %}
+{% block title %}{{ dataset.name }} - Datasets Table {{ table.name|capfirst }} - Brasil.IO{% endblock %}
+{% block head %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'core/css/dataset-detail.css' %}" />
+{% endblock %}
+{% block nav %}
+<div class="nav-content indigo">
+  <div class="breadcrumb">
+    <a href="{% url 'core:dataset-list' %}" title="Voltar para Dataset">Datasets</a> 
+    >
+    <a href="{% url 'core:dataset-detail' dataset.slug %}" title="Voltar para {{ dataset.name }}">{{ dataset.name }}</a>
+    >
+    <!-- Dropdown Trigger -->
+    <a class="dropdown-trigger" href="#!" data-target="dropdown_tables">
+      {{ table.name|capfirst }} <i class="material-icons">arrow_drop_down</i>
+    </a>
+  </div>
+</div>
+<!-- Dropdown Structure -->
+<ul id="dropdown_tables" class="dropdown-content">
+  {% for table in dataset.tables %}
+  <li>
+    <a href="{% url 'core:dataset-table-detail' dataset.slug table.name %}" class="collection-item">
+      {{table.name|capfirst}}
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}
+{% block content %}{% localize off %}
+<div class="section table-detail">
+  <div class="row">
+    <div class="col s12">
+      <div class="card">
+        <div class="card-content">
+          <h1 class="main-card-title">{{ table.name|capfirst }}</h1>
+          {% if table.short_description != None %}
+          <h2 class="main-card-util">{{ table.short_description }}</h2>
+          {% endif %}
+          {% if table.description != None %}
+          <p>{{ table.description }}</p>
+          {% endif %}
+          <p>
+            Quer <b>baixar os dados completos</b> ou precisa <b>acessá-los de
+              maneira automatizada</b>?
+            <a href="https://blog.brasil.io/2020/10/10/como-acessar-os-dados-do-brasil-io/">
+              <b>leia a documentação</b>
+            </a>
+            e depois
+            <a href="{{ dataset.files_url }}">
+              baixe o dataset completo
+            </a>
+            ou
+            <a href="{% url 'v1:dataset-detail' dataset.slug %}">utilize
+              nossa API
+            </a>.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col s12">
+      <div class="card">
+        <ul class="tabs tabs-fixed-width" id="tabs">
+          <li class="tab"><a class="blue-text" href="#form">Dados</a></li>
+          <li class="tab"><a class="blue-text" href="#metadata">MetaDados</a></li>
+          <li class="tab"><a class="blue-text" href="#midia">Publicações na mídia</a></li>
+        </ul>
+        <div class="card-content row">
+          <div id="form" class="col s12">
+            <div class="row" style="margin-bottom:0;">
+              <form class="col s12" method="get">
+                <div class="row">
+                  <div class="col s12">
+                    <div class="input-field col s6">
+                      <label class="active" for="search">Busca</label>
+                      <input type="text" id="search" name="search" value="{{ search_term }}">
+                    </div>
+                    {% for field in filter_form %}
+                    <div class="input-field col s6">
+                      <label class="active" for="{{ field.name }}">{{ field.label }}</label>
+                      {{ field }}
+                      {% if field.errors %}
+                      <span class="filter-error">{{ field.errors.as_text }}</span>
+                      {% endif %}
+                    </div>
+                    {% endfor %}
+                  </div>
+                  <div class="col s12">
+                    <input class="btn blue right" type="submit" value="Filtrar">
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div id="metadata" class="col s12" style="overflow-x: auto;">
+            <div class="row">
+              <div class="col s12">
+                <span class="card-title activator grey-text text-darken-4">
+                  Dicionário de Dados - Tabela {{ table.name }}
+                </span>
+  
+                <table class="highlight">
+                  <thead>
+                    <tr>
+                      <th>Coluna</th>
+                      <th>Tipo</th>
+                      <th>Título</th>
+                      <th>Descrição</th>
+                    </tr>
+                  </thead>
+  
+                  <tbody>
+                    {% for field in table.fields %}
+                    <tr>
+                      <td> {{ field.name }} </td>
+                      <td> {{ field.type }}{% if field.options_text %} ({{ field.options_text }}){% endif %}</td>
+                      <td> {{ field.title }} </td>
+                      <td> {{ field.description }} </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+  
+                </table>
+              </div>
+            </div>
+          </div>
+          <div id="midia" class="col s12">
+            <div class="row">
+              <div class="col s12">
+                <span class="card-title activator grey-text text-darken-4">
+                  Referências desta base de dados na mídia
+                </span>
+                <div>
+
+                </div>
+                <table class="highlight">
+                  <thead>
+                    <tr>
+                      <th>Título</th>
+                      <th>Autor</th>
+                      <th>Categoria</th>
+                      <th>Link</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {% if clipping|length > 0 %}
+                    {% for link in clipping %}
+                    {% if link.clipping.published %}
+                    <tr onclick="window.open('{{ link.clipping.url }}', '_blank' )" style="cursor: pointer;"
+                      title="Clique para acessar o link">
+                      <td> {{ link.clipping.title }}</td>
+                      <td> {% if link.clipping.author %}{{ link.clipping.author }}{% else %} --- {% endif %} </td>
+                      <td> {{ link.clipping.category }} </td>
+                      <td class="blue-text text-darken-2"> {{ link.clipping.url|truncatechars:30}}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    {% else %}
+                    <tr style="cursor: pointer;">
+                      <td> --- </td>
+                      <td> --- </td>
+                      <td> Nenhum link publicado</td>
+                      <td> --- </td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+
+                </table>
+                {% if user.is_authenticated %}
+                <div>
+                  <a href="{% url 'core:dataset-form-clipping' %}?next={{ request.path|urlencode }}">Sugerir Referência</a>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col s12 ">
+      <div class="card">
+        <div class="card-content">
+          <h1 class="main-card-title">Dados</h1>
+          <div class="row">
+            <div class="col s12 m6" style="margin-top: 15px;">
+              Dados capturados em {{ version.collected_at }}.<br>
+              {% if table.import_date %}
+              Importação dos dados feita em {{ table.import_date }}.
+              {% endif %}
+            </div>
+            <div class="col s12 m6" style="margin-top: 15px;">
+              <div class="row">
+                {% if total_count > 0 and total_count <= max_export_rows and querystring %} <div class="col s12">
+                  <a class="btn-small blue waves-effect waves-light right"
+                    href="{% url 'core:dataset-table-detail' slug table.name %}?{% if querystring %}{{ querystring }}&amp;{% endif %}format=csv">
+                    Baixar resultado em CSV*
+                  </a>
+              </div>
+              <div class="col s12">
+                <label class="right" style="max-width: 230px; text-align: justify; margin-top: 5px;">
+                  * No máximo {{ max_export_rows|localize }} registros serão
+                  exportados. Caso você necessite de mais dados, considere
+                  <a href="{{ dataset.files_url }}">baixar o dataset completo</a>.
+                </label>
+              </div>
+              {% else %}
+              <div class="col s12">
+                <div class="right">
+                  <a class="btn-small blue waves-effect waves-light" href="{{ dataset.files_url }}" target="_blank">
+                    Baixar dados completos em CSV
+                  </a>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col s12">
+            <ul class="pagination right">
+              <li> {{ data.start_index|localize }}-{{ data.end_index|localize }} de um total de {{ total_count|localize }}</li>
+              {% if data.has_previous %}
+              <li> <a
+                  href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ data.previous_page_number }}"><i
+                    class="material-icons">chevron_left</i></a> </li>
+              {% endif %}
+
+              {% if data.has_next %}
+              <li>
+                <a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ data.next_page_number }}"><i
+                    class="material-icons">chevron_right</i></a>
+              </li>
+              {% endif %}
+            </ul>
+          </div>
+          <div class="table-container col s12" style="padding: 0 30px 0;">
+            {% with table_id=dataset.slug fields=table.fields %}
+            {% include 'core/data-table.html' %}
+            {% endwith %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% if messages %}
+  {% for message in messages %}
+      <script type=text/javascript>M.toast({html: "{{message}}" })</script>
+  {% endfor %}
+{% endif %}
+{% endlocalize %}{% endblock %}
+
+{% block script %}
+{{ block.super }}
+<script type="text/javascript" language="javascript"
+  src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function () {
+    M.Tabs.init(document.getElementById('tabs'));
+    $('select').formSelect();
+    $(".dropdown-trigger").dropdown();
+    $('.mdl-data-table').DataTable({
+      "paging": false,
+      "searching": false,
+      "ordering": false,
+      "bInfo": false,
+    });
+  });
+</script>
+{% endblock %}
