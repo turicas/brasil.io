@@ -1,0 +1,37 @@
+<h4 id="{{ dataset.slug }}">{{ dataset.name }}</h4>
+<hr/>
+
+<p>Exemplo de requisição para apresentar informações sobre esse dataset:</p>
+<p><code>curl -X GET -k -H 'Authorization: Token 123412341234' -i 'https://{{ api_host }}/v1/dataset/{{ dataset.slug }}/'</code></p>
+<p>O <b>dataset completo</b> pode ser baixado diretamente <a href="{{ dataset.files_url }}">nesta página</a>. Por favor, dê preferência a baixar o dataset completo caso você vá precisar de todos aos dados ao invés de utilizar a API.</p>
+
+{% for table in dataset.tables %}
+  {% if table.api_enabled %}
+  <h5 id="{{ dataset.slug }}-{{ dataset.table }}">Tabela {{ table.name }}</h5>
+  <p>Exemplo de requisição para os dados desta tabela:</p>
+  <p><code>curl -X GET -k -H 'Authorization: Token 123412341234' -i 'https://{{ api_host }}/v1/dataset/{{ dataset.slug }}/{{ table.name }}/data/'</code></p>
+  <h6>Colunas</h6>
+
+  <ul class="table-fields">
+    {% for field in table.fields %}
+        <li><code>{{ field.name }}</code> ({{ field.get_type_display }})
+
+        {% if field.show %}
+          {% if field.show_on_frontend %}<i class="fa fa-eye" title="Esse campo é visível na interface Web, na API e no download completo"></i>{% endif %}
+          {% if not field.show_on_frontend %}<i class="fa fa-low-vision" title="Esse campo não é visível na interface Web, apenas na API e no download completo"></i>{% endif %}
+        {% else %}
+          {% if not field.show_on_frontend %}<i class="fa fa-eye-slash" title="Esse campo é usado internamente e fica visível apenas no download completo"></i>{% endif %}
+        {% endif %}
+
+        {% if field.frontend_filter %}<i class="fa fa-filter" title="Você pode fazer filtros por esse campo na interface Web e na API"></i>{% endif %}
+
+        {% if field.searchable %}<i class="fa fa-search" title="Você pode utilizar a busca de texto completo nesse campo"></i>{% endif %}
+
+        {% if field.has_choices %}<i class="fa fa-list-ul" title="Esse campo possui valores categóricos"></i>{% endif %}
+
+        : {{ field.title }} </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+{% endfor %}
