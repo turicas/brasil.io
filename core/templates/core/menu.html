@@ -1,52 +1,133 @@
 {% load cache %}
-{% cache 600 user_menu request.user.username id_prefix %}
-{% if request.user.is_authenticated %}
-<li><a class="dropdown-trigger" href="#!" data-target="{{id_prefix}}_authenticated-dropdown">
-  Olá, {{ request.user.username }}
-  <i class="material-icons right">arrow_drop_down</i>
-</a></li>
-<ul id="{{id_prefix}}_authenticated-dropdown" class="dropdown-content">
-  {% if is_covid19_contributor %}
-  <li><a href="{% url 'admin:covid19_statespreadsheet_changelist' %}" title="Ver Importação Covid-19">Importação Covid-19</a></li>
-  {% endif %}
-  <li><a href="{% url 'brasilio_auth:list_api_tokens' %}" title="Chaves da API">Chaves da API</a></li>
-  <li><a href="{% url 'brasilio_auth:logout' %}">Logout</a></li>
-</ul>
+  {% cache 600 user_menu request.user.username %}
+  <ul class="navbar-nav my-3 my-lg-0 user-select-none">
+    {% if request.user.is_authenticated %}
+      <li class="nav-item dropdown">
+        <a 
+            class="nav-link dropdown-toggle"
+            id="authenticated-dropdown" 
+            role="button"
+            data-bs-toggle="dropdown" 
+            aria-expanded="false"
+        >
+          Olá, {{ request.user.username }}
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="authenticated-dropdown">
+          <li>
+            <a 
+              class="dropdown-item" 
+              href="{% url 'admin:covid19_statespreadsheet_changelist' %}" 
+              title="Ver Importação Covid-19"
+            >
+              Covid-19
+            </a>
+          </li>
+          <li>
+            <a 
+              class="dropdown-item" 
+              href="{% url 'brasilio_auth:list_api_tokens' %}" 
+              title="Chaves da API"
+            >
+              Chaves da API
+            </a>
+          </li>
+          <li>
+            <hr class="dropdown-divider">
+          </li>
+          <li>
+            <a 
+              class="dropdown-item" 
+              href="{% url 'brasilio_auth:logout' %}"
+              title="Chaves da API"
+            >
+              Logout
+            </a>
+          </li>
+        </ul>
+      </li>
+    {% else %}
+      <li class="nav-item dropdown">
+        <a 
+          class="nav-link dropdown-toggle" href="#" 
+          id="unauthenticated-dropdown" 
+          role="button" data-bs-toggle="dropdown" 
+          aria-expanded="false"
+        >
+          Acesso
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="unauthenticated-dropdown">
+          <li>
+            <a class="dropdown-item" href="{% url 'brasilio_auth:sign_up' %}">
+              Cadastre-se
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{% url 'brasilio_auth:login' %}">
+              Login
+            </a>
+          </li>
+        </ul>
+      </li>
+    {% endif %}
+    <li>
+      <a class="nav-link px-lg-3" href="https://blog.brasil.io/">Blog</a>
+    </li>
+      
+    <li class="nav-item dropdown">
+      <a 
+        class="nav-link dropdown-toggle"
+        id="data-dropdown" 
+        role="button" data-bs-toggle="dropdown" 
+        aria-expanded="false"
+      >
+        Dados
+      </a>
+      <ul class="dropdown-menu" aria-labelledby="data-dropdown">
+        <li>
+          <a class="dropdown-item" href="{% url 'core:dataset-list' %}">
+            Datasets
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="{% url 'core:specials' %}">
+            Páginas Especiais
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="{% url 'v1:api-root' %}">
+            API
+          </a>
+        </li>
+      </ul>
+    </li>
+    
+    <li class="nav-item dropdown">
+      <a 
+        class="nav-link dropdown-toggle"
+        id="about-dropdown" 
+        role="button" data-bs-toggle="dropdown" 
+        aria-expanded="false"
+      >
+        Sobre
+      </a>
+      <ul class="dropdown-menu" aria-labelledby="about-dropdown">
+        <li>
+          <a class="dropdown-item" href="{% url 'core:manifesto' %}">
+            Manifesto
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="{% url 'core:collaborate' %}">
+            Colabore
+          </a>
+        </li>
+      </ul>
+    </li>
+  </ul>
 
-{% else %}
-<li><a class="dropdown-trigger" href="#!" data-target="{{id_prefix}}_unauthenticated-dropdown">
-  Sua conta
-  <i class="material-icons right">arrow_drop_down</i>
-</a></li>
-<ul id="{{id_prefix}}_unauthenticated-dropdown" class="dropdown-content">
-  <li><a href="{% url 'brasilio_auth:sign_up' %}">Cadastre-se</a></li>
-  <li><a href="{% url 'brasilio_auth:login' %}">Login</a></li>
-</ul>
-{% endif %}
-
-<li><a class="dropdown-trigger" href="#!" data-target="{{id_prefix}}-data-dropdown">
-  Dados
-  <i class="material-icons right">arrow_drop_down</i>
-</a></li>
-<ul id="{{id_prefix}}-data-dropdown" class="dropdown-content">
-  <li><a href="{% url 'core:dataset-list' %}">Datasets</a></li>
-  <li><a href="{% url 'core:specials' %}">Páginas Especiais</a></li>
-  <li><a href="{% url 'v1:api-root' %}">API</a></li>
-</ul>
-
-<li><a class="dropdown-trigger" href="#!" data-target="{{id_prefix}}-about-dropdown">
-  Sobre
-  <i class="material-icons right">arrow_drop_down</i>
-</a></li>
-<ul id="{{id_prefix}}-about-dropdown" class="dropdown-content">
-  <li><a href="{% url 'core:manifesto' %}">Manifesto</a></li>
-  <li><a href="{% url 'core:collaborate' %}">Colabore</a></li>
-</ul>
-
-<li><a href="https://blog.brasil.io/">Blog</a></li>
-<li><a class="btn" href="{% url 'core:donate' %}">APOIE</a></li>
-
-<script>
-  $(".dropdown-trigger").dropdown();
-</script>
+  <a class="btn btn-bd-download ms-2"
+      href="{% url 'core:donate' %}"
+      target="_blank">
+      Apoie
+  </a>
 {% endcache %}

@@ -1,0 +1,21 @@
+{
+  "name": "theming_project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build-css": "node-sass --output-style compressed scss/app.scss > app.css",
+    "purge-css": "purgecss --css app.css --content ../**/*.html ../**/*.scss ../**/*.py -o ../static/css/main.css",
+    "watch": "node-sass -w scss/app.scss ../static/css/main.css",
+    "build": "npm run build-css && npm run purge-css"
+  },
+  "author": "",
+  "license": "ISC",
+  "_id": "theming_project@1.0.0",
+  "dependencies": {
+    "bootstrap": "^5.1.3",
+    "cssnano": "^5.0.7",
+    "node-sass": "^6.0.1",
+    "purgecss": "^4.0.3"
+  }
+}

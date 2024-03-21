@@ -1,8 +1,5 @@
 {% extends 'base.html' %}
 {% block title %}Contato - Brasil.IO{% endblock %}
-{% block content %}
-
-<h4>Contato</h4>
 
 {% if sent %}
 <h5>
@@ -10,31 +7,65 @@
 </h5>
 {% endif %}
 
-<div>
+{% block alert %}
+  {% if sent %}
+    {% with message="Sua mensagem foi enviada com sucesso! Em breve responderemos. :)" type="success" %}
+      {% include 'includes/toast.html' %}
+    {% endwith %}
+  {% endif %}
+{% endblock %}
 
-  <p>
-    Preencha o formulário abaixo para entrar em contato conosco ou envie
-    diretamente um email a
-    <a href="mailto:contato@brasil.io" title="Entre em contato via e-mail">contato@brasil.io</a>.
-  </p>
-  <p>
-    Caso queira ter uma conversa mais longa e colaborar mais ativamente com o
-    desenvolvimento da plataforma <a href="https://chat.brasil.io/">acesse
-      nosso chat</a>!
-  </p>
+{% block content %}
+  <section class="section">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h1 class="fs-2">Contato</h1>
 
-  <form action="" method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn" type="submit">Enviar</button>
-  </form>
+        <p class="col-9">
+          Preencha o formulário abaixo para entrar em contato conosco ou envie
+          diretamente um email a
+          <a href="mailto:contato@brasil.io" title="Entre em contato via e-mail">contato@brasil.io</a>.
 
-</div>
+          Caso queira ter uma conversa mais longa e colaborar mais ativamente com o
+          desenvolvimento da plataforma 
+          <a href="https://chat.brasil.io/">acesse nosso chat</a>!
+        </p>
+      
+        <form method="POST">
+          {% csrf_token %}
+          <section class="row gy-4">
 
-<script type="text/javascript">
-  $(document).ready(function() {
-    $('#id_name').focus();
-  });
-</script>
-
+            {% for field in form %}
+              <div class="col-md-6">
+                {% if field.label != "Captcha" %}
+                  <label class="form-label">{{ field.label }}</label>
+                  {% if field.label == "Usuário" %}
+                    <div class="input-group">
+                      <span class="input-group-text" id="basic-addon1">@</span>
+                      {{ field }}
+                    </div>
+                  {% else %}
+                    {{ field }}
+                  {% endif %}
+                  {% if field.errors %}
+                    <div class="small text-danger">
+                      {{ field.errors }}
+                    </div>
+                  {% endif %}
+                {% else %}
+                  <div class="mb-2">
+                    <label class="form-label mb-2">{{ field.label }}</label>
+                    {{ field }}
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </section>
+          <div class="d-flex justify-content-end">
+            <button class="btn btn-primary mt-4 w-25" type="submit">Enviar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
 {% endblock %}

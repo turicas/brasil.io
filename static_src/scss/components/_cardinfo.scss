@@ -1,0 +1,11 @@
+.card-info {
+    @extend .card, .shadow, .pt-2, .mb-2, .bg-gradient, .text-white, .bg-primary;
+
+    a {
+        color: $gray-100;
+
+        &:hover {
+            color: $gray-300;
+        }
+    }
+}

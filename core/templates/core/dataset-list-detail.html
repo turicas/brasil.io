@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load cache %}
+{% block title %}
+  {{ dataset.name }} - Datasets {{ listname|capfirst }} - Brasil.IO
+{% endblock %}
+
+
+{% block content %}
+  <div class="section-datasets">
+    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'core:dataset-list' %}">Datasets</a></li>
+        <li class="breadcrumb-item active" aria-current="dataset"><a href="{% url 'core:dataset-detail' dataset.slug %}">{{ dataset.name }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ listname|capfirst }}</li>
+      </ol>
+    </nav>
+  </div>
+  <div class="section-datasets pt-4 pb-5">
+    <div class="card py-3 shadow">
+      <div class="card-body">
+        <h1 class="mb-3 fs-2">
+          {{ listname|capfirst }}
+        </h1>
+        <ul class="list-group">
+            {% if listname == "tabelas"%}
+              {% for table in dataset.tables %}
+                <a 
+                  class="list-group-item list-group-item-action" 
+                  href="{% url 'core:dataset-table-detail' dataset.slug table.name %}"
+                >
+                  {{ table.name|capfirst }}
+                </a>
+              {% endfor %}
+            {% else %}
+              {% for link in clipping %}
+                <a class="list-group-item list-group-item-action" href="#" class="collection-item">
+                  {{ link.clipping.vehicle }}
+                </a>
+              {% endfor %}
+            {% endif %}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock %}

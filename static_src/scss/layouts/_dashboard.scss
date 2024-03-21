@@ -1,0 +1,88 @@
+.section-dashboard {
+    @extend .container, .py-1;
+}
+
+#dashboard-table {
+    .dataTables_filter label {
+        @extend .d-flex, .flex-column, .justify-content-start;
+        text-align: left;
+        width: 100%;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+        @extend .form-control, .my-2, .w-50;
+    }
+}
+
+.leaflet-control-container .leaflet-bottom .leaflet-left .info .legend .leaflet-control {
+    @extend .d-flex, .flex-column;
+}
+
+.container-map-table {
+    @extend .px-3, .px-sm-5, .mx-sm-5, .py-4;
+    max-width: 2500px;
+}
+
+#map {
+    margin-top: -40px;
+    min-height: 850px;
+}
+
+.charts {
+    @extend .section-dashboard;
+    .card {
+        @extend .d-flex, .justify-content-center, .align-items-center;
+        height: 500px;
+        .chart {
+            height: 350px;
+        }
+    }
+}
+
+.info {
+    padding: 6px 8px;
+    font: 14px/16px sans-serif;
+    background: white;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    h4 {
+        margin: 0 0 5px;
+        color: #777;
+    }
+}
+
+
+.legend {
+
+    i {
+        width: 18px;
+        line-height: inherit;
+        margin-right: 8px;
+        display: inline-block;
+        height: 18px;
+    }
+
+    > label {
+        color: #000;
+    }
+    
+    > input {
+        color: #000;
+        font-size: 1em;
+    }
+}
+
+
+#loading {
+    position: relative;
+    z-index: 999;
+    margin-bottom: 0px;
+    margin-left: 50px;
+    height: 40px;
+    padding-top: 10px;
+
+    > span > img {
+        width: 20px;
+        height: 20px;
+    }
+}

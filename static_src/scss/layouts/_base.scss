@@ -1,0 +1,111 @@
+footer {
+    @extend .text-dark;
+    .nav-item > a,
+    .list-unstyled .fab {
+        @extend .text-dark, .text-decoration-none;
+    }
+}
+
+.brio-navbar {
+    @extend .bg-brio-primary;
+
+    .navbar-nav .nav-link {
+        @extend .text-white;
+        text-decoration: none;
+    }
+}
+
+.masthead {
+    @extend .shadow-sm, .text-white;
+    position: relative;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+    font-weight: 300;
+    background-image: linear-gradient(to bottom, $main-banner-dark, $main-banner-light);
+
+    a {
+        @extend .link-light;
+        text-decoration: none;
+    }
+}
+
+.btn-bd-download {
+    @extend .text-brio-success, .border, .border-brio-success;
+    font-weight: $fw-heavy;
+}
+
+.btn-bd-download:hover,
+.btn-bd-download:active {
+    @extend .bg-brio-success, .border, .border-brio-success, .text-brio-success-secondary;
+}
+
+.logo-img {
+    @extend .p-1;
+}
+
+.logo-text {
+    @extend .fs-3, .link-dark;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.section {
+    @extend .container, .py-4;
+}
+
+.section-main {
+    @extend .container, .py-5;
+}
+
+// Hide starting at `min-width: 0`, and then show at the `sm` breakpoint
+.main-banner-img {
+    display: none;
+}
+
+@include media-breakpoint-up(lg) {
+    .main-banner-img {
+        display: block;
+    }
+}
+
+
+#main-banner {
+    h1,
+    p {
+        color: $white;
+    }
+    .btn-light {
+        color: $gray-800;
+        background: $white;
+        font-weight: 500;
+
+        &:hover {
+            background: $gray-200;
+            border: solid 1px $gray-200;
+        }
+    }
+
+    .btn-outline-light {
+        border: solid 1px $white;
+        color: $white;
+        font-weight: 500;
+
+        &:hover {
+            background: $white;
+            color: $gray-800;
+        }
+    }
+}
+
+/* Adapts a floating label for use with a left-handed input group icon */
+.form-floating > .bi-calendar-date + .datepicker_input + label {
+    padding-left: 3.5rem;
+    z-index: 3;
+}
+
+
+.dataTables_filter {
+    @extend .w-100;
+}

@@ -28,3 +28,4 @@ reg_settings.py
 schema-populacao-estimada-2019.csv
 schema-populacao-por-municipio.csv
 schema-population.csv
+static_src/node_modules

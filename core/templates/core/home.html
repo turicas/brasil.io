@@ -1,112 +1,170 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Home - Brasil.IO{% endblock %}
-{% block top %}
-<div class="top-container indigo darken-1">
-  <div class="container">
-    <div class="section indigo-text text-lighten-5">
-      <h3>O Brasil em dados libertos</h3>
-      <p class="flow-text">Repositório de dados públicos disponibilizados em formato acessível</p>
-    </div>
-  </div>
-</div>
-{% endblock %}
+
+{% block title %} Início - Brasil.IO {% endblock %}
 
 {% block content %}
+  <div class="masthead">
+    <div class="container px-3">
 
-<section>
-  <div class="row">
-    <div class="col m12 l6">
-        <h1 class="header center green-text">Últimas atualizações</h1>
-        <div class="m-t-50">
-          {% for activity in recent_activities %}
-            <ul class="collection">
-              <li class="collection-item"> <strong>{{ activity.created_at|date:" d/m/Y" }}</strong> - {{ activity.title }}{% if activity.url %} - <a href="{{ activity.url }}">veja mais</a>{% endif %}</li>
-            </ul>
-          {% endfor %}
-        </div>
-    </div>
-    <div class="col m12 l6">
-      <h1 class="header center green-text">ESPECIAL COVID-19: DADOS POR MUNICÍPIO</h1>
-      <div style="text-align: justify;" class="row center">
-        <p class="col s12 light">{% include 'covid19/text.html' %}</p>
-      </div>
-      <div class="row center">
-        <a href="{% url 'covid19:dashboard' %}" id="download-button"
-          class="btn-large waves-effect waves-light blue">Ver Mais</a>
-      </div>
+        <h1 class="fs-2">O Brasil em dados libertos</h1>
+        <p class="fs-5 col-12 col-lg-6">
+          Repositório de dados públicos disponibilizados em formato acessível.
+        </p>
+
     </div>
   </div>
-</section>
 
-<section>
-  <div class="row center">
-    <div class="col s12 m6 xl3">
-      <a href="{% url 'core:manifesto' %}">
-        <div class="card small green hoverable waves-block  waves-effect waves-light">
-          <div class="card-content center card-home">
-            <span class="card-title bold white-text">Manifesto</span>
-          </div>
-          <div class="card-content card-body white-text" style="text-align:justify;">
-            <p>Venha entender o que motivou a criação do <strong>Brasil.IO</strong> e quais
-              são os objetivos do projeto!</p>
+  <section class="container px-4 py-4">
+    <div class="row gy-4">
+      <div class="col-12 col-xl-6 px-3">
+        <div class="row p-2 body-bg rounded shadow-sm border h-100">
+          <h3 class="pt-2 mb-2 mb-xl-0 fs-5">Últimas atualizações</h3>
+          <div class="list-group list-group-flush px-1">
+            {% if recent_activities %}
+              {% for activity in recent_activities %}
+                <a 
+                  href="{% if activity.url %} 
+                      {{ activity.url }}
+                    {% else %}
+                      #!
+                    {% endif %}"
+                  class="list-group-item list-group-item-action border rounded py-3"
+                >
+                  <div class="d-flex text-muted">
+                    <div class="btn-primary rounded-3 me-3 p-2">
+                      <i class="bi bi-info-square"></i>
+                    </div>
+                    <p class="mb-0 small lh-sm">
+                      <strong class="d-block">{{ activity.created_at|date:" d/m/Y" }}</strong>
+                      {{ activity.title }}
+                    </p>
+                  </div>
+                </a>
+              {% endfor %}
+            {% else %}
+              <div class="list-group-item list-group-item-action rounded py-3">
+                <div class="d-flex text-muted">
+                  <div class="btn-secondary rounded-3 me-3 px-2 py-1">
+                    <i class="bi bi-info-square"></i>
+                  </div>
+                  <p class="mb-0 small lh-sm">
+                    <strong class="d-block">---</strong>
+                     Sem atualizações recentes
+                  </p>
+                </div>
+              </div>
+            {% endif %}
           </div>
         </div>
-      </a>
-    </div>
-    <div class="col s12 m6 xl3">
-      <a href="{% url 'core:dataset-list' %}">
-        <div class="card small yellow hoverable waves-block  waves-effect waves-orange">
-          <div class="card-content center card-home">
-            <span class="card-title bold black-text">Datasets</span>
-          </div>
-          <div class="card-content card-body black-text" style="text-align:justify;">
-            <p>Confira a lista completa de todas as base de dados liberadas.</p>
-          </div>
-        </div>
-      </a>
-    </div>
-    <div class="col s12 m6 xl3">
-      <a href="{% url 'core:dataset-suggestion' %}">
-        <div class="card small blue darken-1 hoverable waves-block  waves-effect waves-light">
-          <div class="card-content center card-home">
-            <span class="card-title bold white-text">Sugira um Dataset</span>
-          </div>
-          <div class="card-content card-body white-text" style="text-align:justify;">
-            <p>Conhece algum dataset bacana que gostaria de ver aqui? Sugira para nós! =)</p>
+      </div>
+      <div class="col-12 col-xl-6 px-3">
+        <div class="row btn-primary bg-gradient rounded-3 border-0 shadow-sm h-100 align-items-center">
+          <div class="card p-4 bg-transparent">
+            <div
+              class="d-flex align-items-center justify-content-between flex-column flex-sm-row text-center text-sm-start">
+              <div>
+                <div class="fs-5 fw-bold">ESPECIAL COVID-19: DADOS POR MUNICÍPIO.</div>
+                <div class="col-md-7 mt-4 mt-sm-2 small">
+                  Graças a uma força-tarefa de 40 voluntários que,diariamente, compilam
+                  boletins epidemiológicos das 27 Secretarias Estaduais de Saúde, disponibilizamos uma
+                  base de dados com a série histórica de casos e óbitos confirmados por município. Clique
+                  para acessar.
+                </div>
+              </div>
+              <i class="bi bi-chevron-compact-right fs-2"></i>
+            </div>
+            <a href="{% url 'covid19:dashboard' %}" class="stretched-link"></a>
           </div>
         </div>
-      </a>
+      </div>
     </div>
-    <div class="col s12 m6 xl3">
-      <a href="https://github.com/turicas/brasil.io/issues">
-        <div class="card small hoverable waves-block  waves-effect">
-          <div class="card-content center card-home">
-            <span class="card-title bold black-text">Colabore</span>
+  </section>
+  
+  <section class="border-top border-bottom border-primary py-2">
+    <div class="container">
+      <div class="py-4">
+          <div class="main-links-list">
+            <div class="list-element">
+              <a href="{% url 'core:manifesto' %}" class="btn btn-primary">
+                <div>
+                  <i class="bi bi-file-earmark-text"></i>
+                </div>
+              </a>
+              <h2 class="h3 fs-4">Manifesto</h2>
+              <p class="mb-0">
+                Venha entender o que motivou a criação do <strong>Brasil.IO</strong> e quais
+                são os objetivos do projeto!
+              </p>
+            </div>
+            <div
+              class="list-element">
+              <a href="{% url 'core:dataset-list' %}" class="btn btn-secondary">
+                <div>
+                 <i class="bi bi-list-ol"></i>
+                </div>
+              </a>
+              <h2 class="h3 fs-4">Datasets</h2>
+              <p class="mb-0">
+                Confira a lista completa de todas as base de dados liberadas.
+              </p>
+            </div>
+            <div
+              class="list-element">
+              <a href="{% url 'core:dataset-suggestion' %}" class="btn btn-warning">
+                <div>
+                  <i class="bi bi-card-checklist"></i>
+                </div>
+              </a>
+              <h2 class="h3 fs-4">Sugira um Dataset</h2>
+              <p class="mb-0">
+                Conhece algum dataset bacana que gostaria de ver aqui? Sugira para nós! =)
+              </p>
+            </div>
+            <div class="list-element">
+              <a href="https://github.com/turicas/brasil.io/issues" class="btn btn-success">
+                <div>
+                  <i class="bi bi-clipboard-check"></i>
+                </div>
+              </a>
+              <h2 class="h3 fs-4">Colabore</h2>
+              <p class="mb-0">
+                Achou o projeto legal e quer contribuir? Clique aqui e veja como.
+              </p>
+            </div>
           </div>
-          <div class="card-content card-body" style="text-align:justify;">
-            <p class="black-text">Achou o projeto legal e quer contribuir? Clique aqui e veja aqui como.
+      </div>
+    </div>
+  </section>
+
+  <section class="cards-section-bg">
+    <div class="container py-4">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+          <div class="text-center">
+            <h2 class="fw-bolder">Datasets</h2>
+            <p class="lead fw-normal mb-4">
+              Veja alguns dos nossos datasets. Na lista de links selecione a base de dados que deseja
+              acessar.
             </p>
           </div>
         </div>
-      </a>
+      </div>
+      <div class="row g-4">
+        {% for dataset in datasets %}
+          <div class="dataset-cards-list">
+          {% with name=dataset.name icon=dataset.icon short_description=dataset.short_description slug=dataset.slug tables=dataset.tables %}
+            {% include 'core/includes/dataset-card.html' %}
+          {% endwith %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="d-flex justify-content-center mt-4 mb-2">
+        <a href="{% url 'core:dataset-list' %}" class="icon-link">
+          <span class="fs-5">Ver lista completa</span>
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </div>
     </div>
-  </div>
-</section>
-
-<section id="datasets">
-  <h4 class="header center green-text m-t-50 m-b-50">Datasets</h4>
-  <div class="row" class="m-t-50">
-    {% for dataset in datasets %}
-    {% include 'core/dataset-card.html' %}
-    {% endfor %}
-  </div>
-
-  <div class="row text-center" style="padding-bottom: 30px;">
-    <a class="btn waves-effect waves-light m-t-20" href="{% url 'core:dataset-list' %}" role="button">
-      Ver Todos Datasets
-    </a>
-  </div>
-</section>
-
+  </section>
 {% endblock %}

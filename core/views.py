@@ -2,6 +2,8 @@ import csv
 import uuid
 
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
@@ -10,6 +12,8 @@ from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
+from clipping.forms import ClippingForm
+from clipping.models import ClippingRelation
 from core.filters import parse_querystring
 from core.forms import ContactForm, DatasetSearchForm, get_table_dynamic_form
 from core.middlewares import disable_non_logged_user_cache
@@ -105,7 +109,61 @@ def dataset_list(request):
     return render(request, "core/dataset-list.html", context)
 
 
-def dataset_detail(request, slug, tablename=""):
+def dataset_list_detail(request, slug, listname):
+    if len(request.GET) > 0 and not request.user.is_authenticated:
+        return redirect(f"{settings.LOGIN_URL}?next={request.get_full_path()}")
+
+    try:
+        clipping_dataset = []
+        if listname == "tabelas":
+            dataset = Dataset.objects.get(slug=slug)
+        else:
+            dataset = Dataset.objects.get(slug=slug)
+            clipping_type_dataset = ContentType.objects.get(app_label="core", model="dataset")
+            clipping_dataset = list(
+                ClippingRelation.objects.filter(
+                    content_type=clipping_type_dataset.id, object_id=dataset.pk, clipping__published=True
+                ).distinct("clipping__vehicle")
+            )
+    except Dataset.DoesNotExist:
+        context = {"message": "Dataset does not exist"}
+        return render(request, "404.html", context, status=404)
+
+    context = {
+        "listname": listname.replace("_", " "),
+        "dataset": dataset,
+        "clipping": clipping_dataset,
+    }
+
+    return render(request, "core/dataset-list-detail.html", context, status=200)
+
+
+def dataset_detail(request, slug):
+    if len(request.GET) > 0 and not request.user.is_authenticated:
+        return redirect(f"{settings.LOGIN_URL}?next={request.get_full_path()}")
+
+    try:
+        dataset = Dataset.objects.get(slug=slug)
+    except Dataset.DoesNotExist:
+        context = {"message": "Dataset does not exist"}
+        return render(request, "404.html", context, status=404)
+
+    clipping_type_dataset = ContentType.objects.get(app_label="core", model="dataset")
+    clipping_dataset = list(
+        ClippingRelation.objects.filter(
+            content_type=clipping_type_dataset.id, object_id=dataset.pk, clipping__published=True
+        ).distinct("clipping__vehicle")
+    )
+
+    context = {
+        "dataset": dataset,
+        "clipping": clipping_dataset,
+    }
+
+    return render(request, "core/dataset-detail.html", context, status=200)
+
+
+def dataset_table_detail(request, slug, tablename=""):
     if len(request.GET) > 0 and not request.user.is_authenticated:
         return redirect(f"{settings.LOGIN_URL}?next={request.get_full_path()}")
 
@@ -198,7 +256,12 @@ def dataset_detail(request, slug, tablename=""):
         if not value:
             del querystring[key]
 
+    clipping_type_table = ContentType.objects.get(app_label="core", model="table")
+    clipping_table = list(ClippingRelation.objects.filter(content_type=clipping_type_table.id, object_id=table.pk))
+    clipping = clipping_table
+
     context = {
+        "clipping": clipping,
         "data": data,
         "dataset": dataset,
         "filter_form": filter_form,
@@ -214,7 +277,32 @@ def dataset_detail(request, slug, tablename=""):
     status = 200
     if filter_form.errors:
         status = 400
-    return render(request, "core/dataset-detail.html", context, status=status)
+    return render(request, "core/dataset-table-detail.html", context, status=status)
+
+
+def dataset_clipping_suggestion(request):
+    if len(request.GET) > 0 and not request.user.is_authenticated:
+        return redirect(f"{settings.LOGIN_URL}?next={request.get_full_path()}")
+
+    if request.method == "POST":
+        clipping_form = ClippingForm(request.POST)
+        if clipping_form.is_valid():
+            clipping = clipping_form.save(commit=False)
+            clipping.added_by = request.user
+            clipping.save()
+
+            messages.success(request, "Sugestão enviada com sucesso", extra_tags="success")
+
+            return redirect(request.POST.get("next", "/"))
+        else:
+            messages.error(request, "Verifique o formulário novamente", extra_tags="danger")
+    else:
+        clipping_form = ClippingForm()
+
+    context = {
+        "form": clipping_form,
+    }
+    return render(request, "core/dataset-form-clipping.html", context)
 
 
 def dataset_suggestion(request):

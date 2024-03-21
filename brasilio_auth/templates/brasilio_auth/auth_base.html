@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section
+    class="auth-base-section cards-section-bg"
+    tabindex="-1"
+    role="dialog"
+    id="modalSignin"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content rounded-5 shadow-lg">
+        <div class="modal-header p-5 pb-3 border-bottom-0">
+          <h2 class="fw-bold mb-0">
+            {% block cardtitle %}
+            {% endblock %}
+          </h2>
+        </div>
+
+        <div class="modal-body px-5 pb-5">
+         {% block cardcontent %}
+         {% endblock %}
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

@@ -54,18 +54,19 @@ function updateLegendControl() {
   var color = dataConfig[selectedVar].color,
       displayValue,
       div = legendControl.getContainer(),
-      labels = [`<b>${dataConfig[selectedVar].displayText}</b>`, "<br><br>"],
+      labels = [`<b>${dataConfig[selectedVar].displayText}</b>`],
       lastOpacity,
       maxValue = maxValues[selectedVar],
       zeroDisplay = dataConfig[selectedVar].zeroText;
-
+      
+  div.classList.add("d-flex", "flex-column");
   for (var counter = 0; counter <= legendBins; counter += 1) {
     var opacity = counter / legendBins;
     var value = dataConfig[selectedVar].valueFromOpacity(opacity, maxValue);
     var lastValue = lastOpacity === undefined ? 0 : dataConfig[selectedVar].valueFromOpacity(lastOpacity, maxValue);
     if (lastOpacity === undefined || lastValue != value) {
       displayValue = lastOpacity === undefined ? zeroDisplay : `${lastValue} &mdash; ${value}`;
-      labels.push(`<span class="valign-wrapper"> <i style="background: ${color}; opacity: ${opacity}"></i> ${displayValue} </span>`);
+      labels.push(`<span> <i style="background: ${color}; opacity: ${opacity}"></i> ${displayValue} </span>`);
     }
     lastOpacity = opacity;
   }
@@ -91,7 +92,7 @@ function updateVarControl() {
   var div = varControl.getContainer();
   var inputs = ["<b>Selecione a variável</b>"];
   Object.keys(dataConfig).forEach(function(item) {
-    inputs.push(`<label><input type="radio" class="radio-control" name="radio-var-control" value="${item}"><span>${dataConfig[item].displayText}</span></label>`);
+    inputs.push(`<label><input type="radio" class="form-check-input" type="radio" name="radio-var-control" value="${item}"><span>${dataConfig[item].displayText}</span></label>`);
   });
   div.innerHTML = inputs.join("<br>");
   jQuery(".radio-control").change(function() {
@@ -238,17 +239,4 @@ function retrieveData() {
 jQuery(document).ready(function() {
   createMap();
   retrieveData();
-
-  jQuery(window).resize(function() {
-    if (jQuery(window).width() > 1840) {
-      jQuery("#table-col").removeClass("xl12").addClass("xl6");
-      jQuery("#map-col").removeClass("xl12").addClass("xl6");
-    }
-    else {
-      jQuery("#table-col").removeClass("xl6").addClass("xl12");
-      jQuery("#map-col").removeClass("xl6").addClass("xl12");
-    }
-    dt.columns.adjust();
-  });
-  window.dispatchEvent(new Event("resize"));
 });

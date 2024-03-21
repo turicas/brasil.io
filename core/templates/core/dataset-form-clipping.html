@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Sugerir nova referência - Brasil.IO{% endblock %}
+
+{% block head %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/vanillajs-datepicker.min.css' %}">
+{% endblock %}
+
+{% block alert %}
+  {% if messages %}
+    {% for message in messages %}
+      {% with message=message|safe type=message.extra_tags %}
+        {% include 'includes/toast.html' %}
+      {% endwith %}
+    {% endfor %}
+  {% endif %}
+{% endblock %}
+
+
+{% block content %}
+<section class="section">
+  <div class="card shadow p-2">
+    <div class="card-body">
+      <h1 class="fs-2 mb-3" class="card-title">
+          Sugerir nova referência
+      </h1>
+      <form method="post" class="row gy-3">
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="col-12 col-lg-6">          
+            <label class="form-label">{{ field.label }}</label>
+            <div class="input-group">
+              {% if field.name != "category" %}
+                {{ field }}
+              {% else %}
+                {{ field }}
+              {% endif %}
+            </div>
+            {% if field.errors %}
+              <div class="small text-danger">
+                {{ field.errors }}
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+        <input type="hidden" name="next" value="{{ request.GET.next }}">
+        <div class="mt-4 d-flex justify-content-end">
+          <button class="btn btn-primary w-25 btn-lg">Enviar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block bodyscript %}
+  {{ block.super }}
+  <script src="{% static 'js/vanillajs-datepicker.min.js'%}"></script>
+  <script src="{% static 'js/vanillajs-datepicker-starter.js'%}"></script>
+{% endblock %}

@@ -35,7 +35,7 @@ jQuery(document).ready(function() {
     "bInfo":          false,
     "order": [3, "desc"],
     "language": {
-      search: "Buscar:",
+      search: "&nbsp;&nbsp;Buscar:",
       searchPlaceholder: "Digite seu município aqui",
     },
   });

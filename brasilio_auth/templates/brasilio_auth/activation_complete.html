@@ -1,18 +1,23 @@
-{% extends "base.html" %}
+{% extends "brasilio_auth/auth_base.html" %}
 
-{% block content %}
-  <div class="row m-t-15 center">
-    <div class="col s12 m8 p8 offset-m2">
-      <h4>Ativação realizada com sucesso!</h4>
-      <p>
-        Pronto! Sua conta foi ativada e agora você pode acessar todas as páginas do <a href="https://brasil.io/">Brasil.IO</a> (incluindo nossa API). :-)
-      </p>
-      <p>
-        Caso você precise baixar quantidades grandes de dados, por favor opte por <b>baixar os dados completos de cada dataset</b> em vez de utilizar a API ou acessar diretamente a listagem dos dados (basta acessar a página do dataset e clicar em "baixar dados completos").
-      </p>
-      <p>
-        O <a href="https://brasil.io/">Brasil.IO</a> é <b>desenvolvido colaborativamente por voluntários</b>, fica aqui o convite para <a href="{% url "core:collaborate" %}">colaborar com o projeto</a>. :-) Considere também <a href="{% url "core:donate" %}">fazer-nos uma doação</a>.
-      </p>
-    </div>
+{% block cardtitle %}
+  Ativação realizada com sucesso
+{% endblock %}
+
+{% block cardcontent %}
+  <p>
+    Pronto! Sua conta foi ativada e agora você pode acessar todas as páginas do <a href="https://brasil.io/">Brasil.IO</a> (incluindo nossa API). :-)
+  </p>
+  <p>
+    Caso você precise baixar quantidades grandes de dados, por favor opte por <b>baixar os dados completos de cada dataset</b> em vez de utilizar a API ou acessar diretamente a listagem dos dados (basta acessar a página do dataset e clicar em "baixar dados completos").
+  </p>
+  <p>
+    O <a href="https://brasil.io/">Brasil.IO</a> é <b>desenvolvido colaborativamente por voluntários</b>, fica aqui o convite para <a href="{% url "core:collaborate" %}">colaborar com o projeto</a>. :-)
+  </p>
+  <p>
+    Considere também <a href="{% url "core:donate" %}">fazer-nos uma doação</a>.
+  </p>
+  <div class="mt-4">
+    <a href="/" class="auth-btn">Voltar para início</a>
   </div>
 {% endblock %}
