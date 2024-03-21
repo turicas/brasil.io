@@ -1,0 +1,265 @@
+@font-face {
+  font-family: "Open Sans Regular";
+  src: url("OpenSans-Regular.ttf");
+}
+
+@font-face {
+  font-family: "Open Sans Italic";
+  src: url("OpenSans-Italic.ttf");
+}
+
+@font-face {
+  font-family: "Open Sans Bold";
+  src: url("OpenSans-Bold.ttf");
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("Roboto-Regular.ttf");
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  width: 100%;
+  height: 83px;
+  background-color: #3F51B5;
+}
+
+.header .left-column {
+  float: left;
+  margin: 13px 0;
+}
+
+.header .left-column img {
+  height: 53px;
+  margin-left: 20px;
+}
+
+.header .right-column {
+  float: right;
+  margin: 20px 0;
+}
+
+.header .right-column font {
+  float: right;
+  font-size: 32px;
+  color: #FFFFFF;
+  margin-right: 30px;
+  font-family: "Open Sans Regular";
+}
+
+.container {
+  width: 100%;
+  padding-top: 10px;
+  background-color: #f5f5f5;
+}
+
+.container .left-column {
+  width: 33%;
+  display: inline-block;
+}
+
+.report-resume {
+  width: 360px;
+  height: 425px;
+  background-color: #3F51B5;
+  margin: auto;
+  margin-top: 170px;
+  font-size: 24px;
+  color: #FFFFFF;
+}
+
+.row-1 {
+  margin-left: 46px;
+  padding-top: 18px;
+}
+
+.row-1 .date {
+  margin-left: 28px;
+}
+
+.row-2, .row-3 {
+  padding-top: 5px;
+}
+
+.report-resume .info-count-total {
+  top: -10px;
+  height: 70px;
+  font-size: 60px;
+  position: relative;
+}
+
+.report-resume div.title font {
+  vertical-align: middle;
+}
+
+.report-resume .roboto {
+  font-family: "Roboto";
+}
+
+.report-resume .open-sans {
+  font-family: "Open Sans Regular";
+}
+
+.report-resume .bold {
+  font-family: "Open Sans Bold";
+  font-weight: bold;
+}
+
+.report-resume .weight-400 {
+  font-weight: 400;
+}
+
+.report-resume .title {
+  text-align: center;
+}
+
+.report-resume .no-margin-bottom {
+  margin-bottom: 0;
+}
+
+.report-resume .no-margin {
+  margin: 0;
+}
+
+.report-resume .small {
+  font-size: 20px;
+}
+
+.collected-data-info {
+  width: 340px;
+  height: 125px;
+  margin-top: 76px;
+  margin-left: 30px;
+}
+
+.collected-data-info font {
+  display: block;
+  font-size: 14px;
+  text-align: left;
+  font-family: "Open Sans Italic";
+}
+
+.container .right-column {
+  width: 65%;
+  vertical-align: top;
+  display: inline-block;
+}
+
+.custom-size-header {
+  width: 190px;
+}
+
+table {
+  width: 100%;
+  border-spacing: 0;
+}
+
+thead th {
+  font-size: 14px;
+  font-family: "Open Sans Bold";
+  background-color: #f3f3f3;
+}
+
+tbody tr.updated {
+  background-color: #efefef;
+  color: #a1a1a1;
+}
+
+tbody td {
+  font-size: 11px;
+  font-family: "Open Sans Regular";
+  border-bottom: 1px solid #d9d9d9;
+}
+
+table th,
+table td {
+  padding: 6px 8px;
+  text-align: left;
+}
+
+.bar-amount {
+  width: 45px;
+  text-align: right;
+  display: inline-block;
+}
+
+.bar {
+  height: 14px;
+  margin-left: 2px;
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+.cases-bar {
+  background-color: #3f51b5;
+}
+
+.deaths-bar {
+  background-color: #4dd0e1;
+}
+
+.info-wrap {
+  text-align: right;
+  margin-right: 48px;
+}
+
+.cases, .deaths {
+  display: inline-block;
+}
+
+.cases.base {
+  width: 36px;
+  text-align: left;
+}
+
+.cases.middle,
+.cases.final {
+  width: 49px;
+  text-align: center;
+}
+
+.deaths.base {
+  width: 29px;
+  text-align: left;
+  margin-left: 60px;
+}
+
+.deaths.middle,
+.deaths.final {
+  width: 32px;
+  text-align: center;
+}
+
+.marker {
+  margin: 0;
+  height: 7px;
+  border-left: 1px solid #d9d9d9;
+}
+
+.cases-base-marker, .deaths-base-marker {
+  margin-left: 2px;
+}
+
+.cases-middle-marker, .cases-final-marker {
+  margin-left: 17px;
+}
+
+.deaths-middle-marker {
+  margin-left: 12px;
+}
+
+.deaths-final-marker {
+  margin-left: 15px;
+}
+
+.info-text {
+  margin: 0;
+  margin-top: 1px;
+  font-size: 10px;
+  font-family: "Open Sans Regular";
+}
