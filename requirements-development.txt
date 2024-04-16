@@ -1,7 +1,7 @@
 -r requirements.txt
 
 autoflake==2.2.1
-black==23.10.1
+black==24.3.0
 flake8==6.1.0
 isort==5.12.0
 model-bakery==1.16.0
