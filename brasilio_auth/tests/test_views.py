@@ -1,6 +1,6 @@
 from unittest.mock import Mock, patch
 
-from captcha.fields import ReCaptchaField
+from django_recaptcha.fields import ReCaptchaField
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model

@@ -3,7 +3,7 @@ from unittest.mock import Mock
 import pytest
 from django.conf import settings
 from django.test import RequestFactory, TestCase, override_settings
-from ratelimit.exceptions import Ratelimited
+from django_ratelimit.exceptions import Ratelimited
 
 from traffic_control.middlewares import BLOCKED_REQUEST_ATTR, block_suspicious_requests
 

@@ -39,15 +39,15 @@ INSTALLED_APPS = [
     "traffic_control",
     # Third-party apps
     "cachalot",
-    "captcha",
     "corsheaders",
     "django_extensions",
-    "rest_framework",
-    "markdownx",
-    "django_rq",
-    "sorl.thumbnail",
-    "rangefilter",
+    "django_recaptcha",
     "django_registration",
+    "django_rq",
+    "markdownx",
+    "rangefilter",
+    "rest_framework",
+    "sorl.thumbnail",
 ]
 MIDDLEWARE = [
     "brasilio.middlewares.host_based_url_conf",

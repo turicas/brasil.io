@@ -28,8 +28,8 @@ RUN addgroup --gid ${GID:-1000} django \
   && chown -R django:django /app
 
 COPY requirements.txt requirements-development.txt /app/
-RUN pip install --no-cache-dir -r /app/requirements.txt
-RUN if [ "$DEV_BUILD" = "true" ]; then pip install --no-cache-dir -r /app/requirements-development.txt; fi
+RUN pip install --no-cache-dir -Ur /app/requirements.txt
+RUN if [ "$DEV_BUILD" = "true" ]; then pip install --no-cache-dir -Ur /app/requirements-development.txt; fi
 
 USER django
 ADD srv/nginx.conf.sigil /app/
