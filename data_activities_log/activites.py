@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from itertools import chain, groupby
 
 import feedparser
-import pytz
 from cachetools import TTLCache, cached
 from django.conf import settings
 from django.utils import timezone
@@ -19,7 +18,6 @@ class Activity:
 
 
 def brasilio_blog_items():
-    timezone = pytz.timezone(settings.TIME_ZONE)
     url = "https://blog.brasil.io/feed.rss"
     feed = feedparser.parse(url)
     for entry in feed["entries"]:
@@ -28,7 +26,7 @@ def brasilio_blog_items():
             title=f"[Blog] {entry['title']}",
             url=entry["link"],
             created_at=datetime.datetime(dt.tm_year, dt.tm_mon, dt.tm_mday, dt.tm_hour, dt.tm_min, dt.tm_sec).replace(
-                tzinfo=timezone
+                tzinfo=timezone.get_default_timezone()
             ),
         )
 
