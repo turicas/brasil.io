@@ -23,7 +23,7 @@ django-rq==2.8.1
 django-storages==1.14.2
 djangorestframework==3.14.0
 feedparser==6.0.10
-gunicorn==21.2.0
+gunicorn==22.0.0
 https://github.com/turicas/rows/archive/develop.zip
 ipython==8.12.3
 lxml==4.9.3
