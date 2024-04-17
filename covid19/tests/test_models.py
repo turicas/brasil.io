@@ -16,6 +16,7 @@ from covid19.models import StateSpreadsheet
 from covid19.signals import new_spreadsheet_imported_signal
 
 User = get_user_model()
+SAMPLE_SPREADSHEETS_DATA_DIR = Path(settings.BASE_DIR).joinpath("covid19", "tests", "data")
 
 
 class StateSpreadsheetTests(TestCase):
@@ -367,7 +368,7 @@ class StateSpreadsheetTests(TestCase):
         Esse teste garante que, mesmo que esse erro passe na validação individual da planilha,
         ele não prossiga na comparação com outras.
         """
-        json_dir = settings.SAMPLE_SPREADSHEETS_DATA_DIR / "table_data"
+        json_dir = SAMPLE_SPREADSHEETS_DATA_DIR / "table_data"
         sp1 = baker.make(StateSpreadsheet, state="PE", date=date.today())
         sp2 = baker.make(StateSpreadsheet, state="PE", date=date.today())
 

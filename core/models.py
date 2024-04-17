@@ -119,7 +119,7 @@ class DatasetTableModelQuerySet(models.QuerySet):
             qs = qs.search(search_query)
         if filter_query:
             qs = qs.apply_filters(filter_query)
-        return qs.apply_ordering(order_by or [])
+        return qs.apply_ordering(order_by or [])  # TODO: must force default Table ordering if empty?
 
     def count(self):
         if getattr(self, "_count", None) is not None:

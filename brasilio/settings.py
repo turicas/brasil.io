@@ -85,7 +85,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "covid19.context_processors.is_covid19_contributor",
-            ]
+            ],
         },
     }
 ]

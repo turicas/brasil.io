@@ -3,7 +3,7 @@ from django.dispatch import Signal, receiver
 from covid19.models import StateSpreadsheet
 from covid19.tasks import process_new_spreadsheet_task
 
-new_spreadsheet_imported_signal = Signal(providing_args=["spreadsheet"])
+new_spreadsheet_imported_signal = Signal()
 
 
 @receiver(new_spreadsheet_imported_signal, dispatch_uid="new_import")

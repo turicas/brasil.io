@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 from io import BytesIO
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
@@ -16,9 +17,11 @@ from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict, valid
 from covid19.tests.utils import Covid19DatasetTestCase
 
 
+SAMPLE_SPREADSHEETS_DATA_DIR = Path(settings.BASE_DIR).joinpath("covid19", "tests", "data")
+
 class FormatSpreadsheetRowsAsDictTests(TestCase):
     def setUp(self):
-        sample = settings.SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR.csv"
+        sample = SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR.csv"
         self.content = sample.read_text()
         self.date = date.today()
         self.uf = "PR"
@@ -307,7 +310,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
     @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=[]))
     def test_do_not_check_for_totals_if_only_total_lines_data(self):
-        sample = settings.SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR-no-cities-data.csv"
+        sample = SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR-no-cities-data.csv"
         assert sample.exists()
         self.content = sample.read_text()
 
@@ -318,7 +321,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
 
     @patch("covid19.spreadsheet_validator.validate_historical_data", Mock(return_value=[]))
     def test_ignore_empty_lines_when_importing(self):
-        sample = settings.SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR-empty-lines.csv"
+        sample = SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR-empty-lines.csv"
         assert sample.exists()
         self.content = sample.read_text()
 
@@ -329,7 +332,7 @@ class FormatSpreadsheetRowsAsDictTests(TestCase):
         assert 8 == len(data)
 
     def test_raise_error_if_empty_line_but_with_data(self):
-        sample = settings.SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR-empty-lines.csv"
+        sample = SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR-empty-lines.csv"
         assert sample.exists()
         self.content = sample.read_text()
         self.content = self.content.replace(",,", ",10,20")
