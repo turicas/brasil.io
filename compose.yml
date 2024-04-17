@@ -1,5 +1,3 @@
-version: '3.2'
-
 services:
     web:
       user: "${UID:-1000}:${GID:-1000}"
@@ -9,6 +7,7 @@ services:
         dockerfile: Dockerfile
         args:
           - DEV_BUILD=true
+      image: brasilio-web:latest
       command: /bin/bash -c "/app/bin/release.sh && /app/bin/web.sh"
       volumes:
         - .:/app
@@ -28,6 +27,7 @@ services:
         dockerfile: Dockerfile
         args:
           - DEV_BUILD=true
+      image: brasilio-web:latest
       command: /app/bin/worker.sh
       volumes:
         - .:/app
@@ -49,8 +49,8 @@ services:
       command: -c "config_file=/etc/postgresql/postgresql.conf"
       healthcheck:
         test: ["CMD-SHELL", "pg_isready -U postgres"]
-        interval: 30s
-        retries: 3
+        interval: 3s
+        retries: 5
 
     redis:
       image: redis:alpine
