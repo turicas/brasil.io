@@ -1,7 +1,9 @@
 services:
     web:
       user: "${UID:-1000}:${GID:-1000}"
-      env_file: .env
+      env_file:
+        - docker/env/web
+        - docker/env/web.local
       build:
         context: .
         dockerfile: Dockerfile
@@ -21,7 +23,9 @@ services:
 
     worker:
       user: "${UID:-1000}:${GID:-1000}"
-      env_file: .env
+      env_file:
+        - docker/env/web
+        - docker/env/web.local
       build:
         context: .
         dockerfile: Dockerfile
@@ -41,7 +45,9 @@ services:
 
     db:
       image: postgres:11.3
-      env_file: .env
+      env_file:
+        - docker/env/db
+        - docker/env/db.local
       shm_size: 256m
       volumes:
         - ./docker/postgresql.dev.conf:/etc/postgresql/postgresql.conf
@@ -54,12 +60,18 @@ services:
 
     redis:
       image: redis:alpine
-      env_file: .env
+      env_file:
+        - docker/env/redis
+        - docker/env/redis.local
       volumes:
         - ./docker/data/redis:/data
 
     mail:
       image: mailhog/mailhog
-      env_file: .env
+      env_file:
+        - docker/env/mail
+        - docker/env/mail.local
       ports:
         - "4201:8025"
+
+    # TODO: add MinIO service

@@ -16,7 +16,6 @@ from django.core.cache import cache
 from django.db import transaction
 from django.db.utils import ProgrammingError
 from django.utils import timezone
-from minio import Minio
 from tqdm import tqdm
 
 from core.models import Dataset, DataTable, Field, Table, TableFile
@@ -173,6 +172,9 @@ class ImportDataCommand:
 
 class UpdateTableFileCommand:
     def __init__(self, table, file_url, **options):
+        from minio import Minio
+
+        # TODO: use boto3 instead of MinIO library
         self.table = table
         self.file_url = file_url
         self.file_url_info = urlparse(file_url)
@@ -182,7 +184,7 @@ class UpdateTableFileCommand:
         minio_endpoint = urlparse(settings.AWS_S3_ENDPOINT_URL).netloc
         self.should_upload = minio_endpoint != self.file_url_info.netloc
         self.minio = Minio(
-            minio_endpoint, access_key=settings.AWS_ACCESS_KEY_ID, secret_key=settings.AWS_SECRET_ACCESS_KEY
+            minio_endpoint, access_key=settings.AWS_S3_ACCESS_KEY_ID, secret_key=settings.AWS_S3_SECRET_ACCESS_KEY
         )
         self._output_file = None
         self.delete_source = options["delete_source"]
@@ -293,7 +295,7 @@ class UpdateTableFileListCommand:
         minio_endpoint = urlparse(settings.AWS_S3_ENDPOINT_URL).netloc
         self.bucket = settings.MINIO_STORAGE_DATASETS_BUCKET_NAME
         self.minio = Minio(
-            minio_endpoint, access_key=settings.AWS_ACCESS_KEY_ID, secret_key=settings.AWS_SECRET_ACCESS_KEY
+            minio_endpoint, access_key=settings.AWS_S3_ACCESS_KEY_ID, secret_key=settings.AWS_S3_SECRET_ACCESS_KEY
         )
         self._collect_date = options["collect_date"]
 

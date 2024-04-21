@@ -9,7 +9,6 @@ from urllib.request import Request, URLError, urlopen
 import django.db.models.fields
 from cachetools import TTLCache, cached
 from django.conf import settings
-from minio import Minio
 
 from utils.minio import MinioProgress
 
@@ -167,6 +166,9 @@ def get_apoiase_donors(campain_id):
 
 
 def upload_file(input_filename, bucket, remote_filename, progress=False):
+    from minio import Minio
+    # TODO: migrate to use boto instead of MinIO library
+
     content_type, encoding = mimetypes.guess_type(remote_filename)
     if encoding == "gzip":
         # quando é '.csv.gz' o retorno de guess_type é ('text/csv', 'gzip')
@@ -176,8 +178,8 @@ def upload_file(input_filename, bucket, remote_filename, progress=False):
 
     service = Minio(
         urlparse(settings.AWS_S3_ENDPOINT_URL).netloc,
-        access_key=settings.AWS_ACCESS_KEY_ID,
-        secret_key=settings.AWS_SECRET_ACCESS_KEY,
+        access_key=settings.AWS_S3_ACCESS_KEY_ID,
+        secret_key=settings.AWS_S3_SECRET_ACCESS_KEY,
     )
 
     return service.fput_object(
