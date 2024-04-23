@@ -1,77 +1,92 @@
 services:
-    web:
-      user: "${UID:-1000}:${GID:-1000}"
-      env_file:
-        - docker/env/web
-        - docker/env/web.local
-      build:
-        context: .
-        dockerfile: Dockerfile
-        args:
-          - DEV_BUILD=true
-      image: brasilio-web:latest
-      command: /bin/bash -c "/app/bin/release.sh && /app/bin/web.sh"
-      volumes:
-        - .:/app
-        - ./docker/data/web:/data
-      ports:
-        - 4200:5000
-      depends_on:
-        - db
-        - mail
-        - redis
+  web:
+    user: "${UID:-1000}:${GID:-1000}"
+    env_file:
+      - docker/env/web
+      - docker/env/web.local
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - DEV_BUILD=true
+    pull_policy: build
+    image: brasilio-web:latest
+    command: /bin/bash -c "/app/bin/release.sh && /app/bin/web.sh"
+    volumes:
+      - .:/app
+      - ./docker/data/web:/data
+    ports:
+      - 4200:5000
+    depends_on:
+      - db
+      - mail
+      - redis
 
-    worker:
-      user: "${UID:-1000}:${GID:-1000}"
-      env_file:
-        - docker/env/web
-        - docker/env/web.local
-      build:
-        context: .
-        dockerfile: Dockerfile
-        args:
-          - DEV_BUILD=true
-      image: brasilio-web:latest
-      command: /app/bin/worker.sh
-      volumes:
-        - .:/app
-        - ./docker/data/web:/data
-      depends_on:
-        - db
-        - mail
-        - redis
+  worker:
+    user: "${UID:-1000}:${GID:-1000}"
+    env_file:
+      - docker/env/web
+      - docker/env/web.local
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - DEV_BUILD=true
+    pull_policy: build
+    image: brasilio-web:latest
+    command: /app/bin/worker.sh
+    volumes:
+      - .:/app
+      - ./docker/data/web:/data
+    depends_on:
+      - db
+      - mail
+      - redis
 
-    # TODO: add scheduler also?
+  # TODO: add scheduler also?
 
-    db:
-      image: postgres:11.3
-      env_file:
-        - docker/env/db
-        - docker/env/db.local
-      shm_size: 256m
-      volumes:
-        - ./docker/postgresql.dev.conf:/etc/postgresql/postgresql.conf
-        - ./docker/data/db:/var/lib/postgresql/data
-      command: -c "config_file=/etc/postgresql/postgresql.conf"
-      healthcheck:
-        test: ["CMD-SHELL", "pg_isready -U postgres"]
-        interval: 3s
-        retries: 5
+  db:
+    image: postgres:11.3
+    env_file:
+      - docker/env/db
+      - docker/env/db.local
+    shm_size: 256m
+    volumes:
+      - ./docker/postgresql.dev.conf:/etc/postgresql/postgresql.conf
+      - ./docker/data/db:/var/lib/postgresql/data
+    command: -c "config_file=/etc/postgresql/postgresql.conf"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      retries: 5
 
-    redis:
-      image: redis:alpine
-      env_file:
-        - docker/env/redis
-        - docker/env/redis.local
-      volumes:
-        - ./docker/data/redis:/data
+  redis:
+    image: redis:alpine
+    env_file:
+      - docker/env/redis
+      - docker/env/redis.local
+    volumes:
+      - ./docker/data/redis:/data
 
-    mail:
-      image: mailhog/mailhog
-      env_file:
-        - docker/env/mail
-        - docker/env/mail.local
-      ports:
-        - "4201:8025"
+  mail:
+    image: mailhog/mailhog
+    env_file:
+      - docker/env/mail
+      - docker/env/mail.local
+    ports:
+      - "4201:8025"
 
-    # TODO: add MinIO service
+  storage:
+    image: "minio/minio:latest"
+    env_file: "docker/env/storage"
+    volumes:
+      - ${PWD}/docker/data/storage:/data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    command: ["server", "/data", "--console-address", ":9001"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/minio/index.html || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
