@@ -2,22 +2,22 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="252.92102mm"
    height="48.833263mm"
    id="svg3031"
    version="1.1"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="logo_br-io_fundo-claro-novo.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="br-io_fundo-claro-novo.svg"
    inkscape:export-filename="/home/letuche/Workspace/brasil.io/frontend/first-release/img/logo_br-io_fundo-claro.png"
    inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   inkscape:export-ydpi="90"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs3033" />
   <sodipodi:namedview
@@ -28,15 +28,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.575"
-     inkscape:cx="195.03336"
-     inkscape:cy="38.593432"
+     inkscape:cx="193.91304"
+     inkscape:cy="39.130435"
      inkscape:document-units="px"
      inkscape:current-layer="flowRoot3359"
      showgrid="false"
-     inkscape:window-width="1362"
-     inkscape:window-height="725"
+     inkscape:window-width="1356"
+     inkscape:window-height="744"
      inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-y="22"
      inkscape:window-maximized="0"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -44,11 +44,15 @@
      fit-margin-bottom="0"
      units="mm"
      showguides="true"
-     inkscape:guide-bbox="true">
+     inkscape:guide-bbox="true"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1">
     <sodipodi:guide
-       position="140.73171,26.016262"
+       position="160.12141,4.1715397"
        orientation="0,1"
-       id="guide3349" />
+       id="guide3349"
+       inkscape:locked="false" />
   </sodipodi:namedview>
   <metadata
      id="metadata3036">
@@ -58,7 +62,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -132,7 +136,7 @@
     <flowRoot
        xml:space="preserve"
        id="flowRoot3351"
-       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:80px;line-height:125%;font-family:Ubuntu;-inkscape-font-specification:'Ubuntu Medium';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"><flowRegion
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;line-height:0.01%;font-family:Ubuntu;-inkscape-font-specification:'Ubuntu Medium';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"><flowRegion
          id="flowRegion3353"><rect
            id="rect3355"
            width="371.54471"
@@ -140,7 +144,9 @@
            x="442.27643"
            y="283.11887"
            style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:80px;font-family:Ubuntu;-inkscape-font-specification:'Ubuntu Medium'" /></flowRegion><flowPara
-         id="flowPara3357" /></flowRoot>    <g
+         id="flowPara3357"
+         style="font-size:80px;line-height:1.25"> </flowPara></flowRoot>
+    <g
        transform="matrix(1.7993874,0,0,1.7993874,-215.89555,-693.06029)"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#0000a7;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        id="flowRoot3359">
