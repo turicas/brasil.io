@@ -10,8 +10,6 @@ import django.db.models.fields
 from cachetools import TTLCache, cached
 from django.conf import settings
 
-from utils.minio import MinioProgress
-
 USER_AGENT = "brasil.io-backend"
 
 
@@ -163,29 +161,3 @@ def get_apoiase_donors(campain_id):
         donors.extend(new)
         finished = len(new) < limit
     return donors
-
-
-def upload_file(input_filename, bucket, remote_filename, progress=False):
-    from minio import Minio
-    # TODO: migrate to use boto instead of MinIO library
-
-    content_type, encoding = mimetypes.guess_type(remote_filename)
-    if encoding == "gzip":
-        # quando é '.csv.gz' o retorno de guess_type é ('text/csv', 'gzip')
-        content_type = "application/gzip"
-    elif encoding is None:
-        content_type = "text/plain"
-
-    service = Minio(
-        urlparse(settings.AWS_S3_ENDPOINT_URL).netloc,
-        access_key=settings.AWS_S3_ACCESS_KEY_ID,
-        secret_key=settings.AWS_S3_SECRET_ACCESS_KEY,
-    )
-
-    return service.fput_object(
-        bucket,
-        remote_filename,
-        input_filename,
-        content_type=content_type,
-        progress=MinioProgress() if progress else None,
-    )

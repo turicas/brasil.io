@@ -1,10 +1,10 @@
+import io
 import json
 import os
-import tempfile
 
 import rows
 
-from core.util import upload_file
+from project.storage import storage
 
 
 def make_row(row, active):
@@ -33,15 +33,9 @@ def run(*args, **kwargs):
         make_row(row, active=False) for row in inactive if row.username_chat
     ]
 
-    # Save into temp JSON file
-    temp = tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w")
-    temp.file.write(json.dumps(volunteers))
-    temp.file.close()
-
-    # Upload file to storage system used by backend
-    upload_file(
-        temp.name, bucket="meta", remote_filename="covid19-voluntarios.json", progress=True,
+    temp = io.BytesIO()
+    json.dump(volunteers, temp)
+    temp.seek(0)
+    storage.upload_file(
+        fobj=temp, bucket="meta", filename="covid19-voluntarios.json", content_type="application/json",
     )
-
-    # Delete temp file
-    os.unlink(temp.name)
