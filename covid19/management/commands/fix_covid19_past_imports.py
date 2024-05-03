@@ -12,13 +12,21 @@ class Command(BaseCommand):
         start_date = date(2020, 6, 5)
 
         cancelled_spreadsheets = (
-            StateSpreadsheet.objects.filter(date__gte=start_date,).filter_inactive().order_by("-id")
+            StateSpreadsheet.objects.filter(
+                date__gte=start_date,
+            )
+            .filter_inactive()
+            .order_by("-id")
         )
 
         for sp in cancelled_spreadsheets:
             same_spreadsheet_qs = (
                 StateSpreadsheet.objects.filter_active()
-                .filter(user=sp.user, state=sp.state, date=sp.date,)
+                .filter(
+                    user=sp.user,
+                    state=sp.state,
+                    date=sp.date,
+                )
                 .exclude(pk=sp.pk)
             )
 

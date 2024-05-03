@@ -26,8 +26,16 @@ def max_values(data):
 
 def group_deaths(data):
     key_map = {
-        "deathgroup_other": ("deaths_septicemia", "deaths_indeterminate", "deaths_others",),
-        "deathgroup_other_respiratory": ("deaths_pneumonia", "deaths_respiratory_failure", "deaths_sars",),
+        "deathgroup_other": (
+            "deaths_septicemia",
+            "deaths_indeterminate",
+            "deaths_others",
+        ),
+        "deathgroup_other_respiratory": (
+            "deaths_pneumonia",
+            "deaths_respiratory_failure",
+            "deaths_sars",
+        ),
         "deathgroup_covid19": ("deaths_covid19",),
     }
     result = []

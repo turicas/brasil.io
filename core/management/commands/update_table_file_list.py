@@ -11,7 +11,10 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("dataset_slug")
         parser.add_argument(
-            "--collect-date", required=False, action="store", help="collect date in format YYYY-MM-DD",
+            "--collect-date",
+            required=False,
+            action="store",
+            help="collect date in format YYYY-MM-DD",
         )
 
     def clean_collect_date(self, collect_date):

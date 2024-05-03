@@ -31,7 +31,8 @@ def _get_obj(field, identifier, person_type):
             return Empresa.objects.get_headquarter_or_branch(numbers_only(identifier))
         except ValueError:
             raise ValidationError(
-                _("Invalid value: %(value)s"), params={"value": identifier},
+                _("Invalid value: %(value)s"),
+                params={"value": identifier},
             )
         except ObjectDoesNotExist:
             return None
@@ -48,7 +49,9 @@ class ContactForm(forms.Form):
     name = forms.CharField(required=True, label="Nome")
     email = forms.EmailField(required=True, label="E-mail")
     message = forms.CharField(
-        required=True, label="Mensagem", widget=forms.Textarea(attrs={"class": "materialize-textarea"}),
+        required=True,
+        label="Mensagem",
+        widget=forms.Textarea(attrs={"class": "materialize-textarea"}),
     )
     captcha = ReCaptchaField()
 

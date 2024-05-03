@@ -9,10 +9,16 @@ import rows
 
 def open_compressed(filename, encoding, mode="r"):
     if filename.endswith(".xz"):
-        return io.TextIOWrapper(lzma.open(filename, mode=mode), encoding=encoding,)
+        return io.TextIOWrapper(
+            lzma.open(filename, mode=mode),
+            encoding=encoding,
+        )
 
     elif filename.endswith(".gz"):
-        return io.TextIOWrapper(gzip.GzipFile(filename, mode=mode), encoding=encoding,)
+        return io.TextIOWrapper(
+            gzip.GzipFile(filename, mode=mode),
+            encoding=encoding,
+        )
 
     else:
         return open(filename, encoding=encoding)

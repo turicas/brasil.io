@@ -29,15 +29,31 @@ urlpatterns = (
     path("logout/", logout, name="logout"),
     path("troca-senha/", password_reset, name="password_reset"),
     path("troca-senha/enviada/", password_reset_done, name="password_reset_done"),
-    path("troca-senha/<uidb64>/<token>/", password_reset_confirm, name="password_reset_confirm",),
-    path("troca-senha/atualizada/", password_reset_complete, name="password_reset_complete",),
+    path(
+        "troca-senha/<uidb64>/<token>/",
+        password_reset_confirm,
+        name="password_reset_confirm",
+    ),
+    path(
+        "troca-senha/atualizada/",
+        password_reset_complete,
+        name="password_reset_complete",
+    ),
     path(
         "ativar/sucesso/",
         TemplateView.as_view(template_name="brasilio_auth/activation_complete.html"),
         name="activation_complete",
     ),
-    path("ativar/<str:activation_key>/", views.ActivationView.as_view(), name="activate_user",),
-    path("entrar/", disable_non_logged_user_cache(views.RegistrationView.as_view()), name="sign_up",),
+    path(
+        "ativar/<str:activation_key>/",
+        views.ActivationView.as_view(),
+        name="activate_user",
+    ),
+    path(
+        "entrar/",
+        disable_non_logged_user_cache(views.RegistrationView.as_view()),
+        name="sign_up",
+    ),
     path(
         "entrar/sucesso/",
         TemplateView.as_view(template_name="brasilio_auth/registration_complete.html"),

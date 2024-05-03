@@ -14,7 +14,12 @@ class Command(BaseCommand):
         return django_rq.get_scheduler("default")
 
     def schedule(self, func, interval):
-        job = self.scheduler.schedule(scheduled_time=timezone.now(), func=func, interval=interval, repeat=None,)
+        job = self.scheduler.schedule(
+            scheduled_time=timezone.now(),
+            func=func,
+            interval=interval,
+            repeat=None,
+        )
         print(f"Task {func.__name__} scheduled as {job}")
 
     def handle(self, *args, **kwargs):

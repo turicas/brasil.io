@@ -18,12 +18,18 @@ class BlockRequestQuerySet(models.QuerySet):
 
     def today(self):
         today = timezone.now().date()
-        return self.filter(created_at__year=today.year, created_at__month=today.month, created_at__day=today.day,)
+        return self.filter(
+            created_at__year=today.year,
+            created_at__month=today.month,
+            created_at__day=today.day,
+        )
 
     def yesterday(self):
         yesterday = timezone.now().date() - datetime.timedelta(days=1)
         return self.filter(
-            created_at__year=yesterday.year, created_at__month=yesterday.month, created_at__day=yesterday.day,
+            created_at__year=yesterday.year,
+            created_at__month=yesterday.month,
+            created_at__day=yesterday.day,
         )
 
     def count_by(self, field_name):

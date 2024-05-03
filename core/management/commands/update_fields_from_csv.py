@@ -47,7 +47,10 @@ class Command(BaseCommand):
                     defaults={"default": False, "ordering": ["id"]},
                 )
                 existing_field = Field.objects.filter(
-                    dataset=row["dataset"], version=row["version"], table=row["table"], name=row["name"],
+                    dataset=row["dataset"],
+                    version=row["version"],
+                    table=row["table"],
+                    name=row["name"],
                 )
                 if not existing_field.exists():
                     action = "created"

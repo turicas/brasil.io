@@ -4,7 +4,6 @@ from itertools import chain, groupby
 
 import feedparser
 from cachetools import TTLCache, cached
-from django.conf import settings
 from django.utils import timezone
 
 from core.models import Table
@@ -52,7 +51,9 @@ def dataset_updates(days_ago):
         )
 
         yield Activity(
-            title=desc, url=dataset.detail_url, created_at=max([t.import_date for t in tables]),
+            title=desc,
+            url=dataset.detail_url,
+            created_at=max([t.import_date for t in tables]),
         )
 
 

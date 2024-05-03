@@ -59,7 +59,12 @@ def notify_spreadsheet_mismatch(spreadsheet, errors):
 def notify_import_success(spreadsheet):
     chat = get_chat()
     channel = "#covid19"
-    authors = " e ".join([f"@{spreadsheet.user.username}", f"@{spreadsheet.peer_review.user.username}",])
+    authors = " e ".join(
+        [
+            f"@{spreadsheet.user.username}",
+            f"@{spreadsheet.peer_review.user.username}",
+        ]
+    )
 
     msg = f"@turicas planilha de *{spreadsheet.state}* para o dia *{spreadsheet.date}* checada (dados enviados por {authors}), pode rodar o deploy!"  # noqa
     msg += f"\nLink para a planilha: https://brasil.io{spreadsheet.admin_url}"

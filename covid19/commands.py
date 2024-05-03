@@ -104,7 +104,9 @@ class UpdateStateTotalsCommand:
                     "boletim_urls": settings.COVID_19_STATE_TOTALS_URL,
                     "boletim_notes": NOTES,
                 },
-                {"file": SimpleUploadedFile(temp_file.name, file_data),},
+                {
+                    "file": SimpleUploadedFile(temp_file.name, file_data),
+                },
                 user=self.user,
             )
             form_valid = form.is_valid()

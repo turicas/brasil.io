@@ -16,8 +16,8 @@ from covid19.models import StateSpreadsheet
 from covid19.spreadsheet_validator import format_spreadsheet_rows_as_dict, validate_historical_data
 from covid19.tests.utils import Covid19DatasetTestCase
 
-
 SAMPLE_SPREADSHEETS_DATA_DIR = Path(settings.BASE_DIR).joinpath("covid19", "tests", "data")
+
 
 class FormatSpreadsheetRowsAsDictTests(TestCase):
     def setUp(self):
@@ -529,7 +529,14 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             date=self.today - timedelta(days=8),
             state=self.uf,
             status=StateSpreadsheet.DEPLOYED,
-            table_data=[{"place_type": "city", "confirmed": 1000, "deaths": 1000, "city": "bar",}],
+            table_data=[
+                {
+                    "place_type": "city",
+                    "confirmed": 1000,
+                    "deaths": 1000,
+                    "city": "bar",
+                }
+            ],
         )
 
         # report with date greater than the spreadsheet's one shouldn't be considered
@@ -537,7 +544,14 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             date=self.today + timedelta(days=8),
             state=self.uf,
             status=StateSpreadsheet.DEPLOYED,
-            table_data=[{"place_type": "city", "confirmed": 500, "deaths": 500, "city": "bar",}],
+            table_data=[
+                {
+                    "place_type": "city",
+                    "confirmed": 500,
+                    "deaths": 500,
+                    "city": "bar",
+                }
+            ],
         )
 
         with pytest.raises(SpreadsheetValidationErrors) as execinfo:
@@ -603,7 +617,10 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             cases_data["deaths"] = 200
             table_data.append(cases_data)
         self.new_spreadsheet_with_data(
-            date=self.today - timedelta(days=2), state=self.uf, status=StateSpreadsheet.DEPLOYED, table_data=table_data,
+            date=self.today - timedelta(days=2),
+            state=self.uf,
+            status=StateSpreadsheet.DEPLOYED,
+            table_data=table_data,
         )
 
         undefined_name = self.undefined_data["city"]
@@ -623,7 +640,10 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         city_data["confirmed"] = 0
         table_data = [self.total_data, self.undefined_data, city_data]
         self.new_spreadsheet_with_data(
-            date=self.today - timedelta(days=2), state=self.uf, status=StateSpreadsheet.DEPLOYED, table_data=table_data,
+            date=self.today - timedelta(days=2),
+            state=self.uf,
+            status=StateSpreadsheet.DEPLOYED,
+            table_data=table_data,
         )
         self.spreadsheet.table_data = [self.total_data, self.undefined_data] + self.cities_data
 
@@ -641,7 +661,10 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
     def test_reuse_past_data_if_city_not_present_in_data_with_only_total_sum(self):
         table_data = self.cities_data + [self.total_data, self.undefined_data]
         recent = self.new_spreadsheet_with_data(
-            date=self.today - timedelta(days=2), state=self.uf, status=StateSpreadsheet.DEPLOYED, table_data=table_data,
+            date=self.today - timedelta(days=2),
+            state=self.uf,
+            status=StateSpreadsheet.DEPLOYED,
+            table_data=table_data,
         )
 
         self.total_data["deaths"] = 2
@@ -690,7 +713,10 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
         db_data = StateSpreadsheet.objects.get_state_data(state)
         db_cases = db_data["cases"][date]
         sp_data = {
-            replace_city_name(case["city"]): {"confirmed": case["confirmed"], "deaths": case["deaths"],}
+            replace_city_name(case["city"]): {
+                "confirmed": case["confirmed"],
+                "deaths": case["deaths"],
+            }
             for case in compare_data
             if case["date"] == str(date)
         }
@@ -709,13 +735,25 @@ class TestValidateSpreadsheetWithHistoricalData(Covid19DatasetTestCase):
             data_2.append(case)
 
         self.new_spreadsheet_with_data(
-            date=date, state=self.uf, status=StateSpreadsheet.DEPLOYED, cancelled=True, table_data=[self.total_data],
+            date=date,
+            state=self.uf,
+            status=StateSpreadsheet.DEPLOYED,
+            cancelled=True,
+            table_data=[self.total_data],
         )
         sp2 = self.new_spreadsheet_with_data(
-            date=date, state=self.uf, status=StateSpreadsheet.DEPLOYED, cancelled=True, table_data=data_1,
+            date=date,
+            state=self.uf,
+            status=StateSpreadsheet.DEPLOYED,
+            cancelled=True,
+            table_data=data_1,
         )
         sp3 = self.new_spreadsheet_with_data(
-            date=date, state=self.uf, status=StateSpreadsheet.DEPLOYED, cancelled=False, table_data=data_2,
+            date=date,
+            state=self.uf,
+            status=StateSpreadsheet.DEPLOYED,
+            cancelled=False,
+            table_data=data_2,
         )
 
         # Data for this state/date should be the same as sp3

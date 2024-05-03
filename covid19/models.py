@@ -28,7 +28,13 @@ def format_spreadsheet_name(instance, filename):
 
 class StateSpreadsheetQuerySet(models.QuerySet):
     def filter_older_versions(self, spreadsheet):
-        qs = self.from_user(spreadsheet.user).from_state(spreadsheet.state).filter(date=spreadsheet.date,)
+        qs = (
+            self.from_user(spreadsheet.user)
+            .from_state(spreadsheet.state)
+            .filter(
+                date=spreadsheet.date,
+            )
+        )
         if spreadsheet.id:
             qs = qs.exclude(id=spreadsheet.id)
         return qs
@@ -74,8 +80,8 @@ class StateSpreadsheetQuerySet(models.QuerySet):
 class StateSpreadsheetManager(models.Manager):
     def get_state_data(self, state):
         """Return all state cases, grouped by date"""
-        from covid19.spreadsheet_validator import TOTAL_LINE_DISPLAY
         from brazil_data.cities import get_city_info
+        from covid19.spreadsheet_validator import TOTAL_LINE_DISPLAY
 
         cases, reports = defaultdict(dict), {}
         qs = self.get_queryset()
@@ -242,7 +248,13 @@ class StateSpreadsheet(models.Model):
 
     @property
     def ready_to_import(self):
-        return all([self.status == StateSpreadsheet.UPLOADED, not self.cancelled, self.peer_review,])
+        return all(
+            [
+                self.status == StateSpreadsheet.UPLOADED,
+                not self.cancelled,
+                self.peer_review,
+            ]
+        )
 
     @property
     def admin_url(self):

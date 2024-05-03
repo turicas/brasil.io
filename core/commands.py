@@ -287,7 +287,6 @@ class UpdateTableFileListCommand:
 
     def __init__(self, dataset, **options):
         self.dataset = dataset
-        minio_endpoint = urlparse(settings.AWS_S3_ENDPOINT_URL).netloc
         self.bucket = settings.AWS_S3_DATASETS_BUCKET_NAME
         self._collect_date = options["collect_date"]
 

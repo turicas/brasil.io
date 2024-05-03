@@ -90,7 +90,11 @@ class StateSpreadsheetModelAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.sample_spreadsheet_view),
                 name="sample_covid_spreadsheet",
             ),
-            path("gerenciar", self.admin_site.admin_view(self.covid19_management_view), name="covid19_management",),
+            path(
+                "gerenciar",
+                self.admin_site.admin_view(self.covid19_management_view),
+                name="covid19_management",
+            ),
         ]
         return custom_urls + urls
 

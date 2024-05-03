@@ -1,7 +1,6 @@
 # Taken from:
 # <https://djangosnippets.org/snippets/290/>
 
-import os
 
 from django.conf import settings
 from django.db import connection

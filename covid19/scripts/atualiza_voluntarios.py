@@ -1,6 +1,5 @@
 import io
 import json
-import os
 
 import rows
 
@@ -37,5 +36,8 @@ def run(*args, **kwargs):
     json.dump(volunteers, temp)
     temp.seek(0)
     storage.upload_file(
-        fobj=temp, bucket="meta", filename="covid19-voluntarios.json", content_type="application/json",
+        fobj=temp,
+        bucket="meta",
+        filename="covid19-voluntarios.json",
+        content_type="application/json",
     )

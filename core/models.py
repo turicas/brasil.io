@@ -130,7 +130,8 @@ class DatasetTableModelQuerySet(models.QuerySet):
             try:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "SELECT reltuples FROM pg_class WHERE relname = %s", [query.model._meta.db_table],
+                        "SELECT reltuples FROM pg_class WHERE relname = %s",
+                        [query.model._meta.db_table],
                     )
                     self._count = int(cursor.fetchone()[0])
             except Exception:
@@ -414,7 +415,12 @@ class Table(models.Model):
         indexes = []
 
         if ordering and ordering != ["id"]:
-            indexes.append(django_indexes.Index(name=make_index_name(db_table, "order", ordering), fields=ordering,))
+            indexes.append(
+                django_indexes.Index(
+                    name=make_index_name(db_table, "order", ordering),
+                    fields=ordering,
+                )
+            )
         if filtering:
             for field_name in filtering:
                 if ordering and field_name == ordering[0]:
@@ -435,7 +441,12 @@ class Table(models.Model):
         meta = {"ordering": ordering, "indexes": indexes, "db_table": db_table}
 
         Model = dynamic_models.create_model_class(
-            name=self.model_name, module="core.models", fields=fields, mixins=mixins, meta=meta, managers=managers,
+            name=self.model_name,
+            module="core.models",
+            fields=fields,
+            mixins=mixins,
+            meta=meta,
+            managers=managers,
         )
         Model.extra = {
             "filtering": filtering,

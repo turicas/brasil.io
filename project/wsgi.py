@@ -15,9 +15,9 @@ from django.core.wsgi import get_wsgi_application
 warnings.filterwarnings("ignore", module="environ")  # disable missing .env warning
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 
+from django.conf import settings  # noqa
 from django.db.backends.signals import connection_created  # noqa
 from django.dispatch import receiver  # noqa
-from django.conf import settings  # noqa
 
 
 @receiver(connection_created)

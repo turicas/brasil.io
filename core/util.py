@@ -1,14 +1,11 @@
 import gzip
 import json
-import mimetypes
 import socket
 from textwrap import dedent
-from urllib.parse import urlparse
 from urllib.request import Request, URLError, urlopen
 
 import django.db.models.fields
 from cachetools import TTLCache, cached
-from django.conf import settings
 
 USER_AGENT = "brasil.io-backend"
 

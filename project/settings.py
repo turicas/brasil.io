@@ -10,18 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
-import os
 from pathlib import Path
 
 import dj_database_url
 import sentry_sdk
 from decouple import Csv, config
+from django.urls import reverse_lazy
 from django.utils.log import DEFAULT_LOGGING
 from sentry_sdk.integrations.django import DjangoIntegration
-
-from django.urls import reverse_lazy
 from sentry_sdk.integrations.rq import RqIntegration
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -92,7 +89,7 @@ MIDDLEWARE = [
     "core.middlewares.NotLoggedUserFetchFromCacheMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
- ]
+]
 if DEBUG and config("DEBUG_SQL", cast=bool, default=False):
     MIDDLEWARE.append("utils.sqlprint.SqlPrintingMiddleware")  # TODO: may use https://pypi.org/project/sqlformatter/
 
@@ -191,7 +188,9 @@ AWS_BUCKET_ACL = config("AWS_BUCKET_ACL")
 AWS_DEFAULT_ACL = config("AWS_DEFAULT_ACL")
 AWS_QUERYSTRING_AUTH = False
 AWS_S3_ACCESS_KEY_ID = config("AWS_S3_ACCESS_KEY_ID")
-AWS_S3_CUSTOM_DOMAIN = config("AWS_S3_CUSTOM_DOMAIN", default=None)  # This is the base URL used when creating  links to files
+AWS_S3_CUSTOM_DOMAIN = config(
+    "AWS_S3_CUSTOM_DOMAIN", default=None
+)  # This is the base URL used when creating  links to files
 AWS_S3_ENDPOINT_URL = config("AWS_S3_ENDPOINT_URL")  # This is the server to connect to send files
 AWS_S3_SECRET_ACCESS_KEY = config("AWS_S3_SECRET_ACCESS_KEY")
 AWS_S3_URL_PROTOCOL = config("AWS_S3_URL_PROTOCOL", default="https:")
@@ -201,7 +200,9 @@ GZIP_CONTENT_TYPES = config("GZIP_CONTENT_TYPES")
 AWS_S3_DATASETS_BUCKET_NAME = config("AWS_S3_DATASETS_BUCKET_NAME")
 AWS_S3_DATASET_DOWNLOAD_CHUNK_SIZE = config("AWS_S3_DATASET_DOWNLOAD_CHUNK_SIZE", cast=int, default=8388608)
 AWS_S3_DATASET_SHA512SUMS_FILENAME = config("AWS_S3_DATASET_SHA512SUMS_FILENAME", default="SHA512SUMS")
-AWS_S3_DATASET_TABLES_FILES_LIST_FILENAME = config("AWS_S3_DATASET_TABLES_FILES_LIST_FILENAME", default="_meta/list.html")
+AWS_S3_DATASET_TABLES_FILES_LIST_FILENAME = config(
+    "AWS_S3_DATASET_TABLES_FILES_LIST_FILENAME", default="_meta/list.html"
+)
 
 
 # Data-related settings
@@ -229,7 +230,10 @@ if THROTTLING_RATE:
                 "rest_framework.throttling.AnonRateThrottle",
                 "rest_framework.throttling.UserRateThrottle",
             ],
-            "DEFAULT_THROTTLE_RATES": {"anon": THROTTLING_RATE, "user": THROTTLING_RATE,},
+            "DEFAULT_THROTTLE_RATES": {
+                "anon": THROTTLING_RATE,
+                "user": THROTTLING_RATE,
+            },
         }
     )
 API_DEMO_URL = config("API_DEMO_URL", default="https://gist.github.com/turicas/3e3621d61415e3453cd03a1997f7473f")
@@ -283,7 +287,12 @@ CACHES = {
 }
 
 # django-rq config
-RQ_QUEUES = {"default": {"URL": REDIS_URL, "DEFAULT_TIMEOUT": 500,}}
+RQ_QUEUES = {
+    "default": {
+        "URL": REDIS_URL,
+        "DEFAULT_TIMEOUT": 500,
+    }
+}
 RQ = {
     "DEFAULT_RESULT_TTL": 60 * 60 * 24,  # 24-hours
 }

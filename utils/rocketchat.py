@@ -61,5 +61,10 @@ class RocketChat:
 
     def send_message(self, channel, message):
         return self.make_request(
-            "POST", self.make_url("chat.postMessage"), json={"channel": channel, "text": message,},
+            "POST",
+            self.make_url("chat.postMessage"),
+            json={
+                "channel": channel,
+                "text": message,
+            },
         )

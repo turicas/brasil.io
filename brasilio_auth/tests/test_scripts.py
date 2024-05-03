@@ -82,7 +82,11 @@ class TestPossibleUsernames(TestCase):
 
 class TestReplaceUsernameWithSuggestions(TestCase):
     def setUp(self):
-        self.user_1 = baker.make(User, username="test@", email="test@example.com",)
+        self.user_1 = baker.make(
+            User,
+            username="test@",
+            email="test@example.com",
+        )
         self.expected_username_1 = "test"
 
         self.user_2 = baker.make(User, username="@test@", email="name@example.com")
@@ -119,8 +123,8 @@ class TestReplaceUsernameWithSuggestions(TestCase):
 
 class TestMigrateDuplicateCaseInsentiveEmails(TestCase):
     """
-        Alguns usuários possuem emails duplicados. Algumas das vezes
-        variando a duplicação em caixa-baixa e caixa-alta
+    Alguns usuários possuem emails duplicados. Algumas das vezes
+    variando a duplicação em caixa-baixa e caixa-alta
     """
 
     def setUp(self):

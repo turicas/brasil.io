@@ -120,7 +120,16 @@ def create_model_class(name, module, fields, mixins=None, meta=None, managers=No
         managers = {}
 
     Options = type("Meta", (object,), meta)
-    Model = type(name, parent_classes, {"__module__": module, "Meta": Options, **managers, **fields,},)
+    Model = type(
+        name,
+        parent_classes,
+        {
+            "__module__": module,
+            "Meta": Options,
+            **managers,
+            **fields,
+        },
+    )
 
     # TODO: may create a model proxy (injecting mixins) and then return the
     # proxy

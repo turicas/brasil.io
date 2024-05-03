@@ -95,23 +95,27 @@ def document_detail(request, document):
     applications_data = Candidatos.objects.none()
     filiations_data = FiliadosPartidos.objects.none()
     applications_fields = _get_fields(
-        get_table("eleicoes-brasil", "candidatos", allow_hidden=True), remove=["cpf_candidato", "nome_candidato"],
+        get_table("eleicoes-brasil", "candidatos", allow_hidden=True),
+        remove=["cpf_candidato", "nome_candidato"],
     )
     companies_fields = _get_fields(
         get_table("socios-brasil", "socio", allow_hidden=True), remove=["cpf_cnpj_socio", "nome_socio"]
     )
     camara_spending_fields = _get_fields(
-        get_table("gastos-deputados", "cota_parlamentar", allow_hidden=True), remove=["txtcnpjcpf", "txtfornecedor"],
+        get_table("gastos-deputados", "cota_parlamentar", allow_hidden=True),
+        remove=["txtcnpjcpf", "txtfornecedor"],
     )
     federal_spending_fields = _get_fields(
-        get_table("gastos-diretos", "gastos", allow_hidden=True), remove=["codigo_favorecido", "nome_favorecido"],
+        get_table("gastos-diretos", "gastos", allow_hidden=True),
+        remove=["codigo_favorecido", "nome_favorecido"],
     )
     partners_fields = _get_fields(
         get_table("socios-brasil", "socio", allow_hidden=True), remove=["cnpj", "razao_social"]
     )
     filiations_fields = _get_fields(get_table("eleicoes-brasil", "filiados", allow_hidden=True), remove=[])
     branches_fields = _get_fields(
-        get_table("socios-brasil", "empresa", allow_hidden=True), only=["cnpj", "razao_social", "nome_fantasia"],
+        get_table("socios-brasil", "empresa", allow_hidden=True),
+        only=["cnpj", "razao_social", "nome_fantasia"],
     )
 
     if is_company:

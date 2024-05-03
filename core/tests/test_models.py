@@ -17,7 +17,12 @@ class TableModelTests(TestCase):
     def test_schema_as_ordered_dict(self):
         table = baker.make(Table)
         fields = baker.make(
-            "core.Field", table=table, name=seq("field_"), dataset=table.dataset, order=seq(1), _quantity=10,
+            "core.Field",
+            table=table,
+            name=seq("field_"),
+            dataset=table.dataset,
+            order=seq(1),
+            _quantity=10,
         )
 
         assert isinstance(table.schema, OrderedDict)

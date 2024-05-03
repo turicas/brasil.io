@@ -18,7 +18,10 @@ class Command(BaseCommand):
             "--update-list", required=False, action="store_true", help="update dataset _meta/list.html (default False)"
         )
         parser.add_argument(
-            "--collect-date", required=False, action="store", help="collect date in format YYYY-MM-DD",
+            "--collect-date",
+            required=False,
+            action="store",
+            help="collect date in format YYYY-MM-DD",
         )
 
     def handle(self, *args, **kwargs):
@@ -28,7 +31,10 @@ class Command(BaseCommand):
         update_list = kwargs["update_list"]
 
         UpdateTableFileCommand.execute(
-            dataset_slug, tablename, file_url, delete_source=kwargs["delete_source"],
+            dataset_slug,
+            tablename,
+            file_url,
+            delete_source=kwargs["delete_source"],
         )
         if update_list:
             call_command("update_table_file_list", dataset_slug, collect_date=kwargs["collect_date"])

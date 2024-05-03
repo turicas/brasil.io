@@ -15,7 +15,9 @@ def migrate_duplicate_emails(filepath=None):
     filepath = filepath or "/data/duplicate_email_users.csv"
 
     duplicate_emails = (
-        User.objects.annotate(email_lower_trim=Lower(Trim("email")),)
+        User.objects.annotate(
+            email_lower_trim=Lower(Trim("email")),
+        )
         .values("email_lower_trim")
         .annotate(cnt=Count("email_lower_trim"))
         .filter(~Q(email_lower_trim=""), cnt__gt=1)

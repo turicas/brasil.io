@@ -1,6 +1,5 @@
 from unittest.mock import Mock, patch
 
-from django_recaptcha.fields import ReCaptchaField
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -8,6 +7,7 @@ from django.core import mail
 from django.template.loader import get_template
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django_recaptcha.fields import ReCaptchaField
 from model_bakery import baker
 
 from api.models import Token

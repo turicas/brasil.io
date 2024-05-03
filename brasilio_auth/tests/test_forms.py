@@ -1,9 +1,9 @@
 from unittest.mock import Mock, patch
 
-from django_recaptcha.fields import ReCaptchaField
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm as DjangoUserCreationForm
 from django.test import TestCase, override_settings
+from django_recaptcha.fields import ReCaptchaField
 from model_bakery import baker
 
 from brasilio_auth.forms import TokenApiManagementForm, UserCreationForm

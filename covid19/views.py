@@ -173,7 +173,11 @@ def make_aggregate(
             "value": reports,
             "tooltip": "Total de boletins epidemiológicos coletados pelos voluntários",
         },
-        {"title": "Casos confirmados", "value": confirmed, "tooltip": "Total de casos confirmados",},
+        {
+            "title": "Casos confirmados",
+            "value": confirmed,
+            "tooltip": "Total de casos confirmados",
+        },
         {
             "decimal_places": 2,
             "title": "Óbitos confirmados",
@@ -274,7 +278,12 @@ def import_spreadsheet_proxy(request, state):
         data["reports"] = [
             # Here we export the `report` again, including only the fields we
             # want (the old JSON can come with other columns).
-            {"date": report["date"], "notes": report["notes"], "state": state_info.state, "url": report["url"],}
+            {
+                "date": report["date"],
+                "notes": report["notes"],
+                "state": state_info.state,
+                "url": report["url"],
+            }
             for report in data["reports"]
             if any(report.values())
         ]

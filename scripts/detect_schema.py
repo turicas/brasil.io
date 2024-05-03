@@ -11,7 +11,7 @@ from rows import Table, export_to_xls, fields
 from rows.utils import open_compressed
 from tqdm import tqdm
 
-MAX_COLUMN_SIZE = 16 * (1024 ** 2)  # 16 MiB
+MAX_COLUMN_SIZE = 16 * (1024**2)  # 16 MiB
 csv.field_size_limit(MAX_COLUMN_SIZE)
 
 

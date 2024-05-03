@@ -24,7 +24,10 @@ class DatasetViewSet(viewsets.ModelViewSet):
     @check_api_version_redirect
     def retrieve(self, request, slug):
         obj = get_object_or_404(self.get_queryset(), slug=slug)
-        serializer = DatasetDetailSerializer(obj, context=self.get_serializer_context(),)
+        serializer = DatasetDetailSerializer(
+            obj,
+            context=self.get_serializer_context(),
+        )
         return Response(serializer.data)
 
     @check_api_version_redirect

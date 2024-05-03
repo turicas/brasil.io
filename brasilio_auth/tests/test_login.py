@@ -9,7 +9,11 @@ class UserLoginViewTests(TestCase):
         self.username = "testuser"
         self.email = "test@example.com"
         self.password = "supersecret"
-        self.user = self.create_user(username=self.username, password=self.password, email=self.email,)
+        self.user = self.create_user(
+            username=self.username,
+            password=self.password,
+            email=self.email,
+        )
 
     def create_user(self, username, password, email):
         user = User.objects.create(username=username, email=email, is_active=True)

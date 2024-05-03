@@ -129,9 +129,9 @@ class DataTableAdmin(admin.ModelAdmin):
 
             current = data_table.table.data_table
             context["action_title"] = "Ativar"
-            context[
-                "help_text"
-            ] = f"Ao desempenhar essa ação, <a href='{current.admin_url}'>{current}</a> será inativado."
+            context["help_text"] = (
+                f"Ao desempenhar essa ação, <a href='{current.admin_url}'>{current}</a> será inativado."
+            )
             if request.GET.get("confirm", None):
                 data_table.activate()
                 self.message_user(request, f"{data_table} is now active")
@@ -144,13 +144,13 @@ class DataTableAdmin(admin.ModelAdmin):
 
             most_recent = data_table.table.data_tables.exclude(id=data_table.id).inactive().most_recent()
             if most_recent:
-                context[
-                    "help_text"
-                ] = f"Ao desempenhar essa ação, <a href='{most_recent.admin_url}'>{most_recent}</a> será ativado."
+                context["help_text"] = (
+                    f"Ao desempenhar essa ação, <a href='{most_recent.admin_url}'>{most_recent}</a> será ativado."
+                )
             else:
-                context[
-                    "help_text"
-                ] = f"<b>CUIDADO!!!</b> A tabela {data_table.table} não possui nenhum outro DataTable associado a ela. Desativar esse DataTable pode gerar efeitos indesejados ao sistema."
+                context["help_text"] = (
+                    f"<b>CUIDADO!!!</b> A tabela {data_table.table} não possui nenhum outro DataTable associado a ela. Desativar esse DataTable pode gerar efeitos indesejados ao sistema."
+                )
 
             context["action_title"] = "Desativar"
             if request.GET.get("confirm", None):

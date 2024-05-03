@@ -37,7 +37,8 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
             pseudo_buffer = Echo()
             writer = csv.writer(pseudo_buffer, dialect=csv.excel)
             response = StreamingHttpResponse(
-                (writer.writerow(row) for row in rows), content_type="text/csv;charset=UTF-8",
+                (writer.writerow(row) for row in rows),
+                content_type="text/csv;charset=UTF-8",
             )
             response["Content-Disposition"] = 'attachment; filename="newsletter_subscribers.csv"'
             response.encoding = "UTF-8"

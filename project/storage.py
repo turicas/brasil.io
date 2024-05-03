@@ -1,5 +1,4 @@
 import json
-import io
 from urllib.parse import urljoin
 
 import boto3
@@ -30,9 +29,9 @@ class S3FileStorage:
                         "Effect": "Allow",
                         "Principal": "*",
                         "Action": "s3:GetObject",
-                        "Resource": f"arn:aws:s3:::{name}/*"
+                        "Resource": f"arn:aws:s3:::{name}/*",
                     }
-                ]
+                ],
             }
             self.client.put_bucket_policy(Bucket=name, Policy=json.dumps(policy))
 

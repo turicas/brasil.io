@@ -8,6 +8,7 @@ Exemplo:
     old_username = 'name@'
     new_username = 'name'
 """
+
 import csv
 import string
 from typing import Tuple

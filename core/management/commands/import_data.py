@@ -21,7 +21,10 @@ class Command(BaseCommand):
         parser.add_argument("--no-fill-choices", required=False, action="store_true")
         parser.add_argument("--delete-old-table", required=False, action="store_true")
         parser.add_argument(
-            "--collect-date", required=False, action="store", help="collect date in format YYYY-MM-DD",
+            "--collect-date",
+            required=False,
+            action="store",
+            help="collect date in format YYYY-MM-DD",
         )
 
     def clean_collect_date(self, collect_date):

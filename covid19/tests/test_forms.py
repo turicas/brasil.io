@@ -174,7 +174,10 @@ class StateSpreadsheetFormTests(Covid19DatasetTestCase):
     def test_skip_sum_validations_if_flagged_in_the_form_data(self, mocked_format):
         mocked_format.return_value = (["results", "list"], ["warnings", "list"])
         self.data.update(
-            {"skip_sum_cases": True, "skip_sum_deaths": True,}
+            {
+                "skip_sum_cases": True,
+                "skip_sum_deaths": True,
+            }
         )
         form = StateSpreadsheetForm(self.data, self.file_data, user=self.user)
         assert form.is_valid(), form.errors

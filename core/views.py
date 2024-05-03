@@ -117,7 +117,12 @@ def dataset_detail(request, slug, tablename=""):
 
     if not tablename:
         tablename = dataset.get_default_table().name
-        return redirect(reverse("core:dataset-table-detail", kwargs={"slug": slug, "tablename": tablename},))
+        return redirect(
+            reverse(
+                "core:dataset-table-detail",
+                kwargs={"slug": slug, "tablename": tablename},
+            )
+        )
 
     try:
         allow_hidden = request.user.is_superuser
@@ -185,7 +190,8 @@ def dataset_detail(request, slug, tablename=""):
         writer = csv.writer(pseudo_buffer, dialect=csv.excel)
         csv_rows = queryset_to_csv(all_data, table.fields)
         response = StreamingHttpResponse(
-            (writer.writerow(row) for row in csv_rows), content_type="text/csv;charset=UTF-8",
+            (writer.writerow(row) for row in csv_rows),
+            content_type="text/csv;charset=UTF-8",
         )
         response["Content-Disposition"] = 'attachment; filename="{}"'.format(filename)
         response.encoding = "UTF-8"

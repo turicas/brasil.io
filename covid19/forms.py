@@ -52,8 +52,14 @@ class StateSpreadsheetForm(forms.ModelForm):
         required=False,
         help_text='Observações no boletim como "depois de publicar o boletim a secretaria postou no Twitter que teve mais uma morte".',  # noqa
     )
-    skip_sum_cases = forms.BooleanField(required=False, label="Ignorar validação de soma de casos",)
-    skip_sum_deaths = forms.BooleanField(required=False, label="Ignorar validação de soma de mortes",)
+    skip_sum_cases = forms.BooleanField(
+        required=False,
+        label="Ignorar validação de soma de casos",
+    )
+    skip_sum_deaths = forms.BooleanField(
+        required=False,
+        label="Ignorar validação de soma de mortes",
+    )
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user", None)

@@ -77,13 +77,22 @@ class StateSpreadsheetTests(TestCase):
         prev_qtd = 4
         baker.make(StateSpreadsheet, user=user, state=state, date=today, _quantity=prev_qtd)
         baker.make(  # other state, same date
-            StateSpreadsheet, user=user, state="sp", date=today,
+            StateSpreadsheet,
+            user=user,
+            state="sp",
+            date=today,
         )
         baker.make(  # other date, same state
-            StateSpreadsheet, user=user, state=state, date=today + timedelta(days=1),
+            StateSpreadsheet,
+            user=user,
+            state=state,
+            date=today + timedelta(days=1),
         )
         baker.make(  # same date, same state, other user
-            StateSpreadsheet, user__username="new_user", state=state, date=today,
+            StateSpreadsheet,
+            user__username="new_user",
+            state=state,
+            date=today,
         )
 
         spreadsheet = baker.make(StateSpreadsheet, user=user, state=state, date=today, _create_files=True)
@@ -476,7 +485,12 @@ class StateSpreadsheetManagerTests(TestCase):
         self.assertDataEntry(cases, self.date, "Curitiba", 10, 5)
 
     def test_report_data_should_exclude_city_entries_if_spreadsheet_only_with_total(self):
-        sp = baker.make(StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date,)
+        sp = baker.make(
+            StateSpreadsheet,
+            status=StateSpreadsheet.DEPLOYED,
+            state=self.state,
+            date=self.date,
+        )
         sp_date = self.date.isoformat()
         sp.warnings = [StateSpreadsheet.ONLY_WITH_TOTAL_WARNING]
         sp.table_data = [
@@ -509,7 +523,10 @@ class StateSpreadsheetManagerTests(TestCase):
     def test_report_data_should_list_previous_deployed_city_entries_if_spreadsheet_only_with_total(self):
         sp_date = self.date.isoformat()
         previous_deployed = baker.make(
-            StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date,
+            StateSpreadsheet,
+            status=StateSpreadsheet.DEPLOYED,
+            state=self.state,
+            date=self.date,
         )
         previous_deployed.table_data = [
             {
@@ -542,7 +559,12 @@ class StateSpreadsheetManagerTests(TestCase):
         ]
         previous_deployed.save()
 
-        total_sp = baker.make(StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date,)
+        total_sp = baker.make(
+            StateSpreadsheet,
+            status=StateSpreadsheet.DEPLOYED,
+            state=self.state,
+            date=self.date,
+        )
         total_sp_date = self.date.isoformat()
         total_sp.warnings = [StateSpreadsheet.ONLY_WITH_TOTAL_WARNING]
         total_sp.table_data = [
@@ -576,7 +598,10 @@ class StateSpreadsheetManagerTests(TestCase):
     def test_report_data_should_ignore_previous_if_city_data_was_already_exported(self):
         sp_date = self.date.isoformat()
         previous_total = baker.make(
-            StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date,
+            StateSpreadsheet,
+            status=StateSpreadsheet.DEPLOYED,
+            state=self.state,
+            date=self.date,
         )
         previous_total.warnings = [StateSpreadsheet.ONLY_WITH_TOTAL_WARNING]
         previous_total.table_data = [
@@ -592,7 +617,12 @@ class StateSpreadsheetManagerTests(TestCase):
         ]
         previous_total.save()
 
-        sp = baker.make(StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date,)
+        sp = baker.make(
+            StateSpreadsheet,
+            status=StateSpreadsheet.DEPLOYED,
+            state=self.state,
+            date=self.date,
+        )
         sp_date = self.date.isoformat()
         sp.table_data = [
             {
@@ -634,7 +664,10 @@ class StateSpreadsheetManagerTests(TestCase):
     def test_ensure_previous_city_data_is_always_using_the_most_recent_one(self):
         sp_date = self.date.isoformat()
         older_previous_deployed = baker.make(
-            StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date,
+            StateSpreadsheet,
+            status=StateSpreadsheet.DEPLOYED,
+            state=self.state,
+            date=self.date,
         )
         older_previous_deployed.table_data = [
             {
@@ -668,7 +701,10 @@ class StateSpreadsheetManagerTests(TestCase):
         older_previous_deployed.save()
 
         previous_deployed = baker.make(
-            StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date,
+            StateSpreadsheet,
+            status=StateSpreadsheet.DEPLOYED,
+            state=self.state,
+            date=self.date,
         )
         previous_deployed.table_data = [
             {
@@ -701,7 +737,12 @@ class StateSpreadsheetManagerTests(TestCase):
         ]
         previous_deployed.save()
 
-        total_sp = baker.make(StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date,)
+        total_sp = baker.make(
+            StateSpreadsheet,
+            status=StateSpreadsheet.DEPLOYED,
+            state=self.state,
+            date=self.date,
+        )
         total_sp_date = self.date.isoformat()
         total_sp.warnings = [StateSpreadsheet.ONLY_WITH_TOTAL_WARNING]
         total_sp.table_data = [
@@ -726,7 +767,11 @@ class StateSpreadsheetManagerTests(TestCase):
     def test_ensure_only_first_spreadsheet_for_date_only_with_total_is_considered(self):
         sp_date = self.date.isoformat()
         older_previous_deployed = baker.make(
-            StateSpreadsheet, status=StateSpreadsheet.DEPLOYED, state=self.state, date=self.date, cancelled=True,
+            StateSpreadsheet,
+            status=StateSpreadsheet.DEPLOYED,
+            state=self.state,
+            date=self.date,
+            cancelled=True,
         )
         older_previous_deployed.table_data = [
             {

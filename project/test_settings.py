@@ -6,7 +6,11 @@ for queue in RQ_QUEUES.values():  # noqa
     queue["ASYNC"] = False
 
 SAMPLE_SPREADSHEETS_DATA_DIR = Path(BASE_DIR).joinpath("covid19", "tests", "data")  # noqa
-CACHES = {"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache",}}  # noqa
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+    }
+}  # noqa
 RQ_BLOCKED_REQUESTS_LIST = ""
 
 RATELIMIT_ENABLE = False  # noqa
