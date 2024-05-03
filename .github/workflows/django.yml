@@ -11,35 +11,28 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.8]
+        python-version: [3.11]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Copy env file
-      run: cp env.example .env
     - name: Setup Docker
       run: |
-        source "$ENV_FILE"
-        docker compose up -d
+        make build start
       env:
-        ENV_FILE: .env
         PROJECT_NAME: brasil.io
         DOCKER_COMPOSE_FILE: compose.yml
     - name: Migrate and Update Data
       run: |
-        docker compose run web python manage.py migrate --no-input
+        make migrate-no-input
     - name: Collect static staticfiles
       run: |
-        docker compose run web python manage.py collectstatic --no-input
+        make collect-static-no-input
     - name: Run Tests
       run: |
-        docker compose run web pytest
-    - name: Run black
+        make test
+    - name: Run linter checks
       run: |
-        docker compose run web black . --exclude "docker" -l 120 --check
-    - name: Run flake8
-      run: |
-        docker compose run web flake8 --config setup.cfg
+        make lint-check
