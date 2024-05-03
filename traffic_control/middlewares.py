@@ -1,8 +1,8 @@
 from django.conf import settings
 from django.urls import is_valid_path, resolve
-from ratelimit import ALL
-from ratelimit.core import is_ratelimited
-from ratelimit.exceptions import Ratelimited
+from django_ratelimit import ALL
+from django_ratelimit.core import is_ratelimited
+from django_ratelimit.exceptions import Ratelimited
 
 from traffic_control.constants import RATELIMITED_VIEW_ATTR
 from traffic_control.util import ratelimit_key

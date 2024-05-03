@@ -28,6 +28,7 @@ shell:
 	docker compose exec web python manage.py shell
 
 start:
+	touch docker/env/web.local docker/env/db.local docker/env/redis.local docker/env/mail.local docker/env/storage.local
 	docker compose up -d
 
 stop:

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.defaults import page_not_found, server_error
-from ratelimit.exceptions import Ratelimited
+from django_ratelimit.exceptions import Ratelimited
 from rest_framework.exceptions import Throttled
 from rest_framework.views import exception_handler
 

@@ -1,5 +1,5 @@
 from django.conf import settings
-from ratelimit.decorators import ratelimit
+from django_ratelimit.decorators import ratelimit
 
 from traffic_control.constants import RATELIMITED_VIEW_ATTR
 from traffic_control.util import ratelimit_key

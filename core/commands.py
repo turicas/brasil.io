@@ -1,5 +1,6 @@
 import csv
 import hashlib
+import io
 import math
 import mimetypes
 import os
@@ -16,11 +17,10 @@ from django.core.cache import cache
 from django.db import transaction
 from django.db.utils import ProgrammingError
 from django.utils import timezone
-from minio import Minio
 from tqdm import tqdm
 
 from core.models import Dataset, DataTable, Field, Table, TableFile
-from utils.minio import MinioProgress
+from project.storage import storage
 
 
 class ImportDataCommand:
@@ -91,11 +91,10 @@ class ImportDataCommand:
 
         return Model
 
-    def import_data(self, filename, Model):
+    def import_data(self, filename, Model, encoding="utf-8"):
         # Get file object, header and set command to run
         table_name = Model._meta.db_table
         database_uri = os.environ["DATABASE_URL"]
-        encoding = "utf-8"  # TODO: receive as a parameter
         start_time = time.time()
         progress = rows.utils.ProgressBar(prefix="Importing data", unit="bytes")
 
@@ -181,9 +180,6 @@ class UpdateTableFileCommand:
 
         minio_endpoint = urlparse(settings.AWS_S3_ENDPOINT_URL).netloc
         self.should_upload = minio_endpoint != self.file_url_info.netloc
-        self.minio = Minio(
-            minio_endpoint, access_key=settings.AWS_ACCESS_KEY_ID, secret_key=settings.AWS_SECRET_ACCESS_KEY
-        )
         self._output_file = None
         self.delete_source = options["delete_source"]
 
@@ -216,12 +212,11 @@ class UpdateTableFileCommand:
         source = self.file_url_info.path  # /BUCKET_NAME/OBJ_PATH
         suffix = "".join(Path(source).suffixes)
         dest_name = f"{self.table.dataset.slug}/{self.table.name}{suffix}"
-        bucket = settings.MINIO_STORAGE_DATASETS_BUCKET_NAME
+        bucket = settings.AWS_S3_DATASETS_BUCKET_NAME
         is_same_file = source == f"/{bucket}/{dest_name}"
 
         if self.should_upload:
-            self.output_file.close()
-            progress = MinioProgress()
+            self.output_file.seek(0)
             self.log(f"Uploading file to bucket: {bucket}")
 
             content_type, encoding = mimetypes.guess_type(dest_name)
@@ -231,18 +226,20 @@ class UpdateTableFileCommand:
             elif encoding is None:
                 content_type = "text/plain"
 
-            self.minio.fput_object(
-                bucket, dest_name, self.output_file.name, progress=progress, content_type=content_type
+            storage.upload_file(
+                fobj=self.output_file,
+                bucket=bucket,
+                filename=dest_name,
+                content_type=content_type,
             )
-            # TODO: use core.util.upload_file
         elif not is_same_file:
-            self.log(f"Copying {source} to bucket {bucket}")
-            self.minio.copy_object(bucket, dest_name, source)
+            _, bucket, source_filename = source.split("/", maxsplit=2)
+            self.log(f"Copying {bucket}/{source_filename} to {bucket}/{dest_name} (from S3/to S3)")
+            storage.remote_copy(source_bucket=bucket, source_filename=source_filename, destination_filename=dest_name)
             if self.delete_source:
                 self.log(f"Deleting {source}")
-                split_source = source.split("/")
-                source_bucket, source_obj = split_source[1], "/".join(split_source[2:])
-                self.minio.remove_object(source_bucket, source_obj)
+                _, source_bucket, source_obj = source.split("/", maxsplit=2)
+                storage.delete(bucket=source_bucket, filename=source_obj)
         else:
             self.log(f"Using {source} as the dataset file.", end="")
 
@@ -254,7 +251,7 @@ class UpdateTableFileCommand:
         table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
         self = cls(table, file_url, **options)
 
-        chunk_size = settings.MINIO_DATASET_DOWNLOAD_CHUNK_SIZE
+        chunk_size = settings.AWS_S3_DATASET_DOWNLOAD_CHUNK_SIZE
         for chunk in self.read_file_chunks(chunk_size):
             self.process_file_chunk(chunk, chunk_size)
 
@@ -291,10 +288,7 @@ class UpdateTableFileListCommand:
     def __init__(self, dataset, **options):
         self.dataset = dataset
         minio_endpoint = urlparse(settings.AWS_S3_ENDPOINT_URL).netloc
-        self.bucket = settings.MINIO_STORAGE_DATASETS_BUCKET_NAME
-        self.minio = Minio(
-            minio_endpoint, access_key=settings.AWS_ACCESS_KEY_ID, secret_key=settings.AWS_SECRET_ACCESS_KEY
-        )
+        self.bucket = settings.AWS_S3_DATASETS_BUCKET_NAME
         self._collect_date = options["collect_date"]
 
     @property
@@ -303,39 +297,27 @@ class UpdateTableFileListCommand:
 
     def update_sha512_sums_file(self):
         sha_sums = self.dataset.sha512sums
-        temp_file = NamedTemporaryFile(delete=False, mode="w")
-        temp_file.write(sha_sums.content)
-        temp_file.close()
-
         self.log(f"Uploading {sha_sums.filename}...")
-        progress = MinioProgress()
-        self.minio.fput_object(
-            self.bucket,
-            urlparse(sha_sums.file_url).path.replace(f"/{settings.MINIO_STORAGE_DATASETS_BUCKET_NAME}/", ""),
-            temp_file.name,
-            progress=progress,
+        storage.upload_file(
+            fobj=io.BytesIO(sha_sums.content.encode("utf-8")),
+            bucket=self.bucket,
+            filename=urlparse(sha_sums.file_url).path.replace(f"/{settings.AWS_S3_DATASETS_BUCKET_NAME}/", ""),
             content_type="text/plain",
         )
-
-        os.remove(temp_file.name)
         return sha_sums
 
     def update_list_html(self, files_list):
         files_url = f"https://{settings.APP_HOST}{self.dataset.files_url}"
         content = f'<html><head><meta http-equiv="Refresh" content="0; url=\'{files_url}\'" /></head></html>'
 
-        temp_file = NamedTemporaryFile(delete=False, mode="w")
-        temp_file.write(content)
-        temp_file.close()
-
         self.log("\nUploading list HTML...")
-        dest_name = f"{self.dataset.slug}/{settings.MINIO_DATASET_TABLES_FILES_LIST_FILENAME}"
-        progress = MinioProgress()
-        self.minio.fput_object(
-            self.bucket, dest_name, temp_file.name, progress=progress, content_type="text/html; charset=utf-8"
+        dest_name = f"{self.dataset.slug}/{settings.AWS_S3_DATASET_TABLES_FILES_LIST_FILENAME}"
+        storage.upload_file(
+            fobj=io.BytesIO(content.encode("utf-8")),
+            bucket=self.bucket,
+            filename=dest_name,
+            content_type="text/html; charset=utf-8",
         )
-
-        os.remove(temp_file.name)
         return f"{settings.AWS_S3_ENDPOINT_URL}{self.bucket}/{dest_name}"
 
     @classmethod

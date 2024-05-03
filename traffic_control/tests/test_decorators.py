@@ -1,7 +1,7 @@
 import pytest
 from django.http import HttpResponse
 from django.test import RequestFactory, TestCase, override_settings
-from ratelimit.exceptions import Ratelimited
+from django_ratelimit.exceptions import Ratelimited
 
 from traffic_control.constants import RATELIMITED_VIEW_ATTR
 from traffic_control.decorators import enable_ratelimit

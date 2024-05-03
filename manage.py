@@ -1,12 +1,15 @@
 #!/usr/bin/env python
+"""Django's command-line utility for administrative tasks."""
 import os
 import sys
 import warnings
 
-if __name__ == "__main__":
+
+def main():
+    """Run administrative tasks."""
     warnings.filterwarnings("ignore", module="environ")  # disable missing .env warning
 
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "brasilio.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -16,3 +19,7 @@ if __name__ == "__main__":
             "forget to activate a virtual environment?"
         ) from exc
     execute_from_command_line(sys.argv)
+
+
+if __name__ == "__main__":
+    main()

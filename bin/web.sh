@@ -16,4 +16,4 @@ if [[ $(echo $DEBUG | tr a-z A-Z) = "TRUE" ]]; then
 fi
 
 python manage.py collectstatic --noinput
-gunicorn brasilio.wsgi:application $OPTS
+gunicorn project.wsgi:application $OPTS

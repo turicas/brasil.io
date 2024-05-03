@@ -242,10 +242,10 @@ class DatasetModelTests(TestCase):
         for table_file in [table_file_2, table_file_1]:
             hasher.update(expected_content.encode())
             expected_content += f"{table_file.sha512sum}  {table_file.filename}\n"
-        expected_url = f"{settings.AWS_S3_ENDPOINT_URL}{settings.MINIO_STORAGE_DATASETS_BUCKET_NAME}/{self.dataset.slug}/{settings.MINIO_DATASET_SHA512SUMS_FILENAME}"
+        expected_url = f"{settings.AWS_S3_ENDPOINT_URL}{settings.AWS_S3_DATASETS_BUCKET_NAME}/{self.dataset.slug}/{settings.AWS_S3_DATASET_SHA512SUMS_FILENAME}"
 
         sha512sums = self.dataset.sha512sums
-        assert settings.MINIO_DATASET_SHA512SUMS_FILENAME == sha512sums.filename
+        assert settings.AWS_S3_DATASET_SHA512SUMS_FILENAME == sha512sums.filename
         assert expected_content == sha512sums.content
         assert hasher.hexdigest() == sha512sums.sha512sum
         assert expected_url == sha512sums.file_url

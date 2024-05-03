@@ -7,5 +7,8 @@ class DjangoAssertionsMixin:
     """
 
     def assertTemplateUsed(self, response, template_name, *args, **kwargs):
+        invalid_string = "Invalid: '%s'"
+        settings.TEMPLATES[0]["OPTIONS"]["string_if_invalid"] = invalid_string
+
         super().assertTemplateUsed(response, template_name, *args, **kwargs)
-        assert settings.TEMPLATE_STRING_IF_INVALID not in response.content.decode()
+        assert invalid_string not in response.content.decode()

@@ -25,7 +25,7 @@ class UserCreationForm(RegistrationFormUniqueEmail):
         widget=forms.PasswordInput,
         help_text=_("Enter the same password as above, for verification."),
     )
-    captcha = ReCaptchaField()
+    captcha = ReCaptchaField(required=True)
     subscribe_newsletter = forms.BooleanField(required=False)
 
     class Meta:
@@ -50,4 +50,4 @@ class UserCreationForm(RegistrationFormUniqueEmail):
 
 
 class TokenApiManagementForm(forms.Form):
-    captcha = ReCaptchaField()
+    captcha = ReCaptchaField(required=True)

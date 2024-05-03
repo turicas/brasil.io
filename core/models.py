@@ -119,7 +119,7 @@ class DatasetTableModelQuerySet(models.QuerySet):
             qs = qs.search(search_query)
         if filter_query:
             qs = qs.apply_filters(filter_query)
-        return qs.apply_ordering(order_by or [])
+        return qs.apply_ordering(order_by or [])  # TODO: must force default Table ordering if empty?
 
     def count(self):
         if getattr(self, "_count", None) is not None:
@@ -203,8 +203,8 @@ class Dataset(models.Model):
             sha_sum.update(content.encode())
             content += f"{table_file.sha512sum}  {table_file.filename}\n"
 
-        fname = settings.MINIO_DATASET_SHA512SUMS_FILENAME
-        url = f"{settings.AWS_S3_ENDPOINT_URL}{settings.MINIO_STORAGE_DATASETS_BUCKET_NAME}/{self.slug}/{fname}"
+        fname = settings.AWS_S3_DATASET_SHA512SUMS_FILENAME
+        url = f"{settings.AWS_S3_ENDPOINT_URL}{settings.AWS_S3_DATASETS_BUCKET_NAME}/{self.slug}/{fname}"
         return FileInfo(
             filename=fname,
             file_url=url,

@@ -10,7 +10,7 @@ from django.shortcuts import render
 from django.templatetags.static import static
 from django.urls import path, reverse
 from django.utils.html import format_html
-from rangefilter.filter import DateRangeFilter
+from rangefilter.filters import DateRangeFilter
 
 from brazil_data.cities import brazilian_cities_per_state
 from brazil_data.states import STATES
