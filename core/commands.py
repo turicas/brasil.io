@@ -212,7 +212,7 @@ class UpdateTableFileCommand:
         source = self.file_url_info.path  # /BUCKET_NAME/OBJ_PATH
         suffix = "".join(Path(source).suffixes)
         dest_name = f"{self.table.dataset.slug}/{self.table.name}{suffix}"
-        bucket = settings.MINIO_STORAGE_DATASETS_BUCKET_NAME
+        bucket = settings.AWS_S3_DATASETS_BUCKET_NAME
         is_same_file = source == f"/{bucket}/{dest_name}"
 
         if self.should_upload:
@@ -251,7 +251,7 @@ class UpdateTableFileCommand:
         table = Table.with_hidden.for_dataset(dataset_slug).named(tablename)
         self = cls(table, file_url, **options)
 
-        chunk_size = settings.MINIO_DATASET_DOWNLOAD_CHUNK_SIZE
+        chunk_size = settings.AWS_S3_DATASET_DOWNLOAD_CHUNK_SIZE
         for chunk in self.read_file_chunks(chunk_size):
             self.process_file_chunk(chunk, chunk_size)
 
@@ -288,7 +288,7 @@ class UpdateTableFileListCommand:
     def __init__(self, dataset, **options):
         self.dataset = dataset
         minio_endpoint = urlparse(settings.AWS_S3_ENDPOINT_URL).netloc
-        self.bucket = settings.MINIO_STORAGE_DATASETS_BUCKET_NAME
+        self.bucket = settings.AWS_S3_DATASETS_BUCKET_NAME
         self._collect_date = options["collect_date"]
 
     @property
@@ -301,7 +301,7 @@ class UpdateTableFileListCommand:
         storage.upload_file(
             fobj=io.BytesIO(sha_sums.content.encode("utf-8")),
             bucket=self.bucket,
-            filename=urlparse(sha_sums.file_url).path.replace(f"/{settings.MINIO_STORAGE_DATASETS_BUCKET_NAME}/", ""),
+            filename=urlparse(sha_sums.file_url).path.replace(f"/{settings.AWS_S3_DATASETS_BUCKET_NAME}/", ""),
             content_type="text/plain",
         )
         return sha_sums
@@ -311,7 +311,7 @@ class UpdateTableFileListCommand:
         content = f'<html><head><meta http-equiv="Refresh" content="0; url=\'{files_url}\'" /></head></html>'
 
         self.log("\nUploading list HTML...")
-        dest_name = f"{self.dataset.slug}/{settings.MINIO_DATASET_TABLES_FILES_LIST_FILENAME}"
+        dest_name = f"{self.dataset.slug}/{settings.AWS_S3_DATASET_TABLES_FILES_LIST_FILENAME}"
         storage.upload_file(
             fobj=io.BytesIO(content.encode("utf-8")),
             bucket=self.bucket,
