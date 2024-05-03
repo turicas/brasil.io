@@ -1,13 +1,16 @@
+_prepare:
+	touch docker/env/web.local docker/env/db.local docker/env/redis.local docker/env/mail.local docker/env/storage.local
+
 bash:
 	docker compose exec web bash
 
 bash-root:
 	docker compose exec -u root web bash
 
-build:
+build: _prepare
 	docker compose build
 
-build-no-cache:
+build-no-cache: _prepare
 	docker compose build --no-cache
 
 collect-static-no-input:
@@ -16,8 +19,8 @@ collect-static-no-input:
 clean: stop
 	docker compose down -v --remove-orphans
 
-clear_cache:
-	python manage.py clear_cache
+clear-cache:
+	docker compose exec web python manage.py clear_cache
 
 lint:
 	docker compose exec web /app/lint.sh
@@ -42,8 +45,7 @@ scheduler:
 shell:
 	docker compose exec web python manage.py shell
 
-start:
-	touch docker/env/web.local docker/env/db.local docker/env/redis.local docker/env/mail.local docker/env/storage.local
+start: _prepare
 	docker compose up -d
 
 stop:
@@ -56,4 +58,4 @@ test:
 test-v:
 	docker compose exec web pytest -vvv
 
-.PHONY: bash-root bash build clean clear_cache lint logs restart scheduler shell start stop test-v test
+.PHONY: _prepare bash bash-root build build-no-cache clean clear-cache collect-static-no-input lint lint-check logs migrate migrate-no-input restart scheduler shell start stop test test-v
