@@ -1,0 +1,12 @@
+---
+- roles:
+  - dokku_bot.ansible_dokku
+  vars:
+    # nginx_install_from: os_repository
+    dokku_plugins:
+      - name: postgres
+        url: https://github.com/dokku/dokku-postgres.git
+      - name: redis
+        url: https://github.com/dokku/dokku-redis.git
+      - name: letsencrypt
+        url: https://github.com/dokku/dokku-letsencrypt.git

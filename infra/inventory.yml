@@ -1,0 +1,10 @@
+all:
+  children:
+    production:
+      hosts:
+        production_server:
+          ansible_host: s1.brasil.io
+    staging:
+      hosts:
+        staging_server:
+          ansible_host: s2.brasil.io
