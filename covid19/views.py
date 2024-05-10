@@ -213,27 +213,6 @@ def make_aggregate(
     return data
 
 
-def cities(request):
-    state = request.GET.get("state", None)
-    if state is not None and not get_state_info(state):
-        raise Http404
-
-    brazil_city_data = stats.city_data()
-    if state:
-        city_data = stats.city_data(state)
-        total_row = stats.state_row(state)
-    else:
-        city_data = brazil_city_data
-        total_row = stats.country_row
-
-    result = {
-        "cities": {row["city_ibge_code"]: row for row in city_data},
-        "max": max_values(brazil_city_data),
-        "total": total_row,
-    }
-    return JsonResponse(result)
-
-
 def country_state(request, state=None):
 
     country_aggregate = make_aggregate(
