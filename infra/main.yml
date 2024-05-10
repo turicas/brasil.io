@@ -1,0 +1,101 @@
+# Required vars:
+# - admins
+# - app_domain
+# - app_name
+# - sentry_dsn
+# - target_host_group
+- hosts: "{{ target_host_group }}"
+  vars:
+    letsencrypt_email: "{{ admins.split(',')[0].split('|')[1] }}"
+    allowed_hosts: "{{ app_domain }}"
+    csrf_trusted_origins: "https://{{ app_domain }}"
+    data_dir: "/data"
+    debug: "false"
+    dev_build: "false"
+    db_name: "pg_{{ app_name }}"
+    secret_key: "{{ lookup('pipe', 'openssl rand -base64 64 | tr -d \'\n\'') }}"
+    storage_path: "/var/lib/dokku/data/storage/{{ app_name }}"
+    postgres_image: "postgres"
+    postgres_version: "16-bullseye"
+    postgres_shm_size: "1g"
+    web_containers: 1
+
+  tasks:
+    - name: Create Dokku application
+      dokku_app:
+        app: "{{ app_name }}"
+        state: present
+
+    - name: Increase nginx's client-max-body-size for the app
+      dokku_nginx:
+        app: "{{ app_name }}"
+        property: "client-max-body-size"
+        value: "50m"
+
+    - name: Set app's domain
+      dokku_domains:
+        app: "{{ app_name }}"
+        domains:
+          - "{{ app_domain }}"
+        state: set
+
+    - name: Create and configure a persistent volume
+      block:
+        - name: Ensure the directory exists
+          ansible.builtin.file:
+            path: "{{ storage_path }}"
+            state: directory
+            owner: 1000
+            group: 1000
+            mode: '0750'
+        - name: Mount a Dokku volume for the app
+          dokku_storage:
+            app: "{{ app_name }}"
+            paths:
+              - "{{ storage_path }}:{{ data_dir }}"
+
+    - name: Create and link PostgreSQL service
+      block:
+        - name: Create service
+          dokku_postgres:
+            name: "{{ db_name }}"
+            image: "{{ postgres_image }}"
+            image_version: "{{ postgres_version }}"
+            shm_size: "{{ postgres_shm_size }}"
+            state: present
+        - name: Link service to the app
+          dokku_postgres_link:
+            name: "{{ db_name }}"
+            app: "{{ app_name }}"
+            state: present
+
+    - name: Configure environment variables
+      dokku_config:
+        app: "{{ app_name }}"
+        config:
+          ADMINS: "{{ admins }}"
+          ALLOWED_HOSTS: "{{ allowed_hosts }}"
+          CSRF_TRUSTED_ORIGINS: "{{ csrf_trusted_origins }}"
+          DATA_DIR: "{{ data_dir }}"
+          DEBUG: "{{ debug }}"
+          DEV_BUILD: "{{ dev_build }}"
+          SECRET_KEY: "{{ secret_key }}"
+          SENTRY_DSN: "{{ sentry_dsn }}"
+        restart: no
+
+    - name: Disable Dokku checks
+        dokku_checks:
+          app: "{{ app_name }}"
+          state: disabled
+
+    - name: Configure Let's Encrypt on the app
+        dokku_letsencrypt:
+          app: "{{ app_name }}"
+          email: "{{ letsencrypt_email }}"
+          state: present
+
+    - name: Scale web containers to 1
+        - dokku_ps_scale:
+            app: "{{ app_name }}"
+            scale:
+              web: {{ web_containers }}

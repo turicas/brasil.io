@@ -1,0 +1,8 @@
+- become: yes
+  vars:
+    target_host_group: "production"
+    admins: "Álvaro Justen|alvaro@brasil.io"
+    app_domain: "brasil.io"  # TODO: add api.brasil.io, www.brasil.io
+    app_name: "brasil-io-web"
+    sentry_dsn: "..."  # TODO: set manually?
+  import_playbook: main.yml
