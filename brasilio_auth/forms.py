@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from django_registration.forms import RegistrationFormUniqueEmail
 
-from utils.forms import FlagedReCaptchaField as ReCaptchaField
+from utils.forms import FlaggedReCaptchaField as ReCaptchaField
 
 USERNAME_REGEXP = re.compile(r"[^A-Za-z0-9_]")
 PUNCT_REGEXP = re.compile("[-/ .]")
