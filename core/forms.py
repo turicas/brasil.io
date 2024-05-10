@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.data_models import EmpresaTableConfig
 from core.models import get_table_model
-from utils.forms import FlagedReCaptchaField as ReCaptchaField
+from utils.forms import FlaggedReCaptchaField as ReCaptchaField
 
 
 def numbers_only(value):

@@ -2,7 +2,7 @@ from django.conf import settings
 from django_recaptcha.fields import ReCaptchaField
 
 
-class FlagedReCaptchaField(ReCaptchaField):
+class FlaggedReCaptchaField(ReCaptchaField):
     def validate(self, *args, **kwargs):
         if settings.DISABLE_RECAPTCHA:
             self.validators = []
