@@ -2,8 +2,10 @@ import csv
 import uuid
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages import success
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -25,8 +27,6 @@ from traffic_control.logging import log_blocked_request
 
 clipping_type_dataset = ContentType.objects.get(app_label="core", model="dataset")
 clipping_type_table = ContentType.objects.get(app_label="core", model="table")
-
-from django.contrib import messages
 
 class Echo:
     def write(self, value):
@@ -301,12 +301,11 @@ def dataset_clipping_suggestion(request):
             clipping.added_by = request.user
             clipping.save()
 
-            send_clipping_mail.delay(clipping.pk)
-            messages.success(request, "Sugestão enviada com sucesso", extra_tags='success')
+            messages.success(request, "Sugestão enviada com sucesso", extra_tags="success")
 
-            return redirect(request.POST.get('next', '/'))
+            return redirect(request.POST.get("next", "/"))
         else:
-            messages.error(request, "Verifique o formulário novamente", extra_tags='danger')
+            messages.error(request, "Verifique o formulário novamente", extra_tags="danger")
     else:
         clipping_form = ClippingForm()
 
