@@ -111,6 +111,7 @@ def dataset_list(request):
     context = {"datasets": Dataset.objects.filter(q).order_by("name"), "form": form}
     return render(request, "core/dataset-list.html", context)
 
+
 def dataset_list_detail(request, slug, listname):
     if len(request.GET) > 0 and not request.user.is_authenticated:
         return redirect(f"{settings.LOGIN_URL}?next={request.get_full_path()}")
@@ -123,19 +124,22 @@ def dataset_list_detail(request, slug, listname):
             dataset = Dataset.objects.get(slug=slug)
             clipping_type_dataset = ContentType.objects.get(app_label="core", model="dataset")
             clipping_dataset = list(
-                ClippingRelation.objects.filter(content_type=clipping_type_dataset.id, object_id=dataset.pk, clipping__published=True).distinct("clipping__vehicle")
+                ClippingRelation.objects.filter(
+                    content_type=clipping_type_dataset.id, object_id=dataset.pk, clipping__published=True
+                ).distinct("clipping__vehicle")
             )
     except Dataset.DoesNotExist:
         context = {"message": "Dataset does not exist"}
         return render(request, "404.html", context, status=404)
 
     context = {
-        "listname": listname.replace('_', ' '),
+        "listname": listname.replace("_", " "),
         "dataset": dataset,
         "clipping": clipping_dataset,
     }
 
     return render(request, "core/dataset-list-detail.html", context, status=200)
+
 
 def dataset_detail(request, slug):
     if len(request.GET) > 0 and not request.user.is_authenticated:
@@ -147,17 +151,18 @@ def dataset_detail(request, slug):
         context = {"message": "Dataset does not exist"}
         return render(request, "404.html", context, status=404)
 
-    clipping_type_dataset = ContentType.objects.get(app_label="core", model="dataset")
-    clipping_dataset = list(
-        ClippingRelation.objects.filter(content_type=clipping_type_dataset.id, object_id=dataset.pk, clipping__published=True).distinct("clipping__vehicle")
+    clipping = list(
+        ClippingRelation.objects.published()
+        .filter(content_type=clipping_type_dataset.id, object_id=dataset.pk)
+        .distinct("clipping__vehicle")
     )
-
     context = {
         "dataset": dataset,
-        "clipping": clipping_dataset,
+        "clipping": clipping,
     }
 
     return render(request, "core/dataset-detail.html", context, status=200)
+
 
 def dataset_table_detail(request, slug, tablename=""):
     if len(request.GET) > 0 and not request.user.is_authenticated:
@@ -283,6 +288,7 @@ def dataset_table_detail(request, slug, tablename=""):
         status = 400
     return render(request, "core/dataset-table-detail.html", context, status=status)
 
+
 def dataset_clipping_suggestion(request):
     if len(request.GET) > 0 and not request.user.is_authenticated:
         return redirect(f"{settings.LOGIN_URL}?next={request.get_full_path()}")
@@ -296,7 +302,8 @@ def dataset_clipping_suggestion(request):
             clipping.save()
             send_clipping_mail.delay(clipping.pk)
             success(request, "Sugestão enviada com sucesso")
-            return redirect(request.POST.get('next', '/'))
+
+            return redirect(request.POST.get("next", "/"))
         else:
             message = "Erro: Verifique o formulário novamente"
     else:
@@ -307,6 +314,7 @@ def dataset_clipping_suggestion(request):
         "message": message,
     }
     return render(request, "core/dataset-form-clipping.html", context)
+
 
 def dataset_suggestion(request):
     return render(request, "core/dataset-suggestion.html", {})
