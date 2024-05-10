@@ -1,11 +1,9 @@
-import os
 import csv
-import rows
-
-from django.core.management.base import BaseCommand
 from pathlib import Path
 
 from django.contrib.auth import get_user_model
+from django.core.management.base import BaseCommand
+
 from clipping.models import Clipping
 
 
@@ -23,10 +21,18 @@ class Command(BaseCommand):
         csv_file = self.clean_args(**kwargs)
         username = "turicas"
         user = get_user_model().objects.get(username=username)
-        with open(csv_file, encoding='utf-8') as csvfile:
+        with open(csv_file, encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                p = Clipping(date=row['data'], vehicle=row['veiculo'], author=row['autor'], title=row['titulo'],
-                             category=row['categoria'], url=row['link'], published=True, added_by=user)
+                p = Clipping(
+                    date=row["data"],
+                    vehicle=row["veiculo"],
+                    author=row["autor"],
+                    title=row["titulo"],
+                    category=row["categoria"],
+                    url=row["link"],
+                    published=True,
+                    added_by=user,
+                )
                 p.save()
-        self.stdout.write(self.style.SUCCESS('Successfully imported'))
+        self.stdout.write(self.style.SUCCESS("Successfully imported"))

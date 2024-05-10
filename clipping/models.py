@@ -1,8 +1,9 @@
 import datetime
+
 from django.contrib.auth import get_user_model
-from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
 
 
 class Clipping(models.Model):
@@ -14,8 +15,7 @@ class Clipping(models.Model):
     url = models.URLField(null=False, blank=False, unique=True)
     published = models.BooleanField(default=False, blank=True)
 
-    added_by = models.ForeignKey(get_user_model(), null=True, blank=True,
-                                 on_delete=models.SET_NULL)
+    added_by = models.ForeignKey(get_user_model(), null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.title
@@ -32,4 +32,4 @@ class ClippingRelation(models.Model):
         return "Content: {} | Clipping: {}".format(self.content_object.name, self.clipping.title)
 
     class Meta:
-        unique_together = ['content_type', 'object_id', 'clipping']
+        unique_together = ["content_type", "object_id", "clipping"]
