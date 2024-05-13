@@ -39,20 +39,23 @@ services:
       - .:/app
       - ./docker/data/web:/data
     depends_on:
-      - db
-      - mail
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      mail:
+        condition: service_started
 
   # TODO: add scheduler also?
 
   db:
-    image: postgres:11.3
+    image: postgres:16.2-bullseye
     env_file:
       - docker/env/db
       - docker/env/db.local
     shm_size: 256m
     volumes:
-      - ./docker/postgresql.dev.conf:/etc/postgresql/postgresql.conf
+      - ./docker/conf/db/postgresql.dev.conf:/etc/postgresql/postgresql.conf
       - ./docker/data/db:/var/lib/postgresql/data
     command: -c "config_file=/etc/postgresql/postgresql.conf"
     healthcheck:

@@ -66,7 +66,14 @@ export SENDGRID_API_KEY="<...>"
 export FERNET_KEY="$(python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())')"
 
 dokku apps:create $APP_NAME
+
 dokku postgres:create $DB_SERVICE_NAME
+dokku postgres:create $DB_SERVICE_NAME -i postgres -I 16.2-bullseye --shm-size 8g
+dokku postgres:stop $DB_SERVICE_NAME
+mv /var/lib/dokku/services/postgres/$DB_SERVICE_NAME/data/postgresql.conf{,.bkp}
+cp docker/conf/db/postgresql.prd.conf /var/lib/dokku/services/postgres/$DB_SERVICE_NAME/data/postgresql.conf
+dokku postgres:start $DB_SERVICE_NAME
+
 dokku postgres:link $DB_SERVICE_NAME $APP_NAME
 
 for domain in $(echo $DOMAINS | tr ',' '\n'); do
