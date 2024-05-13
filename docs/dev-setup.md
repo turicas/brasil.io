@@ -1,16 +1,13 @@
 # Setup para Desenvolvimento
 
-O projeto e todos os serviços necessários (como bancos de dados) rodam
-completamente dentro de *containers* Docker. Para rodá-lo localmente, você
-precisa ter instalado em seu computador:
+O projeto e todos os serviços necessários (como bancos de dados) rodam completamente dentro de *containers* Docker.
+Para rodá-lo localmente, você precisa ter instalado em seu computador:
 
 - [git](https://git-scm.com/)
 - [Docker](https://docker.io/)
-- [docker compose](https://docs.docker.com/compose/)
 
-Existem outras formas de rodar o projeto localmente, como executando o Django
-na própria máquina (fora de um *container*), porém recomendamos utilizar
-*containers* para simplificar o processo e evitar conflitos de versões.
+Existem outras formas de rodar o projeto localmente, como executando o Django na própria máquina (fora de um
+*container*), porém recomendamos utilizar *containers* para simplificar o processo e evitar conflitos de versões.
 
 
 ## Criação do Ambiente Local
@@ -21,22 +18,22 @@ Para começar, faça um clone local do repositório original:
 git clone https://github.com/turicas/brasil.io
 ```
 
-Entre no repositório e suba os *containers* pelo docker compose:
+Entre no repositório, construa e inicie os *containers*:
 
 ```shell
 cd brasil.io
-docker compose -p brasil.io -f compose.yml up -d
+make build start
 ```
 
-O processo acima deve demorar em torno de 10 minutos para executar, pois irá
-construir a imagem Docker que executará o Django e baixará as demais
-imagens/dependências. Quando finalizar, faça as migrações de dados iniciais
-executando:
+O processo acima deve demorar em torno de 10 minutos para executar, pois irá construir a imagem Docker que executará o
+Django e baixará as demais imagens/dependências. Quando finalizar e tudo estiver rodando, execute `make bash` para
+acessar o shell do container com o Django e então execute dentro do container:
 
 ```shell
-docker compose -p brasil.io -f compose.yml exec web python manage.py migrate
-docker compose -p brasil.io -f compose.yml exec web python manage.py update_data
-docker compose -p brasil.io -f compose.yml run web python manage.py createsuperuser
+# Importa metadados dos datasets atuais
+python manage.py update_data
+# Cria super usuário:
+python manage.py createsuperuser --username=admin --email=admin@brasil.io
 ```
 
 Pronto! A plataforma poderá ser acessada pelo seu navegador Web em
@@ -45,49 +42,50 @@ Pronto! A plataforma poderá ser acessada pelo seu navegador Web em
 Caso termine de trabalhar no projeto e queira parar os serviços, execute:
 
 ```shell
-docker compose -p brasil.io -f compose.yml down
+make stop
 ```
 
 Nas próximas vezes que for trabalhar no projeto, basta executar um comando:
 
 ```shell
-docker compose -p brasil.io -f compose.yml up -d
+make start
 ```
 
-### Notas
+> Sugestão: use `make start logs` para acompanhar os logs durante o desenvolvimento.
 
-1. Caso não queira executar o `docker compose` com todos os parâmetros acima,
-   utilize o atalho `compose` definido no script `.activate`.
-2. O banco de dados principal (PostgreSQL) foi configurado para ser executado
-   em um computador com 8 cores, 16GB de RAM e SSD. Caso esse não seja seu
-   computador, considere alterar o arquivo `docker/postgresql/postgresql.conf`
-   (você precisará reiniciar o serviço `db` do docker compose). Para saber as
-   melhores configurações para sua máquina, consulte o
-   [PgTune](https://pgtune.leopard.in.ua/).
+> Nota: o banco de dados principal (PostgreSQL) foi configurado para ser executado
+   em um computador com 8 cores, 16GB de RAM e SSD. Caso esse não seja seu computador, considere alterar o arquivo
+   `docker/conf/db/postgresql.dev.conf` (você precisará reiniciar o serviço `db` do docker compose). Para saber as
+   melhores configurações para sua máquina, consulte o [PgTune](https://pgtune.leopard.in.ua/).
 
 
 ## Importando Dados
 
-Antes de importar dados em um dataset, você precisa executar o script de
-importação de dados ou baixar os dados já convertidos. Nesse exemplo, vamos
-baixar 3 tabelas do [dataset covid19](https://brasil.io/dataset/covid19/) para
-a pasta `docker/data/web/` e executar o comando de importação para cada uma
-delas.
-Antes, abra o shell do container `web` executando `docker compose exec web bash`. Depois, execute dentro do container
-os comandos abaixo:
+Antes de importar dados em um dataset, você precisa executar o script de importação de dados ou baixar os dados já
+convertidos. Nesse exemplo, vamos baixar algumas tabelas de diversos datasets e executar o comando de importação para
+cada uma delas. Antes, abra o shell do container `web` executando `make bash`. Depois, execute dentro do container os
+comandos abaixo:
 
 ```shell
-for table in boletim caso caso_full obito_cartorio; do
-	wget \
-		-O "/data/${table}.csv.gz" \
-		"https://data.brasil.io/dataset/covid19/${table}.csv.gz"
-	python manage.py import_data \
-		--unlogged \
-		--no-input \
-		covid19 \
-		"$table" \
-		"/data/${table}.csv.gz"
-done
+mkdir -p data/covid19 data/genero-nomes
+
+cd data/covid19
+wget https://data.brasil.io/dataset/covid19/caso_full.csv.gz
+wget https://data.brasil.io/dataset/covid19/caso.csv.gz
+wget https://data.brasil.io/dataset/covid19/boletim.csv.gz
+wget https://data.brasil.io/dataset/covid19/obito_cartorio.csv.gz
+cd -
+python manage.py import_data --no-input --unlogged covid19 caso_full data/covid19/caso_full.csv.gz
+python manage.py import_data --no-input --unlogged covid19 caso data/covid19/caso.csv.gz
+python manage.py import_data --no-input --unlogged covid19 boletim data/covid19/boletim.csv.gz
+python manage.py import_data --no-input --unlogged covid19 obito_cartorio data/covid19/obito_cartorio.csv.gz
+
+cd data/genero-nomes
+wget https://data.brasil.io/dataset/genero-nomes/nomes.csv.gz
+wget https://data.brasil.io/dataset/genero-nomes/grupos.csv.gz
+cd -
+python manage.py import_data --no-input --unlogged genero-nomes nomes data/genero-nomes/nomes.csv.gz
+python manage.py import_data --no-input --unlogged genero-nomes grupos data/genero-nomes/grupos.csv.gz
 ```
 
 > Nota: a opção `--unlogged` do comando `import_data` executará a importação mais rapidamente, mas fará com que a
