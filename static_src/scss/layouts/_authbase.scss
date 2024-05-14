@@ -1,5 +1,6 @@
 .auth-base-section {
-    @extend .modal, .position-static, .d-block, .py-5;
+    @extend .modal, .position-static, .d-flex, .align-items-center;
+    min-height: calc(100vh - 410px);
 }
 
 .auth-btn {
