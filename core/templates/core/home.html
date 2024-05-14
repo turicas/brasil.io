@@ -17,7 +17,7 @@
 
   <section class="container px-4 py-4">
     <div class="row gy-4">
-      <div class="col-12 col-xl-6 px-3">
+      <div class="col-12 px-3">
         <div class="row p-2 body-bg rounded shadow-sm border h-100">
           <h3 class="pt-2 mb-2 mb-xl-0 fs-5">Últimas atualizações</h3>
           <div class="list-group list-group-flush px-1">
@@ -55,26 +55,6 @@
                 </div>
               </div>
             {% endif %}
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-xl-6 px-3">
-        <div class="row btn-primary bg-gradient rounded-3 border-0 shadow-sm h-100 align-items-center">
-          <div class="card p-4 bg-transparent">
-            <div
-              class="d-flex align-items-center justify-content-between flex-column flex-sm-row text-center text-sm-start">
-              <div>
-                <div class="fs-5 fw-bold">ESPECIAL COVID-19: DADOS POR MUNICÍPIO.</div>
-                <div class="col-md-7 mt-4 mt-sm-2 small">
-                  Graças a uma força-tarefa de 40 voluntários que,diariamente, compilam
-                  boletins epidemiológicos das 27 Secretarias Estaduais de Saúde, disponibilizamos uma
-                  base de dados com a série histórica de casos e óbitos confirmados por município. Clique
-                  para acessar.
-                </div>
-              </div>
-              <i class="bi bi-chevron-compact-right fs-2"></i>
-            </div>
-            <a href="{% url 'covid19:dashboard' %}" class="stretched-link"></a>
           </div>
         </div>
       </div>
