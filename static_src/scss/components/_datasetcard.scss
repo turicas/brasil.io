@@ -1,5 +1,5 @@
 .dataset-card {
-    @extend .bg-brio-light, .shadow, .border, .p-4, .rounded, .position-relative;
+    @extend .bg-body, .shadow-sm, .border, .p-4, .rounded, .position-relative;
 
     h3 {
         @extend .d-flex, .align-items-center;
