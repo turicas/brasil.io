@@ -2,8 +2,20 @@
     @extend .container, .py-1;
 }
 
+.leaflet-container {
+    @extend .bg-secondary-subtle;
+}
+
+.info.legend.leaflet-control {
+    @extend .bg-body;
+}
+
 .leaflet-control-container .leaflet-bottom .leaflet-left .info .legend .leaflet-control {
     @extend .d-flex, .flex-column;
+}
+
+.info .legend .leaflet-control {
+    @extend .text-body;
 }
 
 .container-map-table {
@@ -18,7 +30,7 @@
 }
 
 .card-dashboard {
-    @extend .card, .shadow-sm, .border-0;
+    @extend .card, .shadow-sm, .border-0, .text-body;
 }
 
 #map {
@@ -29,10 +41,9 @@
 .charts {
     @extend .container-map-table;
     .card {
-        @extend .d-flex, .justify-content-center, .align-items-center;
         height: 500px;
         .chart {
-            height: 350px;
+            height: 400px;
         }
     }
 }
@@ -45,8 +56,8 @@
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
     border-radius: 5px;
     h4 {
+        @extend .text-body;
         margin: 0 0 5px;
-        color: #777;
     }
 }
 
@@ -60,11 +71,11 @@
     }
 
     > label {
-        color: #000;
+        @extend .text-body;
     }
 
     > input {
-        color: #000;
+        @extend .text-body;
         font-size: 1em;
     }
 }
