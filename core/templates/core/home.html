@@ -23,8 +23,8 @@
           <div class="list-group list-group-flush px-1">
             {% if recent_activities %}
               {% for activity in recent_activities %}
-                <a 
-                  href="{% if activity.url %} 
+                <a
+                  href="{% if activity.url %}
                       {{ activity.url }}
                     {% else %}
                       #!
@@ -60,7 +60,7 @@
       </div>
     </div>
   </section>
-  
+
   <section class="border-top border-bottom border-primary py-2">
     <div class="container">
       <div class="py-4">

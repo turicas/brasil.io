@@ -24,8 +24,8 @@
         <ul class="list-group">
             {% if listname == "tabelas"%}
               {% for table in dataset.tables %}
-                <a 
-                  class="list-group-item list-group-item-action" 
+                <a
+                  class="list-group-item list-group-item-action"
                   href="{% url 'core:dataset-table-detail' dataset.slug table.name %}"
                 >
                   {{ table.name|capfirst }}
