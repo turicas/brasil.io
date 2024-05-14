@@ -1,8 +1,8 @@
 footer {
-    @extend .text-dark;
+    @extend .text-body;
     .nav-item > a,
     .list-unstyled .fab {
-        @extend .text-dark, .text-decoration-none;
+        @extend .link-body-emphasis, .text-decoration-none;
     }
 }
 
