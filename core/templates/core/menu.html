@@ -3,29 +3,29 @@
   <ul class="navbar-nav my-3 my-lg-0 user-select-none">
     {% if request.user.is_authenticated %}
       <li class="nav-item dropdown">
-        <a 
-            class="nav-link dropdown-toggle"
-            id="authenticated-dropdown" 
-            role="button"
-            data-bs-toggle="dropdown" 
-            aria-expanded="false"
+        <a
+          class="nav-link dropdown-toggle"
+          id="authenticated-dropdown"
+          role="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
         >
           Olá, {{ request.user.username }}
         </a>
         <ul class="dropdown-menu" aria-labelledby="authenticated-dropdown">
           <li>
-            <a 
-              class="dropdown-item" 
-              href="{% url 'admin:covid19_statespreadsheet_changelist' %}" 
+            <a
+              class="dropdown-item"
+              href="{% url 'admin:covid19_statespreadsheet_changelist' %}"
               title="Ver Importação Covid-19"
             >
               Covid-19
             </a>
           </li>
           <li>
-            <a 
-              class="dropdown-item" 
-              href="{% url 'brasilio_auth:list_api_tokens' %}" 
+            <a
+              class="dropdown-item"
+              href="{% url 'brasilio_auth:list_api_tokens' %}"
               title="Chaves da API"
             >
               Chaves da API
@@ -35,8 +35,8 @@
             <hr class="dropdown-divider">
           </li>
           <li>
-            <a 
-              class="dropdown-item" 
+            <a
+              class="dropdown-item"
               href="{% url 'brasilio_auth:logout' %}"
               title="Chaves da API"
             >
@@ -47,10 +47,11 @@
       </li>
     {% else %}
       <li class="nav-item dropdown">
-        <a 
-          class="nav-link dropdown-toggle" href="#" 
-          id="unauthenticated-dropdown" 
-          role="button" data-bs-toggle="dropdown" 
+        <a
+          class="nav-link dropdown-toggle" href="#"
+          id="unauthenticated-dropdown"
+          role="button"
+          data-bs-toggle="dropdown"
           aria-expanded="false"
         >
           Acesso
@@ -72,12 +73,12 @@
     <li>
       <a class="nav-link px-lg-3" href="https://blog.brasil.io/">Blog</a>
     </li>
-      
     <li class="nav-item dropdown">
-      <a 
+      <a
         class="nav-link dropdown-toggle"
-        id="data-dropdown" 
-        role="button" data-bs-toggle="dropdown" 
+        id="data-dropdown"
+        role="button"
+        data-bs-toggle="dropdown"
         aria-expanded="false"
       >
         Dados
@@ -100,12 +101,12 @@
         </li>
       </ul>
     </li>
-    
     <li class="nav-item dropdown">
-      <a 
+      <a
         class="nav-link dropdown-toggle"
-        id="about-dropdown" 
-        role="button" data-bs-toggle="dropdown" 
+        id="about-dropdown"
+        role="button"
+        data-bs-toggle="dropdown"
         aria-expanded="false"
       >
         Sobre
@@ -162,9 +163,11 @@
     </li>
   </ul>
 
-  <a class="btn btn-bd-download ms-2"
-      href="{% url 'core:donate' %}"
-      target="_blank">
+  <a
+    class="btn btn-bd-download ms-2"
+    href="{% url 'core:donate' %}"
+    target="_blank"
+  >
       Apoie
   </a>
 {% endcache %}
