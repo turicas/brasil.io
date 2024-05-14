@@ -1,29 +1,5 @@
-// .nav-scroller {
-//     position: relative;
-//     z-index: 2;
-//     height: 2.45rem;
-//     overflow-y: hidden;
-//     background-image: linear-gradient(to bottom, $main-banner-dark, $main-banner-light);
-
-//     nav {
-//         @extend .nav, .small;
-//         font-weight: $fw-base;
-//         display: flex;
-//         flex-wrap: nowrap;
-//         padding-bottom: 1rem;
-//         overflow-x: auto;
-//         text-align: center;
-//         white-space: nowrap;
-//         -webkit-overflow-scrolling: touch;
-
-//         a {
-//             @extend .nav-link, .link-light;
-
-//         }
-//     }
-// }
-
 .nav-scroller {
+    @extend .d-flex, .justify-content-lg-center, .align-items-center, .gap-3;
     position: relative;
     z-index: 2;
     height: 2.55rem;
@@ -31,18 +7,15 @@
     background-image: linear-gradient(to bottom, $main-banner-dark, $main-banner-light);
 
     nav {
-    @extend .d-flex, .justify-content-lg-center;
-
         display: flex;
         flex-wrap: nowrap;
-        padding-bottom: 1rem;
         overflow-x: auto;
         text-align: center;
         white-space: nowrap;
         -webkit-overflow-scrolling: touch;
 
         a {
-            @extend .nav-link, .link-light;
+            @extend .nav-link, .link-light, .px-2;
         }
     }
 }
