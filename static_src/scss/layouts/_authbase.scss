@@ -6,3 +6,19 @@
 .auth-btn {
     @extend .w-100, .my-2, .btn, .btn-lg, .btn-primary;
 }
+
+.toast-primary {
+    @extend .bg-primary;
+}
+
+.toast-warning {
+    @extend .bg-warning;
+}
+
+.toast-danger {
+    @extend .bg-danger;
+}
+
+.toast-info {
+    @extend .bg-info;
+}
