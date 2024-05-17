@@ -10,7 +10,7 @@ def make_row(row, active):
     return {
         "name": row.name,
         "personal_url": row.personal_url,
-        "avatar_url": f"https://chat.brasil.io/avatar/{row.username_chat}",
+        "avatar_url": f"https://data.brasil.io/mirror/covid19/voluntarios/{row.username_chat}.jpeg",
         "active": active,
     }
 
