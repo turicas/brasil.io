@@ -58,23 +58,22 @@ dokku plugin:install https://github.com/dokku/dokku-maintenance.git maintenance
 ```shell
 # Mude apenas essas primeiras variáveis
 export ADMIN_EMAIL="admin@example.com"
-export APP_NAME="brasilio-web"
+export APP_NAME="brasil-io-prd"
 export COOKIE_DOMAIN=".brasil.io"
-export DB_SERVICE_NAME="brasilio_pg13"
+export DB_NAME="pg_$APP_NAME"
 export DOMAINS="www.brasil.io,brasil.io,api.brasil.io"
 export SENDGRID_API_KEY="<...>"
 export FERNET_KEY="$(python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())')"
 
 dokku apps:create $APP_NAME
 
-dokku postgres:create $DB_SERVICE_NAME
-dokku postgres:create $DB_SERVICE_NAME -i postgres -I 16.2-bullseye --shm-size 8g
-dokku postgres:stop $DB_SERVICE_NAME
-mv /var/lib/dokku/services/postgres/$DB_SERVICE_NAME/data/postgresql.conf{,.bkp}
-cp docker/conf/db/postgresql.prd.conf /var/lib/dokku/services/postgres/$DB_SERVICE_NAME/data/postgresql.conf
-dokku postgres:start $DB_SERVICE_NAME
+dokku postgres:create $DB_NAME -i postgres -I 16.3-bookworm --shm-size 8g
+dokku postgres:stop $DB_NAME
+mv /var/lib/dokku/services/postgres/$DB_NAME/data/postgresql.conf{,.bkp}
+cp docker/conf/db/postgresql.prd.conf /var/lib/dokku/services/postgres/$DB_NAME/data/postgresql.conf
+dokku postgres:start $DB_NAME
 
-dokku postgres:link $DB_SERVICE_NAME $APP_NAME
+dokku postgres:link $DB_NAME $APP_NAME
 
 for domain in $(echo $DOMAINS | tr ',' '\n'); do
 	dokku domains:add $APP_NAME $domain
