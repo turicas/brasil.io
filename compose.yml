@@ -1,87 +1,91 @@
 services:
   web:
-    user: "${UID:-1000}:${GID:-1000}"
     env_file:
-      - docker/env/web
-      - docker/env/web.local
+      - "docker/env/web"
+      - "docker/env/web.local"
+    user: "${UID:-1000}:${GID:-1000}"
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: "Dockerfile"
       args:
-        - DEV_BUILD=true
+        DEV_BUILD: "true"
     pull_policy: build
-    image: brasilio-web:latest
-    command: /bin/bash -c "/app/bin/release.sh && /app/bin/web.sh"
+    image: brasil-io-web:latest
+    command: bash -c "/app/bin/release.sh && /app/bin/web.sh"
     volumes:
-      - .:/app
-      - ./docker/data/web:/data
+      - ${PWD}/docker/data/web:/data
+      - ${PWD}:/app
     ports:
-      - 4200:5000
-    depends_on:
-      - db
-      - mail
-      - redis
-
-  worker:
-    user: "${UID:-1000}:${GID:-1000}"
-    env_file:
-      - docker/env/web
-      - docker/env/web.local
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - DEV_BUILD=true
-    pull_policy: build
-    image: brasilio-web:latest
-    command: /app/bin/worker.sh
-    volumes:
-      - .:/app
-      - ./docker/data/web:/data
+      - 5000:5000
     depends_on:
       db:
         condition: service_healthy
-      redis:
-        condition: service_started
-      mail:
+      messaging:
         condition: service_started
 
-  # TODO: add scheduler also?
+  worker:
+    env_file:
+      - "docker/env/web"
+      - "docker/env/web.local"
+    user: "${UID:-1000}:${GID:-1000}"
+    build:
+      context: .
+      dockerfile: "Dockerfile"
+      args:
+        DEV_BUILD: "true"
+    pull_policy: build
+    image: brasil-io-web:latest
+    command: /app/bin/worker.sh
+    volumes:
+      - ${PWD}/docker/data/web:/data
+      - ${PWD}:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      messaging:
+        condition: service_started
 
   db:
-    image: postgres:16.2-bullseye
     env_file:
-      - docker/env/db
-      - docker/env/db.local
-    shm_size: 256m
-    volumes:
-      - ./docker/conf/db/postgresql.dev.conf:/etc/postgresql/postgresql.conf
-      - ./docker/data/db:/var/lib/postgresql/data
+      - "docker/env/db"
+      - "docker/env/db.local"
+    user: "${UID:-1000}:${GID:-1000}"
+    shm_size: "8g"
+    image: "postgres:16.3-bookworm"
     command: -c "config_file=/etc/postgresql/postgresql.conf"
+    volumes:
+      - ${PWD}/docker/data/db:/var/lib/postgresql/data
+      - ${PWD}/docker/conf/db/postgresql.dev.conf:/etc/postgresql/postgresql.conf
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 3s
       retries: 5
 
-  redis:
-    image: redis:alpine
-    env_file:
-      - docker/env/redis
-      - docker/env/redis.local
-    volumes:
-      - ./docker/data/redis:/data
-
   mail:
-    image: mailhog/mailhog
+    image: "mailhog/mailhog:latest"
+    user: "${UID:-1000}:${GID:-1000}"
     env_file:
-      - docker/env/mail
-      - docker/env/mail.local
+      - "docker/env/mail"
+      - "docker/env/mail.local"
+    volumes:
+      - ${PWD}/docker/data/mail:/data
     ports:
-      - "4201:8025"
+      - "8025:8025"
+
+  messaging:
+    image: "redis:6.2-alpine"
+    user: "${UID:-1000}:${GID:-1000}"
+    env_file:
+      - "docker/env/messaging"
+      - "docker/env/messaging.local"
+    volumes:
+      - ${PWD}/docker/data/messaging:/data
 
   storage:
     image: "minio/minio:latest"
-    env_file: "docker/env/storage"
+    env_file:
+      - "docker/env/storage"
+      - "docker/env/storage.local"
     volumes:
       - ${PWD}/docker/data/storage:/data
     ports:

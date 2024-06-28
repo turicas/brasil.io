@@ -1,61 +1,65 @@
-_prepare:
-	touch docker/env/web.local docker/env/db.local docker/env/redis.local docker/env/mail.local docker/env/storage.local
+bash: 					# Run bash inside `web` container
+	docker compose exec -it web bash
 
-bash:
-	docker compose exec web bash
+bash-root: 				# Run bash as root inside `web` container
+	docker compose exec -itu root web bash
 
-bash-root:
-	docker compose exec -u root web bash
-
-build: _prepare
+build: fix-permissions			# Build containers
 	docker compose build
 
-build-no-cache: _prepare
-	docker compose build --no-cache
-
-collect-static-no-input:
-	docker compose exec web python manage.py collectstatic --no-input
-
-clean: stop
+clean: stop				# Stop and clean orphan containers
 	docker compose down -v --remove-orphans
 
-clear-cache:
+clear-cache:			# Clear Django cache stored on Redis
 	docker compose exec web python manage.py clear_cache
 
-lint:
-	docker compose exec web /app/lint.sh
+dbshell: start			# Connect to database shell using `web` container
+	docker compose exec -it web python manage.py dbshell
 
-lint-check:
-	docker compose exec web /app/lint.sh --check
+fix-permissions:		# Fix volume permissions on host machine
+	userID=$${UID:-1000}
+	groupID=$${UID:-1000}
+	mkdir -p docker/data/web docker/data/db docker/data/mail docker/data/messaging docker/data/storage
+	chown -R $$userID:$$groupID docker/data/web docker/data/db docker/data/mail docker/data/messaging docker/data/storage
+	touch docker/env/web.local docker/env/db.local docker/env/mail.local docker/env/messaging.local docker/env/storage.local
 
-logs:
-	docker compose logs -f
+help:					# List all make commands
+	@awk -F ':.*#' '/^[a-zA-Z_-]+:.*?#/ { printf "\033[36m%-15s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST) | sort
 
-migrate:
-	docker compose exec -it web python manage.py migrate
-
-migrate-no-input:
-	docker compose exec web python manage.py migrate --no-input
-
-restart: stop start
-
-scheduler:
-	docker compose exec web python manage.py rqscheduler
-
-shell:
-	docker compose exec web python manage.py shell
-
-start: _prepare
-	docker compose up -d
-
-stop:
+kill:					# Force stop (kill) and remove containers
 	docker compose kill
 	docker compose rm --force
 
-test:
-	docker compose exec web pytest
+lint:					# Run linter script
+	docker compose exec -it web /app/lint.sh
 
-test-v:
-	docker compose exec web pytest -vvv
+lint-check:				# Run the linter without changing files
+	docker compose exec web /app/lint.sh --check
 
-.PHONY: _prepare bash bash-root build build-no-cache clean clear-cache collect-static-no-input lint lint-check logs migrate migrate-no-input restart scheduler shell start stop test test-v
+logs:					# Show all containers' logs (tail)
+	docker compose logs -tf
+
+migrate:				# Execute Django migrations inside `web` container
+	docker compose exec -it web python manage.py migrate
+
+migrations:				# Execute `makemigrations` inside `web` container
+	docker compose exec -it web python manage.py makemigrations
+
+shell:					# Execute Django shell inside `web` container
+	docker compose exec -it web python manage.py shell
+
+restart: stop start		# Stop all containers and start all containers in background
+
+start: fix-permissions	# Start all containers in background
+	docker compose up -d
+
+stop:					# Stop all containers
+	docker compose down
+
+test:					# Execute `pytest` inside `web` container
+	docker compose exec -it web pytest
+
+test-v:					# Execute `pytest` with verbose option inside `web` container
+	docker compose exec -it web pytest -vvv
+
+.PHONY: bash bash-root build clean dbshell fix-permissions help kill lint lint-check logs migrate migrations restart shell start stop test test-v

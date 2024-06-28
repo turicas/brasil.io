@@ -1,4 +1,4 @@
-web: bin/web.sh
-worker: bin/worker.sh
-scheduler: bin/scheduler.sh
-release: bin/release.sh
+web: /app/bin/web.sh
+worker: /app/bin/worker.sh
+scheduler: /app/bin/scheduler.sh
+release: /app/bin/release.sh

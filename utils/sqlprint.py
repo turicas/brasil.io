@@ -1,7 +1,4 @@
-# Taken from:
-# <https://djangosnippets.org/snippets/290/>
-
-
+# Based on: <https://djangosnippets.org/snippets/290/>
 from django.conf import settings
 from django.db import connection
 
