@@ -265,10 +265,6 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 EMAIL_PORT = config("EMAIL_PORT", cast=int, default=587)
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool, default=True)
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="contato@brasil.io")
-if DEBUG:
-    EMAIL_FILE_PATH = MEDIA_ROOT
-else:
-    SENDGRID_API_KEY = config("SENDGRID_API_KEY")
 
 
 # Auth conf
