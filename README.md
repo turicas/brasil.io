@@ -2,51 +2,27 @@
 
 ![Django CI](https://github.com/turicas/brasil.io/workflows/Django%20CI/badge.svg)
 
-### O Problema
+Acesse os datasets disponíveis em <https://brasil.io/>.
 
-Muitos dados públicos brasileiros estão disponíveis (principalmente depois da
-criação da Lei de Acesso à Informação), mas não necessariamente acessíveis.
-Mesmo que a informação esteja disponível, nem sempre ela está disponível em um
-formato legível por máquina, ou utilizando um formato aberto, ou possui
-descrição (metadados) que facilitem a interpretação (manual ou automática)
-desses dados. **Quanto menos acessível é uma informação, mais perto de ser
-fechada ela está**.
+## Sobre o projeto
 
-Além do problema relativo à acessibilidade, não existe um lugar comum em que
-todos os dados disponíveis estejam organizados e catalogados, dificultando
-ainda mais o acesso (ou a descoberta que esse tipo de informação está
-disponível).
+Apesar de existirem diversas bases de dados públicas disponíveis no Brasil (principalmente depois da criação da [LAI - Lei de
+Acesso à Informação](https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2011/lei/l12527.htm)), nem sempre esses dados
+estão acessíveis. Se a informação não está em formato estruturado/legível por máquina, utilizando formatos abertos ou
+falta documentação (metadados) ela está mais próxima de ser fechada do que aberta.
 
-O objetivo do projeto não é concorrer com iniciativas correlatas do Governo
-(como o dados.gov.br) e de outras organizações -- pelo contrário, gostaríamos
-de disponibilizar os dados que essas organizações já disponibilizam, porém de
-forma integrada e estruturada, permitindo a qualquer um (independente de
-vínculo) possa disponibilizar dados, independente da fonte.
+O [Brasil.IO](https://brasil.io/) nasceu para resolver esse problema: **tornar dados abertos mais acessíveis**. Fazemos
+isso por meio da criação de programas que automatizam o processo de coleta, limpeza e enriquecimento dos dados (que
+chamamos de **libertação de dados**) e disponibilizando os dados para consulta e download. Além disso, fazemos
+ativismo, utilizando a LAI, para que tenhamos mais dados abertos disponíveis e com melhor qualidade.
 
 
-### A Solução
-
-O projeto Brasil.IO foi criado com o objetivo de ser referência para quem
-procura ou quer publicar dados abertos sobre o Brasil de forma organizada,
-legível por máquina e usando padrões abertos. O projeto foi idealizado e está
-sendo desenvolvido por Álvaro Justen, com a colaboração de outros
-desenvolvedores.
-
-
-### Colabore
-
-[![Entre em contato com o Brasil.IO por chat!](docs/chat-banner.png)](https://chat.brasil.io/)
+## Colabore
 
 Temos alguns documentos com instruções para te ajudar a colaborar com o projeto:
 
-- Veja [docs/dev-setup.md](docs/dev-setup.md) para configurar o projeto na sua máquina;
-- Veja [docs/import-data.md](docs/import-data.md) para importar os dados dos [diversos datasets](https://brasil.io/datasets/) do Brasil.io;
-- Veja [docs/dev-process.md](docs/dev-process.md) para dicas sobre como trabalhar em cima do código e sobre os padrões do projeto;
-- Veja [CONTRIBUTING.md](CONTRIBUTING.md) para mais detalhes sobre como montar seu pull request;
-
-## Deployment no Dokku
-
-Veja [docs/deploy-dokku.md](docs/deploy-dokku.md).
+- [docs/dev-setup.md](docs/dev-setup.md): configurar o projeto na sua máquina e importar alguns datasets;
+- [docs/deploy-dokku.md](docs/deploy-dokku.md): processo de deployment usando o Dokku.
 
 
 ### Licença

@@ -1,4 +1,6 @@
 {
+  "cron": [
+  ],
   "healthchecks": {
     "web": [
       {

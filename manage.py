@@ -2,13 +2,10 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-import warnings
 
 
 def main():
     """Run administrative tasks."""
-    warnings.filterwarnings("ignore", module="environ")  # disable missing .env warning
-
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
     try:
         from django.core.management import execute_from_command_line
