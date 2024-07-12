@@ -2,51 +2,65 @@
 
 {% block title %}Gerenciamento de Chaves API - Brasil.IO{% endblock %}
 
+{% if messages %}
+  {% block alert %}
+    {% for message in messages %}
+      {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+        {% with message=message|safe type="danger" %}
+          {% include 'includes/toast.html' %}
+        {% endwith %} 
+      {% else %}
+        {% with message=message|safe type="success" %}
+          {% include 'includes/toast.html' %}
+        {% endwith %} 
+      {% endif %}
+    {% endfor %}
+  {% endblock %}
+{% endif %}
+
 {% block content %}
 <div class="section">
-  <div class="row">
-      <div class="col s12">
-        <div class="card">
-          <div class="card-content">
-            <span class="card-title">Gerenciamento de Chaves da API</span>
-            Veja mais informações sobre o uso das Chaves da API <a href="{{ api_keys_blogpost_url }}">neste post do blog do Brasil.IO</a>.
-          </div>
-        </div>
+  <div class="row px-3">
+    <div class="card-info">
+      <div class="card-body">
+        <h1 class="card-title fs-3">Gerenciamento de Chaves da API</h1>
+        <p>
+          Veja mais informações sobre o uso das Chaves da API 
+          <a href="{{ api_keys_blogpost_url }}">neste post do blog do Brasil.IO</a>.
+        </p>
       </div>
+    </div>
   </div>
 
-  {% if messages %}
-  <div class="row">
-
-    <ul class="messages">
-        {% for message in messages %}
-        <li class={% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}"dark-red"{% else %}"dark-green"{% endif %}>{{ message|safe }}</li>
-        {% endfor %}
-    </ul>
-  </div>
-  {% endif %}
-
-  <div class="row table-container" style="padding-left: 0px; overflow: hidden;">
-    <table id="api-tokens-table" class="mdl-data-table table-custom">
-      <tr>
+  <div class="row px-3 table-container table-responsive">
+    <table id="api-tokens-table" class="table table-bordered table-striped table-hover shadow-sm">
+      <thead>
         <th>Chave</th>
         <th>Criada em</th>
         <th>Ações</th>
-      </tr>
+      </thead>
 
       {% for token in tokens %}
-        <tr>
+        <tr class="text-nowrap">
           <td><tt>{{ token.key }}</tt></td>
           <td>{{ token.created }}</td>
-          <td><a href="{% url 'brasilio_auth:delete_api_token' token.key %}">Deletar chave</a></td>
+          <td>
+            <a
+              href="{% url 'brasilio_auth:delete_api_token' token.key %}"
+              title="Deletar chave"
+              class="btn btn-danger p-1"
+            >
+              <i class="bi bi-trash"></i>
+            </a>
+          </td>
         </tr>
       {% endfor %}
     </table>
   </div>
   {% if num_tokens_available %}
-  <div class="row" style="text-align: right; display: block">
-    <a style="display: inline-block" class="btn download-button" href="{{ demo_url }}">Ver exemplo de uso</a>
-    <a style="display: inline-block" data-table-id="api-tokens-table" class="btn download-button" href="{% url 'brasilio_auth:create_api_token' %}">Criar nova Chave de API</a>
+  <div class="d-flex justify-content-end">
+    <a class="btn btn-outline-secondary me-2" href="{{ demo_url }}">Ver exemplo de uso</a>
+    <a class="btn btn-primary" data-table-id="api-tokens-table" href="{% url 'brasilio_auth:create_api_token' %}">Criar nova Chave de API</a>
   </div>
   {% endif %}
 </div>

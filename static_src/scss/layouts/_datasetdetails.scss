@@ -1,0 +1,12 @@
+.section-datasets {
+    @extend .container, .pt-2, .pb-4;
+}
+
+.section-breadcrumbs {
+    @extend .container, .py-2;
+
+    .breadcrumb {
+        @extend .mb-0;
+        font-weight: $fw-heavy;
+    }
+}

@@ -213,11 +213,7 @@ def make_aggregate(
     return data
 
 
-def dashboard(request, state=None):
-    if state is not None and not get_state_info(state):
-        raise Http404
-    if state:
-        state = state.upper()
+def country_state(request, state=None):
 
     country_aggregate = make_aggregate(
         reports=stats.total_reports,
@@ -250,13 +246,34 @@ def dashboard(request, state=None):
         state_id = state_name = None
         state_aggregate = None
 
+    result = {
+        "city_data": city_data,
+        "state_id": state_id,
+        "state_name": state_name,
+        "country_aggregate": country_aggregate,
+        "state_aggregate": state_aggregate,
+    }
+
+    return JsonResponse(result)
+
+
+def dashboard(request, state=None):
+    if state is not None and not get_state_info(state):
+        raise Http404
+    if state:
+        state = state.upper()
+
+    if state:
+        state_data = STATE_BY_ACRONYM[state]
+        state_id = state_data.ibge_code
+        state_name = state_data.name
+    else:
+        state_id = state_name = None
+
     return render(
         request,
         "covid19/dashboard.html",
         {
-            "country_aggregate": country_aggregate,
-            "state_aggregate": state_aggregate,
-            "city_data": city_data,
             "state": state,
             "state_id": state_id,
             "city_slug": None,  # TODO: change
