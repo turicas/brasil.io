@@ -3,24 +3,22 @@
 {% block title %}Gerar nova Chave de API - Brasil.IO{% endblock %}
 
 {% block content %}
-<div class="section">
-  <div class="row">
-      <div class="col s12">
-        <div class="card">
-          <div class="card-content">
-            <span class="card-title">Nova Chave de API</span>
-            <p>Confirme no botão abaixo a criação de uma nova chave de API.</p>
-            <p>Você pode criar até <b>{{ num_tokens_available }}</b> chaves.</p>
-          </div>
-        </div>
-      </div>
+<div class="section px-3">
+  <div class="card-info">
+    <div class="card-body">
+      <h1 class="card-title fs-3">Nova Chave de API</h1>
+      <p>
+        Confirme no botão abaixo a criação de uma nova chave de API.
+        Você pode criar até <b>{{ num_tokens_available }}</b> chaves.
+      </p>
+    </div>
   </div>
 
   <div class="row table-container" style="padding-left: 0px; overflow: hidden;">
     <form action="." method="POST">
       {% csrf_token %}
       {{ form.as_p }}
-      <input class="btn" type="submit" value="Gerar nova chave">
+      <input class="btn btn-primary btn-lg" type="submit" value="Gerar nova chave">
     </form>
   </div>
 </div>

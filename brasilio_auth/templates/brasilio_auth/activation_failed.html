@@ -1,13 +1,13 @@
-{% extends "base.html" %}
+{% extends "brasilio_auth/auth_base.html" %}
 
-{% block content %}
-  <div class="row m-t-15 center">
-    <div class="col s12 m8 p8 offset-m2">
-      <h4>Houve um erro na ativação</h4>
-      <p>Parece que ocorreu algum erro na ativação da sua conta. Por favor tente refazer o processo de cadastro novamente</p>
+{% block cardtitle %}
+  Houve um erro na ativação
+{% endblock %}
 
-      <p>Informações sobre o ocorrido: <b>{{ activation_error.message }}</b>.</p>
-
-    </div>
+{% block cardcontent %}
+  <p>Parece que ocorreu algum erro na ativação da sua conta. Por favor tente refazer o processo de cadastro novamente</p>
+  <p>Informações sobre o ocorrido: <b>{{ activation_error.message }}</b>.</p>
+  <div class="mt-4">
+    <a href="{% url 'brasilio_auth:sign_up' %}" class="auth-btn">Refazer cadastro</a>
   </div>
 {% endblock %}

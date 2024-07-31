@@ -1,0 +1,95 @@
+.section-dashboard {
+    @extend .container, .py-1;
+}
+
+.leaflet-container {
+    @extend .bg-secondary-subtle;
+}
+
+.info.legend.leaflet-control {
+    @extend .bg-body;
+}
+
+.leaflet-control-container .leaflet-bottom .leaflet-left .info .legend .leaflet-control {
+    @extend .d-flex, .flex-column;
+}
+
+.info .legend .leaflet-control {
+    @extend .text-body;
+}
+
+.container-map-table {
+    @extend .container, .py-2;
+}
+
+@include media-breakpoint-up(xxxl) {
+    .container-map-table,
+    .charts {
+        max-width: 2300px;
+    }
+}
+
+.card-dashboard {
+    @extend .card, .shadow-sm, .border-0, .text-body;
+}
+
+#map {
+    margin-top: -40px;
+    min-height: 850px;
+}
+
+.charts {
+    @extend .container-map-table;
+    .card {
+        height: 500px;
+        .chart {
+            height: 400px;
+        }
+    }
+}
+
+.info {
+    padding: 6px 8px;
+    font: 14px/16px sans-serif;
+    background: white;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    h4 {
+        @extend .text-body;
+        margin: 0 0 5px;
+    }
+}
+
+.legend {
+    i {
+        width: 18px;
+        line-height: inherit;
+        margin-right: 8px;
+        display: inline-block;
+        height: 18px;
+    }
+
+    > label {
+        @extend .text-body;
+    }
+
+    > input {
+        @extend .text-body;
+        font-size: 1em;
+    }
+}
+
+#loading {
+    position: relative;
+    z-index: 999;
+    margin-bottom: 0px;
+    margin-left: 50px;
+    height: 40px;
+    padding-top: 10px;
+
+    > span > img {
+        width: 20px;
+        height: 20px;
+    }
+}

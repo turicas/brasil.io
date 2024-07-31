@@ -1,42 +1,38 @@
-var dt;
+$(document).ready(function () {
 
-jQuery(document).ready(function() {
-  if (selectedStateId === undefined) {
-    var columns = [
-      { "width": "14%" },
-      { "width": "22%" },
-      { "width": "14%" },
-      { "width": "10%" },
-      { "width": "10%" },
-      { "width": "10%" },
-      { "width": "10%" },
-      { "width": "10%" }
-    ];
-  }
-  else {
-    var columns = [
-      { "width": "20%" },
-      { "width": "30%" },
-      { "width": "10%" },
-      { "width": "10%" },
-      { "width": "10%" },
-      { "width": "10%" },
-      { "width": "10%" }
-    ];
-  }
-  dt = jQuery('.mdl-data-table').DataTable({
-    "autoWidth": false,
-    "columns": columns,
-    "scrollY":        "600px",
-    "scrollX": true,
-    "scrollCollapse": true,
-    "paging":         false,
-    "searching":      true,
-    "bInfo":          false,
-    "order": [3, "desc"],
-    "language": {
-      search: "Buscar:",
-      searchPlaceholder: "Digite seu município aqui",
-    },
-  });
+  $('.table').DataTable(
+    {
+      language: {
+        url: dashVars.dataTablesPtBR
+      },
+      ajax: {
+        url: request,
+        dataSrc: "city_data"
+      },
+      columns: [
+        { title: "Data", data: "date", type: "date" },
+        { title: "Munincípio", data: "city" },
+        { title: "UF", data: "state", visible: state != "None" ? false : true },
+        { title: "Confirmados", data: "confirmed" },
+        { title: "Confirmado por 100k hab.", data: "confirmed_per_100k_inhabitants" },
+        { title: "Óbitos", data: "deaths" },
+        { title: "Letalidade", data: "death_rate_percent", },
+        { title: "Óbitos por 100k hab.", data: "deaths_per_100k_inhabitants" },
+      ],
+      "columnDefs": [
+        {
+          "targets": [6],
+          "render": function (data, type, row, meta) {
+            return formatter.format(data) + "%";
+          }
+        },
+        {
+          "targets": [4, 3, 5, 7],
+          "render": function (data, type, row, meta) {
+            return data.toLocaleString("pt-BR");
+          }
+        }
+      ]
+    }
+  );
 });

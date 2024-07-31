@@ -70,6 +70,7 @@ class MultiLineChart {
         },
       },
       maintainAspectRatio: false,
+      responsive: true,
       scales: {
         yAxes: this.yAxes(),
         xAxes: this.xAxes(),
