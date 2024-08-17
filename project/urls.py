@@ -8,6 +8,7 @@ urlpatterns = [
     path("api/", include("project.api_urls")),
     path("auth/", include("brasilio_auth.urls", namespace="brasilio_auth")),
     path("covid19/", include("covid19.urls", namespace="covid19")),
+    path("elections/", include("elections.urls", namespace="elections")),
     path("clipping/", include("clipping.urls")),
     path("django-rq/", include("django_rq.urls")),
     path("markdownx/", include("markdownx.urls")),

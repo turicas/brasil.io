@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     "dashboard",
     "traffic_control",
     "clipping",
+    "elections",
 ]
 
 MIDDLEWARE = [
