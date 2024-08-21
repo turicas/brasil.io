@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "sorl.thumbnail",
     "storages",
+    "django_filters",
     # Project apps
     "api",
     "core",

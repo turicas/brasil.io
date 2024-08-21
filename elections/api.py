@@ -23,9 +23,9 @@ class CandidacyDetailAPIView(APIView):
         return Candidacy.objects.all()
 
     def get(self, request, *args, **kwargs):
-        candidacy = get_object_or_404(Candidacy)
+        candidacy = get_object_or_404(Candidacy, id=kwargs["pk"])
         serializer = DetailCandidacySerializer(candidacy)
-        return Response(data=dict())
+        return Response(data=serializer.data)
 
 
 class CandidacyListAPIView(ListAPIView):
