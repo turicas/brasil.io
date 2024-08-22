@@ -6,3 +6,6 @@ def example(request, state=None):
 
 def politic(request, state=None):
     return render(request, "politic.html", {})
+
+def home(request, state=None):
+    return render(request, "home.html", {})

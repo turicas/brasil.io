@@ -6,4 +6,5 @@ app_name = "election"
 urlpatterns = [
     path("", views.example, name="example"),
     path("politic/", views.politic, name="politic"),
+    path("home/", views.home, name="home"),
 ]
