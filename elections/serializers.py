@@ -34,4 +34,9 @@ class ListCandidacySerializer(serializers.ModelSerializer):
         fields = ("path", "name", "year")
 
     def get_path(self, obj):
-        return f"{obj.ano}/{obj.sigla_unidade_federativa}/{obj.cargo}/{slugify(obj.nome_urna)}/"
+        return (
+            f"{obj.ano}/"
+            f"{obj.sigla_unidade_federativa.lower()}/"
+            f"{slugify(obj.cargo)}/"
+            f"{slugify(obj.nome_urna)}/"
+        )
