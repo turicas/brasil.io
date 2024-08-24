@@ -1,5 +1,6 @@
 import pytest
 from django.urls import reverse
+from django.utils.text import slugify
 from model_bakery import baker
 
 from elections.models import Candidacy
@@ -42,12 +43,22 @@ class TestListCandidacy:
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
-                "id": candidacy_1.id,
+                "path": (
+                    f"{candidacy_1.ano}/"
+                    f"{candidacy_1.sigla_unidade_federativa}/"
+                    f"{candidacy_1.cargo}/"
+                    f"{slugify(candidacy_1.nome_urna)}/"
+                ),
                 "name": candidacy_1.nome,
                 "year": candidacy_1.ano,
             },
             {
-                "id": candidacy_2.id,
+                "path": (
+                    f"{candidacy_2.ano}/"
+                    f"{candidacy_2.sigla_unidade_federativa}/"
+                    f"{candidacy_2.cargo}/"
+                    f"{slugify(candidacy_2.nome_urna)}/"
+                ),
                 "name": candidacy_2.nome,
                 "year": candidacy_2.ano,
             },
@@ -64,12 +75,22 @@ class TestListCandidacy:
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
-                "id": candidacies_2023[0].id,
+                "path": (
+                    f"{candidacies_2023[0].ano}/"
+                    f"{candidacies_2023[0].sigla_unidade_federativa}/"
+                    f"{candidacies_2023[0].cargo}/"
+                    f"{slugify(candidacies_2023[0].nome_urna)}/"
+                ),
                 "name": candidacies_2023[0].nome,
                 "year": candidacies_2023[0].ano,
             },
             {
-                "id": candidacies_2023[1].id,
+                "path": (
+                    f"{candidacies_2023[1].ano}/"
+                    f"{candidacies_2023[1].sigla_unidade_federativa}/"
+                    f"{candidacies_2023[1].cargo}/"
+                    f"{slugify(candidacies_2023[1].nome_urna)}/"
+                ),
                 "name": candidacies_2023[1].nome,
                 "year": candidacies_2023[1].ano,
             },
@@ -97,12 +118,22 @@ class TestListCandidacy:
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
-                "id": candidacies_2023_rj_1.id,
+                "path": (
+                    f"{candidacies_2023_rj_1.ano}/"
+                    f"{candidacies_2023_rj_1.sigla_unidade_federativa}/"
+                    f"{candidacies_2023_rj_1.cargo}/"
+                    f"{slugify(candidacies_2023_rj_1.nome_urna)}/"
+                ),
                 "name": candidacies_2023_rj_1.nome,
                 "year": candidacies_2023_rj_1.ano,
             },
             {
-                "id": candidacies_2023_rj_2.id,
+                "path": (
+                    f"{candidacies_2023_rj_2.ano}/"
+                    f"{candidacies_2023_rj_2.sigla_unidade_federativa}/"
+                    f"{candidacies_2023_rj_2.cargo}/"
+                    f"{slugify(candidacies_2023_rj_2.nome_urna)}/"
+                ),
                 "name": candidacies_2023_rj_2.nome,
                 "year": candidacies_2023_rj_2.ano,
             },
@@ -119,7 +150,12 @@ class TestListCandidacy:
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
-                "id": candidacies_2024.id,
+                "path": (
+                    f"{candidacies_2024.ano}/"
+                    f"{candidacies_2024.sigla_unidade_federativa}/"
+                    f"{candidacies_2024.cargo}/"
+                    f"{slugify(candidacies_2024.nome_urna)}/"
+                ),
                 "name": candidacies_2024.nome,
                 "year": candidacies_2024.ano,
             },
