@@ -7,8 +7,10 @@ class Candidacy(models.Model):
 
     ano = models.SmallIntegerField(null=True, blank=True)
     cargo = models.TextField(max_length=31, null=True, blank=True)
+    cargo_slug = models.SlugField(null=True, blank=True)
     nome = models.TextField(null=True, blank=True)
     nome_urna = models.TextField(max_length=31, null=True, blank=True)
+    nome_urna_slug = models.SlugField(null=True, blank=True)
     genero = models.TextField(null=True, blank=True)
     data_nascimento = models.TextField(null=True, blank=True)
     numero_sequencial = models.TextField(max_length=15, null=True, blank=True)
