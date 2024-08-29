@@ -18,7 +18,7 @@ def example(request, state=None):
     if request.GET.get("format") == "json":
         return JsonResponse(data=serializer.data, safe=False)
 
-    return render(request, "elections.html", context=serializer.data)
+    return render(request, "elections.html", context={"results": serializer.data})
 
 
 def politic(request, ano, uf, cargo, nome):
