@@ -29,4 +29,3 @@ class Candidacy(models.Model):
 
     def __str__(self):
         return f"{self.nome_urna} - {self.cargo} / {self.ano} "
-

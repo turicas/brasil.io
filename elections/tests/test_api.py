@@ -142,6 +142,135 @@ class TestListCandidacy:
         assert resp.status_code == 200
         assert resp.json()["results"] == expected_data
 
+    def test_get_list_candidacy_filter_by_cargo_slug(self, client, settings):
+        baker.make(Candidacy, cargo_slug="deputado-estadual", _quantity=2, _fill_optional=True)
+        candidacies_2023_rj_1 = baker.make(
+            Candidacy,
+            ano=2024,
+            cargo_slug="senado",
+            _fill_optional=True,
+        )
+        candidacies_2023_rj_2 = baker.make(
+            Candidacy,
+            ano=2023,
+            cargo_slug="senado",
+            _fill_optional=True,
+        )
+
+        url = reverse(self.url_name) + "?cargo=senado"
+        resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
+        expected_data = [
+            {
+                "path": (
+                    f"{candidacies_2023_rj_1.ano}/"
+                    f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
+                    f"{slugify(candidacies_2023_rj_1.cargo)}/"
+                    f"{slugify(candidacies_2023_rj_1.nome_urna)}/"
+                ),
+                "name": candidacies_2023_rj_1.nome,
+                "year": candidacies_2023_rj_1.ano,
+            },
+            {
+                "path": (
+                    f"{candidacies_2023_rj_2.ano}/"
+                    f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
+                    f"{slugify(candidacies_2023_rj_2.cargo)}/"
+                    f"{slugify(candidacies_2023_rj_2.nome_urna)}/"
+                ),
+                "name": candidacies_2023_rj_2.nome,
+                "year": candidacies_2023_rj_2.ano,
+            },
+        ]
+
+        assert resp.status_code == 200
+        assert resp.json()["results"] == expected_data
+
+    def test_get_list_candidacy_filter_by_partido(self, client, settings):
+        baker.make(Candidacy, sigla_partido="aaa", _quantity=2, _fill_optional=True)
+        candidacies_2023_rj_1 = baker.make(
+            Candidacy,
+            ano=2024,
+            sigla_partido="ppp",
+            _fill_optional=True,
+        )
+        candidacies_2023_rj_2 = baker.make(
+            Candidacy,
+            ano=2023,
+            sigla_partido="PPP",
+            _fill_optional=True,
+        )
+
+        url = reverse(self.url_name) + "?partido=ppp"
+        resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
+        expected_data = [
+            {
+                "path": (
+                    f"{candidacies_2023_rj_1.ano}/"
+                    f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
+                    f"{slugify(candidacies_2023_rj_1.cargo)}/"
+                    f"{slugify(candidacies_2023_rj_1.nome_urna)}/"
+                ),
+                "name": candidacies_2023_rj_1.nome,
+                "year": candidacies_2023_rj_1.ano,
+            },
+            {
+                "path": (
+                    f"{candidacies_2023_rj_2.ano}/"
+                    f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
+                    f"{slugify(candidacies_2023_rj_2.cargo)}/"
+                    f"{slugify(candidacies_2023_rj_2.nome_urna)}/"
+                ),
+                "name": candidacies_2023_rj_2.nome,
+                "year": candidacies_2023_rj_2.ano,
+            },
+        ]
+
+        assert resp.status_code == 200
+        assert resp.json()["results"] == expected_data
+
+    def test_get_list_candidacy_filter_by_text(self, client, settings):
+        baker.make(Candidacy, nome="Paulo Silva", _quantity=2, _fill_optional=True)
+        candidacies_2023_rj_1 = baker.make(
+            Candidacy,
+            ano=2024,
+            nome_urna="João do 42",
+            _fill_optional=True,
+        )
+        candidacies_2023_rj_2 = baker.make(
+            Candidacy,
+            ano=2023,
+            nome_urna="João Graça",
+            _fill_optional=True,
+        )
+
+        url = reverse(self.url_name) + "?q=joao"
+        resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
+        expected_data = [
+            {
+                "path": (
+                    f"{candidacies_2023_rj_1.ano}/"
+                    f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
+                    f"{slugify(candidacies_2023_rj_1.cargo)}/"
+                    f"{slugify(candidacies_2023_rj_1.nome_urna)}/"
+                ),
+                "name": candidacies_2023_rj_1.nome,
+                "year": candidacies_2023_rj_1.ano,
+            },
+            {
+                "path": (
+                    f"{candidacies_2023_rj_2.ano}/"
+                    f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
+                    f"{slugify(candidacies_2023_rj_2.cargo)}/"
+                    f"{slugify(candidacies_2023_rj_2.nome_urna)}/"
+                ),
+                "name": candidacies_2023_rj_2.nome,
+                "year": candidacies_2023_rj_2.ano,
+            },
+        ]
+
+        assert resp.status_code == 200
+        assert resp.json()["results"] == expected_data
+
     def test_get_list_candidacy_paginate(self, client, settings):
         baker.make(Candidacy, ano=2023, _quantity=2, _fill_optional=True)
         candidacies_2024 = baker.make(Candidacy, ano=2024, _fill_optional=True)
