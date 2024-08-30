@@ -11,7 +11,7 @@
   >BUSCA</div>
 </section>
 <section class="container my-5 pb-5">
-  <h1 class="fw-normal">Timothy James Walz</h1>
+  <h1 class="fw-normal">{{ nome|lower|capfirst }}</h1>
   <div class="d-flex align-items-center border-top-custom" style="font-weight: 500">
     <span>ELEIÇÕES</span>
     <ul class="nav">
@@ -31,10 +31,10 @@
   </div>
   <article class="d-flex gap-2 flex-column mb-4 fs-5">
     <div>
-      <span class="fw-semibold">Cargo:</span> <span>Vice-Prefeito</span>
+      <span class="fw-semibold">Cargo:</span> <span>{{ cargo|lower|capfirst }}</span>
     </div>
     <div>
-      <span class="fw-semibold">Localidade:</span> <span>Vila Bela Da Santíssima Trindade (MT)</span>
+      <span class="fw-semibold">Localidade:</span> <span>- - -</span>
     </div>
   </article>
   <div class="row g-2">
@@ -42,33 +42,33 @@
       <div class="card overflow-x-scroll" style="max-height: calc(100vh - 50px)">
         <div class="card-body d-flex flex-column justify-content-center">
           <img
-            src="{% static 'img/politics/tim.jpg' %}"
+            src="{% static 'img/politics/default-avatar.jpg' %}"
             class="rounded-circle mx-auto d-block"
-            alt="tim foto candidato"
-            style="max-width: 290px; width: 100%;"
+            alt="foto candidato"
+            style="max-width: 290px; width: 100%; min-height: 239px;"
           >
           <article class="d-flex flex-column align-items-center mt-4">
             <h2 class="fs-5 mb-3">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-box" viewBox="0 0 16 16">
                 <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5 8 5.961 14.154 3.5zM15 4.239l-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
               </svg>
-              PC do B <strong>88</strong></h2>
+              {{ sigla_partido }} <strong>{{ numero_sequencial }}</strong></h2>
             <div class="d-flex flex-column gap-1 mb-4 small">
               <div>
                 <span class="fw-semibold">Coligação:</span>
-                <span>PT, PSDB, PSTU e PSOL</span>
+                <span>{{ composicao_legenda }}</span>
               </div>
               <div>
                 <span class="fw-semibold">Situação da candidatura:</span>
-                <span class="badge rounded-pill text-bg-dark fw-normal">Indeferida</span>
+                <span class="badge rounded-pill text-bg-dark fw-normal">{{ situacao|lower|capfirst }}</span>
               </div>
               <div>
                 <span class="fw-semibold">Nascimento:</span>
-                <span>06/08/1964 (60 anos)</span>
+                <span>{{ data_nascimento }} (-- anos)</span>
               </div>
               <div>
                 <span class="fw-semibold">Gênero:</span>
-                <span>Masculino</span>
+                <span>{{ genero|lower|capfirst }}</span>
               </div>
               <p class="text-secondary mt-2 mb-0">[Disclaimer] texto editorial (não automático) que pode ser usado caso seja necessário adicionar alguma infirmação sobre a candidatura</p>
             </div>
