@@ -152,26 +152,39 @@
             O Portal das Eleições Brasil.IO não se responsabiliza por eventuais erros ou omissões nos dados, que refletem as informações originais fornecidas pelos órgãos públicos.
           </div>
           <section class="d-flex flex-column flex-lg-row py-4 mt-auto justify-content-between align-items-center">
-            <div>
-              <div class="navbar-brand py-0 d-flex justify-content-center align-items-center">
-                <img
-                  src="{% static 'img/logo/logo_br-io_fundo-escuro-no-text.svg' %}"
-                  alt="Brasil.io logo"
-                  width="30px"
-                />
-                <span class="fs-6 ms-2">Brasil.io</span>
+            <div class="d-flex flex-column flex-lg-row gap-2 align-items-center">
+              <div>
+                <div class="navbar-brand py-0 d-flex justify-content-center align-items-center">
+                  <img
+                    src="{% static 'img/logo/logo_br-io_fundo-escuro-no-text.svg' %}"
+                    alt="Brasil.io logo"
+                    width="30px"
+                  />
+                  <span class="fs-6 ms-2">Brasil.io</span>
+                </div>
+                <span class="fw-light">Portal das Eleições</span>
               </div>
-              <span class="fw-light">Portal das Eleições</span>
+              <div class="ms-lg-3 d-flex gap-3">
+                <i class="bi bi-twitter fs-4"></i>
+                <i class="bi bi-github fs-4"></i>
+              </div>
             </div>
             <ul class="nav justify-content-center">
               <li class="nav-item"><a href="#" class="nav-link link-light px-2 fw-bold">Home</a></li>
               <li class="nav-item"><a href="#" class="nav-link link-light px-2">Features</a></li>
               <li class="nav-item"><a href="#" class="nav-link link-light px-2">About</a></li>
             </ul>
-            <div class="d-flex gap-2 align-items-center">
-              <i class="bi bi-twitter fs-5"></i>
-              <i class="bi bi-github fs-5"></i>
-              <div>2024</div>
+            <div class="d-flex flex-column-reverse flex-lg-row gap-2 align-items-center">
+              <div class="me-lg-3">2024</div>
+              <a
+                href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt-br"
+                class="d-flex gap-2 align-items-center"
+                target="_blank"
+              >
+                <img src="{% static 'img/cc.svg' %}" alt="cc logo" width="30px"/>
+                <img src="{% static 'img/by.svg' %}" alt="by logo" width="30px"/>
+                <img src="{% static 'img/sa.svg' %}" alt="sa logo" width="30px"/>
+              </a>
             </div>
           </section>
         </footer>
