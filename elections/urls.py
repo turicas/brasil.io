@@ -3,7 +3,7 @@ from django.urls import path
 from . import views
 from elections.api import CandidacyDetailAPIView, CandidacyListAPIView
 
-app_name = "election"
+app_name = "elections"
 
 urlpatterns = [
     path("api/candidacy/", CandidacyListAPIView.as_view(), name="api_candidacy_list"),
