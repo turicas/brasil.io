@@ -8,7 +8,8 @@ from elections.serializers import DetailCandidacySerializer, ListCandidacySerial
 
 
 def candidacy_list(request):
-    page_size = 10
+    # TODO: safe coercion
+    page_size = int(request.GET.get("page_size", 10))
     filter_set = CandidacyFilterSet(request.GET, queryset=Candidacy.objects.all())
     paginator = Paginator(filter_set.qs, page_size)
     page = request.GET.get("page", 1)
@@ -16,7 +17,7 @@ def candidacy_list(request):
     serializer = ListCandidacySerializer(objs, many=True)
 
     if request.GET.get("format") == "json":
-        return JsonResponse(data=serializer.data, safe=False)
+        return JsonResponse(data={"results": serializer.data}, safe=False)
 
     return render(request, "elections.html", context={"results": serializer.data})
 

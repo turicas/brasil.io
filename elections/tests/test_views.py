@@ -8,7 +8,7 @@ from elections.models import Candidacy
 
 @pytest.mark.django_db
 class TestDetailCandidacy:
-    url_name = "election:candidacy_detail"
+    url_name = "election:api_candidacy_detail"
     http_user_agent = "test"
 
     def test_get_detail_candidacy(self, client, settings):
@@ -41,6 +41,88 @@ class TestDetailCandidacy:
 
 
 @pytest.mark.django_db
+class TestDetailCandidacyView:
+    url_name = "election:candidacy_detail"
+    http_user_agent = "test"
+
+    def test_get_detail_candidacy(self, client, settings):
+        candidacy = baker.make(
+            Candidacy,
+            data_nascimento="1981-01-12",
+            ano="2024",
+            cargo_slug="deputado",
+            nome_urna_slug="joao-graca",
+            sigla_unidade_federativa="rj",
+            _fill_optional=True
+        )
+
+        url = reverse(
+            self.url_name,
+            kwargs={
+                "ano": candidacy.ano,
+                "uf": candidacy.sigla_unidade_federativa,
+                "cargo": candidacy.cargo_slug,
+                "nome": candidacy.nome_urna_slug,
+            }
+        ) + "?format=json"
+        resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
+        expected_data = {"data_nascimento": "12/01/1981"}
+
+        assert resp.status_code == 200
+        assert resp.json()["data_nascimento"] == expected_data["data_nascimento"]
+
+    def test_get_detail_candidacy_wrong_data_nascimento_format(self, client, settings):
+        candidacy = baker.make(
+            Candidacy,
+            data_nascimento="1981-01",
+            ano="2024",
+            cargo_slug="deputado",
+            nome_urna_slug="joao-graca",
+            sigla_unidade_federativa="rj",
+            _fill_optional=True
+        )
+
+        url = reverse(
+            self.url_name,
+            kwargs={
+                "ano": candidacy.ano,
+                "uf": candidacy.sigla_unidade_federativa,
+                "cargo": candidacy.cargo_slug,
+                "nome": candidacy.nome_urna_slug,
+            }
+        ) + "?format=json"
+        resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
+        expected_data = {"data_nascimento": None}
+
+        assert resp.status_code == 200
+        assert resp.json()["data_nascimento"] == expected_data["data_nascimento"]
+
+    def test_get_detail_candidacy_not_found(self, client, settings):
+        candidacy = baker.make(
+            Candidacy,
+            data_nascimento="1981-01",
+            ano="2024",
+            cargo_slug="deputado",
+            nome_urna_slug="joao-graca",
+            sigla_unidade_federativa="rj",
+            _fill_optional=True
+        )
+
+        url = reverse(
+            self.url_name,
+            kwargs={
+                "ano": candidacy.ano + "1",
+                "uf": candidacy.sigla_unidade_federativa,
+                "cargo": candidacy.cargo_slug,
+                "nome": candidacy.nome_urna_slug,
+            }
+        ) + "?format=json"
+        resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
+
+        assert resp.status_code == 404
+
+
+@pytest.mark.django_db
 class TestListCandidacy:
     url_name = "election:candidacy_list"
     http_user_agent = "test"
@@ -49,7 +131,7 @@ class TestListCandidacy:
         candidacy_1 = baker.make(Candidacy, ano=2024, _fill_optional=True)
         candidacy_2 = baker.make(Candidacy, ano=2023, _fill_optional=True)
 
-        url = reverse(self.url_name)
+        url = reverse(self.url_name) + "?format=json"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
@@ -81,7 +163,7 @@ class TestListCandidacy:
         baker.make(Candidacy, ano=2024, _quantity=2, _fill_optional=True)
         candidacies_2023 = baker.make(Candidacy, ano=2023, _quantity=2, _fill_optional=True)
 
-        url = reverse(self.url_name) + "?ano=2023"
+        url = reverse(self.url_name) + "?format=json&ano=2023"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
@@ -124,7 +206,7 @@ class TestListCandidacy:
             _fill_optional=True,
         )
 
-        url = reverse(self.url_name) + "?uf=rj"
+        url = reverse(self.url_name) + "?format=json&uf=rj"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
@@ -167,7 +249,7 @@ class TestListCandidacy:
             _fill_optional=True,
         )
 
-        url = reverse(self.url_name) + "?cargo=senado"
+        url = reverse(self.url_name) + "?format=json&cargo=senado"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
@@ -210,7 +292,7 @@ class TestListCandidacy:
             _fill_optional=True,
         )
 
-        url = reverse(self.url_name) + "?partido=ppp"
+        url = reverse(self.url_name) + "?format=json&partido=ppp"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
@@ -253,7 +335,7 @@ class TestListCandidacy:
             _fill_optional=True,
         )
 
-        url = reverse(self.url_name) + "?q=joao&t=name"
+        url = reverse(self.url_name) + "?format=json&q=joao&t=name"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
@@ -297,7 +379,7 @@ class TestListCandidacy:
             _fill_optional=True,
         )
 
-        url = reverse(self.url_name) + "?q=rio&t=city"
+        url = reverse(self.url_name) + "?format=json&q=rio&t=city"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
@@ -341,7 +423,7 @@ class TestListCandidacy:
             _fill_optional=True,
         )
 
-        url = reverse(self.url_name) + "?q=rio"
+        url = reverse(self.url_name) + "?format=json&q=rio"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
@@ -373,7 +455,7 @@ class TestListCandidacy:
         baker.make(Candidacy, ano=2023, _quantity=2, _fill_optional=True)
         candidacies_2024 = baker.make(Candidacy, ano=2024, _fill_optional=True)
 
-        url = reverse(self.url_name) + "?page=1&page_size=1"
+        url = reverse(self.url_name) + "?format=json&page=1&page_size=1"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
