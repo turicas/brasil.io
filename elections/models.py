@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class Candidacy(models.Model):
@@ -30,3 +31,14 @@ class Candidacy(models.Model):
 
     def __str__(self):
         return f"{self.nome_urna} - {self.cargo} / {self.ano} "
+
+
+class CandidacyMetadata(models.Model):
+    data = models.JSONField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ("-created_at",)
+
+    def __str__(self):
+        return f"Candidacy Metadata: {self.created_at}"
