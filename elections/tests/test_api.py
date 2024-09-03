@@ -12,14 +12,24 @@ class TestDetailCandidacy:
     http_user_agent = "test"
 
     def test_get_detail_candidacy(self, client, settings):
-        candidacy = baker.make(Candidacy, _fill_optional=True)
+        candidacy = baker.make(Candidacy, data_nascimento="1981-01-12", _fill_optional=True)
 
         url = reverse(self.url_name, kwargs={"pk": candidacy.pk})
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
-        # expected_data = {}
+        expected_data = {"data_nascimento": "12/01/1981"}
 
         assert resp.status_code == 200
-        # assert resp.json() == expected_data
+        assert resp.json()["data_nascimento"] == expected_data["data_nascimento"]
+
+    def test_get_detail_candidacy_wrong_data_nascimento_format(self, client, settings):
+        candidacy = baker.make(Candidacy, data_nascimento="1981-01", _fill_optional=True)
+
+        url = reverse(self.url_name, kwargs={"pk": candidacy.pk})
+        resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
+        expected_data = {"data_nascimento": None}
+
+        assert resp.status_code == 200
+        assert resp.json()["data_nascimento"] == expected_data["data_nascimento"]
 
     def test_get_detail_candidacy_not_found(self, client, settings):
         candidacy = baker.make(Candidacy)

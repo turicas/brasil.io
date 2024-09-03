@@ -8,6 +8,7 @@ from elections.models import Candidacy
 
 class DetailCandidacySerializer(serializers.ModelSerializer):
     age = serializers.SerializerMethodField()
+    data_nascimento = serializers.SerializerMethodField()
 
     class Meta:
         model = Candidacy
@@ -22,6 +23,15 @@ class DetailCandidacySerializer(serializers.ModelSerializer):
             return None
 
         return age
+
+    def get_data_nascimento(self, obj):
+        try:
+            dt = datetime.strptime(obj.data_nascimento, "%Y-%m-%d")
+            dt = dt.strftime("%d/%m/%Y")
+        except ValueError:
+            dt = None
+
+        return dt
 
 
 class ListCandidacySerializer(serializers.ModelSerializer):
