@@ -7,7 +7,7 @@ from elections.models import Candidacy
 from elections.serializers import DetailCandidacySerializer, ListCandidacySerializer
 
 
-def example(request, state=None):
+def candidacy_list(request):
     page_size = 10
     filter_set = CandidacyFilterSet(request.GET, queryset=Candidacy.objects.all())
     paginator = Paginator(filter_set.qs, page_size)

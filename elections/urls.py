@@ -8,7 +8,7 @@ app_name = "election"
 urlpatterns = [
     path("api/candidacy/", CandidacyListAPIView.as_view(), name="candidacy_list"),
     path("api/candidacy/<int:pk>/", CandidacyDetailAPIView.as_view(), name="candidacy_detail"),
-    path("index/", views.example, name="example"),
+    path("index/", views.candidacy_list, name="example"),
     path("politic/<int:ano>/<str:uf>/<str:cargo>/<str:nome>/", views.politic, name="politic"),
     path("home/", views.home, name="home"),
 ]
