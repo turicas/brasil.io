@@ -20,7 +20,7 @@ def candidacy_list(request):
     if request.GET.get("format") == "json":
         return JsonResponse(data={"results": serializer.data, "metadata": metadata}, safe=False)
 
-    return render(request, "elections.html", context={"results": serializer.data})
+    return render(request, "elections/elections.html", context={"results": serializer.data})
 
 
 def politic(request, ano, uf, cargo, nome):
@@ -35,8 +35,8 @@ def politic(request, ano, uf, cargo, nome):
     if request.GET.get("format") == "json":
         return JsonResponse(data=serializer.data)
 
-    return render(request, "politic.html", context=serializer.data)
+    return render(request, "elections/politic.html", context=serializer.data)
 
 
 def home(request, state=None):
-    return render(request, "home.html", {})
+    return render(request, "elections/home.html", {})
