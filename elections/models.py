@@ -20,6 +20,7 @@ class Candidacy(models.Model):
     totalizacao_turno = models.TextField(max_length=16, null=True, blank=True)
     unidade_eleitoral = models.TextField(max_length=32, null=True, blank=True)
     situacao = models.TextField(max_length=15, null=True, blank=True)
+    municipio = models.TextField(null=True, blank=True)
 
     class Meta:
         ordering = ["-ano"]

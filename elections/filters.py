@@ -16,7 +16,13 @@ class CandidacyFilterSet(django_filters.FilterSet):
         fields = ("ano", "uf", "cargo", "partido",)
 
     def full_search(self, queryset, name, value):
-        return queryset.filter(
-            models.Q(nome_urna__unaccent__icontains=value)
-            | models.Q(nome__unaccent__icontains=value)  # noqa
-        )
+        # Check filter field
+        if self.data.get("t") == "name":
+            query_filter = (
+                models.Q(nome_urna__unaccent__icontains=value)
+                | models.Q(nome__unaccent__icontains=value)  # noqa
+            )
+        else:
+            query_filter = models.Q(municipio__unaccent__icontains=value)
+
+        return queryset.filter(query_filter)

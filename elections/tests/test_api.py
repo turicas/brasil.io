@@ -238,7 +238,7 @@ class TestListCandidacy:
         assert resp.status_code == 200
         assert resp.json()["results"] == expected_data
 
-    def test_get_list_candidacy_filter_by_text(self, client, settings):
+    def test_get_list_candidacy_filter_by_name(self, client, settings):
         baker.make(Candidacy, nome="Paulo Silva", _quantity=2, _fill_optional=True)
         candidacies_2023_rj_1 = baker.make(
             Candidacy,
@@ -253,7 +253,95 @@ class TestListCandidacy:
             _fill_optional=True,
         )
 
-        url = reverse(self.url_name) + "?q=joao"
+        url = reverse(self.url_name) + "?q=joao&t=name"
+        resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
+        expected_data = [
+            {
+                "path": (
+                    f"{candidacies_2023_rj_1.ano}/"
+                    f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
+                    f"{slugify(candidacies_2023_rj_1.cargo)}/"
+                    f"{slugify(candidacies_2023_rj_1.nome_urna)}/"
+                ),
+                "name": candidacies_2023_rj_1.nome,
+                "year": candidacies_2023_rj_1.ano,
+            },
+            {
+                "path": (
+                    f"{candidacies_2023_rj_2.ano}/"
+                    f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
+                    f"{slugify(candidacies_2023_rj_2.cargo)}/"
+                    f"{slugify(candidacies_2023_rj_2.nome_urna)}/"
+                ),
+                "name": candidacies_2023_rj_2.nome,
+                "year": candidacies_2023_rj_2.ano,
+            },
+        ]
+
+        assert resp.status_code == 200
+        assert resp.json()["results"] == expected_data
+
+    def test_get_list_candidacy_filter_by_city(self, client, settings):
+        # TODO: checar campo municipio
+        baker.make(Candidacy, municipio="Recife", _quantity=2, _fill_optional=True)
+        candidacies_2023_rj_1 = baker.make(
+            Candidacy,
+            ano=2024,
+            municipio="Rio de Janeiro",
+            _fill_optional=True,
+        )
+        candidacies_2023_rj_2 = baker.make(
+            Candidacy,
+            ano=2023,
+            municipio="Rio de Janeiro",
+            _fill_optional=True,
+        )
+
+        url = reverse(self.url_name) + "?q=rio&t=city"
+        resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
+        expected_data = [
+            {
+                "path": (
+                    f"{candidacies_2023_rj_1.ano}/"
+                    f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
+                    f"{slugify(candidacies_2023_rj_1.cargo)}/"
+                    f"{slugify(candidacies_2023_rj_1.nome_urna)}/"
+                ),
+                "name": candidacies_2023_rj_1.nome,
+                "year": candidacies_2023_rj_1.ano,
+            },
+            {
+                "path": (
+                    f"{candidacies_2023_rj_2.ano}/"
+                    f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
+                    f"{slugify(candidacies_2023_rj_2.cargo)}/"
+                    f"{slugify(candidacies_2023_rj_2.nome_urna)}/"
+                ),
+                "name": candidacies_2023_rj_2.nome,
+                "year": candidacies_2023_rj_2.ano,
+            },
+        ]
+
+        assert resp.status_code == 200
+        assert resp.json()["results"] == expected_data
+
+    def test_get_list_candidacy_filter_by_city_default_field(self, client, settings):
+        # TODO: checar campo municipio
+        baker.make(Candidacy, municipio="Recife", _quantity=2, _fill_optional=True)
+        candidacies_2023_rj_1 = baker.make(
+            Candidacy,
+            ano=2024,
+            municipio="Rio de Janeiro",
+            _fill_optional=True,
+        )
+        candidacies_2023_rj_2 = baker.make(
+            Candidacy,
+            ano=2023,
+            municipio="Rio de Janeiro",
+            _fill_optional=True,
+        )
+
+        url = reverse(self.url_name) + "?q=rio"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
