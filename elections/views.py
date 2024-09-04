@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 
 from elections.filters import CandidacyFilterSet
-from elections.models import Candidacy
+from elections.models import Candidacy, CandidacyMetadata
 from elections.serializers import DetailCandidacySerializer, ListCandidacySerializer
 
 
@@ -15,9 +15,10 @@ def candidacy_list(request):
     page = request.GET.get("page", 1)
     objs = paginator.page(page).object_list
     serializer = ListCandidacySerializer(objs, many=True)
+    metadata = CandidacyMetadata.objects.first().data
 
     if request.GET.get("format") == "json":
-        return JsonResponse(data={"results": serializer.data}, safe=False)
+        return JsonResponse(data={"results": serializer.data, "metadata": metadata}, safe=False)
 
     return render(request, "elections.html", context={"results": serializer.data})
 

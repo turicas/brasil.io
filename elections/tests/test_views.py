@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from model_bakery import baker
 
-from elections.models import Candidacy
+from elections.models import Candidacy, CandidacyMetadata
 
 
 @pytest.mark.django_db
@@ -127,9 +127,22 @@ class TestListCandidacy:
     url_name = "election:candidacy_list"
     http_user_agent = "test"
 
+    def setup_method(self):
+        self.metadata = {
+            "2024": {
+                "cargo":["Todos", "Prefeito", "Vereador", "Vice-Prefeito",],
+                "partido": ["Todos", "AAA", "BBB", "CCC"],
+                "estado": ["Todos", "Rio de Janeiro", "São Paulo", "Minas Gerais"],
+            }
+        }
+        baker.make(CandidacyMetadata, data=self.metadata)
+
     def test_get_list_candidacy(self, client, settings):
         candidacy_1 = baker.make(Candidacy, ano=2024, _fill_optional=True)
         candidacy_2 = baker.make(Candidacy, ano=2023, _fill_optional=True)
+
+        baker.make(CandidacyMetadata)  # older metadata
+        baker.make(CandidacyMetadata, data=self.metadata)
 
         url = reverse(self.url_name) + "?format=json"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
@@ -158,6 +171,7 @@ class TestListCandidacy:
 
         assert resp.status_code == 200
         assert resp.json()["results"] == expected_data
+        assert resp.json()["metadata"] == self.metadata
 
     def test_get_list_candidacy_filter_by_year(self, client, settings):
         baker.make(Candidacy, ano=2024, _quantity=2, _fill_optional=True)
