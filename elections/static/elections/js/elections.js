@@ -1,0 +1,315 @@
+// Extracting context
+const context = {}
+document.querySelectorAll("script[type='application/json']").forEach(el => {
+  context[`${el.id}`] = JSON.parse(document.getElementById(el.id).textContent)
+})
+
+const apiGet = async (path, params) => {
+  const initialParams = []
+  // Convert object to arrays to be used by URLSearchParams
+  if (params) {
+    for (const param of Object.entries(params)) {
+      if (!Array.isArray(param[1])) {
+        initialParams.push([param[0], param[1]])
+        continue
+      }
+      for (let i = 0; i < param[1].length; i++) {
+        initialParams.push([param[0], param[1][i]])
+      }
+    }
+  }
+  let resultParams = ""
+  if (initialParams.length > 0) {
+    const queryParams = new URLSearchParams(initialParams)
+    resultParams = "?" + queryParams
+  }
+  const url = `${path}${resultParams}`
+  const response = await fetch(url.replace("%2B", "+"))
+  const data = await response.json()
+  return data
+}
+
+const App = {
+  delimiters: ["[[", "]]"],
+  components: {
+    "n-config-provider": naive.NConfigProvider,
+    "n-data-table": naive.NDataTable,
+    "n-input": naive.NInput,
+    "n-input-group": naive.NInputGroup,
+    "n-button": naive.NButton,
+    "n-gradient-text": naive.NGradientText,
+  },
+  setup() {
+    const data = Vue.ref([]);
+    const loading = Vue.ref(true);
+    const order = Vue.ref(null);
+    const sort = Vue.ref(null);
+    const search = Vue.ref(context.data.search);
+    const theme = Vue.ref(null);
+    const observer = Vue.ref(null);
+    const pageReactive = Vue.reactive({
+      page: Number(context.data.number),
+      pageCount: Number(context.data.num_pages),
+      pageSize: 10,
+      pageSizes: [10, 20, 30],
+      showSizePicker: true,
+      pageSlot: 5
+    })
+
+    Vue.onBeforeMount(() => {
+      if (localStorage.theme === 'dark') {
+        theme.value = naive.darkTheme
+      } else if (localStorage.theme === 'auto') {
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          theme.value = naive.darkTheme
+        } else {
+          theme.value = null
+        }
+      } else {
+        theme.value = null
+      }
+
+      // Function to handle dataset changes
+      const onDatasetChange = (mutationsList) => {
+        for (const mutation of mutationsList) {
+          if (mutation.type === 'attributes' && mutation.attributeName.startsWith('data-')) {
+            theme.value = mutation.target.dataset.bsTheme === 'dark' ? naive.darkTheme : null
+          }
+        }
+      }
+      // Select the target element
+      const targetNode = document.querySelector('html')
+      // Create an observer instance linked to the callback function
+      observer.value = new MutationObserver(onDatasetChange)
+      // Start observing the target node for configured mutations
+      observer.value.observe(targetNode, { attributes: true })
+    })
+
+    Vue.onBeforeUnmount(() => {
+      observer.value.disconnect()
+    })
+
+    Vue.onMounted(async () => {
+      data.value = context.data.items
+      loading.value = false
+    });
+
+    const columns = [
+      {
+        title: "Nome",
+        key: "name",
+        sorter: true,
+        minWidth: "250px"
+      },
+      {
+        title: "Path",
+        key: "path",
+        sorter: true,
+        minWidth: "60px"
+      },
+      {
+        title: "Ano",
+        key: "year",
+        sorter: true,
+        minWidth: "400px"
+      }
+    ]
+
+    const route = VueRouter.useRoute()
+    const router = VueRouter.useRouter()
+
+    updateUrl = (params) => {
+      router.push({ query: params })
+    }
+
+    const handlePageChange = async (currentPage) => {
+      await requestApi({ page: currentPage })
+      pageReactive.page = currentPage
+    }
+
+    const handleSorterChange = async (sorter) => {
+      if (!sorter.order) {
+        sort.value = null
+        order.value = null
+        await requestApi()
+        return
+      }
+      sort.value = sorter.columnKey
+      order.value = sorter.order === "ascend" ? "asc" : "desc"
+      await requestApi()
+    }
+
+    const handlePageSizeChange = async (pageSize) => {
+      pageReactive.pageSize = pageSize
+      pageReactive.page = 1
+      await requestApi()
+    }
+
+    const requestApi = async (request = {}) => {
+      const defaultRequests = {}
+      if (search.value) {
+        defaultRequests["search"] = search.value
+      }
+      if (pageReactive.page) {
+        defaultRequests["page"] = pageReactive.page
+      }
+
+      if (pageReactive.pageSize && pageReactive.pageSize !== 10) {
+        defaultRequests["page_size"] = pageReactive.pageSize
+      } else if (request.page_size) {
+        delete request.page_size
+      }
+
+      if (sort.value) {
+        defaultRequests["sort"] = sort.value
+      }
+      if (order.value) {
+        defaultRequests["order"] = order.value
+      }
+
+      loading.value = true;
+
+      const requestFormated = { ...defaultRequests, ...request, format: 'json' }
+      const requestResult = await apiGet("", requestFormated)
+
+      updateUrl({ ...defaultRequests, ...request })
+
+      data.value = requestResult.items
+      pageReactive.pageCount = requestResult.num_pages
+      loading.value = false
+    }
+
+    const requestApiSearch = async () => {
+      await requestApi()
+    }
+
+    const createDebounce = () => {
+      let timer
+      return(fn, wait = 300) => {
+        if (timer) clearTimeout(timer)
+        timer = setTimeout(() => {
+          if (typeof fn === 'function') {
+            fn()
+          }
+        }, wait)
+      }
+    }
+
+    const debounce = createDebounce()
+
+    const handleSearchKeyUp = () => debounce(() => {
+      requestApiSearch()
+    })
+
+    const lightThemeOverrides = {
+      common: {
+        primaryColor: "#2563eb",
+        primaryColorHover: "#1d4ed8"
+      }
+    }
+
+    const darkThemeOverrides = {
+      common: {
+        primaryColor: "#38bdf8",
+        primaryColorHover: "#93c5fd"
+      }
+    }
+
+    const firstLoad = true
+    Vue.watch(
+      () => route.query,
+      async () => {
+        if (firstLoad) {
+          firstLoad = false
+          return
+        }
+        const query = route.query
+        const page = query.page ? Number(query.page) : 1
+        const pageSize = query.page_size ? Number(query.page_size) : 10
+        const q = query.search ? query.search : ''
+        let updated = false
+
+        if (page !== pageReactive.page) {
+          pageReactive.page = page
+          updated = true
+        }
+        if (pageSize !== pageReactive.pageSize) {
+          pageReactive.pageSize = pageSize
+          updated = true
+        }
+        if (q !== search.value) {
+          search.value = q
+          updated = true
+        }
+
+        if (updated) {
+          await requestApi()
+        }
+      }
+    )
+
+    return {
+      columns,
+      data,
+      pagination: pageReactive,
+      handlePageChange,
+      handleSorterChange,
+      handlePageSizeChange,
+      handleSearchKeyUp,
+      search,
+      loading,
+      // n-config-provider setup
+      ptBR: naive.ptBR,
+      lightThemeOverrides,
+      darkThemeOverrides,
+      theme,
+      djangoVarTitle: context.title
+    }
+  },
+  template: `
+    <div class="container py-5">
+      <n-config-provider
+      :locale="ptBR"
+      :theme="theme"
+      :theme-overrides="theme === null ? lightThemeOverrides : darkThemeOverrides"
+    >
+      <div class="d-flex justify-content-between mb-3">
+        <n-gradient-text :size="20" type="info">
+          [[ djangoVarTitle ]]
+        </n-gradient-text>
+        <n-input-group class="d-flex justify-content-end">
+          <n-input
+            v-model:value="search"
+            @keyup="handleSearchKeyUp"
+            :style="{ width: '250px' }" placeholder="Pesquisa"
+          ></n-input>
+          <n-button type="primary" ghost>
+            Pesquisar
+          </n-button>
+        </n-input-group>
+      </div>
+      <n-data-table
+        remote
+        :columns="columns"
+        :data="data"
+        :bordered="false"
+        :loading="loading"
+        :pagination="pagination"
+        :scrollbar-props="{ trigger: 'none', xScrollable: true }"
+        @update:page-size="handlePageSizeChange"
+        @update:page="handlePageChange"
+        @update:sorter="handleSorterChange"
+      >
+      </n-data-table>
+    </n-config-provider>
+    </div>
+  `,
+}
+
+const r = VueRouter.createRouter({
+  history: VueRouter.createWebHistory(),
+  routes: [{ path: window.location.pathname, component: App, name: 'home' }],
+})
+
+const app = Vue.createApp(App).use(r).mount("#app")
+
