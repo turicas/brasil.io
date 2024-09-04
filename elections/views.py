@@ -17,10 +17,18 @@ def candidacy_list(request):
     serializer = ListCandidacySerializer(objs, many=True)
     metadata = CandidacyMetadata.objects.first().data
 
-    if request.GET.get("format") == "json":
-        return JsonResponse(data={"results": serializer.data, "metadata": metadata}, safe=False)
+    data = {
+        "items": serializer.data,
+        "number": page,
+        "num_pages": paginator.num_pages,
+        "page_size": page_size,
+        "metadata": metadata
+    }
 
-    return render(request, "elections/elections.html", context={"results": serializer.data})
+    if request.GET.get("format") == "json":
+        return JsonResponse(data, safe=False)
+
+    return render(request, "elections/elections.html", context={"data": data})
 
 
 def politic(request, ano, uf, cargo, nome):
