@@ -9,7 +9,7 @@ from elections.serializers import DetailCandidacySerializer, ListCandidacySerial
 
 def filter_selected_fields(filter_data):
     data = filter_data.dict()
-    data.pop("format")
+    data.pop("format", None)
     return data
 
 
