@@ -1,96 +1,37 @@
-// Extracting context
-const context = {}
-document.querySelectorAll("script[type='application/json']").forEach(el => {
-  context[`${el.id}`] = JSON.parse(document.getElementById(el.id).textContent)
-})
+import { api } from "./utils/api.js"
+import { filters } from "./filters.js"
 
-const apiGet = async (path, params) => {
-  const initialParams = []
-  // Convert object to arrays to be used by URLSearchParams
-  if (params) {
-    for (const param of Object.entries(params)) {
-      if (!Array.isArray(param[1])) {
-        initialParams.push([param[0], param[1]])
-        continue
-      }
-      for (let i = 0; i < param[1].length; i++) {
-        initialParams.push([param[0], param[1][i]])
-      }
-    }
-  }
-  let resultParams = ""
-  if (initialParams.length > 0) {
-    const queryParams = new URLSearchParams(initialParams)
-    resultParams = "?" + queryParams
-  }
-  const url = `${path}${resultParams}`
-  const response = await fetch(url.replace("%2B", "+"))
-  const data = await response.json()
-  return data
-}
-
-const App = {
+export const electionTable = {
   delimiters: ["[[", "]]"],
+  props: {
+    context: {
+      type: Object
+    }
+  },
   components: {
-    "n-config-provider": naive.NConfigProvider,
     "n-data-table": naive.NDataTable,
     "n-input": naive.NInput,
     "n-input-group": naive.NInputGroup,
     "n-button": naive.NButton,
-    "n-gradient-text": naive.NGradientText,
+    filters,
   },
-  setup() {
-    const data = Vue.ref([]);
-    const loading = Vue.ref(true);
-    const order = Vue.ref(null);
-    const sort = Vue.ref(null);
-    const search = Vue.ref(context.data.search);
-    const theme = Vue.ref(null);
-    const observer = Vue.ref(null);
+  setup(props) {
+    const data = Vue.ref([])
+    const loading = Vue.ref(true)
+    const order = Vue.ref(null)
+    const sort = Vue.ref(null)
+    const search = Vue.ref(props.context.data.search)
     const pageReactive = Vue.reactive({
-      page: Number(context.data.number),
-      pageCount: Number(context.data.num_pages),
+      page: Number(props.context.data.number),
+      pageCount: Number(props.context.data.num_pages),
       pageSize: 10,
       pageSizes: [10, 20, 30],
       showSizePicker: true,
       pageSlot: 5
     })
 
-    Vue.onBeforeMount(() => {
-      if (localStorage.theme === 'dark') {
-        theme.value = naive.darkTheme
-      } else if (localStorage.theme === 'auto') {
-        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-          theme.value = naive.darkTheme
-        } else {
-          theme.value = null
-        }
-      } else {
-        theme.value = null
-      }
-
-      // Function to handle dataset changes
-      const onDatasetChange = (mutationsList) => {
-        for (const mutation of mutationsList) {
-          if (mutation.type === 'attributes' && mutation.attributeName.startsWith('data-')) {
-            theme.value = mutation.target.dataset.bsTheme === 'dark' ? naive.darkTheme : null
-          }
-        }
-      }
-      // Select the target element
-      const targetNode = document.querySelector('html')
-      // Create an observer instance linked to the callback function
-      observer.value = new MutationObserver(onDatasetChange)
-      // Start observing the target node for configured mutations
-      observer.value.observe(targetNode, { attributes: true })
-    })
-
-    Vue.onBeforeUnmount(() => {
-      observer.value.disconnect()
-    })
-
     Vue.onMounted(async () => {
-      data.value = context.data.items
+      data.value = props.context.data.items
       loading.value = false
     });
 
@@ -118,7 +59,7 @@ const App = {
     const route = VueRouter.useRoute()
     const router = VueRouter.useRouter()
 
-    updateUrl = (params) => {
+    const updateUrl = (params) => {
       router.push({ query: params })
     }
 
@@ -167,15 +108,16 @@ const App = {
         defaultRequests["order"] = order.value
       }
 
-      loading.value = true;
+      loading.value = true
 
       const requestFormated = { ...defaultRequests, ...request, format: 'json' }
-      const requestResult = await apiGet("", requestFormated)
+      const requestResult = await api("", requestFormated)
 
       updateUrl({ ...defaultRequests, ...request })
 
       data.value = requestResult.items
       pageReactive.pageCount = requestResult.num_pages
+
       loading.value = false
     }
 
@@ -197,25 +139,11 @@ const App = {
 
     const debounce = createDebounce()
 
-    const handleSearchKeyUp = () => debounce(() => {
+    const handleSearch = () => debounce(() => {
       requestApiSearch()
     })
 
-    const lightThemeOverrides = {
-      common: {
-        primaryColor: "#2563eb",
-        primaryColorHover: "#1d4ed8"
-      }
-    }
-
-    const darkThemeOverrides = {
-      common: {
-        primaryColor: "#38bdf8",
-        primaryColorHover: "#93c5fd"
-      }
-    }
-
-    const firstLoad = true
+    let firstLoad = true
     Vue.watch(
       () => route.query,
       async () => {
@@ -255,39 +183,14 @@ const App = {
       handlePageChange,
       handleSorterChange,
       handlePageSizeChange,
-      handleSearchKeyUp,
+      handleSearch,
       search,
       loading,
-      // n-config-provider setup
-      ptBR: naive.ptBR,
-      lightThemeOverrides,
-      darkThemeOverrides,
-      theme,
-      djangoVarTitle: context.title
     }
   },
   template: `
+    <filters :context :handleSearch v-model:search="search" />
     <div class="container py-5">
-      <n-config-provider
-      :locale="ptBR"
-      :theme="theme"
-      :theme-overrides="theme === null ? lightThemeOverrides : darkThemeOverrides"
-    >
-      <div class="d-flex justify-content-between mb-3">
-        <n-gradient-text :size="20" type="info">
-          [[ djangoVarTitle ]]
-        </n-gradient-text>
-        <n-input-group class="d-flex justify-content-end">
-          <n-input
-            v-model:value="search"
-            @keyup="handleSearchKeyUp"
-            :style="{ width: '250px' }" placeholder="Pesquisa"
-          ></n-input>
-          <n-button type="primary" ghost>
-            Pesquisar
-          </n-button>
-        </n-input-group>
-      </div>
       <n-data-table
         remote
         :columns="columns"
@@ -301,15 +204,6 @@ const App = {
         @update:sorter="handleSorterChange"
       >
       </n-data-table>
-    </n-config-provider>
     </div>
   `,
 }
-
-const r = VueRouter.createRouter({
-  history: VueRouter.createWebHistory(),
-  routes: [{ path: window.location.pathname, component: App, name: 'home' }],
-})
-
-const app = Vue.createApp(App).use(r).mount("#app")
-

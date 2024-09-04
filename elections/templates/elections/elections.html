@@ -4,24 +4,22 @@
 {% block title %}Eleições - Brasil.IO{% endblock %}
 
 {% block content %}
-
-
-{{ data|json_script:"data" }}
-
-<div id="app"></div>
-
-{% endblock %}
-
-{% block bodyscript %}
-{{ block.super }}
 <style>
 /* Resize table rows page height fix */
 .v-binder-follower-container {
   position: initial;
 }
 </style>
+
+{{ data|json_script:"data" }}
+
+<div id="app"></div>
+{% endblock %}
+
+{% block bodyscript %}
+{{ block.super }}
 <script src="{% static 'elections/js/vue-3.5.0.global.js' %}"></script>
 <script src="{% static 'elections/js/naive-ui-2.39.0.js' %}"></script>
 <script src="{% static 'elections/js/vue-router-4.0.15.global.js' %}"></script>
-<script src="{% static 'elections/js/elections.js' %}"></script>
+<script src="{% static 'elections/js/components/elections.js' %}" type="module"></script>
 {% endblock %}

@@ -1,15 +1,25 @@
 :root {
   --election-primary-bg: #404493;
   --election-primary-color: #404493;
+  --election-secondary-color:  #cfd2e7;
 }
 
 [data-bs-theme="dark"] {
   --election-primary-color: #9fa2dd;
+  --election-secondary-color: #2c2e39;
 }
 
 ::-webkit-scrollbar {
   width: 0px;
   background: transparent;
+}
+
+.bg-election-primary {
+  background-color: var(--election-primary-color);
+}
+
+.bg-election-secondary {
+  background-color: var(--election-secondary-color);
 }
 
 .election-text-primary {
