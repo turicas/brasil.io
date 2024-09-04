@@ -7,6 +7,12 @@ from elections.models import Candidacy, CandidacyMetadata
 from elections.serializers import DetailCandidacySerializer, ListCandidacySerializer
 
 
+def filter_selected_fields(filter_data):
+    data = filter_data.dict()
+    data.pop("format")
+    return data
+
+
 def candidacy_list(request):
     # TODO: safe coercion
     page_size = int(request.GET.get("page_size", 10))
@@ -22,7 +28,8 @@ def candidacy_list(request):
         "number": page,
         "num_pages": paginator.num_pages,
         "page_size": page_size,
-        "metadata": metadata
+        "metadata": metadata,
+        "filters": filter_selected_fields(filter_set.data),
     }
 
     if request.GET.get("format") == "json":

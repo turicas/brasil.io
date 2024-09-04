@@ -208,6 +208,7 @@ class TestListCandidacy:
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
+        assert resp.json()["filters"] == {"ano": "2023"}
 
     def test_get_list_candidacy_filter_by_uf(self, client, settings):
         baker.make(Candidacy, sigla_unidade_federativa="sp", _quantity=2, _fill_optional=True)
@@ -253,6 +254,7 @@ class TestListCandidacy:
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
+        assert resp.json()["filters"] == {"uf": "rj"}
 
     def test_get_list_candidacy_filter_by_cargo_slug(self, client, settings):
         baker.make(Candidacy, cargo_slug="deputado-estadual", _quantity=2, _fill_optional=True)
@@ -298,6 +300,7 @@ class TestListCandidacy:
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
+        assert resp.json()["filters"] == {"cargo": "senado"}
 
     def test_get_list_candidacy_filter_by_partido(self, client, settings):
         baker.make(Candidacy, sigla_partido="aaa", _quantity=2, _fill_optional=True)
@@ -343,6 +346,7 @@ class TestListCandidacy:
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
+        assert resp.json()["filters"] == {"partido": "ppp"}
 
     def test_get_list_candidacy_filter_by_name(self, client, settings):
         baker.make(Candidacy, nome="Paulo Silva", _quantity=2, _fill_optional=True)
@@ -388,6 +392,7 @@ class TestListCandidacy:
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
+        assert resp.json()["filters"] == {"q": "joao", "t": "name"}
 
     def test_get_list_candidacy_filter_by_city(self, client, settings):
         # TODO: checar campo municipio
@@ -434,6 +439,7 @@ class TestListCandidacy:
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
+        assert resp.json()["filters"] == {"q": "rio", "t": "city"}
 
     def test_get_list_candidacy_filter_by_city_default_field(self, client, settings):
         # TODO: checar campo municipio
@@ -480,6 +486,7 @@ class TestListCandidacy:
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
+        assert resp.json()["filters"] == {"q": "rio"}
 
     def test_get_list_candidacy_paginate(self, client, settings):
         baker.make(Candidacy, ano=2023, _quantity=2, _fill_optional=True)
