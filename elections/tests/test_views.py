@@ -8,7 +8,7 @@ from elections.models import Candidacy, CandidacyMetadata
 
 @pytest.mark.django_db
 class TestDetailCandidacy:
-    url_name = "election:api_candidacy_detail"
+    url_name = "elections:api_candidacy_detail"
     http_user_agent = "test"
 
     def test_get_detail_candidacy(self, client, settings):
@@ -42,7 +42,7 @@ class TestDetailCandidacy:
 
 @pytest.mark.django_db
 class TestDetailCandidacyView:
-    url_name = "election:candidacy_detail"
+    url_name = "elections:candidacy_detail"
     http_user_agent = "test"
 
     def test_get_detail_candidacy(self, client, settings):
@@ -124,7 +124,7 @@ class TestDetailCandidacyView:
 
 @pytest.mark.django_db
 class TestListCandidacy:
-    url_name = "election:candidacy_list"
+    url_name = "elections:candidacy_list"
     http_user_agent = "test"
 
     def setup_method(self):
@@ -170,7 +170,7 @@ class TestListCandidacy:
         ]
 
         assert resp.status_code == 200
-        assert resp.json()["results"] == expected_data
+        assert resp.json()["items"] == expected_data
         assert resp.json()["metadata"] == self.metadata
 
     def test_get_list_candidacy_filter_by_year(self, client, settings):
@@ -203,7 +203,7 @@ class TestListCandidacy:
         ]
 
         assert resp.status_code == 200
-        assert resp.json()["results"] == expected_data
+        assert resp.json()["items"] == expected_data
 
     def test_get_list_candidacy_filter_by_uf(self, client, settings):
         baker.make(Candidacy, sigla_unidade_federativa="sp", _quantity=2, _fill_optional=True)
@@ -246,7 +246,7 @@ class TestListCandidacy:
         ]
 
         assert resp.status_code == 200
-        assert resp.json()["results"] == expected_data
+        assert resp.json()["items"] == expected_data
 
     def test_get_list_candidacy_filter_by_cargo_slug(self, client, settings):
         baker.make(Candidacy, cargo_slug="deputado-estadual", _quantity=2, _fill_optional=True)
@@ -289,7 +289,7 @@ class TestListCandidacy:
         ]
 
         assert resp.status_code == 200
-        assert resp.json()["results"] == expected_data
+        assert resp.json()["items"] == expected_data
 
     def test_get_list_candidacy_filter_by_partido(self, client, settings):
         baker.make(Candidacy, sigla_partido="aaa", _quantity=2, _fill_optional=True)
@@ -332,7 +332,7 @@ class TestListCandidacy:
         ]
 
         assert resp.status_code == 200
-        assert resp.json()["results"] == expected_data
+        assert resp.json()["items"] == expected_data
 
     def test_get_list_candidacy_filter_by_name(self, client, settings):
         baker.make(Candidacy, nome="Paulo Silva", _quantity=2, _fill_optional=True)
@@ -375,7 +375,7 @@ class TestListCandidacy:
         ]
 
         assert resp.status_code == 200
-        assert resp.json()["results"] == expected_data
+        assert resp.json()["items"] == expected_data
 
     def test_get_list_candidacy_filter_by_city(self, client, settings):
         # TODO: checar campo municipio
@@ -419,7 +419,7 @@ class TestListCandidacy:
         ]
 
         assert resp.status_code == 200
-        assert resp.json()["results"] == expected_data
+        assert resp.json()["items"] == expected_data
 
     def test_get_list_candidacy_filter_by_city_default_field(self, client, settings):
         # TODO: checar campo municipio
@@ -463,7 +463,7 @@ class TestListCandidacy:
         ]
 
         assert resp.status_code == 200
-        assert resp.json()["results"] == expected_data
+        assert resp.json()["items"] == expected_data
 
     def test_get_list_candidacy_paginate(self, client, settings):
         baker.make(Candidacy, ano=2023, _quantity=2, _fill_optional=True)
@@ -485,4 +485,4 @@ class TestListCandidacy:
         ]
 
         assert resp.status_code == 200
-        assert resp.json()["results"] == expected_data
+        assert resp.json()["items"] == expected_data
