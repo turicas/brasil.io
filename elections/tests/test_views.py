@@ -11,6 +11,16 @@ class TestDetailCandidacyView:
     url_name = "elections:candidacy_detail"
     http_user_agent = "test"
 
+    def setup_method(self):
+        self.metadata = {
+            "2024": {
+                "cargo":["Todos", "Prefeito", "Vereador", "Vice-Prefeito",],
+                "partido": ["Todos", "AAA", "BBB", "CCC"],
+                "estado": ["Todos", "Rio de Janeiro", "São Paulo", "Minas Gerais"],
+            }
+        }
+        baker.make(CandidacyMetadata, data=self.metadata)
+
     def test_get_detail_candidacy(self, client, settings):
         candidacy = baker.make(
             Candidacy,
@@ -62,7 +72,7 @@ class TestDetailCandidacyView:
 
         assert resp.status_code == 200
         assert resp.json()["item"]["data_nascimento"] == expected_data["data_nascimento"]
-        assert resp.json()["filters"] == dict()
+        assert resp.json()["metadata"] == self.metadata
 
     def test_get_detail_candidacy_not_found(self, client, settings):
         candidacy = baker.make(
@@ -111,7 +121,7 @@ class TestDetailCandidacyView:
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
 
         assert resp.status_code == 200
-        assert resp.json()["filters"] == {"ano": "2024", "partido": "Todos", "cargo": "senador"}
+        assert resp.json()["metadata"] == self.metadata
 
 
 @pytest.mark.django_db
