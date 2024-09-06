@@ -69,7 +69,7 @@ class TestDetailCandidacyView:
         expected_data = {"data_nascimento": "12/01/1981"}
 
         assert resp.status_code == 200
-        assert resp.json()["data_nascimento"] == expected_data["data_nascimento"]
+        assert resp.json()["item"]["data_nascimento"] == expected_data["data_nascimento"]
 
     def test_get_detail_candidacy_wrong_data_nascimento_format(self, client, settings):
         candidacy = baker.make(
@@ -95,7 +95,8 @@ class TestDetailCandidacyView:
         expected_data = {"data_nascimento": None}
 
         assert resp.status_code == 200
-        assert resp.json()["data_nascimento"] == expected_data["data_nascimento"]
+        assert resp.json()["item"]["data_nascimento"] == expected_data["data_nascimento"]
+        assert resp.json()["filters"] == dict()
 
     def test_get_detail_candidacy_not_found(self, client, settings):
         candidacy = baker.make(
@@ -120,6 +121,31 @@ class TestDetailCandidacyView:
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
 
         assert resp.status_code == 404
+
+    def test_get_detail_candidacy_return_filter_parameters(self, client, settings):
+        candidacy = baker.make(
+            Candidacy,
+            data_nascimento="1981-01",
+            ano="2024",
+            cargo_slug="deputado",
+            nome_urna_slug="joao-graca",
+            sigla_unidade_federativa="rj",
+            _fill_optional=True
+        )
+
+        url = reverse(
+            self.url_name,
+            kwargs={
+                "ano": candidacy.ano,
+                "uf": candidacy.sigla_unidade_federativa,
+                "cargo": candidacy.cargo_slug,
+                "nome": candidacy.nome_urna_slug,
+            }
+        ) + "?format=json&ano=2024&partido=Todos&cargo=senador"
+        resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
+
+        assert resp.status_code == 200
+        assert resp.json()["filters"] == {"ano": "2024", "partido": "Todos", "cargo": "senador"}
 
 
 @pytest.mark.django_db

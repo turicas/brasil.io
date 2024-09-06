@@ -52,11 +52,18 @@ def politic(request, ano, uf, cargo, nome):
         nome_urna_slug=nome,
     )
     serializer = DetailCandidacySerializer(candidacy)
+    filter_set = CandidacyFilterSet(request.GET, queryset=Candidacy.objects.none())
+    data = {
+        "item": serializer.data,
+        "filters": filter_selected_fields(filter_set.data),
+    }
     if request.GET.get("format") == "json":
-        return JsonResponse(data=serializer.data)
+        return JsonResponse(data=data)
 
-    return render(request, "elections/politic.html", context=serializer.data)
+    return render(request, "elections/politic.html", context=data)
 
 
 def home(request, state=None):
-    return render(request, "elections/home.html", {})
+    filter_set = CandidacyFilterSet(request.GET, queryset=Candidacy.objects.none())
+    context = {"filters": filter_selected_fields(filter_set.data)}
+    return render(request, "elections/home.html", context)
