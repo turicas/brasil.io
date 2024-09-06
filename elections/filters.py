@@ -4,16 +4,43 @@ import django_filters
 from elections.models import Candidacy
 
 
+ALL_VALUE_NAME = "todos"
+
+
 class CandidacyFilterSet(django_filters.FilterSet):
-    ano = django_filters.NumberFilter("ano")
-    uf = django_filters.CharFilter("sigla_unidade_federativa")
-    cargo = django_filters.CharFilter("cargo_slug")
-    partido = django_filters.CharFilter("sigla_partido", lookup_expr="iexact")
+    ano = django_filters.NumberFilter(method="filter_ano")
+    uf = django_filters.CharFilter(method="filter_uf")
+    cargo = django_filters.CharFilter(method="filter_cargo")
+    partido = django_filters.CharFilter(method="filter_partido")
     q = django_filters.CharFilter(method="full_search")
 
     class Meta:
         model = Candidacy
         fields = ("ano", "uf", "cargo", "partido",)
+
+    def filter_ano(self, queryset, name, value):
+        if value == ALL_VALUE_NAME:
+            return queryset
+
+        return queryset.filter(ano=value)
+
+    def filter_uf(self, queryset, name, value):
+        if value.lower() == ALL_VALUE_NAME:
+            return queryset
+
+        return queryset.filter(sigla_unidade_federativa=value)
+
+    def filter_cargo(self, queryset, name, value):
+        if value.lower() == ALL_VALUE_NAME:
+            return queryset
+
+        return queryset.filter(cargo_slug=value)
+
+    def filter_partido(self, queryset, name, value):
+        if value.lower() == ALL_VALUE_NAME:
+            return queryset
+
+        return queryset.filter(sigla_partido__iexact=value)
 
     def full_search(self, queryset, name, value):
         # Check filter field
