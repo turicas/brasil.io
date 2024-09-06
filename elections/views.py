@@ -60,10 +60,10 @@ def politic(request, ano, uf, cargo, nome):
     if request.GET.get("format") == "json":
         return JsonResponse(data=data)
 
-    return render(request, "elections/politic.html", context=data)
+    return render(request, "elections/politic.html", context={"data": data})
 
 
 def home(request, state=None):
     metadata = CandidacyMetadata.objects.first().data
-    context = {"metadata": metadata}
+    context = { "data": { "metadata": metadata } }
     return render(request, "elections/home.html", context)
