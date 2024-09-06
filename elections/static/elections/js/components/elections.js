@@ -1,11 +1,13 @@
 import { getContext } from "./utils/getContext.js"
 import { electionGallery } from "./electionGallery.js"
+import { isolatedFilter } from "./isolatedFilter.js"
 
 const App = {
   delimiters: ["[[", "]]"],
   components: {
     "n-config-provider": naive.NConfigProvider,
     "election-gallery": electionGallery,
+    "isolated-filter": isolatedFilter
   },
   setup() {
     const theme = Vue.ref(null)
@@ -49,9 +51,9 @@ const App = {
         primaryColor: "rgb(64, 68, 147)",
         primaryColorHover: "rgb(54, 58, 137)"
       },
-      Card: {
-        color: "#eef0ff"
-      }
+      Button: {
+        colorPressedPrimary: "rgb(24, 28, 107)"
+      },
     }
 
     const darkThemeOverrides = {
@@ -85,15 +87,14 @@ const App = {
     }
   },
   template: `
-    <div class="container py-5">
-      <n-config-provider
-        :locale="ptBR"
-        :theme="theme"
-        :theme-overrides="theme === null ? lightThemeOverrides : darkThemeOverrides"
-      >
-        <election-gallery :context />
-      </n-config-provider>
-    </div>
+    <n-config-provider
+      :locale="ptBR"
+      :theme="theme"
+      :theme-overrides="theme === null ? lightThemeOverrides : darkThemeOverrides"
+    >
+      <election-gallery v-if="context.data.items" :context />
+      <isolated-filter v-else :context />
+    </n-config-provider>
   `,
 }
 

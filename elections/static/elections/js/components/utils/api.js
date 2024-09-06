@@ -1,4 +1,4 @@
-export const api = async (path, params) => {
+export const formatedParamsToQueryStrings = (params) => {
   const initialParams = []
   // Convert object to arrays to be used by URLSearchParams
   if (params) {
@@ -17,6 +17,12 @@ export const api = async (path, params) => {
     const queryParams = new URLSearchParams(initialParams)
     resultParams = "?" + queryParams
   }
+   return resultParams
+}
+
+
+export const api = async (path, params) => {
+  const resultParams = formatedParamsToQueryStrings(params)
   const url = `${path}${resultParams}`
   const response = await fetch(url.replace("%2B", "+"))
   const data = await response.json()

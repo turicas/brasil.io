@@ -72,7 +72,7 @@ export const filters = {
   },
   template: `
     <n-form
-      class="d-flex flex-column flex-xl-row align-items-xl-center justify-content-center gap-3 mx-lg-auto pt-3 border-bottom border-primary bg-election-secondary w-full px-4 px-xl-2 p-b-xl-0 py-2"
+      class="d-flex flex-column flex-xl-row align-items-xl-center justify-content-center gap-3 mx-lg-auto border-bottom border-primary bg-election-secondary w-full px-4 px-xl-2 p-b-xl-0 pb-2 pt-3"
     >
       <n-form-item label="ANO" :label-style>
         <n-select
@@ -134,6 +134,7 @@ export const filters = {
             style="width: 250px"
             placeholder="Pesquisa"
             clearable
+            @change="handleSearch"
           ></n-input>
         </div>
       </n-form-item>
