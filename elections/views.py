@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, render
 from elections.filters import CandidacyFilterSet
 from elections.models import Candidacy, CandidacyMetadata
 from elections.serializers import DetailCandidacySerializer, ListCandidacySerializer
+from elections.title_utils import candidacy_list_title
 
 
 def filter_selected_fields(filter_data):
@@ -23,13 +24,17 @@ def candidacy_list(request):
     serializer = ListCandidacySerializer(objs, many=True)
     metadata = CandidacyMetadata.objects.first().data
 
+    selected_filter_fields = filter_selected_fields(filter_set.data)
+    title = candidacy_list_title(**selected_filter_fields)
+
     data = {
         "items": serializer.data,
         "number": page,
         "num_pages": paginator.num_pages,
         "page_size": page_size,
         "metadata": metadata,
-        "filters": filter_selected_fields(filter_set.data),
+        "filters": selected_filter_fields,
+        "title": title,
     }
 
     if request.GET.get("format") == "json":

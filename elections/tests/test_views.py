@@ -208,10 +208,12 @@ class TestListCandidacy:
                 "year": candidacy_2.ano,
             },
         ]
+        expected_title = "Candidato(s) em todos os anos"
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
         assert resp.json()["metadata"] == self.metadata
+        assert resp.json()["title"] == expected_title
 
     def test_get_list_candidacy_filter_by_year(self, client, settings):
         baker.make(Candidacy, ano=2024, _quantity=2, _fill_optional=True)
@@ -243,10 +245,12 @@ class TestListCandidacy:
                 "year": candidacies_2023[1].ano,
             },
         ]
+        expected_title = "Candidato(s) em 2023"
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
         assert resp.json()["filters"] == {"ano": "2023"}
+        assert resp.json()["title"] == expected_title
 
     def test_get_list_candidacy_filter_by_uf(self, client, settings):
         baker.make(Candidacy, sigla_unidade_federativa="sp", _quantity=2, _fill_optional=True)
@@ -289,10 +293,12 @@ class TestListCandidacy:
                 "year": candidacies_2023_rj_2.ano,
             },
         ]
+        expected_title = "Candidato(s) em RJ em todos os anos"
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
         assert resp.json()["filters"] == {"uf": "rj"}
+        assert resp.json()["title"] == expected_title
 
     def test_get_list_candidacy_filter_by_cargo_slug(self, client, settings):
         baker.make(Candidacy, cargo_slug="deputado-estadual", _quantity=2, _fill_optional=True)
@@ -335,10 +341,12 @@ class TestListCandidacy:
                 "year": candidacies_2023_rj_2.ano,
             },
         ]
+        expected_title = "Candidato(s) ao senado em todos os anos"
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
         assert resp.json()["filters"] == {"cargo": "senado"}
+        assert resp.json()["title"] == expected_title
 
     def test_get_list_candidacy_filter_by_partido(self, client, settings):
         baker.make(Candidacy, sigla_partido="aaa", _quantity=2, _fill_optional=True)
@@ -428,9 +436,12 @@ class TestListCandidacy:
             },
         ]
 
+        expected_title = 'Candidato(s) "joao" em todos os anos'
+
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
         assert resp.json()["filters"] == {"q": "joao", "t": "name"}
+        assert resp.json()["title"] == expected_title
 
     def test_get_list_candidacy_filter_by_city(self, client, settings):
         # TODO: checar campo municipio
@@ -474,10 +485,12 @@ class TestListCandidacy:
                 "year": candidacies_2023_rj_2.ano,
             },
         ]
+        expected_title = "Candidato(s) em rio em todos os anos"
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
         assert resp.json()["filters"] == {"q": "rio", "t": "city"}
+        assert resp.json()["title"] == expected_title
 
     def test_get_list_candidacy_filter_by_city_default_field(self, client, settings):
         # TODO: checar campo municipio
@@ -521,10 +534,12 @@ class TestListCandidacy:
                 "year": candidacies_2023_rj_2.ano,
             },
         ]
+        expected_title = "Candidato(s) em rio em todos os anos"
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
         assert resp.json()["filters"] == {"q": "rio"}
+        assert resp.json()["title"] == expected_title
 
     def test_get_list_candidacy_paginate(self, client, settings):
         baker.make(Candidacy, ano=2023, _quantity=2, _fill_optional=True)
@@ -545,6 +560,8 @@ class TestListCandidacy:
                 "year": candidacies_2024.ano,
             },
         ]
+        expected_title = "Candidato(s) em todos os anos"
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
+        assert resp.json()["title"] == expected_title

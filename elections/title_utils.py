@@ -1,26 +1,37 @@
-def candidacy_list_title(ano, cargo, estado, partido, q, q_type="city"):
+def candidacy_list_title(
+    *,
+    ano="todos",
+    cargo="todos",
+    uf="todos",
+    q=None,
+    t="city",
+    **kwargs
+):
     if cargo.lower() == "todos":
         cargo = None
-    if estado.lower() == "todos":
-        estado = None
-    if partido == "todos":
-        partido = None
+    if uf.lower() == "todos":
+        uf = None
 
     title = "Candidato(s)"
 
-    if q is not None and q_type == "name":
+    if q is not None and t == "name":
         title += f' "{q}"'
 
     if cargo:
-        title += f" a {cargo.lower()}"
+        preposicao = "a"
+        if cargo.lower() in ("senado"):
+            preposicao = "ao"
+        title += f" {preposicao} {cargo.lower()}"
 
-    if q is not None and q_type == "city":
+    if q is not None and t == "city":
         title += f" em {q}"
 
-    if estado is not None and not (q is not None and q_type == "city"):
-        title += f" em {estado.upper()}"
+    if uf is not None and not (q is not None and t == "city"):
+        title += f" em {uf.upper()}"
 
-    if ano is not None:
+    if ano is not None and ano.isdigit():
         title += f" em {ano}"
+    elif (isinstance(ano, str) and ano.lower() == "todos") or ano is None:
+        title += " em todos os anos"
 
     return title
