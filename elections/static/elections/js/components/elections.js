@@ -1,11 +1,11 @@
 import { getContext } from "./utils/getContext.js"
-import { electionTable } from "./electionTable.js"
+import { electionGallery } from "./electionGallery.js"
 
 const App = {
   delimiters: ["[[", "]]"],
   components: {
     "n-config-provider": naive.NConfigProvider,
-    "election-table": electionTable,
+    "election-gallery": electionGallery,
   },
   setup() {
     const theme = Vue.ref(null)
@@ -46,15 +46,33 @@ const App = {
 
     const lightThemeOverrides = {
       common: {
-        primaryColor: "#2563eb",
-        primaryColorHover: "#1d4ed8"
+        primaryColor: "rgb(64, 68, 147)",
+        primaryColorHover: "rgb(54, 58, 137)"
+      },
+      Card: {
+        color: "#eef0ff"
       }
     }
 
     const darkThemeOverrides = {
       common: {
-        primaryColor: "#38bdf8",
-        primaryColorHover: "#93c5fd"
+        primaryColor: "rgb(94, 98, 177)",
+        primaryColorHover: "rgb(84, 88, 167)"
+      },
+      Button: {
+        textColorPrimary: "#FFF",
+        textColorHoverPrimary: "#FFF",
+        textColorPressedPrimary: "#FFF",
+        textColorFocusPrimary: "#FFF",
+        colorPressedPrimary: "rgb(54, 58, 137)"
+      },
+      Card: {
+        color: "#2c2e39"
+      },
+      Pagination: {
+        itemTextColorHover: "rgb(184, 188, 247)",
+        itemTextColorPressed: "rgb(184, 188, 247)",
+        itemTextColorActive: "rgb(184, 188, 247)"
       }
     }
     return {
@@ -73,7 +91,7 @@ const App = {
         :theme="theme"
         :theme-overrides="theme === null ? lightThemeOverrides : darkThemeOverrides"
       >
-        <election-table :context />
+        <election-gallery :context />
       </n-config-provider>
     </div>
   `,
