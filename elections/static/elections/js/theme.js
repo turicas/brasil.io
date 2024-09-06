@@ -73,4 +73,9 @@
         })
       })
   })
+
+  // BackButton FowardButton work with theme updated by user
+  document.onvisibilitychange = window.onunload = window.onbeforeunload = function() {
+    showActiveTheme(getPreferredTheme())
+  }
 })()
