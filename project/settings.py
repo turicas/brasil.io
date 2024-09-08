@@ -213,12 +213,3 @@ if SENTRY_DSN:
         send_default_pii=True,
     )
     # TODO: add environment
-
-
-# Clipping app
-CONTENTS = {"core": ["dataset", "table"]}
-CATEGORY_CHOICES = [
-    ("noticias_e_entrevistas", "Notícias e Entrevistas"),
-    ("analises", "Análises"),
-    ("podcasts_e_radio", "Podcasts e Rádio"),
-]

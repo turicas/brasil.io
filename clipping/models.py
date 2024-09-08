@@ -7,11 +7,17 @@ from django.db import models
 
 
 class Clipping(models.Model):
+    class CategoryChoices(models.IntegerChoices):
+        NOTICIAS_ENTREVISTAS = (1, "Notícias e Entrevistas")
+        ANALISES = (2, "Análises")
+        PODCASTS_RADIO = (3, "Podcasts e Rádio")
+        OUTRO = (4, "Outro")
+
     date = models.DateField(null=False, blank=False, default=datetime.date.today)
     vehicle = models.CharField(max_length=100, null=True, blank=True)
     author = models.CharField(max_length=100, null=True, blank=True)
     title = models.CharField(max_length=200, null=True, blank=True)
-    category = models.CharField(max_length=100, null=True)
+    category = models.SmallIntegerField(choices=CategoryChoices.choices, null=False, blank=False)
     url = models.URLField(null=False, blank=False, unique=True)
     published = models.BooleanField(default=False, blank=True)
 
