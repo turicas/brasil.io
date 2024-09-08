@@ -360,11 +360,3 @@ DAYS_RANGE_RECENT_ACTIVITES_HOMEPAGE = config("DAYS_RANGE_RECENT_ACTIVITES_HOMEP
 LOGGING = DEFAULT_LOGGING.copy()
 LOGGING["handlers"]["null"] = {"class": "logging.NullHandler"}
 LOGGING["loggers"]["django.security.DisallowedHost"] = {"handlers": ["null"], "propagate": False}
-
-# Clipping app
-CONTENTS = {"core": ["dataset", "table"]}
-CATEGORY_CHOICES = [
-    ("noticias_e_entrevistas", "Notícias e Entrevistas"),
-    ("analises", "Análises"),
-    ("podcasts_e_radio", "Podcasts e Rádio"),
-]

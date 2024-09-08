@@ -1,5 +1,4 @@
 from django import forms
-from django.conf import settings
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 from django.forms.models import ModelChoiceField
@@ -7,14 +6,19 @@ from django.forms.models import ModelChoiceField
 from .models import Clipping, ClippingRelation
 
 
+TARGET_MODELS = {
+    "core": ["dataset", "table"]
+}
+
+
 class ClippingRelationAdminForm(forms.ModelForm):
     contents = []
-    for app_name in settings.CONTENTS:
-        for model_name in settings.CONTENTS[app_name]:
+    for app_name in TARGET_MODELS:
+        for model_name in TARGET_MODELS[app_name]:
             contents.append(model_name)
 
     content_type = ModelChoiceField(
-        ContentType.objects.filter(app_label__in=settings.CONTENTS, model__in=contents),
+        ContentType.objects.filter(app_label__in=TARGET_MODELS, model__in=contents),
         empty_label="--------",
         label="Content",
     )
@@ -50,7 +54,7 @@ class ClippingRelationAdmin(admin.ModelAdmin):
 
 
 class ClippingAdminForm(forms.ModelForm):
-    category = forms.CharField(widget=forms.Select(choices=settings.CATEGORY_CHOICES), label="Category")
+    category = forms.CharField(widget=forms.Select(choices=Clipping.CategoryChoices.choices), label="Category")
 
     class Meta:
         model = Clipping
