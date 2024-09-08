@@ -24,10 +24,10 @@ else
 fi
 if [[ $(echo $DEV_BUILD | tr a-z A-Z) = "TRUE" ]]; then
 	extra_reload_opts=$(
-		find -regextype posix-extended -regex '.*/(templates|static)/?$' \
-		| while read path; do
-			echo --reload-extra-file $path
-		done
+		find -regextype posix-extended -regex '.*\.(html|css|js|jpg|gif|png|svg|ttf|woff|woff2|eot)$' \
+		| while read filename; do
+			echo "--reload-extra-file $(dirname $filename)";
+		done | sort -u
 	)
 	OPTS="$OPTS --reload $extra_reload_opts"
 fi
