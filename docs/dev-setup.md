@@ -38,6 +38,10 @@ python manage.py createsuperuser --username=admin --email=admin@brasil.io
 
 Pronto! A plataforma poderá ser acessada pelo seu navegador Web em [localhost:5000](http://localhost:5000/).
 
+> Nota: para diferenciar o domínio da API, utilizamos o domínio `api.localhost` nas configurações, então ela deve ser
+> acessada por [api.localhost:5000](http://api.localhost:5000/) e você deve criar uma entrada de `api.localhost` em seu
+> `/etc/hosts` que deve resolver `127.0.0.1`.
+
 Caso termine de trabalhar no projeto e queira parar os serviços, execute:
 
 ```shell

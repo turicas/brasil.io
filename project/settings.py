@@ -37,7 +37,6 @@ BLOCKED_WEB_AGENTS = [a.lower() for a in config("BLOCKED_WEB_AGENTS", cast=Csv()
 SESSION_COOKIE_DOMAIN = config("SESSION_COOKIE_DOMAIN", default=None)  # ".brasil.io"  # wildcard brasil.io subdomains
 BRASILIO_API_HOST = config("BRASILIO_API_HOST", default="api.brasil.io")
 
-PRODUCTION = config("PRODUCTION", cast=bool, default=True)
 SECRET_KEY = config("SECRET_KEY")
 FERNET_KEY = config("FERNET_KEY")
 

@@ -105,6 +105,9 @@ não precisaremos armazenar senhas em arquivos no repositório).
 # Provavelmente você precisará trocar apenas essas primeiras:
 export APP_NAME="brasil-io-prd"
 export APP_DOMAINS="brasil.io,www.brasil.io,api.brasil.io"
+export AWS_S3_DATASETS_BUCKET_NAME="dataset"
+export AWS_STORAGE_BUCKET_NAME="main"
+export BRASILIO_API_HOST="api.brasil.io"
 export SENTRY_DSN="..."  # URL de acesso ao Sentry, para reporte de erros
 export ADMINS="App Admin|admin@myapp.example.com"
 export LETSENCRYPT_EMAIL="$(echo $ADMINS | sed 's/^[^|]*|\([^,]*\).*$/\1/')"
@@ -117,7 +120,6 @@ export DB_NAME="pg_${APP_NAME}"
 export REDIS_NAME="redis_${APP_NAME}"
 export STORAGE_PATH="/var/lib/dokku/data/storage/$APP_NAME"
 export SESSION_COOKIE_DOMAIN=".brasil.io"
-export PRODUCTION="True"
 export EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
 export DEFAULT_FROM_EMAIL="noreply@myapp.example.com"
 export EMAIL_HOST="..."
@@ -128,7 +130,7 @@ export EMAIL_USE_SSL="..."
 export EMAIL_USE_TLS="..."
 export DATA_URL="https://docs.google.com/spreadsheets/d/1-hw07Q7PBGlz2QjOifkwM3T8406OqsGOAWA-fikgW8c/export?format=xlsx"
 export SECRET_KEY=$(openssl rand -base64 64 | tr -d ' \n')
-export FERNET_KEY="$(python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())')"
+export FERNET_KEY="$(python3 -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())')"
 ```
 
 Depois que as variáveis foram definidas, podemos criar o app, os serviços de banco de dados e fazer as configurações
@@ -161,6 +163,7 @@ dokku redis:link $REDIS_NAME $APP_NAME
 
 dokku config:set --no-restart $APP_NAME ADMINS="$ADMINS"
 dokku config:set --no-restart $APP_NAME ALLOWED_HOSTS="$ALLOWED_HOSTS"
+dokku config:set --no-restart $APP_NAME BRASILIO_API_HOST="$BRASILIO_API_HOST"
 dokku config:set --no-restart $APP_NAME CSRF_TRUSTED_ORIGINS="$CSRF_TRUSTED_ORIGINS"
 dokku config:set --no-restart $APP_NAME DATA_DIR="$DATA_DIR"
 dokku config:set --no-restart $APP_NAME DATA_URL="$DATA_URL"
@@ -175,7 +178,6 @@ dokku config:set --no-restart $APP_NAME EMAIL_PORT="$EMAIL_PORT"
 dokku config:set --no-restart $APP_NAME EMAIL_USE_SSL="$EMAIL_USE_SSL"
 dokku config:set --no-restart $APP_NAME EMAIL_USE_TLS="$EMAIL_USE_TLS"
 dokku config:set --no-restart $APP_NAME FERNET_KEY="$FERNET_KEY"
-dokku config:set --no-restart $APP_NAME PRODUCTION="$PRODUCTION"
 dokku config:set --no-restart $APP_NAME SECRET_KEY="$SECRET_KEY"
 dokku config:set --no-restart $APP_NAME SENTRY_DSN="$SENTRY_DSN"
 dokku config:set --no-restart $APP_NAME SESSION_COOKIE_DOMAIN="$SESSION_COOKIE_DOMAIN"
@@ -193,14 +195,14 @@ dokku config:set --no-restart $APP_NAME AWS_DEFAULT_ACL="private"
 dokku config:set --no-restart $APP_NAME AWS_IS_GZIPPED="False"
 dokku config:set --no-restart $APP_NAME AWS_S3_ACCESS_KEY_ID="..."
 dokku config:set --no-restart $APP_NAME AWS_S3_CUSTOM_DOMAIN="data.brasil.io/${AWS_STORAGE_BUCKET_NAME}"
-dokku config:set --no-restart $APP_NAME AWS_S3_DATASETS_BUCKET_NAME="dataset"
+dokku config:set --no-restart $APP_NAME AWS_S3_DATASETS_BUCKET_NAME="$AWS_S3_DATASETS_BUCKET_NAME"
 dokku config:set --no-restart $APP_NAME AWS_S3_DATASET_DOWNLOAD_CHUNK_SIZE="8388608"
 dokku config:set --no-restart $APP_NAME AWS_S3_DATASET_SHA512SUMS_FILENAME="SHA512SUMS"
 dokku config:set --no-restart $APP_NAME AWS_S3_DATASET_TABLES_FILES_LIST_FILENAME="_meta/list.html"
 dokku config:set --no-restart $APP_NAME AWS_S3_ENDPOINT_URL="https://data.brasil.io/"
 dokku config:set --no-restart $APP_NAME AWS_S3_SECRET_ACCESS_KEY="..."
 dokku config:set --no-restart $APP_NAME AWS_S3_URL_PROTOCOL="https:"
-dokku config:set --no-restart $APP_NAME AWS_STORAGE_BUCKET_NAME="main"
+dokku config:set --no-restart $APP_NAME AWS_STORAGE_BUCKET_NAME="$AWS_STORAGE_BUCKET_NAME"
 dokku config:set --no-restart $APP_NAME BLOCKED_AGENTS="Wget,curl,python-requests,Python-urllib"
 dokku config:set --no-restart $APP_NAME CACHE_BACKEND="django_redis.cache.RedisCache"
 dokku config:set --no-restart $APP_NAME CACHE_CLIENT_CLASS="django_redis.client.DefaultClient"
@@ -231,6 +233,13 @@ dokku config:set --no-restart $APP_NAME RQ_BLOCKED_REQUESTS_LIST="blocked_reqs"
 dokku config:set --no-restart $APP_NAME STATICFILES_STORAGE="whitenoise.storage.CompressedManifestStaticFilesStorage"
 dokku config:set --no-restart $APP_NAME THROTTLING_RATE="30/m"
 ```
+
+> Nota: configurar a variável `ALLOWED_HOSTS` com os Dokku checks habilitados poderá gerar um erro no deployment (dado
+> que os checks são feitos usando um IP interno e o Dokku não envia o cabeçalho `Host`). Para resolver isso existem
+> duas soluções possíveis:
+> - (preferível) Configurar o Django para aceitar todos os hostnames com
+>   `dokku config:set --no-restart $APP_NAME 'ALLOWED_HOSTS=*'`; ou
+> - Desabilitar os checks com `dokku checks:disable $APP_NAME`
 
 Caso queira alterar a versão do postgres, atualize o arquivo de configuração da versão correspondente executando:
 

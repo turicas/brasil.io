@@ -1,7 +1,8 @@
 # Environment variables for `web` service
 
 ADMINS="App Admin|admin@myapp.example.com"
-ALLOWED_HOSTS="localhost,127.0.0.1,[::1]"
+ALLOWED_HOSTS="localhost,api.localhost,127.0.0.1,[::1]"
+BRASILIO_API_HOST="api.localhost"
 AWS_S3_ACCESS_KEY_ID=minioroot
 AWS_S3_ENDPOINT_URL=http://storage:9000/
 AWS_S3_SECRET_ACCESS_KEY=miniopass
@@ -35,7 +36,6 @@ APP_HOST="localhost:8000"
 BLOCKED_AGENTS="Wget,curl,python-requests,Python-urllib"
 DATABASE_STATEMENT_TIMEOUT=25000
 DATA_URL="https://docs.google.com/spreadsheets/d/1-hw07Q7PBGlz2QjOifkwM3T8406OqsGOAWA-fikgW8c/export?format=xlsx"
-PRODUCTION=False
 FERNET_KEY="1Vo_8aX-WIKEyOWsusu8SHdMDc258elXTN4-WYu_9MQ="
 RECAPTCHA_PUBLIC_KEY="CHAVE_PUBLICA_RECAPTCHA"
 RECAPTCHA_PRIVATE_KEY="CHAVE_PRIVADA_RECAPTCHA"
