@@ -19,6 +19,7 @@ DEBUG_SQL="True"
 DEV_BUILD="True"
 DJANGO_SETTINGS_MODULE=project.settings
 DEFAULT_FROM_EMAIL="root@localhost"
+ENV_TYPE="development"
 EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST="mail"
 EMAIL_HOST_PASSWORD=""

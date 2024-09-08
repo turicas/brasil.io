@@ -3,7 +3,7 @@
 {% load static %}
 {% load utils %}
 
-{% block title %}{{ obj.name }} - {% if is_person %}Pessoa Física{% elif is_company %}Pessoa Jurídica{% endif %} - Brasil.IO{% endblock %}
+{% block title %}{{ obj.name }} - {% if is_person %}Pessoa Física{% elif is_company %}Pessoa Jurídica{% endif %} - {{ block.super }}{% endblock %}
 
 {% block head %}
   {{ block.super }}

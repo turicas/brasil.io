@@ -199,7 +199,7 @@ class ApiRootViewTests(TestCase):
         data = response.json()
 
         assert 200 == response.status_code
-        assert "Brasil.io API" == data["title"]
+        assert "[dev] Brasil.IO API" == data["title"]
         assert "v1" == data["version"]
         assert reverse("v1:dataset-list") == data["datasets_url"]
         assert data["description"]

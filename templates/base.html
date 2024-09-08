@@ -18,7 +18,7 @@
   <!--Let browser know website is optimized for mobile-->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
-  <title>{% block title %}Brasil.IO{% endblock %}</title>
+  <title>{% block title %}{{ EMAIL_SUBJECT_PREFIX }}Brasil.IO{% endblock %}</title>
 
   {% block script %}
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117698282-1"></script>

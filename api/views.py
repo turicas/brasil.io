@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 
+from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from rest_framework import viewsets
@@ -124,7 +125,7 @@ class ApiRootView(APIView):
     @check_api_version_redirect
     def get(self, request):
         data = {
-            "title": "Brasil.io API",
+            "title": f"{settings.EMAIL_SUBJECT_PREFIX}Brasil.IO API",
             "version": self.request.version,
             "description": api_description,
             "datasets_url": reverse("v1:dataset-list"),

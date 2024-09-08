@@ -1,1 +1,1 @@
-[Brasil.IO] Ative sua conta
+{{ EMAIL_SUBJECT_PREFIX }}[Brasil.IO] Ative sua conta

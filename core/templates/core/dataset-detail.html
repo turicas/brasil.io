@@ -4,7 +4,7 @@
 {% load l10n %}
 {% load markdown %}
 {% load utils %}
-{% block title %}{{ dataset.name }} - Datasets - Brasil.IO{% endblock %}
+{% block title %}{{ dataset.name }} - Datasets - {{ block.super }}{% endblock %}
 {% block content %}{% localize off %}
 <div class="section">
   <div id="dataset-detail">

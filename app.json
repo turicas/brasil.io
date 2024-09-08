@@ -15,14 +15,14 @@
         "name": "web colabore check",
         "description": "Check /colabore",
         "path": "/colabore",
-        "content": "Colabore - Brasil.IO"
+        "content": "Colabore - "
       },
       {
         "type": "startup",
         "name": "web datasets check",
         "description": "Check /datasets",
         "path": "/datasets",
-        "content": "Lista de datasets - Brasil.IO"
+        "content": "Lista de datasets - "
       }
     ]
   }

@@ -13,7 +13,7 @@ from pathlib import Path
 
 import dj_database_url
 import sentry_sdk
-from decouple import Csv, config
+from decouple import Choices, Csv, config
 from django.urls import reverse_lazy
 from django.utils.log import DEFAULT_LOGGING
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -27,6 +27,7 @@ SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", cast=bool, default=False)
+ENV_TYPE = config("ENV_TYPE", cast=Choices(["development", "staging", "production"], cast=str))
 
 # Hostname
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
@@ -111,6 +112,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "core.context_processors.template_settings",
                 "covid19.context_processors.is_covid19_contributor",
             ],
         },
@@ -264,6 +266,8 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 EMAIL_PORT = config("EMAIL_PORT", cast=int, default=587)
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool, default=True)
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="contato@brasil.io")
+env_type_abbrev = {"development": "dev", "staging": "stg", "production": "prd"}[ENV_TYPE]
+EMAIL_SUBJECT_PREFIX = f"[{env_type_abbrev}] " if ENV_TYPE != "production" else ""
 
 
 # Auth conf
