@@ -1,42 +1,36 @@
-{% extends "admin/change_form.html" %} {% block extrahead %} {{ block.super }}
+{% extends "admin/change_form.html" %}
+{% block extrahead %}
+{{ block.super }}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script type="text/javascript">
-  const populateSelect = () =>
+  const populateSelect = (defaultValue) =>
     $.getJSON(
       "/clipping/get/contentype_instances/",
       { id: $("select#id_content_type").val() },
-      function (j) {
+      function (items) {
         var options = '<option value="">---------</option>';
-        for (var i = 0; i < j.length; i++) {
-          options +=
-            '<option value="' + j[i].id + '">' + j[i].name + "</option>";
+        for (const item of items) {
+            options += `<option value="${item.id}"` + (item.id === parseInt(defaultValue) ? ' selected="selected"' : "") + `>${item.name}</option>`;
         }
-        // inspect html to check id of subcategory select
         $("select#id_object_id").html(options);
       }
     );
-
-  // Populate content select then set element select
-  const setObjectIdSelect = async (j) => {
-    await populateSelect();
-    $("select#id_object_id").val(j);
-  };
 
   /*
     inspect html to check id of Content select, populate
     select Element if change occurs
   */
-  $(document).on("change", "select#id_content_type", populateSelect);
+  $(document).on("change", "select#id_content_type", () => populateSelect());
 
   // Document ready
   $(function () {
     const objPk = $(location).attr("href").match("\/([0-9_]+)\/");
     if (objPk && $("select#id_content_type").val()) {
-      $.getJSON("/clipping/get/selected_instance/", { id: objPk[1] }, (j) =>
-        setObjectIdSelect(j)
+      $.getJSON("/clipping/get/selected_instance/", { id: objPk[1] }, (obj) =>
+        populateSelect(obj.object_id)
       );
-    } else if($("select#id_content_type").val()) {
-      populateSelect()
+    } else if ($("select#id_content_type").val()) {
+      populateSelect();
     }
   });
 </script>
