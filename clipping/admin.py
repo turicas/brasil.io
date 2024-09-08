@@ -1,5 +1,4 @@
 from django import forms
-from django.conf import settings
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 from django.forms.models import ModelChoiceField
@@ -7,6 +6,11 @@ from django.forms.models import ModelChoiceField
 from .models import Clipping, ClippingRelation
 
 TARGET_MODELS = {"core": ["dataset", "table"]}
+
+
+TARGET_MODELS = {
+    "core": ["dataset", "table"]
+}
 
 
 class ClippingRelationAdminForm(forms.ModelForm):
