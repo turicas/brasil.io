@@ -28,10 +28,23 @@ class ClippingRelationAdminForm(forms.ModelForm):
 @admin.register(ClippingRelation)
 class ClippingRelationAdmin(admin.ModelAdmin):
     form = ClippingRelationAdminForm
-    list_display = ("get_clipping_relation", "clipping", "content_type")
+    list_display = (
+        "id",
+        "content_type",
+        "get_clipping_relation",
+        "clipping",
+    )
 
     def get_clipping_relation(self, obj):
-        return obj.content_object.name
+        content_type = obj.content_type
+        content_object = obj.content_object
+
+        if content_type.model == 'dataset':
+            return f"{content_object.slug} ({content_object.name})"
+        elif content_type.model == 'table':
+            return f"{content_object.dataset.slug}.{content_object.name}"
+        else:
+            return str(content_object)
 
     get_clipping_relation.short_description = "Relation"
 
@@ -49,7 +62,6 @@ class ClippingAdmin(admin.ModelAdmin):
     form = ClippingAdminForm
     list_display = ("date", "title", "author", "vehicle", "category", "url", "added_by", "published")
 
-    # Sets the current user as the adder
     def save_model(self, request, obj, form, change):
         if getattr(obj, "added_by", None) is None:
             obj.added_by = request.user
