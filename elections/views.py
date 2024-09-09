@@ -65,5 +65,5 @@ def politic(request, ano, uf, cargo, nome):
 
 def home(request, state=None):
     metadata = CandidacyMetadata.objects.first().data
-    context = { "data": { "metadata": metadata } }
+    context = {"data": {"metadata": metadata}}
     return render(request, "elections/home.html", context)
