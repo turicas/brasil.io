@@ -259,17 +259,17 @@ class TestListCandidacy:
         candidacies_2023_rj_1 = baker.make(
             Candidacy,
             ano=2024,
-            sigla_unidade_federativa="rj",
+            sigla_unidade_federativa="RJ",
             _fill_optional=True,
         )
         candidacies_2023_rj_2 = baker.make(
             Candidacy,
             ano=2023,
-            sigla_unidade_federativa="rj",
+            sigla_unidade_federativa="RJ",
             _fill_optional=True,
         )
 
-        url = reverse(self.url_name) + "?format=json&uf=rj"
+        url = reverse(self.url_name) + "?format=json&uf=Rio de Janeiro"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
@@ -295,11 +295,11 @@ class TestListCandidacy:
                 "year": candidacies_2023_rj_2.ano,
             },
         ]
-        expected_title = "Candidato(s) em RJ em todos os anos"
+        expected_title = "Candidato(s) em Rio de Janeiro em todos os anos"
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
-        assert resp.json()["filters"] == {"uf": "rj"}
+        assert resp.json()["filters"] == {"uf": "Rio de Janeiro"}
         assert resp.json()["title"] == expected_title
 
     def test_get_list_candidacy_filter_by_cargo_slug(self, client, settings):
@@ -461,7 +461,7 @@ class TestListCandidacy:
             _fill_optional=True,
         )
 
-        url = reverse(self.url_name) + "?format=json&q=rio&t=city"
+        url = reverse(self.url_name) + "?format=json&q=rio&t=cidade"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
@@ -491,7 +491,7 @@ class TestListCandidacy:
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
-        assert resp.json()["filters"] == {"q": "rio", "t": "city"}
+        assert resp.json()["filters"] == {"q": "rio", "t": "cidade"}
         assert resp.json()["title"] == expected_title
 
     def test_get_list_candidacy_filter_by_city_default_field(self, client, settings):

@@ -4,7 +4,7 @@ def candidacy_list_title(
     cargo="todos",
     uf="todos",
     q=None,
-    t="city",
+    t="cidade",
     **kwargs
 ):
     if cargo.lower() == "todos":
@@ -23,11 +23,11 @@ def candidacy_list_title(
             preposicao = "ao"
         title += f" {preposicao} {cargo.lower()}"
 
-    if q is not None and t == "city":
+    if q is not None and t == "cidade":
         title += f" em {q}"
 
-    if uf is not None and not (q is not None and t == "city"):
-        title += f" em {uf.upper()}"
+    if uf is not None and not (q is not None and t == "cidade"):
+        title += f" em {uf}"
 
     if ano is not None and ano.isdigit():
         title += f" em {ano}"

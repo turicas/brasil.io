@@ -7,6 +7,38 @@ from elections.models import Candidacy
 ALL_VALUE_NAME = "todos"
 
 
+ESTADO_SIGLA_MAPPER = {
+    "rio de janeiro": "RJ",
+    "são paulo": "SP",
+    "minas gerais": "MG",
+    "rio de janeiro": "RJ",
+    "bahia": "BA",
+    "paraná": "PR",
+    "rio grande do sul": "RS",
+    "pernambuco": "PE",
+    "ceará": "CE",
+    "pará": "PA",
+    "santa catarina": "SC",
+    "goiás": "GO",
+    "maranhão": "MA",
+    "paraíba": "PB",
+    "amazonas": "AM",
+    "espírito santo": "ES",
+    "mato grosso": "MT",
+    "rio grande do norte": "RN",
+    "piauí": "PI",
+    "alagoas": "AL",
+    "distrito federal": "DF",
+    "mato grosso do sul": "MS",
+    "sergipe": "SE",
+    "rondônia": "RO",
+    "tocantins": "TO",
+    "acre": "AC",
+    "amapá": "AM",
+    "roraima": "RR",
+}
+
+
 class CandidacyFilterSet(django_filters.FilterSet):
     ano = django_filters.NumberFilter(method="filter_ano")
     uf = django_filters.CharFilter(method="filter_uf")
@@ -28,7 +60,9 @@ class CandidacyFilterSet(django_filters.FilterSet):
         if value.lower() == ALL_VALUE_NAME:
             return queryset
 
-        return queryset.filter(sigla_unidade_federativa=value)
+        estado_sigla = ESTADO_SIGLA_MAPPER.get(value.lower())
+
+        return queryset.filter(sigla_unidade_federativa=estado_sigla)
 
     def filter_cargo(self, queryset, name, value):
         if value.lower() == ALL_VALUE_NAME:
