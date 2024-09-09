@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     "covid19.apps.Covid19Config",
     "dashboard",
     "traffic_control",
+    "clipping",
 ]
 
 MIDDLEWARE = [
