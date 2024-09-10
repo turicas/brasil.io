@@ -45,7 +45,7 @@ class ListCandidacySerializer(serializers.ModelSerializer):
 
     def get_path(self, obj):
         return (
-            "/politic/"
+            "/eleicoes/"
             f"{obj.ano}/"
             f"{obj.sigla_unidade_federativa.lower()}/"
             f"{slugify(obj.cargo)}/"

@@ -151,7 +151,7 @@ class TestListCandidacy:
         expected_data = [
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacy_1.ano}/"
                     f"{candidacy_1.sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacy_1.cargo)}/"
@@ -162,7 +162,7 @@ class TestListCandidacy:
             },
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacy_2.ano}/"
                     f"{candidacy_2.sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacy_2.cargo)}/"
@@ -189,7 +189,7 @@ class TestListCandidacy:
         expected_data = [
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacy_1.ano}/"
                     f"{candidacy_1.sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacy_1.cargo)}/"
@@ -200,7 +200,7 @@ class TestListCandidacy:
             },
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacy_2.ano}/"
                     f"{candidacy_2.sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacy_2.cargo)}/"
@@ -226,7 +226,7 @@ class TestListCandidacy:
         expected_data = [
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacies_2023[0].ano}/"
                     f"{candidacies_2023[0].sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacies_2023[0].cargo)}/"
@@ -237,7 +237,7 @@ class TestListCandidacy:
             },
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacies_2023[1].ano}/"
                     f"{candidacies_2023[1].sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacies_2023[1].cargo)}/"
@@ -274,7 +274,7 @@ class TestListCandidacy:
         expected_data = [
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacies_2023_rj_1.ano}/"
                     f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacies_2023_rj_1.cargo)}/"
@@ -285,7 +285,7 @@ class TestListCandidacy:
             },
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacies_2023_rj_2.ano}/"
                     f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacies_2023_rj_2.cargo)}/"
@@ -322,7 +322,7 @@ class TestListCandidacy:
         expected_data = [
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacies_2023_rj_1.ano}/"
                     f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacies_2023_rj_1.cargo)}/"
@@ -333,7 +333,7 @@ class TestListCandidacy:
             },
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacies_2023_rj_2.ano}/"
                     f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacies_2023_rj_2.cargo)}/"
@@ -370,7 +370,7 @@ class TestListCandidacy:
         expected_data = [
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacies_2023_rj_1.ano}/"
                     f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacies_2023_rj_1.cargo)}/"
@@ -381,7 +381,7 @@ class TestListCandidacy:
             },
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacies_2023_rj_2.ano}/"
                     f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacies_2023_rj_2.cargo)}/"
@@ -416,7 +416,7 @@ class TestListCandidacy:
         expected_data = [
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacies_2023_rj_1.ano}/"
                     f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacies_2023_rj_1.cargo)}/"
@@ -427,7 +427,7 @@ class TestListCandidacy:
             },
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacies_2023_rj_2.ano}/"
                     f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacies_2023_rj_2.cargo)}/"
@@ -466,7 +466,7 @@ class TestListCandidacy:
         expected_data = [
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacies_2023_rj_1.ano}/"
                     f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacies_2023_rj_1.cargo)}/"
@@ -477,7 +477,7 @@ class TestListCandidacy:
             },
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacies_2023_rj_2.ano}/"
                     f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacies_2023_rj_2.cargo)}/"
@@ -515,7 +515,7 @@ class TestListCandidacy:
         expected_data = [
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacies_2023_rj_1.ano}/"
                     f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacies_2023_rj_1.cargo)}/"
@@ -526,7 +526,7 @@ class TestListCandidacy:
             },
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacies_2023_rj_2.ano}/"
                     f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacies_2023_rj_2.cargo)}/"
@@ -552,7 +552,7 @@ class TestListCandidacy:
         expected_data = [
             {
                 "path": (
-                    "/politic/"
+                    "/eleicoes/"
                     f"{candidacies_2024.ano}/"
                     f"{candidacies_2024.sigla_unidade_federativa.lower()}/"
                     f"{slugify(candidacies_2024.cargo)}/"

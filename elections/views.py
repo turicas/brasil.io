@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from elections.filters import CandidacyFilterSet
 from elections.models import Candidacy, CandidacyMetadata
@@ -67,3 +67,7 @@ def home(request, state=None):
     metadata = CandidacyMetadata.objects.first().data
     context = {"data": {"metadata": metadata}}
     return render(request, "elections/home.html", context)
+
+
+def candidacy_redirect_2024(request):
+    return redirect("elections:candidacy_list")
