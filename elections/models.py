@@ -22,6 +22,7 @@ class Candidacy(models.Model):
     unidade_eleitoral = models.TextField(max_length=32, null=True, blank=True)
     situacao = models.TextField(max_length=15, null=True, blank=True)
     municipio = models.TextField(null=True, blank=True)
+    municipio_slug = models.TextField(null=True, blank=True)
 
     class Meta:
         ordering = ["-ano"]

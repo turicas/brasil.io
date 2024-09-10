@@ -8,7 +8,7 @@ urlpatterns = [
     path("", views.candidacy_redirect_2024, name="redirect_2024"),
     path("2024/", views.candidacy_list, name="candidacy_list"),
     path(
-        "2024/<int:ano>/<str:uf>/<str:cargo>/<str:nome>/",
+        "<int:ano>/<str:uf>/<str:municipio>/<str:cargo>/<str:nome>/",
         views.politic,
         name="candidacy_detail"
     ),

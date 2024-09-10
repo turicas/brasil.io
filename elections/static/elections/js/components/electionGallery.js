@@ -252,7 +252,7 @@ export const electionGallery = {
                       indeferido
                     </n-tag>
                   </div>
-                  <a :href="'/elections' + item.path" class="stretched-link"></a>
+                  <a :href="item.path" class="stretched-link"></a>
                 </div>
               </n-card>
             </n-gi>

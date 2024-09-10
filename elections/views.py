@@ -43,11 +43,12 @@ def candidacy_list(request):
     return render(request, "elections/elections.html", context={"data": data})
 
 
-def politic(request, ano, uf, cargo, nome):
+def politic(request, ano, uf, municipio, cargo, nome):
     candidacy = get_object_or_404(
         Candidacy,
         ano=ano,
         sigla_unidade_federativa__iexact=uf,
+        municipio_slug=municipio,
         cargo_slug=cargo,
         nome_urna_slug=nome,
     )

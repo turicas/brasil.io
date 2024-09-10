@@ -48,6 +48,7 @@ class ListCandidacySerializer(serializers.ModelSerializer):
             "/eleicoes/"
             f"{obj.ano}/"
             f"{obj.sigla_unidade_federativa.lower()}/"
-            f"{slugify(obj.cargo)}/"
-            f"{slugify(obj.nome_urna)}/"
+            f"{obj.municipio_slug}/"
+            f"{obj.cargo_slug}/"
+            f"{obj.nome_urna_slug}/"
         )

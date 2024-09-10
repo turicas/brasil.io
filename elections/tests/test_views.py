@@ -1,6 +1,5 @@
 import pytest
 from django.urls import reverse
-from django.utils.text import slugify
 from model_bakery import baker
 
 from elections.models import Candidacy, CandidacyMetadata
@@ -29,6 +28,7 @@ class TestDetailCandidacyView:
             cargo_slug="deputado",
             nome_urna_slug="joao-graca",
             sigla_unidade_federativa="rj",
+            municipio_slug="rio-de-janeiro",
             _fill_optional=True
         )
 
@@ -37,6 +37,7 @@ class TestDetailCandidacyView:
             kwargs={
                 "ano": candidacy.ano,
                 "uf": candidacy.sigla_unidade_federativa,
+                "municipio": candidacy.municipio_slug,
                 "cargo": candidacy.cargo_slug,
                 "nome": candidacy.nome_urna_slug,
             }
@@ -55,6 +56,7 @@ class TestDetailCandidacyView:
             cargo_slug="deputado",
             nome_urna_slug="joao-graca",
             sigla_unidade_federativa="rj",
+            municipio_slug="rio-de-janeiro",
             _fill_optional=True
         )
 
@@ -63,6 +65,7 @@ class TestDetailCandidacyView:
             kwargs={
                 "ano": candidacy.ano,
                 "uf": candidacy.sigla_unidade_federativa,
+                "municipio": candidacy.municipio_slug,
                 "cargo": candidacy.cargo_slug,
                 "nome": candidacy.nome_urna_slug,
             }
@@ -82,6 +85,7 @@ class TestDetailCandidacyView:
             cargo_slug="deputado",
             nome_urna_slug="joao-graca",
             sigla_unidade_federativa="rj",
+            municipio_slug="rio-de-janeiro",
             _fill_optional=True
         )
 
@@ -90,6 +94,7 @@ class TestDetailCandidacyView:
             kwargs={
                 "ano": candidacy.ano + "1",
                 "uf": candidacy.sigla_unidade_federativa,
+                "municipio": candidacy.municipio_slug,
                 "cargo": candidacy.cargo_slug,
                 "nome": candidacy.nome_urna_slug,
             }
@@ -106,6 +111,7 @@ class TestDetailCandidacyView:
             cargo_slug="deputado",
             nome_urna_slug="joao-graca",
             sigla_unidade_federativa="rj",
+            municipio_slug="rio-de-janeiro",
             _fill_optional=True
         )
 
@@ -114,6 +120,7 @@ class TestDetailCandidacyView:
             kwargs={
                 "ano": candidacy.ano,
                 "uf": candidacy.sigla_unidade_federativa,
+                "municipio": candidacy.municipio_slug,
                 "cargo": candidacy.cargo_slug,
                 "nome": candidacy.nome_urna_slug,
             }
@@ -154,8 +161,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacy_1.ano}/"
                     f"{candidacy_1.sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacy_1.cargo)}/"
-                    f"{slugify(candidacy_1.nome_urna)}/"
+                    f"{candidacy_1.municipio_slug}/"
+                    f"{candidacy_1.cargo_slug}/"
+                    f"{candidacy_1.nome_urna_slug}/"
                 ),
                 "name": candidacy_1.nome,
                 "year": candidacy_1.ano,
@@ -165,8 +173,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacy_2.ano}/"
                     f"{candidacy_2.sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacy_2.cargo)}/"
-                    f"{slugify(candidacy_2.nome_urna)}/"
+                    f"{candidacy_2.municipio_slug}/"
+                    f"{candidacy_2.cargo_slug}/"
+                    f"{candidacy_2.nome_urna_slug}/"
                 ),
                 "name": candidacy_2.nome,
                 "year": candidacy_2.ano,
@@ -192,8 +201,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacy_1.ano}/"
                     f"{candidacy_1.sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacy_1.cargo)}/"
-                    f"{slugify(candidacy_1.nome_urna)}/"
+                    f"{candidacy_1.municipio_slug}/"
+                    f"{candidacy_1.cargo_slug}/"
+                    f"{candidacy_1.nome_urna_slug}/"
                 ),
                 "name": candidacy_1.nome,
                 "year": candidacy_1.ano,
@@ -203,8 +213,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacy_2.ano}/"
                     f"{candidacy_2.sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacy_2.cargo)}/"
-                    f"{slugify(candidacy_2.nome_urna)}/"
+                    f"{candidacy_2.municipio_slug}/"
+                    f"{candidacy_2.cargo_slug}/"
+                    f"{candidacy_2.nome_urna_slug}/"
                 ),
                 "name": candidacy_2.nome,
                 "year": candidacy_2.ano,
@@ -229,8 +240,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacies_2023[0].ano}/"
                     f"{candidacies_2023[0].sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacies_2023[0].cargo)}/"
-                    f"{slugify(candidacies_2023[0].nome_urna)}/"
+                    f"{candidacies_2023[0].municipio_slug}/"
+                    f"{candidacies_2023[0].cargo_slug}/"
+                    f"{candidacies_2023[0].nome_urna_slug}/"
                 ),
                 "name": candidacies_2023[0].nome,
                 "year": candidacies_2023[0].ano,
@@ -240,8 +252,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacies_2023[1].ano}/"
                     f"{candidacies_2023[1].sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacies_2023[1].cargo)}/"
-                    f"{slugify(candidacies_2023[1].nome_urna)}/"
+                    f"{candidacies_2023[1].municipio_slug}/"
+                    f"{candidacies_2023[1].cargo_slug}/"
+                    f"{candidacies_2023[1].nome_urna_slug}/"
                 ),
                 "name": candidacies_2023[1].nome,
                 "year": candidacies_2023[1].ano,
@@ -277,8 +290,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacies_2023_rj_1.ano}/"
                     f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacies_2023_rj_1.cargo)}/"
-                    f"{slugify(candidacies_2023_rj_1.nome_urna)}/"
+                    f"{candidacies_2023_rj_1.municipio_slug}/"
+                    f"{candidacies_2023_rj_1.cargo_slug}/"
+                    f"{candidacies_2023_rj_1.nome_urna_slug}/"
                 ),
                 "name": candidacies_2023_rj_1.nome,
                 "year": candidacies_2023_rj_1.ano,
@@ -288,8 +302,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacies_2023_rj_2.ano}/"
                     f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacies_2023_rj_2.cargo)}/"
-                    f"{slugify(candidacies_2023_rj_2.nome_urna)}/"
+                    f"{candidacies_2023_rj_2.municipio_slug}/"
+                    f"{candidacies_2023_rj_2.cargo_slug}/"
+                    f"{candidacies_2023_rj_2.nome_urna_slug}/"
                 ),
                 "name": candidacies_2023_rj_2.nome,
                 "year": candidacies_2023_rj_2.ano,
@@ -325,8 +340,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacies_2023_rj_1.ano}/"
                     f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacies_2023_rj_1.cargo)}/"
-                    f"{slugify(candidacies_2023_rj_1.nome_urna)}/"
+                    f"{candidacies_2023_rj_1.municipio_slug}/"
+                    f"{candidacies_2023_rj_1.cargo_slug}/"
+                    f"{candidacies_2023_rj_1.nome_urna_slug}/"
                 ),
                 "name": candidacies_2023_rj_1.nome,
                 "year": candidacies_2023_rj_1.ano,
@@ -336,8 +352,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacies_2023_rj_2.ano}/"
                     f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacies_2023_rj_2.cargo)}/"
-                    f"{slugify(candidacies_2023_rj_2.nome_urna)}/"
+                    f"{candidacies_2023_rj_2.municipio_slug}/"
+                    f"{candidacies_2023_rj_2.cargo_slug}/"
+                    f"{candidacies_2023_rj_2.nome_urna_slug}/"
                 ),
                 "name": candidacies_2023_rj_2.nome,
                 "year": candidacies_2023_rj_2.ano,
@@ -373,8 +390,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacies_2023_rj_1.ano}/"
                     f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacies_2023_rj_1.cargo)}/"
-                    f"{slugify(candidacies_2023_rj_1.nome_urna)}/"
+                    f"{candidacies_2023_rj_1.municipio_slug}/"
+                    f"{candidacies_2023_rj_1.cargo_slug}/"
+                    f"{candidacies_2023_rj_1.nome_urna_slug}/"
                 ),
                 "name": candidacies_2023_rj_1.nome,
                 "year": candidacies_2023_rj_1.ano,
@@ -384,8 +402,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacies_2023_rj_2.ano}/"
                     f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacies_2023_rj_2.cargo)}/"
-                    f"{slugify(candidacies_2023_rj_2.nome_urna)}/"
+                    f"{candidacies_2023_rj_2.municipio_slug}/"
+                    f"{candidacies_2023_rj_2.cargo_slug}/"
+                    f"{candidacies_2023_rj_2.nome_urna_slug}/"
                 ),
                 "name": candidacies_2023_rj_2.nome,
                 "year": candidacies_2023_rj_2.ano,
@@ -419,8 +438,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacies_2023_rj_1.ano}/"
                     f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacies_2023_rj_1.cargo)}/"
-                    f"{slugify(candidacies_2023_rj_1.nome_urna)}/"
+                    f"{candidacies_2023_rj_1.municipio_slug}/"
+                    f"{candidacies_2023_rj_1.cargo_slug}/"
+                    f"{candidacies_2023_rj_1.nome_urna_slug}/"
                 ),
                 "name": candidacies_2023_rj_1.nome,
                 "year": candidacies_2023_rj_1.ano,
@@ -430,8 +450,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacies_2023_rj_2.ano}/"
                     f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacies_2023_rj_2.cargo)}/"
-                    f"{slugify(candidacies_2023_rj_2.nome_urna)}/"
+                    f"{candidacies_2023_rj_2.municipio_slug}/"
+                    f"{candidacies_2023_rj_2.cargo_slug}/"
+                    f"{candidacies_2023_rj_2.nome_urna_slug}/"
                 ),
                 "name": candidacies_2023_rj_2.nome,
                 "year": candidacies_2023_rj_2.ano,
@@ -469,8 +490,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacies_2023_rj_1.ano}/"
                     f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacies_2023_rj_1.cargo)}/"
-                    f"{slugify(candidacies_2023_rj_1.nome_urna)}/"
+                    f"{candidacies_2023_rj_1.municipio_slug}/"
+                    f"{candidacies_2023_rj_1.cargo_slug}/"
+                    f"{candidacies_2023_rj_1.nome_urna_slug}/"
                 ),
                 "name": candidacies_2023_rj_1.nome,
                 "year": candidacies_2023_rj_1.ano,
@@ -480,8 +502,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacies_2023_rj_2.ano}/"
                     f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacies_2023_rj_2.cargo)}/"
-                    f"{slugify(candidacies_2023_rj_2.nome_urna)}/"
+                    f"{candidacies_2023_rj_2.municipio_slug}/"
+                    f"{candidacies_2023_rj_2.cargo_slug}/"
+                    f"{candidacies_2023_rj_2.nome_urna_slug}/"
                 ),
                 "name": candidacies_2023_rj_2.nome,
                 "year": candidacies_2023_rj_2.ano,
@@ -518,8 +541,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacies_2023_rj_1.ano}/"
                     f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacies_2023_rj_1.cargo)}/"
-                    f"{slugify(candidacies_2023_rj_1.nome_urna)}/"
+                    f"{candidacies_2023_rj_1.municipio_slug}/"
+                    f"{candidacies_2023_rj_1.cargo_slug}/"
+                    f"{candidacies_2023_rj_1.nome_urna_slug}/"
                 ),
                 "name": candidacies_2023_rj_1.nome,
                 "year": candidacies_2023_rj_1.ano,
@@ -529,8 +553,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacies_2023_rj_2.ano}/"
                     f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacies_2023_rj_2.cargo)}/"
-                    f"{slugify(candidacies_2023_rj_2.nome_urna)}/"
+                    f"{candidacies_2023_rj_2.municipio_slug}/"
+                    f"{candidacies_2023_rj_2.cargo_slug}/"
+                    f"{candidacies_2023_rj_2.nome_urna_slug}/"
                 ),
                 "name": candidacies_2023_rj_2.nome,
                 "year": candidacies_2023_rj_2.ano,
@@ -555,8 +580,9 @@ class TestListCandidacy:
                     "/eleicoes/"
                     f"{candidacies_2024.ano}/"
                     f"{candidacies_2024.sigla_unidade_federativa.lower()}/"
-                    f"{slugify(candidacies_2024.cargo)}/"
-                    f"{slugify(candidacies_2024.nome_urna)}/"
+                    f"{candidacies_2024.municipio_slug}/"
+                    f"{candidacies_2024.cargo_slug}/"
+                    f"{candidacies_2024.nome_urna_slug}/"
                 ),
                 "name": candidacies_2024.nome,
                 "year": candidacies_2024.ano,
