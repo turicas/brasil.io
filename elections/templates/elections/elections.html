@@ -10,25 +10,4 @@
   position: initial;
 }
 </style>
-
-{{ data|json_script:"data" }}
-
-<div id="app">
-  <div class="container my-5">
-    <div class="placeholder-glow">
-      <span class="placeholder col-12 bg-secondary" style="height: 110.1px;"></span>
-    <div>
-    <div class="placeholder-glow mt-4">
-      <span class="placeholder col-12 bg-secondary" style="height: 700px;"></span>
-    <div>
-  </div>
-</div>
-{% endblock %}
-
-{% block bodyscript %}
-{{ block.super }}
-<script src="{% static 'elections/js/vue-3.5.0.global.js' %}"></script>
-<script src="{% static 'elections/js/naive-ui-2.39.0.js' %}"></script>
-<script src="{% static 'elections/js/vue-router-4.0.15.global.js' %}"></script>
-<script src="{% static 'elections/js/components/elections.js' %}" type="module"></script>
 {% endblock %}
