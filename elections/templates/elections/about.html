@@ -1,15 +1,9 @@
 {% extends 'elections/base.html' %}
 {% load l10n %}
 {% load static %}
-{% block title %}Eleições - Brasil.IO{% endblock %}
+{% block title %}Sobre - Eleições Brasil.IO{% endblock %}
 
 {% block content %}
-<section class="container my-5">
-  <div
-    class="bg-body-secondary d-flex justify-content-center align-items-center fs-3"
-    style="height: 120px;"
-  >BUSCA</div>
-</section>
 <section class="container my-5 pb-5">
   <div class="row g-2">
     <div class="col-12 col-lg-3 sticky-xl-top align-self-start pt-2">
@@ -24,13 +18,8 @@
           </div>
           <article class="d-flex flex-column align-items-center mt-4">
             <h2 class="fs-5 mb-3 fw-light election-text-primary">Portal das Eleições</h2>
-            <div class="fs-4 d-flex justify-content-center gap-2 election-text-primary">
-              <div>
-                <i class="bi bi-twitter"></i>
-              </div>
-              <div>
-                <i class="bi bi-github"></i>
-              </div>
+            <div class="fs-4 d-flex justify-content-center gap-3 election-text-primary">
+              {% include 'elections/includes/social_links.html' %}
             </div>
           </article>
         </div>
@@ -65,4 +54,3 @@ Como a fonte primária de todos os dados divulgados são órgãos públicos, a p
   </div>
 </section>
 {% endblock %}
-

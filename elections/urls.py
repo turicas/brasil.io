@@ -12,5 +12,5 @@ urlpatterns = [
         views.politic,
         name="candidacy_detail"
     ),
-    path("home/", views.home, name="home"),
+    path("sobre/", views.about, name="about"),
 ]

@@ -64,10 +64,10 @@ def politic(request, ano, uf, municipio, cargo, nome):
     return render(request, "elections/politic.html", context={"data": data})
 
 
-def home(request, state=None):
+def about(request, state=None):
     metadata = CandidacyMetadata.objects.first().data
     context = {"data": {"metadata": metadata}}
-    return render(request, "elections/home.html", context)
+    return render(request, "elections/about.html", context)
 
 
 def candidacy_redirect_2024(request):
