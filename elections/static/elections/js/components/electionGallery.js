@@ -129,7 +129,7 @@ export const electionGallery = {
 
       const requestFormated = { ...defaultRequests, ...request, format: 'json' }
       const requestResult = await api("", requestFormated)
- 
+
       updateUrl({ ...defaultRequests, ...request })
 
       data.value = requestResult.items
@@ -231,8 +231,8 @@ export const electionGallery = {
         <n-grid :x-gap="12" :y-gap="12" cols="1 640:2 1024:4">
           <template v-for="item in data">
             <n-gi>
-              <n-card hoverable style="margin: auto;">
-                <div class="text-center" style="transform: rotate(0);">
+              <n-card hoverable style="margin: auto; transform: rotate(0);">
+                <div class="text-center">
                   <n-avatar
                     round
                     :size="48"
