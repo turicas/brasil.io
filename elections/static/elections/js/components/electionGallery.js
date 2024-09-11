@@ -12,11 +12,13 @@ export const electionGallery = {
     "n-avatar": naive.NAvatar,
     "n-button": naive.NButton,
     "n-card": naive.NCard,
+    "n-empty": naive.NEmpty,
     "n-gi": naive.NGi,
     "n-grid": naive.NGrid,
     "n-h1": naive.NH1,
     "n-pagination": naive.NPagination,
     "n-space": naive.NSpace,
+    "n-spin": naive.NSpin,
     "n-tag": naive.NTag,
     filters,
   },
@@ -101,6 +103,8 @@ export const electionGallery = {
     }
 
     const requestApi = async (request = {}) => {
+      loading.value = true
+
       const defaultRequests = {}
       if (party.value) { defaultRequests["partido"] = party.value }
       if (role.value) { defaultRequests["cargo"] = role.value }
@@ -124,8 +128,6 @@ export const electionGallery = {
 
       if (sort.value) { defaultRequests["sort"] = sort.value }
       if (order.value) { defaultRequests["order"] = order.value }
-
-      loading.value = true
 
       const requestFormated = { ...defaultRequests, ...request, format: 'json' }
       const requestResult = await api("", requestFormated)
@@ -228,36 +230,44 @@ export const electionGallery = {
       />
       <n-h1>[[ title ]]</n-h1>
       <div class="mb-5 mt-4">
-        <n-grid :x-gap="12" :y-gap="12" cols="1 640:2 1024:4">
-          <template v-for="item in data">
-            <n-gi>
-              <n-card hoverable style="margin: auto; transform: rotate(0);">
-                <div class="text-center">
-                  <n-avatar
-                    round
-                    :size="48"
-                    src="empty.png"
-                    fallback-src="/static/elections/img/politics/default-avatar.jpg"
-                  />
-                  <h2 class="fs-5 mb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-box" viewBox="0 0 16 16">
-                      <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5 8 5.961 14.154 3.5zM15 4.239l-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
-                    </svg>
-                    Partido <strong>00 00 0</strong></h2>
-                  <div class="d-flex flex-column gap-1 small">
-                    <a href="#" class="text-decoration-none" style="height: 40px">[[ item.name ]]</a>
+        <n-spin :show="loading">
+          <n-grid v-if="data.length" :x-gap="12" :y-gap="12" cols="1 640:2 1024:4">
+            <template v-for="item in data">
+              <n-gi>
+                <n-card hoverable style="margin: auto; transform: rotate(0);">
+                  <div class="text-center">
+                    <n-avatar
+                      round
+                      :size="48"
+                      src="empty.png"
+                      fallback-src="/static/elections/img/politics/default-avatar.jpg"
+                    />
+                    <h2 class="fs-5 mb-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-box" viewBox="0 0 16 16">
+                        <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5 8 5.961 14.154 3.5zM15 4.239l-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
+                      </svg>
+                      Partido <strong>00 00 0</strong></h2>
+                    <div class="d-flex flex-column gap-1 small">
+                      <a href="#" class="text-decoration-none" style="height: 40px">[[ item.name ]]</a>
+                    </div>
+                    <div>
+                      <n-tag size="small" round>
+                        indeferido
+                      </n-tag>
+                    </div>
+                    <a :href="item.path" class="stretched-link"></a>
                   </div>
-                  <div>
-                    <n-tag size="small" round>
-                      indeferido
-                    </n-tag>
-                  </div>
-                  <a :href="item.path" class="stretched-link"></a>
-                </div>
-              </n-card>
-            </n-gi>
-          </template>
-        </n-grid>
+                </n-card>
+              </n-gi>
+            </template>
+          </n-grid>
+          <n-empty
+            v-else
+            class="d-flex justify-content-center rounded border border-2"
+            description="Nada encontrado"
+            style="height: 450px;"
+          />
+        </n-spin>
         <n-space class="pt-5 mx-auto d-flex justify-content-center">
           <n-pagination
             v-model:page="pagination.page"
