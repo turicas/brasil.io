@@ -62,7 +62,7 @@ export const isolatedFilter = {
         location.protocol +
         "//" +
         location.host +
-        "/elections/index/" +
+        "/eleicoes/" +
         formatedParamsToQueryStrings(requestFormated)
     }
 
