@@ -49,9 +49,16 @@
           <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav d-flex justify-content-between w-100">
               <div class="d-flex flex-column flex-lg-row g-2 g-lg-0">
-                <a class="nav-link active fw-bold" aria-current="page" href="#">Home</a>
-                <a class="nav-link" href="#">Busca</a>
-                <a class="nav-link" href="#">Sobre</a>
+                <a
+                  class="nav-link {% if request.resolver_match.url_name == 'candidacy_list' %}active{% endif %}"
+                  href="{% url 'elections:candidacy_list' %}"
+                >Busca
+                </a>
+                <a
+                  class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}"
+                  href="{% url 'elections:about' %}"
+                >Sobre
+                </a>
               </div>
               <div class="nav-item dropdown">
                 <a
@@ -163,14 +170,22 @@
                 <span class="fw-light">Portal das Eleições</span>
               </div>
               <div class="ms-lg-3 d-flex gap-3">
-                <i class="bi bi-twitter fs-4"></i>
-                <i class="bi bi-github fs-4"></i>
+                {% include 'elections/includes/social_links.html' %}
               </div>
             </div>
             <ul class="nav justify-content-center">
-              <li class="nav-item"><a href="#" class="nav-link link-light px-2 fw-bold">Home</a></li>
-              <li class="nav-item"><a href="#" class="nav-link link-light px-2">Features</a></li>
-              <li class="nav-item"><a href="#" class="nav-link link-light px-2">About</a></li>
+              <li class="nav-item">
+                <a
+                  class="nav-link link-light px-2 {% if request.resolver_match.url_name == 'candidacy_list' %}fw-bold{% endif %}"
+                  href="{% url 'elections:candidacy_list' %}"
+                >Busca</a>
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link link-light px-2 {% if request.resolver_match.url_name == 'about' %}fw-bold{% endif %}"
+                  href="{% url 'elections:about' %}"
+                >About</a>
+              </li>
             </ul>
             <div class="d-flex flex-column-reverse flex-lg-row gap-2 align-items-center">
               <div class="me-lg-3">2024</div>
