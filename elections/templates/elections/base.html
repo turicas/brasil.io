@@ -103,50 +103,24 @@
       </nav>
     </header>
     <main class="flex-shrink-0">
+      <section class="container py-5">
+        <!-- Django template data to prepopulated JavaScript components  -->
+        {{ data|json_script:"data" }}
+        <div id="app">
+          <!-- Skeleton loading animation -->
+          <div class="placeholder-glow">
+            <span class="placeholder col-12 bg-secondary" style="height: 110.1px;"></span>
+          <div>
+          <!-- Add seconde skeleton loading animation if candidacy_list page  -->
+          {% if request.resolver_match.url_name == 'candidacy_list' %}
+            <div class="placeholder-glow mt-4">
+              <span class="placeholder col-12 bg-secondary" style="height: 700px;"></span>
+            <div>
+          {% endif %}
+        </div>
+      </section>
       {% block content %}{% endblock %}
     </main>
-
-    {% block bodyscript %}
-      <script src="{% static 'elections/js/bootstrap-5.3.3.bundle.min.js' %}"></script>
-      <script src="{% static 'elections/js/theme.js' %}"></script>
-      <script>
-        const copyToClipboard = async (textToCopy) => {
-          // Navigator clipboard api needs a secure context (https)
-          if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(textToCopy)
-          } else {
-            // Use the 'out of viewport hidden text area' trick
-            const textArea = document.createElement("textarea")
-            textArea.value = textToCopy
-
-            // Move textarea out of the viewport so it's not visible
-            textArea.style.position = "absolute"
-            textArea.style.left = "-999999px"
-
-            document.body.prepend(textArea)
-            textArea.select()
-
-            try {
-              document.execCommand('copy')
-            } catch (error) {
-              // Do nothing
-            } finally {
-              textArea.remove()
-            }
-          }
-        }
-        const copyCurrentLink = async () => {
-          try {
-            const link = window.location.href
-            await copyToClipboard(window.location.href)
-            window.alert(`Link: ${link} copiado para a área de transferência`)
-          } catch (e) {
-            // Do nothing
-          }
-        }
-      </script>
-
-    {% endblock %}
 
     <div class="mt-auto" style="background-color: var(--election-primary-bg)">
       <div class="container">
@@ -203,5 +177,50 @@
         </footer>
       </div>
     </div>
+
+    {% block bodyscript %}
+      <script src="{% static 'elections/js/bootstrap-5.3.3.bundle.min.js' %}"></script>
+      <script src="{% static 'elections/js/theme.js' %}"></script>
+      <script>
+        const copyToClipboard = async (textToCopy) => {
+          // Navigator clipboard api needs a secure context (https)
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(textToCopy)
+          } else {
+            // Use the 'out of viewport hidden text area' trick
+            const textArea = document.createElement("textarea")
+            textArea.value = textToCopy
+
+            // Move textarea out of the viewport so it's not visible
+            textArea.style.position = "absolute"
+            textArea.style.left = "-999999px"
+
+            document.body.prepend(textArea)
+            textArea.select()
+
+            try {
+              document.execCommand('copy')
+            } catch (error) {
+              // Do nothing
+            } finally {
+              textArea.remove()
+            }
+          }
+        }
+        const copyCurrentLink = async () => {
+          try {
+            const link = window.location.href
+            await copyToClipboard(window.location.href)
+            window.alert(`Link: ${link} copiado para a área de transferência`)
+          } catch (e) {
+            // Do nothing
+          }
+        }
+      </script>
+      <script src="{% static 'elections/js/vue-3.5.0.global.js' %}"></script>
+      <script src="{% static 'elections/js/naive-ui-2.39.0.js' %}"></script>
+      <script src="{% static 'elections/js/vue-router-4.0.15.global.js' %}"></script>
+      <script src="{% static 'elections/js/components/elections.js' %}" type="module"></script>
+    {% endblock %}
   </body>
 </html>

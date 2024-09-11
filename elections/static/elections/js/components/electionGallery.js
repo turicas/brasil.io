@@ -215,7 +215,7 @@ export const electionGallery = {
     }
   },
   template: `
-    <div class="container pt-5">
+    <div>
       <filters
         :context
         :handleSearch
