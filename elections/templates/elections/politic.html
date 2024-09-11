@@ -5,6 +5,18 @@
 
 {% block content %}
 {% with candidacy=data.item %}
+<style>
+.image-loading {
+  max-width: 290px;
+  width: 100%;
+}
+@media (min-width: 1200px) {
+  .image-loading {
+    min-height: 239px;
+  }
+}
+
+</style>
 <section class="container mb-5 pb-5">
   <h1 class="fw-normal">{{ candidacy.nome|lower|capfirst }}</h1>
   <div class="d-flex align-items-center border-top-custom" style="font-weight: 500">
@@ -38,7 +50,7 @@
         <div class="card-body d-flex flex-column justify-content-center">
           <img
             src="{% static 'elections/img/politics/default-avatar.jpg' %}"
-            class="rounded-circle mx-auto d-block"
+            class="rounded-circle mx-auto d-block image-loading"
             alt="foto candidato"
             style="max-width: 290px; width: 100%; min-height: 239px;"
           >
@@ -82,7 +94,7 @@
     </div>
     <div class="col-12 col-lg-9 pt-2">
       <div class="card border-0">
-        <div class="card-body py-0">
+        <div class="mx-lg-3">
           <div class="accordion d-flex flex-column gap-2" id="accordionPanelsStayOpenExample">
             <div class="accordion-item accordion-item-custom">
               <h2 class="accordion-header accordion-header-custom">
