@@ -7,6 +7,27 @@ def candidacy_list_title(
     t="cidade",
     **kwargs
 ):
+
+    uf_prepositions = {
+        "Rio de Janeiro": "no",
+        "Bahia": "na",
+        "Espírito Santo": "no",
+        "Paraná": "no",
+        "Rio Grande do Sul": "no",
+        "Ceará": "no",
+        "Pará": "no",
+        "Maranhão": "no",
+        "Paraíba": "na",
+        "Amazonas": "no",
+        "Mato Grosso": "no",
+        "Rio Grande do Norte": "no",
+        "Piauí": "no",
+        "Distrito Federal": "no",
+        "Tocantins": "no",
+        "Acre": "no",
+        "Amapá": "no",
+    }
+
     if cargo.lower() == "todos":
         cargo = None
     if uf.lower() == "todos":
@@ -27,7 +48,8 @@ def candidacy_list_title(
         title += f" em {q}"
 
     if uf is not None and not (q is not None and t == "cidade"):
-        title += f" em {uf}"
+        uf_preposition = uf_prepositions.get(uf, "em")
+        title += f" {uf_preposition} {uf}"
 
     if ano is not None and ano.isdigit():
         title += f" em {ano}"

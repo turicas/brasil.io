@@ -310,7 +310,7 @@ class TestListCandidacy:
                 "year": candidacies_2023_rj_2.ano,
             },
         ]
-        expected_title = "Candidato(s) em Rio de Janeiro em todos os anos"
+        expected_title = "Candidato(s) no Rio de Janeiro em todos os anos"
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
