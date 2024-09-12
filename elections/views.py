@@ -25,7 +25,7 @@ def candidacy_list(request):
     metadata = CandidacyMetadata.objects.first().data
 
     selected_filter_fields = filter_selected_fields(filter_set.data)
-    title = candidacy_list_title(**selected_filter_fields)
+    title = candidacy_list_title(**selected_filter_fields, ano_inicio=Candidacy.first_year())
 
     data = {
         "items": serializer.data,

@@ -221,7 +221,7 @@ class TestListCandidacy:
                 "year": candidacy_2.ano,
             },
         ]
-        expected_title = "Candidato(s) em todos os anos"
+        expected_title = "Candidato(s) desde 2023"
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
@@ -267,8 +267,10 @@ class TestListCandidacy:
         assert resp.json()["filters"] == {"ano": "2023"}
         assert resp.json()["title"] == expected_title
 
-    def test_get_list_candidacy_filter_by_uf(self, client, settings):
-        baker.make(Candidacy, sigla_unidade_federativa="sp", _quantity=2, _fill_optional=True)
+    def test_get_list_candidacy_filter_by_uf(
+        self, client, settings
+    ):
+        baker.make(Candidacy, ano=2018, sigla_unidade_federativa="sp", _quantity=2, _fill_optional=True)
         candidacies_2023_rj_1 = baker.make(
             Candidacy,
             ano=2024,
@@ -310,7 +312,7 @@ class TestListCandidacy:
                 "year": candidacies_2023_rj_2.ano,
             },
         ]
-        expected_title = "Candidato(s) no Rio de Janeiro em todos os anos"
+        expected_title = "Candidato(s) no Rio de Janeiro desde 2018"
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
@@ -318,7 +320,7 @@ class TestListCandidacy:
         assert resp.json()["title"] == expected_title
 
     def test_get_list_candidacy_filter_by_cargo_slug(self, client, settings):
-        baker.make(Candidacy, cargo_slug="deputado-estadual", _quantity=2, _fill_optional=True)
+        baker.make(Candidacy, ano=2014, cargo_slug="deputado-estadual", _quantity=2, _fill_optional=True)
         candidacies_2023_rj_1 = baker.make(
             Candidacy,
             ano=2024,
@@ -360,7 +362,7 @@ class TestListCandidacy:
                 "year": candidacies_2023_rj_2.ano,
             },
         ]
-        expected_title = "Candidato(s) ao senado em todos os anos"
+        expected_title = "Candidato(s) ao senado desde 2014"
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
@@ -416,7 +418,7 @@ class TestListCandidacy:
         assert resp.json()["filters"] == {"partido": "ppp"}
 
     def test_get_list_candidacy_filter_by_name(self, client, settings):
-        baker.make(Candidacy, nome="Paulo Silva", _quantity=2, _fill_optional=True)
+        baker.make(Candidacy, ano=2024, nome="Paulo Silva", _quantity=2, _fill_optional=True)
         candidacies_2023_rj_1 = baker.make(
             Candidacy,
             ano=2024,
@@ -459,7 +461,7 @@ class TestListCandidacy:
             },
         ]
 
-        expected_title = 'Candidato(s) "joao" em todos os anos'
+        expected_title = 'Candidato(s) "joao" desde 2023'
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
@@ -468,7 +470,7 @@ class TestListCandidacy:
 
     def test_get_list_candidacy_filter_by_city(self, client, settings):
         # TODO: checar campo municipio
-        baker.make(Candidacy, municipio="Recife", _quantity=2, _fill_optional=True)
+        baker.make(Candidacy, ano=2023, municipio="Recife", _quantity=2, _fill_optional=True)
         candidacies_2023_rj_1 = baker.make(
             Candidacy,
             ano=2024,
@@ -510,7 +512,7 @@ class TestListCandidacy:
                 "year": candidacies_2023_rj_2.ano,
             },
         ]
-        expected_title = "Candidato(s) em rio em todos os anos"
+        expected_title = "Candidato(s) em rio desde 2023"
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
@@ -519,7 +521,7 @@ class TestListCandidacy:
 
     def test_get_list_candidacy_filter_by_city_default_field(self, client, settings):
         # TODO: checar campo municipio
-        baker.make(Candidacy, municipio="Recife", _quantity=2, _fill_optional=True)
+        baker.make(Candidacy, ano=2018, municipio="Recife", _quantity=2, _fill_optional=True)
         candidacies_2023_rj_1 = baker.make(
             Candidacy,
             ano=2024,
@@ -561,7 +563,7 @@ class TestListCandidacy:
                 "year": candidacies_2023_rj_2.ano,
             },
         ]
-        expected_title = "Candidato(s) em rio em todos os anos"
+        expected_title = "Candidato(s) em rio desde 2018"
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
@@ -588,7 +590,7 @@ class TestListCandidacy:
                 "year": candidacies_2024.ano,
             },
         ]
-        expected_title = "Candidato(s) em todos os anos"
+        expected_title = "Candidato(s) desde 2023"
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data

@@ -24,6 +24,12 @@ class Candidacy(models.Model):
     municipio = models.TextField(null=True, blank=True)
     municipio_slug = models.TextField(null=True, blank=True)
 
+    @classmethod
+    def first_year(cls):
+        # TODO: cache?
+        qs = cls.objects.values("ano").order_by("ano").first()
+        return qs["ano"]
+
     class Meta:
         ordering = ["-ano"]
         verbose_name = "Candidatura"
