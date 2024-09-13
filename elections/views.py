@@ -32,13 +32,14 @@ def candidacy_list(request):
         "number": page,
         "num_pages": paginator.num_pages,
         "page_size": page_size,
-        "metadata": metadata,
         "filters": selected_filter_fields,
         "title": title,
     }
 
     if request.GET.get("format") == "json":
         return JsonResponse(data, safe=False)
+
+    data["metadata"] = metadata
 
     return render(request, "elections/elections.html", context={"data": data})
 
@@ -54,12 +55,11 @@ def politic(request, ano, uf, municipio, cargo, nome):
     )
     metadata = CandidacyMetadata.objects.first().data
     serializer = DetailCandidacySerializer(candidacy)
-    data = {
-        "item": serializer.data,
-        "metadata": metadata,
-    }
+    data = {"item": serializer.data}
     if request.GET.get("format") == "json":
         return JsonResponse(data=data)
+
+    data["metadata"] = metadata
 
     return render(request, "elections/politic.html", context={"data": data})
 

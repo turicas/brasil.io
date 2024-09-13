@@ -48,7 +48,7 @@ class TestDetailCandidacyView:
         assert resp.status_code == 200
         assert resp.json()["item"]["data_nascimento"] == expected_data["data_nascimento"]
 
-    def test_get_detail_candidacy_wrong_data_nascimento_format(self, client, settings):
+    def test_get_detail_candidacy_wrong_data_nascimento_format_json(self, client, settings):
         candidacy = baker.make(
             Candidacy,
             data_nascimento="1981-01",
@@ -75,7 +75,35 @@ class TestDetailCandidacyView:
 
         assert resp.status_code == 200
         assert resp.json()["item"]["data_nascimento"] == expected_data["data_nascimento"]
-        assert resp.json()["metadata"] == self.metadata
+
+    def test_get_detail_candidacy_wrong_data_nascimento_format_html(self, client, settings):
+        candidacy = baker.make(
+            Candidacy,
+            data_nascimento="1981-01",
+            ano="2024",
+            cargo_slug="deputado",
+            nome_urna_slug="joao-graca",
+            sigla_unidade_federativa="rj",
+            municipio_slug="rio-de-janeiro",
+            _fill_optional=True
+        )
+
+        url = reverse(
+            self.url_name,
+            kwargs={
+                "ano": candidacy.ano,
+                "uf": candidacy.sigla_unidade_federativa,
+                "municipio": candidacy.municipio_slug,
+                "cargo": candidacy.cargo_slug,
+                "nome": candidacy.nome_urna_slug,
+            }
+        )
+        resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
+        expected_data = {"data_nascimento": None}
+
+        assert resp.status_code == 200
+        assert resp.context["data"]["item"]["data_nascimento"] == expected_data["data_nascimento"]
+        assert resp.context["data"]["metadata"] == self.metadata
 
     def test_get_detail_candidacy_not_found(self, client, settings):
         candidacy = baker.make(
@@ -103,32 +131,6 @@ class TestDetailCandidacyView:
 
         assert resp.status_code == 404
 
-    def test_get_detail_candidacy_return_filter_parameters(self, client, settings):
-        candidacy = baker.make(
-            Candidacy,
-            data_nascimento="1981-01",
-            ano="2024",
-            cargo_slug="deputado",
-            nome_urna_slug="joao-graca",
-            sigla_unidade_federativa="rj",
-            municipio_slug="rio-de-janeiro",
-            _fill_optional=True
-        )
-
-        url = reverse(
-            self.url_name,
-            kwargs={
-                "ano": candidacy.ano,
-                "uf": candidacy.sigla_unidade_federativa,
-                "municipio": candidacy.municipio_slug,
-                "cargo": candidacy.cargo_slug,
-                "nome": candidacy.nome_urna_slug,
-            }
-        ) + "?format=json&ano=2024&partido=Todos&cargo=senador"
-        resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
-
-        assert resp.status_code == 200
-        assert resp.json()["metadata"] == self.metadata
 
 
 @pytest.mark.django_db
@@ -146,7 +148,7 @@ class TestListCandidacy:
         }
         baker.make(CandidacyMetadata, data=self.metadata)
 
-    def test_get_list_candidacy(self, client, settings):
+    def test_get_list_candidacy_json(self, client, settings):
         candidacy_1 = baker.make(Candidacy, ano=2024, _fill_optional=True)
         candidacy_2 = baker.make(Candidacy, ano=2023, _fill_optional=True)
 
@@ -184,9 +186,48 @@ class TestListCandidacy:
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
-        assert resp.json()["metadata"] == self.metadata
 
-    def test_get_list_candidacy_when_filter_is_todos(self, client, settings):
+    def test_get_list_candidacy_html(self, client, settings):
+        candidacy_1 = baker.make(Candidacy, ano=2024, _fill_optional=True)
+        candidacy_2 = baker.make(Candidacy, ano=2023, _fill_optional=True)
+
+        baker.make(CandidacyMetadata)  # older metadata
+        baker.make(CandidacyMetadata, data=self.metadata)
+
+        url = reverse(self.url_name)
+        resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
+        expected_data = [
+            {
+                "path": (
+                    "/eleicoes/"
+                    f"{candidacy_1.ano}/"
+                    f"{candidacy_1.sigla_unidade_federativa.lower()}/"
+                    f"{candidacy_1.municipio_slug}/"
+                    f"{candidacy_1.cargo_slug}/"
+                    f"{candidacy_1.nome_urna_slug}/"
+                ),
+                "name": candidacy_1.nome,
+                "year": candidacy_1.ano,
+            },
+            {
+                "path": (
+                    "/eleicoes/"
+                    f"{candidacy_2.ano}/"
+                    f"{candidacy_2.sigla_unidade_federativa.lower()}/"
+                    f"{candidacy_2.municipio_slug}/"
+                    f"{candidacy_2.cargo_slug}/"
+                    f"{candidacy_2.nome_urna_slug}/"
+                ),
+                "name": candidacy_2.nome,
+                "year": candidacy_2.ano,
+            },
+        ]
+
+        assert resp.status_code == 200
+        assert resp.context["data"]["items"] == expected_data
+        assert resp.context["data"]["metadata"] == self.metadata
+
+    def test_get_list_candidacy_when_filter_is_todos_json(self, client, settings):
         candidacy_1 = baker.make(Candidacy, ano=2024, _fill_optional=True)
         candidacy_2 = baker.make(Candidacy, ano=2023, _fill_optional=True)
 
@@ -225,10 +266,51 @@ class TestListCandidacy:
 
         assert resp.status_code == 200
         assert resp.json()["items"] == expected_data
-        assert resp.json()["metadata"] == self.metadata
         assert resp.json()["title"] == expected_title
 
-    def test_get_list_candidacy_filter_by_year(self, client, settings):
+    def test_get_list_candidacy_when_filter_is_todos_html(self, client, settings):
+        candidacy_1 = baker.make(Candidacy, ano=2024, _fill_optional=True)
+        candidacy_2 = baker.make(Candidacy, ano=2023, _fill_optional=True)
+
+        baker.make(CandidacyMetadata)  # older metadata
+        baker.make(CandidacyMetadata, data=self.metadata)
+
+        url = reverse(self.url_name) + "?partido=Todos&cargo=Todos&uf=Todos"
+        resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
+        expected_data = [
+            {
+                "path": (
+                    "/eleicoes/"
+                    f"{candidacy_1.ano}/"
+                    f"{candidacy_1.sigla_unidade_federativa.lower()}/"
+                    f"{candidacy_1.municipio_slug}/"
+                    f"{candidacy_1.cargo_slug}/"
+                    f"{candidacy_1.nome_urna_slug}/"
+                ),
+                "name": candidacy_1.nome,
+                "year": candidacy_1.ano,
+            },
+            {
+                "path": (
+                    "/eleicoes/"
+                    f"{candidacy_2.ano}/"
+                    f"{candidacy_2.sigla_unidade_federativa.lower()}/"
+                    f"{candidacy_2.municipio_slug}/"
+                    f"{candidacy_2.cargo_slug}/"
+                    f"{candidacy_2.nome_urna_slug}/"
+                ),
+                "name": candidacy_2.nome,
+                "year": candidacy_2.ano,
+            },
+        ]
+        expected_title = "Candidato(s) desde 2023"
+
+        assert resp.status_code == 200
+        assert resp.context["data"]["items"] == expected_data
+        assert resp.context["data"]["metadata"] == self.metadata
+        assert resp.context["data"]["title"] == expected_title
+
+    def test_get_list_candidacy_filter_by_year_json(self, client, settings):
         baker.make(Candidacy, ano=2024, _quantity=2, _fill_optional=True)
         candidacies_2023 = baker.make(Candidacy, ano=2023, _quantity=2, _fill_optional=True)
 
@@ -266,6 +348,46 @@ class TestListCandidacy:
         assert resp.json()["items"] == expected_data
         assert resp.json()["filters"] == {"ano": "2023"}
         assert resp.json()["title"] == expected_title
+
+    def test_get_list_candidacy_filter_by_year_html(self, client, settings):
+        baker.make(Candidacy, ano=2024, _quantity=2, _fill_optional=True)
+        candidacies_2023 = baker.make(Candidacy, ano=2023, _quantity=2, _fill_optional=True)
+
+        url = reverse(self.url_name) + "?ano=2023"
+        resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
+        expected_data = [
+            {
+                "path": (
+                    "/eleicoes/"
+                    f"{candidacies_2023[0].ano}/"
+                    f"{candidacies_2023[0].sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2023[0].municipio_slug}/"
+                    f"{candidacies_2023[0].cargo_slug}/"
+                    f"{candidacies_2023[0].nome_urna_slug}/"
+                ),
+                "name": candidacies_2023[0].nome,
+                "year": candidacies_2023[0].ano,
+            },
+            {
+                "path": (
+                    "/eleicoes/"
+                    f"{candidacies_2023[1].ano}/"
+                    f"{candidacies_2023[1].sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2023[1].municipio_slug}/"
+                    f"{candidacies_2023[1].cargo_slug}/"
+                    f"{candidacies_2023[1].nome_urna_slug}/"
+                ),
+                "name": candidacies_2023[1].nome,
+                "year": candidacies_2023[1].ano,
+            },
+        ]
+        expected_title = "Candidato(s) em 2023"
+
+        assert resp.status_code == 200
+        assert resp.context["data"]["items"] == expected_data
+        assert resp.context["data"]["filters"] == {"ano": "2023"}
+        assert resp.context["data"]["title"] == expected_title
+        assert resp.context["data"]["metadata"] == self.metadata
 
     def test_get_list_candidacy_filter_by_uf(
         self, client, settings
