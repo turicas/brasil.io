@@ -4,7 +4,7 @@
 {% load l10n %}
 {% load static %}
 {% load markdown %}
-{% block title %}{{ dataset.name }} - Datasets Table {{ table.name|capfirst }} - Brasil.IO{% endblock %}
+{% block title %}{{ dataset.name }} - Datasets Table {{ table.name|capfirst }} - {{ block.super }}{% endblock %}
 {% block head %}
 {{ block.super }}
 <link rel="stylesheet" type="text/css" href="{% static 'core/css/dataset-detail.css' %}" />
@@ -12,7 +12,7 @@
 {% block nav %}
 <div class="nav-content indigo">
   <div class="breadcrumb">
-    <a href="{% url 'core:dataset-list' %}" title="Voltar para Dataset">Datasets</a> 
+    <a href="{% url 'core:dataset-list' %}" title="Voltar para Dataset">Datasets</a>
     >
     <a href="{% url 'core:dataset-detail' dataset.slug %}" title="Voltar para {{ dataset.name }}">{{ dataset.name }}</a>
     >
@@ -104,7 +104,7 @@
                 <span class="card-title activator grey-text text-darken-4">
                   Dicionário de Dados - Tabela {{ table.name }}
                 </span>
-  
+
                 <table class="highlight">
                   <thead>
                     <tr>
@@ -114,7 +114,7 @@
                       <th>Descrição</th>
                     </tr>
                   </thead>
-  
+
                   <tbody>
                     {% for field in table.fields %}
                     <tr>
@@ -125,7 +125,7 @@
                     </tr>
                     {% endfor %}
                   </tbody>
-  
+
                 </table>
               </div>
             </div>

@@ -3,7 +3,7 @@
 {% load humanize %}
 {% load l10n %}
 {% load static %}
-{% block title %}{{ dataset.name }} - Datasets {{ listname|capfirst }} - Brasil.IO{% endblock %}
+{% block title %}{{ dataset.name }} - Datasets {{ listname|capfirst }} - {{ block.super }}{% endblock %}
 {% block head %}
 {{ block.super }}
 <link rel="stylesheet" type="text/css" href="{% static 'core/css/dataset-detail.css' %}"/>
