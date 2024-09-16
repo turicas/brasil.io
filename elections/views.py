@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from elections.filters import CandidacyFilterSet
 from elections.models import Candidacy, CandidacyMetadata
 from elections.serializers import DetailCandidacySerializer, ListCandidacySerializer
+from elections.suggestions import create_search_suggestions
 from elections.title_utils import candidacy_list_title
 
 
@@ -66,7 +67,7 @@ def politic(request, ano, uf, municipio, cargo, nome):
 
 def about(request, state=None):
     metadata = CandidacyMetadata.objects.first().data
-    context = {"data": {"metadata": metadata}}
+    context = {"data": {"metadata": metadata, "suggestions": create_search_suggestions()}}
     return render(request, "elections/about.html", context)
 
 
