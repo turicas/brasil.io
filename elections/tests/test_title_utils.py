@@ -33,7 +33,7 @@ def test_candidacy_list_title():
         uf="Rio de Janeiro",
         partido="todos",
         q=None,
-    ) == "Candidato(s) a vereador no Rio de Janeiro em 2024"
+    ) == "Candidato(s) a vereador no RJ em 2024"
 
     assert candidacy_list_title(
         ano="2024",
@@ -41,7 +41,7 @@ def test_candidacy_list_title():
         uf="Rio de Janeiro",
         partido="todos",
         q=None,
-    ) == "Candidato(s) ao senado no Rio de Janeiro em 2024"
+    ) == "Candidato(s) ao senado no RJ em 2024"
 
     assert candidacy_list_title(
         ano="2024",
@@ -50,7 +50,7 @@ def test_candidacy_list_title():
         partido="todos",
         q="João",
         t="name",
-    ) == 'Candidato(s) "João" a vereador em São Paulo em 2024'
+    ) == 'Candidato(s) "João" a vereador em SP em 2024'
 
     assert candidacy_list_title(
         ano="2024",
@@ -82,7 +82,16 @@ def test_candidacy_list_title():
         uf="Minas Gerais",
         partido="todos",
         q=None,
-    ) == 'Candidato(s) em Minas Gerais em todos os anos'
+    ) == 'Candidato(s) em MG em todos os anos'
+
+    # Estado que não existe
+    assert candidacy_list_title(
+        ano=None,
+        cargo="Todos",
+        uf="xxx",
+        partido="todos",
+        q=None,
+    ) == 'Candidato(s) em todos os anos'
 
     assert candidacy_list_title(
         ano=None,
@@ -90,7 +99,7 @@ def test_candidacy_list_title():
         uf="Espírito Santo",
         partido="todos",
         q=None,
-    ) == 'Candidato(s) no Espírito Santo em todos os anos'
+    ) == 'Candidato(s) no ES em todos os anos'
 
     assert candidacy_list_title(
         ano=None,
@@ -98,7 +107,7 @@ def test_candidacy_list_title():
         uf="Espírito Santo",
         partido="PPP",
         q=None,
-    ) == 'Candidato(s) do "PPP" no Espírito Santo em todos os anos'
+    ) == 'Candidato(s) do "PPP" no ES em todos os anos'
 
     assert candidacy_list_title(
         ano=None,
@@ -107,4 +116,4 @@ def test_candidacy_list_title():
         partido="PPP",
         q=None,
         ano_inicio="2014",
-    ) == 'Candidato(s) do "PPP" no Espírito Santo desde 2014'
+    ) == 'Candidato(s) do "PPP" no ES desde 2014'

@@ -1,3 +1,6 @@
+from elections.filters import ESTADO_SIGLA_MAPPER
+
+
 def candidacy_list_title(
     *,
     ano="todos",
@@ -58,7 +61,9 @@ def candidacy_list_title(
 
     if uf is not None and not (q is not None and t == "cidade"):
         uf_preposition = uf_prepositions.get(uf, "em")
-        title += f" {uf_preposition} {uf}"
+        uf = ESTADO_SIGLA_MAPPER.get(uf.lower())
+        if uf is not None:
+            title += f" {uf_preposition} {uf}"
 
     if ano is not None and ano.isdigit():
         title += f" em {ano}"
