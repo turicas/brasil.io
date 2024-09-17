@@ -21,11 +21,11 @@ export const isolatedFilter = {
     filters,
   },
   setup() {
-    const party = Vue.ref(null)
-    const role = Vue.ref(null)
+    const party = Vue.ref("Todos")
+    const role = Vue.ref("Todos")
     const search = Vue.ref(null)
-    const state = Vue.ref(null)
-    const type = Vue.ref(null)
+    const state = Vue.ref("Todos")
+    const type = Vue.ref("cidade")
     const year = Vue.ref(null)
 
     const createDebounce = () => {
@@ -62,7 +62,7 @@ export const isolatedFilter = {
         location.protocol +
         "//" +
         location.host +
-        "/eleicoes/" +
+        "/eleicoes/2024/" +
         formatedParamsToQueryStrings(requestFormated)
     }
 
