@@ -1,6 +1,3 @@
-from elections.filters import ESTADO_SIGLA_MAPPER
-
-
 def candidacy_list_title(
     *,
     ano="todos",
@@ -14,23 +11,32 @@ def candidacy_list_title(
 ):
 
     uf_prepositions = {
-        "Rio de Janeiro": "no",
-        "Bahia": "na",
-        "Espírito Santo": "no",
-        "Paraná": "no",
-        "Rio Grande do Sul": "no",
-        "Ceará": "no",
-        "Pará": "no",
-        "Maranhão": "no",
-        "Paraíba": "na",
-        "Amazonas": "no",
-        "Mato Grosso": "no",
-        "Rio Grande do Norte": "no",
-        "Piauí": "no",
-        "Distrito Federal": "no",
-        "Tocantins": "no",
-        "Acre": "no",
-        "Amapá": "no",
+        "RJ": "no",
+        "BA": "na",
+        "ES": "no",
+        "PR": "no",
+        "RS": "no",
+        "CE": "no",
+        "PA": "no",
+        "MA": "no",
+        "PB": "na",
+        "AM": "no",
+        "MT": "no",
+        "RN": "no",
+        "PI": "no",
+        "DF": "no",
+        "TO": "no",
+        "AC": "no",
+        "AM": "no",
+        "SP": "em",
+        "MG": "em",
+        "PE": "em",
+        "SE": "em",
+        "AL": "em",
+        "AP": "no",
+        "GO": "em",
+        "RO": "em",
+        "MS": "no"
     }
 
     if cargo.lower() == "todos":
@@ -65,9 +71,8 @@ def candidacy_list_title(
 
     if uf is not None and not (q is not None and t == "cidade"):
         uf_preposition = uf_prepositions.get(uf, "em")
-        uf = ESTADO_SIGLA_MAPPER.get(uf.lower())
-        if uf is not None:
-            title += f" {uf_preposition} {uf}"
+        if uf in uf_prepositions.keys():
+            title += f" {uf_preposition} {uf.upper()}"
 
     if ano is not None and ano.isdigit():
         title += f" em {ano}"

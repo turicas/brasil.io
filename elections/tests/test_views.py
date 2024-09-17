@@ -420,7 +420,7 @@ class TestListCandidacy:
             _fill_optional=True,
         )
 
-        url = reverse(self.url_name) + "?format=json&uf=Rio de Janeiro"
+        url = reverse(self.url_name) + "?format=json&uf=RJ"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
@@ -452,7 +452,7 @@ class TestListCandidacy:
         expected_filters = {
             "ano": "2024",
             "cargo": "Todos",
-            "uf": "Rio de Janeiro",
+            "uf": "RJ",
             "partido": "Todos",
             "t": "cidade",
         }
