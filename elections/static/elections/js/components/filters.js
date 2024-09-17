@@ -58,7 +58,17 @@ export const filters = {
 
     const searchCity = Vue.ref(getCurrentSelectedCity())
     const cityOptions = Vue.ref(props.context.data.metadata.municipios)
+    const handleSearchCityKeyUp = async (keydown) => {
+      if (keydown.key === "Enter" && typeof value === "string" && value.length === 0) {
+        await handleSelectCity(searchCity.value)
+      }
+    }
     const handleSelectCity = async (value) => {
+      if (typeof value === "string" && value.length === 0) {
+        search.value = ``
+        await props.handleSearch()
+        return
+      }
       const valueSplited = value.split("-")
       const valueState = valueSplited.pop()
       const valueCity = valueSplited.join(" ")
@@ -90,6 +100,7 @@ export const filters = {
       const citiesSelected = cityOptions.value.filter(city => city.label === searchCity.value)
       if (!citiesSelected.length || citiesSelected.length > 1) {
         searchCity.value = ""
+        await handleSelectCity(searchCity.value)
       } else if (citiesSelected.length === 1) {
         const citySelected = citiesSelected[0]
         await handleSelectCity(citySelected.label + "-" + citySelected.estado)
@@ -107,17 +118,21 @@ export const filters = {
       search.value = ""
     }
     return {
-      handleSelectState,
-      handleSearchRadioUpdate,
-      handleSearchCityBlur,
-      handleSelectCity,
-      handleSearchCity,
+      cityOptions,
       formatToSelect,
+      handleSearchCity,
+      handleSearchCityBlur,
+      handleSearchCityKeyUp,
+      handleSearchRadioUpdate,
+      handleSelectCity,
+      handleSelectState,
       labelStyle: {
         fontSize: '10px',
         flexDirection: 'column-reverse',
         fontWeight: '500',
       },
+      options: props.context.data.metadata[2024],
+      party,
       renderLabel: (option) => {
         return [
           option.label,
@@ -129,9 +144,6 @@ export const filters = {
           )
         ]
       },
-      options: props.context.data.metadata[2024],
-      cityOptions,
-      party,
       role,
       search,
       searchCity,
@@ -227,6 +239,7 @@ export const filters = {
             :options="cityOptions"
             placeholder="Digite nome de cidade"
             :render-label="renderLabel"
+            :input-props="{ onKeydown: handleSearchCityKeyUp }"
             :on-blur="handleSearchCityBlur"
             :on-select="handleSelectCity"
             :on-update:value="handleSearchCity"

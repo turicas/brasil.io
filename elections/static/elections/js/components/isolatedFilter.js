@@ -58,7 +58,7 @@ export const isolatedFilter = {
       // Redirect to a new URL
       const location = window.location
 
-      location.href = 
+      location.href =
         location.protocol +
         "//" +
         location.host +
