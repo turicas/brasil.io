@@ -39,7 +39,7 @@ export const electionGallery = {
       page: Number(props.context.data.number),
       pageCount: Number(props.context.data.num_pages),
       pageSize: Number(props.context.data.page_size),
-      pageSizes: [10, 20, 40, 100],
+      pageSizes: [40, 80, 120],
       showSizePicker: true,
       pageSlot: 5
     })
@@ -120,7 +120,7 @@ export const electionGallery = {
         delete defaultRequests.page
       }
 
-      if (pageReactive.pageSize && pageReactive.pageSize !== 10) {
+      if (pageReactive.pageSize && pageReactive.pageSize !== 40) {
         defaultRequests["page_size"] = pageReactive.pageSize
       } else if (request.page_size) {
         delete request.page_size
@@ -175,7 +175,7 @@ export const electionGallery = {
 
         const query = route.query
         const page = query.page ? Number(query.page) : 1
-        const pageSize = query.page_size ? Number(query.page_size) : 10
+        const pageSize = query.page_size ? Number(query.page_size) : 40
         const q = query.q ? query.q : ''
         let updated = false
 
