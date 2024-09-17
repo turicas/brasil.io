@@ -60,7 +60,7 @@ def create_search_suggestions(cargos=None, cities=None):
                 title += f" ({state_capital})"
                 path += f"&q={formatted_city}"
 
-            suggestions.append({"title": title, "path": path})
+            suggestions.append({"label": title, "path": path})
 
     random.shuffle(suggestions)
     return suggestions

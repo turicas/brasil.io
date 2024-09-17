@@ -78,7 +78,7 @@ class CandidacyFilterSet(django_filters.FilterSet):
 
     def full_search(self, queryset, name, value):
         # Check filter field
-        if self.data.get("t") == "name":
+        if self.data.get("t") == "nome":
             query_filter = (
                 models.Q(nome_urna__unaccent__icontains=value)
                 | models.Q(nome__unaccent__icontains=value)  # noqa

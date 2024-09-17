@@ -12,12 +12,22 @@ from elections.title_utils import candidacy_list_title
 def filter_selected_fields(filter_data):
     data = filter_data.dict()
     data.pop("format", None)
+    for key in ("cargo", "uf", "partido"):
+        if data.get(key) is None:
+            data[key] = "Todos"
+
+    if data.get("t") is None:
+        data["t"] = "cidade"
+
+    if data.get("ano") is None:
+        data["ano"] = "2024"
+
     return data
 
 
 def candidacy_list(request):
     # TODO: safe coercion
-    page_size = int(request.GET.get("page_size", 10))
+    page_size = int(request.GET.get("page_size", 40))
     filter_set = CandidacyFilterSet(request.GET, queryset=Candidacy.objects.all())
     paginator = Paginator(filter_set.qs, page_size)
     page = request.GET.get("page", 1)

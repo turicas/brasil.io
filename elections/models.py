@@ -23,6 +23,10 @@ class Candidacy(models.Model):
     situacao = models.TextField(max_length=15, null=True, blank=True)
     municipio = models.TextField(null=True, blank=True)
     municipio_slug = models.TextField(null=True, blank=True)
+    etnia = models.TextField(null=True, blank=True)
+    grau_instrucao = models.TextField(null=True, blank=True)
+    ocupacao = models.TextField(null=True, blank=True)
+    estado_civil = models.TextField(null=True, blank=True)
 
     @classmethod
     def first_year(cls):
@@ -35,6 +39,10 @@ class Candidacy(models.Model):
         verbose_name = "Candidatura"
         verbose_name_plural = "Candidaturas"
         indexes = [models.Index(fields=["ano"])]
+
+    @property
+    def info_list(self):
+        pass
 
     def __str__(self):
         return f"{self.nome_urna} - {self.cargo} / {self.ano} "

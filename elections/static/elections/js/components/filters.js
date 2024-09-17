@@ -91,7 +91,6 @@ export const filters = {
           placeholder="Selecione Cargo"
           :options="formatToSelect(options.cargo)"
           style="width: 150px"
-          clearable
         />
       </n-form-item>
       <n-form-item label="ESTADO" :label-style>
@@ -101,7 +100,6 @@ export const filters = {
           placeholder="Selecione Estado"
           :options="formatToSelect(options.estado)"
           style="width: 150px"
-          clearable
         />
       </n-form-item>
       <n-form-item label="PARTIDO" :label-style>
@@ -111,7 +109,6 @@ export const filters = {
           placeholder="Selecione Partido"
           :options="formatToSelect(options.partido)"
           style="width: 150px"
-          clearable
         />
       </n-form-item>
       <n-form-item>
