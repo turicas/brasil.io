@@ -84,6 +84,14 @@ class CandidacyFilterSet(django_filters.FilterSet):
                 | models.Q(nome__unaccent__icontains=value)  # noqa
             )
         else:
-            query_filter = models.Q(municipio__unaccent__icontains=value)
+            try:
+                city, state = value.rsplit("-", 1)
+                query_filter = (
+                    models.Q(municipio__unaccent__icontains=city)
+                    & models.Q(sigla_unidade_federativa__iexact=state)  # noqa
+                )
+
+            except ValueError:
+                return queryset
 
         return queryset.filter(query_filter)

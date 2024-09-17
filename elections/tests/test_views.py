@@ -635,21 +635,30 @@ class TestListCandidacy:
 
     def test_get_list_candidacy_filter_by_city(self, client, settings):
         # TODO: checar campo municipio
-        baker.make(Candidacy, ano=2023, municipio="Recife", _quantity=2, _fill_optional=True)
+        baker.make(
+            Candidacy,
+            ano=2023,
+            sigla_unidade_federativa="pe",
+            municipio="Recife",
+            _quantity=2,
+            _fill_optional=True
+        )
         candidacies_2023_rj_1 = baker.make(
             Candidacy,
             ano=2024,
+            sigla_unidade_federativa="rj",
             municipio="Rio de Janeiro",
             _fill_optional=True,
         )
         candidacies_2023_rj_2 = baker.make(
             Candidacy,
             ano=2023,
+            sigla_unidade_federativa="rj",
             municipio="Rio de Janeiro",
             _fill_optional=True,
         )
 
-        url = reverse(self.url_name) + "?format=json&q=rio&t=cidade"
+        url = reverse(self.url_name) + "?format=json&q=Rio de Janeiro-RJ&t=cidade"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
@@ -677,13 +686,13 @@ class TestListCandidacy:
                 "year": candidacies_2023_rj_2.ano,
             },
         ]
-        expected_title = "Candidato(s) em rio em 2024"
+        expected_title = "Candidato(s) em Rio de Janeiro (RJ) em 2024"
         expected_filters = {
             "ano": "2024",
             "cargo": "Todos",
             "uf": "Todos",
             "partido": "Todos",
-            "q": "rio",
+            "q": "Rio de Janeiro-RJ",
             "t": "cidade"
         }
 
@@ -694,21 +703,30 @@ class TestListCandidacy:
 
     def test_get_list_candidacy_filter_by_city_default_field(self, client, settings):
         # TODO: checar campo municipio
-        baker.make(Candidacy, ano=2018, municipio="Recife", _quantity=2, _fill_optional=True)
+        baker.make(
+            Candidacy,
+            ano=2018,
+            sigla_unidade_federativa="PE",
+            municipio="Recife",
+            _quantity=2,
+            _fill_optional=True,
+        )
         candidacies_2023_rj_1 = baker.make(
             Candidacy,
             ano=2024,
+            sigla_unidade_federativa="rj",
             municipio="Rio de Janeiro",
             _fill_optional=True,
         )
         candidacies_2023_rj_2 = baker.make(
             Candidacy,
             ano=2023,
+            sigla_unidade_federativa="RJ",
             municipio="Rio de Janeiro",
             _fill_optional=True,
         )
 
-        url = reverse(self.url_name) + "?format=json&q=rio"
+        url = reverse(self.url_name) + "?format=json&q=Rio de Janeiro-RJ"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = [
             {
@@ -736,13 +754,13 @@ class TestListCandidacy:
                 "year": candidacies_2023_rj_2.ano,
             },
         ]
-        expected_title = "Candidato(s) em rio em 2024"
+        expected_title = "Candidato(s) em Rio de Janeiro (RJ) em 2024"
         expected_filters = {
             "ano": "2024",
             "cargo": "Todos",
             "uf": "Todos",
             "partido": "Todos",
-            "q": "rio",
+            "q": "Rio de Janeiro-RJ",
             "t": "cidade"
         }
 

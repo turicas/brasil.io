@@ -57,7 +57,11 @@ def candidacy_list_title(
         title += f" {preposicao} {cargo.lower()}"
 
     if q is not None and t == "cidade":
-        title += f" em {q}"
+        try:
+            city, state = q.rsplit("-", 1)
+            title += f" em {city} ({state})"
+        except ValueError:
+            pass
 
     if uf is not None and not (q is not None and t == "cidade"):
         uf_preposition = uf_prepositions.get(uf, "em")

@@ -7,17 +7,17 @@ def test_candidacy_list_title():
         cargo="vereador",
         uf="Todos",
         partido="todos",
-        q="Rio de Janeiro"
-    ) == "Candidato(s) a vereador em Rio de Janeiro em 2024"
+        q="Rio de Janeiro-RJ"
+    ) == "Candidato(s) a vereador em Rio de Janeiro (RJ) em 2024"
 
     assert candidacy_list_title(
         ano="2024",
         cargo="Todos",
         uf="RJ",
         partido="todos",
-        q="Rio de Janeiro",
+        q="Rio de Janeiro-RJ",
         t="cidade",
-    ) == "Candidato(s) em Rio de Janeiro em 2024"
+    ) == "Candidato(s) em Rio de Janeiro (RJ) em 2024"
 
     assert candidacy_list_title(
         ano="2024",
