@@ -49,7 +49,7 @@ def test_candidacy_list_title():
         uf="São Paulo",
         partido="todos",
         q="João",
-        t="name",
+        t="nome",
     ) == 'Candidato(s) "João" a vereador em SP em 2024'
 
     assert candidacy_list_title(

@@ -47,7 +47,7 @@ def candidacy_list_title(
     if partido is not None:
         title += f' do "{partido}"'
 
-    if q is not None and t == "name":
+    if q is not None and t == "nome":
         title += f' "{q}"'
 
     if cargo:
