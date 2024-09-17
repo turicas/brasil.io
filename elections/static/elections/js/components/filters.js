@@ -1,6 +1,9 @@
+import { normalize } from "./utils/normalize.js"
+
 export const filters = {
   delimiters: ["[[", "]]"],
   components: {
+    "n-auto-complete": naive.NAutoComplete,
     "n-button": naive.NButton,
     "n-date-picker": naive.NDatePicker,
     "n-form": naive.NForm,
@@ -42,17 +45,96 @@ export const filters = {
       get() { return props.type },
       set(value) { emit("update:type", value) },
     })
+
+    const getCurrentSelectedCity = () => {
+      if (!search.value) {
+        return
+      }
+      const splitedValue = search.value.split("-")
+      splitedValue.pop()
+      const currentCity = splitedValue.join(" ")
+      return currentCity
+    }
+
+    const searchCity = Vue.ref(getCurrentSelectedCity())
+    const cityOptions = Vue.ref(props.context.data.metadata.municipios)
+    const handleSelectCity = async (value) => {
+      const valueSplited = value.split("-")
+      const valueState = valueSplited.pop()
+      const valueCity = valueSplited.join(" ")
+      const valueCityNormalized = normalize(valueCity).replace(/\s+/g, "-").toLowerCase() + "-" + valueState
+      const result = props.context.data.metadata.municipios.find(mun => mun.value === valueCityNormalized)
+      search.value = `${result.label}-${result.estado}`
+      await props.handleSearch()
+    }
+    const handleSearchCity = (value) => {
+      searchCity.value = value
+      // Reset cityOptions values
+      if (state.value && state.value !== "Todos") {
+        cityOptions.value = props.context.data.metadata.municipios.filter(mun => mun.estado === state.value)
+      } else {
+        cityOptions.value = props.context.data.metadata.municipios
+      }
+
+      // Filter searched value
+      cityOptions.value = cityOptions.value.filter(mun =>
+        normalize(mun.label)
+          .trim()
+          .toLowerCase()
+          .includes(
+            normalize(value).trim().toLowerCase()
+          )
+      )
+    }
+    const handleSearchCityBlur = async () => {
+      const citiesSelected = cityOptions.value.filter(city => city.label === searchCity.value)
+      if (!citiesSelected.length || citiesSelected.length > 1) {
+        searchCity.value = ""
+      } else if (citiesSelected.length === 1) {
+        const citySelected = citiesSelected[0]
+        await handleSelectCity(citySelected.label + "-" + citySelected.estado)
+      }
+    }
+    const handleSearchRadioUpdate = (value) => {
+      type.value = value
+      // Clear searchCity and search values every radio value change
+      searchCity.value = ""
+      search.value = ""
+    }
+    const handleSelectState = (value) => {
+      state.value = value
+      searchCity.value = ""
+      search.value = ""
+    }
     return {
+      handleSelectState,
+      handleSearchRadioUpdate,
+      handleSearchCityBlur,
+      handleSelectCity,
+      handleSearchCity,
       formatToSelect,
       labelStyle: {
         fontSize: '10px',
         flexDirection: 'column-reverse',
         fontWeight: '500',
       },
+      renderLabel: (option) => {
+        return [
+          option.label,
+          ' ',
+          Vue.h(
+            naive.NTag,
+            { size: 'small', type: 'info' },
+            { default: () => option.estado }
+          )
+        ]
+      },
       options: props.context.data.metadata[2024],
+      cityOptions,
       party,
       role,
       search,
+      searchCity,
       state,
       type,
       types: [
@@ -61,7 +143,7 @@ export const filters = {
           label: 'CIDADE'
         },
         {
-          value: 'name',
+          value: 'nome',
           label: 'CANDIDATO'
         },
       ].map((s) => {
@@ -98,8 +180,9 @@ export const filters = {
           v-model:value="state"
           filterable
           placeholder="Selecione Estado"
-          :options="formatToSelect(options.estado)"
+          :options="options.estado"
           style="width: 150px"
+          :on-update:value="handleSelectState"
         />
       </n-form-item>
       <n-form-item label="PARTIDO" :label-style>
@@ -115,7 +198,12 @@ export const filters = {
         <div class="d-flex flex-column" style="margin-top: -24.5px">
           <div>
             <span class="me-2" :style="labelStyle">PESQUISA</span>
-            <n-radio-group v-model:value="type" name="radiogroup" :size="'small'">
+            <n-radio-group
+              v-model:value="type"
+              name="radiogroup"
+              :size="'small'"
+              :on-update:value="handleSearchRadioUpdate"
+            >
               <n-radio
                 v-for="item in types"
                 :key="item.value"
@@ -126,13 +214,24 @@ export const filters = {
             </n-radio-group>
           </div>
           <n-input
+            v-if="!type || type === 'nome'"
             v-model:value="search"
             @keyup="handleSearch"
             style="width: 250px"
             placeholder="Pesquisa"
-            clearable
             @change="handleSearch"
-          ></n-input>
+          />
+          <n-auto-complete
+            v-else
+            v-model:value="searchCity"
+            :options="cityOptions"
+            placeholder="Digite nome de cidade"
+            :render-label="renderLabel"
+            :on-blur="handleSearchCityBlur"
+            :on-select="handleSelectCity"
+            :on-update:value="handleSearchCity"
+            style="width: 250px"
+          />
         </div>
       </n-form-item>
       <n-button type="primary" style="padding: 0 12px" @click="handleSearch">

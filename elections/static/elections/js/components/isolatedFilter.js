@@ -41,10 +41,10 @@ export const isolatedFilter = {
     }
     const debounce = createDebounce()
     const handleSearch = () => debounce(() => {
-      redirecttoelectiongallery()
+      redirectToElectionGallery()
     })
 
-    const redirecttoelectiongallery = async (request = {}) => {
+    const redirectToElectionGallery = async (request = {}) => {
       const defaultRequests = {}
       if (party.value) { defaultRequests["partido"] = party.value }
       if (role.value) { defaultRequests["cargo"] = role.value }
