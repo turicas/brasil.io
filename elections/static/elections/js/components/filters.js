@@ -59,7 +59,7 @@ export const filters = {
     const searchCity = Vue.ref(getCurrentSelectedCity())
     const cityOptions = Vue.ref(props.context.data.metadata.municipios)
     const handleSearchCityKeyUp = async (keydown) => {
-      if (keydown.key === "Enter" && typeof value === "string" && value.length === 0) {
+      if (keydown.key === "Enter" && typeof searchCity.value === "string" && searchCity.value.length === 0) {
         await handleSelectCity(searchCity.value)
       }
     }
