@@ -43,10 +43,11 @@ class TestDetailCandidacyView:
             }
         ) + "?format=json"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
-        expected_data = {"data_nascimento": "12/01/1981"}
+        expected_data = {"data_nascimento": "12/01/1981", "info_list": candidacy.info_list}
 
         assert resp.status_code == 200
         assert resp.json()["item"]["data_nascimento"] == expected_data["data_nascimento"]
+        assert resp.json()["info_list"] == expected_data["info_list"]
 
     def test_get_detail_candidacy_wrong_data_nascimento_format_json(self, client, settings):
         candidacy = baker.make(
@@ -104,6 +105,7 @@ class TestDetailCandidacyView:
         assert resp.status_code == 200
         assert resp.context["data"]["item"]["data_nascimento"] == expected_data["data_nascimento"]
         assert resp.context["data"]["metadata"] == self.metadata
+        assert resp.context["data"]["info_list"] == candidacy.info_list
 
     def test_get_detail_candidacy_not_found(self, client, settings):
         candidacy = baker.make(

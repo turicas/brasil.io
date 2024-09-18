@@ -66,7 +66,7 @@ def politic(request, ano, uf, municipio, cargo, nome):
     )
     metadata = CandidacyMetadata.objects.first().data
     serializer = DetailCandidacySerializer(candidacy)
-    data = {"item": serializer.data}
+    data = {"item": serializer.data, "info_list": candidacy.info_list}
     if request.GET.get("format") == "json":
         return JsonResponse(data=data)
 

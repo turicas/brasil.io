@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils import timezone
 
+from elections.date_utils import get_age
+
 
 class Candidacy(models.Model):
     id = models.AutoField(primary_key=True)
@@ -42,7 +44,48 @@ class Candidacy(models.Model):
 
     @property
     def info_list(self):
-        pass
+        default = "Não informado"
+        get_field = lambda obj, field: getattr(obj, field, default) or default  # noqa
+
+        def format_nascimento(data_nascimento, default):
+            if data_nascimento is None:
+                return default
+
+            dtob, age = get_age(data_nascimento)
+
+            return f"{dtob} ({age} anos)"
+
+        def format_coligacao(coligacao, default):
+            try:
+                partidos = coligacao.split("/")
+                if len(partidos) > 1:
+                    text = ", ".join(p.strip() for p in partidos[:-1])
+                    text += f" e {partidos[-1].strip()}"
+                else:
+                    return coligacao
+            except Exception:
+                return default
+
+            return text
+
+        fields = {
+            "Coligação": format_coligacao(getattr(self, "composicao_legenda", None), default),
+            "Situação candidatura": get_field(self, "situacao"),
+            "Nome completo": get_field(self, "nome"),
+            "Nome urna": get_field(self, "nome_urna"),
+            "Nascimento": format_nascimento(getattr(self, "data_nascimento", None), default),
+            "Cor/Raça": get_field(self, "etnia"),
+            "Gênero": get_field(self, "genero"),
+            "Estado civil": get_field(self, "estado_civil"),
+            "Grau de instrução": get_field(self, "grau_instrucao"),
+            "Profissão/Ocupação": get_field(self, "ocupacao"),
+        }
+        data = []
+        for field, value in fields.items():
+            data.append({"label": field, "value": value})
+
+        return data
+
 
     def __str__(self):
         return f"{self.nome_urna} - {self.cargo} / {self.ano} "

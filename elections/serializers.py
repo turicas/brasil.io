@@ -1,8 +1,8 @@
-from datetime import date, datetime
+from datetime import datetime
 
-from django.utils.text import slugify
 from rest_framework import serializers
 
+from elections.date_utils import get_age
 from elections.models import Candidacy
 
 
@@ -15,13 +15,7 @@ class DetailCandidacySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_age(self, obj):
-        today = date.today()
-        try:
-            dtob = datetime.strptime(obj.data_nascimento, "%Y-%m-%d").date()
-            age = today.year - dtob.year - ((today.month, today.day) < (dtob.month, dtob.day))
-        except Exception:
-            return None
-
+        _, age = get_age(obj.data_nascimento)
         return age
 
     def get_data_nascimento(self, obj):

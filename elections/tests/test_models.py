@@ -44,3 +44,34 @@ class TestCandidacy:
         ]
 
         assert candidacy.info_list == expected
+
+    @freeze_time("2024-09-17")
+    def test_candidacy_detail_list_different_values(self):
+        candidacy = baker.make(
+            Candidacy,
+            composicao_legenda="PRB",
+            situacao="DEFERIDO",
+            nome="Nome Completo",
+            nome_urna="Nome Urna",
+            etnia="ETNIA",
+            genero="GENERO",
+            data_nascimento=None,
+            grau_instrucao="GRAU INSTRUÇÃO",
+            ocupacao="OCUPACAO",
+            estado_civil="ESTADO CIVIL",
+            ano=2018
+        )
+        expected = [
+            {"label": "Coligação", "value": "PRB"},
+            {"label": "Situação candidatura", "value": candidacy.situacao},
+            {"label": "Nome completo", "value": candidacy.nome},
+            {"label": "Nome urna", "value": candidacy.nome_urna},
+            {"label": "Nascimento", "value": "Não informado"},
+            {"label": "Cor/Raça", "value": candidacy.etnia},
+            {"label": "Gênero", "value": candidacy.genero},
+            {"label": "Estado civil", "value": candidacy.estado_civil},
+            {"label": "Grau de instrução", "value": candidacy.grau_instrucao},
+            {"label": "Profissão/Ocupação", "value": candidacy.ocupacao},
+        ]
+
+        assert candidacy.info_list == expected
