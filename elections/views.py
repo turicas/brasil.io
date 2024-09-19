@@ -19,8 +19,7 @@ def filter_selected_fields(filter_data):
     if data.get("t") is None:
         data["t"] = "cidade"
 
-    if data.get("ano") is None:
-        data["ano"] = "2024"
+    data.pop("ano", None)
 
     return data
 
@@ -36,7 +35,11 @@ def candidacy_list(request):
     metadata = CandidacyMetadata.objects.first().data
 
     selected_filter_fields = filter_selected_fields(filter_set.data)
-    title = candidacy_list_title(**selected_filter_fields, ano_inicio=Candidacy.first_year())
+    title = candidacy_list_title(
+        **selected_filter_fields,
+        ano="2024",
+        ano_inicio=Candidacy.first_year()
+    )
 
     data = {
         "items": serializer.data,

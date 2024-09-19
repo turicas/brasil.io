@@ -22,6 +22,8 @@ class CandidacyFilterSet(django_filters.FilterSet):
         if value == ALL_VALUE_NAME:
             return queryset
 
+        value = 2024
+
         return queryset.filter(ano=value)
 
     def filter_uf(self, queryset, name, value):

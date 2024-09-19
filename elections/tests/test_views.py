@@ -313,8 +313,8 @@ class TestListCandidacy:
         assert resp.context["data"]["title"] == expected_title
 
     def test_get_list_candidacy_filter_by_year_json(self, client, settings):
-        baker.make(Candidacy, ano=2024, _quantity=2, _fill_optional=True)
-        candidacies_2023 = baker.make(Candidacy, ano=2023, _quantity=2, _fill_optional=True)
+        baker.make(Candidacy, ano=2022, _quantity=2, _fill_optional=True)
+        candidacies_2024 = baker.make(Candidacy, ano=2024, _quantity=2, _fill_optional=True)
 
         url = reverse(self.url_name) + "?format=json&ano=2023"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
@@ -322,31 +322,30 @@ class TestListCandidacy:
             {
                 "path": (
                     "/eleicoes/"
-                    f"{candidacies_2023[0].ano}/"
-                    f"{candidacies_2023[0].sigla_unidade_federativa.lower()}/"
-                    f"{candidacies_2023[0].municipio_slug}/"
-                    f"{candidacies_2023[0].cargo_slug}/"
-                    f"{candidacies_2023[0].nome_urna_slug}/"
+                    f"{candidacies_2024[0].ano}/"
+                    f"{candidacies_2024[0].sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2024[0].municipio_slug}/"
+                    f"{candidacies_2024[0].cargo_slug}/"
+                    f"{candidacies_2024[0].nome_urna_slug}/"
                 ),
-                "name": candidacies_2023[0].nome,
-                "year": candidacies_2023[0].ano,
+                "name": candidacies_2024[0].nome,
+                "year": candidacies_2024[0].ano,
             },
             {
                 "path": (
                     "/eleicoes/"
-                    f"{candidacies_2023[1].ano}/"
-                    f"{candidacies_2023[1].sigla_unidade_federativa.lower()}/"
-                    f"{candidacies_2023[1].municipio_slug}/"
-                    f"{candidacies_2023[1].cargo_slug}/"
-                    f"{candidacies_2023[1].nome_urna_slug}/"
+                    f"{candidacies_2024[1].ano}/"
+                    f"{candidacies_2024[1].sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2024[1].municipio_slug}/"
+                    f"{candidacies_2024[1].cargo_slug}/"
+                    f"{candidacies_2024[1].nome_urna_slug}/"
                 ),
-                "name": candidacies_2023[1].nome,
-                "year": candidacies_2023[1].ano,
+                "name": candidacies_2024[1].nome,
+                "year": candidacies_2024[1].ano,
             },
         ]
-        expected_title = "Candidato(s) em 2023"
+        expected_title = "Candidato(s) em 2024"
         expected_filters = {
-            "ano": "2023",
             "cargo": "Todos",
             "uf": "Todos",
             "partido": "Todos",
@@ -359,8 +358,8 @@ class TestListCandidacy:
         assert resp.json()["title"] == expected_title
 
     def test_get_list_candidacy_filter_by_year_html(self, client, settings):
-        baker.make(Candidacy, ano=2024, _quantity=2, _fill_optional=True)
-        candidacies_2023 = baker.make(Candidacy, ano=2023, _quantity=2, _fill_optional=True)
+        baker.make(Candidacy, ano=2023, _quantity=2, _fill_optional=True)
+        candidacies_2024 = baker.make(Candidacy, ano=2024, _quantity=2, _fill_optional=True)
 
         url = reverse(self.url_name) + "?ano=2023"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
@@ -368,31 +367,30 @@ class TestListCandidacy:
             {
                 "path": (
                     "/eleicoes/"
-                    f"{candidacies_2023[0].ano}/"
-                    f"{candidacies_2023[0].sigla_unidade_federativa.lower()}/"
-                    f"{candidacies_2023[0].municipio_slug}/"
-                    f"{candidacies_2023[0].cargo_slug}/"
-                    f"{candidacies_2023[0].nome_urna_slug}/"
+                    f"{candidacies_2024[0].ano}/"
+                    f"{candidacies_2024[0].sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2024[0].municipio_slug}/"
+                    f"{candidacies_2024[0].cargo_slug}/"
+                    f"{candidacies_2024[0].nome_urna_slug}/"
                 ),
-                "name": candidacies_2023[0].nome,
-                "year": candidacies_2023[0].ano,
+                "name": candidacies_2024[0].nome,
+                "year": candidacies_2024[0].ano,
             },
             {
                 "path": (
                     "/eleicoes/"
-                    f"{candidacies_2023[1].ano}/"
-                    f"{candidacies_2023[1].sigla_unidade_federativa.lower()}/"
-                    f"{candidacies_2023[1].municipio_slug}/"
-                    f"{candidacies_2023[1].cargo_slug}/"
-                    f"{candidacies_2023[1].nome_urna_slug}/"
+                    f"{candidacies_2024[1].ano}/"
+                    f"{candidacies_2024[1].sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2024[1].municipio_slug}/"
+                    f"{candidacies_2024[1].cargo_slug}/"
+                    f"{candidacies_2024[1].nome_urna_slug}/"
                 ),
-                "name": candidacies_2023[1].nome,
-                "year": candidacies_2023[1].ano,
+                "name": candidacies_2024[1].nome,
+                "year": candidacies_2024[1].ano,
             },
         ]
-        expected_title = "Candidato(s) em 2023"
+        expected_title = "Candidato(s) em 2024"
         expected_filters = {
-            "ano": "2023",
             "cargo": "Todos",
             "uf": "Todos",
             "partido": "Todos",
@@ -409,15 +407,15 @@ class TestListCandidacy:
         self, client, settings
     ):
         baker.make(Candidacy, ano=2018, sigla_unidade_federativa="sp", _quantity=2, _fill_optional=True)
-        candidacies_2023_rj_1 = baker.make(
+        candidacies_2024_rj_1 = baker.make(
             Candidacy,
             ano=2024,
             sigla_unidade_federativa="RJ",
             _fill_optional=True,
         )
-        candidacies_2023_rj_2 = baker.make(
+        candidacies_2024_rj_2 = baker.make(
             Candidacy,
-            ano=2023,
+            ano=2024,
             sigla_unidade_federativa="RJ",
             _fill_optional=True,
         )
@@ -428,31 +426,30 @@ class TestListCandidacy:
             {
                 "path": (
                     "/eleicoes/"
-                    f"{candidacies_2023_rj_1.ano}/"
-                    f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
-                    f"{candidacies_2023_rj_1.municipio_slug}/"
-                    f"{candidacies_2023_rj_1.cargo_slug}/"
-                    f"{candidacies_2023_rj_1.nome_urna_slug}/"
+                    f"{candidacies_2024_rj_1.ano}/"
+                    f"{candidacies_2024_rj_1.sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2024_rj_1.municipio_slug}/"
+                    f"{candidacies_2024_rj_1.cargo_slug}/"
+                    f"{candidacies_2024_rj_1.nome_urna_slug}/"
                 ),
-                "name": candidacies_2023_rj_1.nome,
-                "year": candidacies_2023_rj_1.ano,
+                "name": candidacies_2024_rj_1.nome,
+                "year": candidacies_2024_rj_1.ano,
             },
             {
                 "path": (
                     "/eleicoes/"
-                    f"{candidacies_2023_rj_2.ano}/"
-                    f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
-                    f"{candidacies_2023_rj_2.municipio_slug}/"
-                    f"{candidacies_2023_rj_2.cargo_slug}/"
-                    f"{candidacies_2023_rj_2.nome_urna_slug}/"
+                    f"{candidacies_2024_rj_2.ano}/"
+                    f"{candidacies_2024_rj_2.sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2024_rj_2.municipio_slug}/"
+                    f"{candidacies_2024_rj_2.cargo_slug}/"
+                    f"{candidacies_2024_rj_2.nome_urna_slug}/"
                 ),
-                "name": candidacies_2023_rj_2.nome,
-                "year": candidacies_2023_rj_2.ano,
+                "name": candidacies_2024_rj_2.nome,
+                "year": candidacies_2024_rj_2.ano,
             },
         ]
         expected_title = "Candidato(s) no RJ em 2024"
         expected_filters = {
-            "ano": "2024",
             "cargo": "Todos",
             "uf": "RJ",
             "partido": "Todos",
@@ -465,16 +462,16 @@ class TestListCandidacy:
         assert resp.json()["title"] == expected_title
 
     def test_get_list_candidacy_filter_by_cargo_slug(self, client, settings):
-        baker.make(Candidacy, ano=2014, cargo_slug="deputado-estadual", _quantity=2, _fill_optional=True)
-        candidacies_2023_rj_1 = baker.make(
+        baker.make(Candidacy, ano=2024, cargo_slug="deputado-estadual", _quantity=2, _fill_optional=True)
+        candidacies_2024_rj_1 = baker.make(
             Candidacy,
             ano=2024,
             cargo_slug="senado",
             _fill_optional=True,
         )
-        candidacies_2023_rj_2 = baker.make(
+        candidacies_2024_rj_2 = baker.make(
             Candidacy,
-            ano=2023,
+            ano=2024,
             cargo_slug="senado",
             _fill_optional=True,
         )
@@ -485,31 +482,30 @@ class TestListCandidacy:
             {
                 "path": (
                     "/eleicoes/"
-                    f"{candidacies_2023_rj_1.ano}/"
-                    f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
-                    f"{candidacies_2023_rj_1.municipio_slug}/"
-                    f"{candidacies_2023_rj_1.cargo_slug}/"
-                    f"{candidacies_2023_rj_1.nome_urna_slug}/"
+                    f"{candidacies_2024_rj_1.ano}/"
+                    f"{candidacies_2024_rj_1.sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2024_rj_1.municipio_slug}/"
+                    f"{candidacies_2024_rj_1.cargo_slug}/"
+                    f"{candidacies_2024_rj_1.nome_urna_slug}/"
                 ),
-                "name": candidacies_2023_rj_1.nome,
-                "year": candidacies_2023_rj_1.ano,
+                "name": candidacies_2024_rj_1.nome,
+                "year": candidacies_2024_rj_1.ano,
             },
             {
                 "path": (
                     "/eleicoes/"
-                    f"{candidacies_2023_rj_2.ano}/"
-                    f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
-                    f"{candidacies_2023_rj_2.municipio_slug}/"
-                    f"{candidacies_2023_rj_2.cargo_slug}/"
-                    f"{candidacies_2023_rj_2.nome_urna_slug}/"
+                    f"{candidacies_2024_rj_2.ano}/"
+                    f"{candidacies_2024_rj_2.sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2024_rj_2.municipio_slug}/"
+                    f"{candidacies_2024_rj_2.cargo_slug}/"
+                    f"{candidacies_2024_rj_2.nome_urna_slug}/"
                 ),
-                "name": candidacies_2023_rj_2.nome,
-                "year": candidacies_2023_rj_2.ano,
+                "name": candidacies_2024_rj_2.nome,
+                "year": candidacies_2024_rj_2.ano,
             },
         ]
         expected_title = "Candidato(s) ao senado em 2024"
         expected_filters = {
-            "ano": "2024",
             "cargo": "senado",
             "uf": "Todos",
             "partido": "Todos",
@@ -522,16 +518,16 @@ class TestListCandidacy:
         assert resp.json()["title"] == expected_title
 
     def test_get_list_candidacy_filter_by_partido(self, client, settings):
-        baker.make(Candidacy, sigla_partido="aaa", _quantity=2, _fill_optional=True)
-        candidacies_2023_rj_1 = baker.make(
+        baker.make(Candidacy, ano=2024, sigla_partido="aaa", _quantity=2, _fill_optional=True)
+        candidacies_2024_rj_1 = baker.make(
             Candidacy,
             ano=2024,
             sigla_partido="ppp",
             _fill_optional=True,
         )
-        candidacies_2023_rj_2 = baker.make(
+        candidacies_2024_rj_2 = baker.make(
             Candidacy,
-            ano=2023,
+            ano=2024,
             sigla_partido="PPP",
             _fill_optional=True,
         )
@@ -542,30 +538,29 @@ class TestListCandidacy:
             {
                 "path": (
                     "/eleicoes/"
-                    f"{candidacies_2023_rj_1.ano}/"
-                    f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
-                    f"{candidacies_2023_rj_1.municipio_slug}/"
-                    f"{candidacies_2023_rj_1.cargo_slug}/"
-                    f"{candidacies_2023_rj_1.nome_urna_slug}/"
+                    f"{candidacies_2024_rj_1.ano}/"
+                    f"{candidacies_2024_rj_1.sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2024_rj_1.municipio_slug}/"
+                    f"{candidacies_2024_rj_1.cargo_slug}/"
+                    f"{candidacies_2024_rj_1.nome_urna_slug}/"
                 ),
-                "name": candidacies_2023_rj_1.nome,
-                "year": candidacies_2023_rj_1.ano,
+                "name": candidacies_2024_rj_1.nome,
+                "year": candidacies_2024_rj_1.ano,
             },
             {
                 "path": (
                     "/eleicoes/"
-                    f"{candidacies_2023_rj_2.ano}/"
-                    f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
-                    f"{candidacies_2023_rj_2.municipio_slug}/"
-                    f"{candidacies_2023_rj_2.cargo_slug}/"
-                    f"{candidacies_2023_rj_2.nome_urna_slug}/"
+                    f"{candidacies_2024_rj_2.ano}/"
+                    f"{candidacies_2024_rj_2.sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2024_rj_2.municipio_slug}/"
+                    f"{candidacies_2024_rj_2.cargo_slug}/"
+                    f"{candidacies_2024_rj_2.nome_urna_slug}/"
                 ),
-                "name": candidacies_2023_rj_2.nome,
-                "year": candidacies_2023_rj_2.ano,
+                "name": candidacies_2024_rj_2.nome,
+                "year": candidacies_2024_rj_2.ano,
             },
         ]
         expected_filters = {
-            "ano": "2024",
             "cargo": "Todos",
             "uf": "Todos",
             "partido": "ppp",
@@ -578,15 +573,15 @@ class TestListCandidacy:
 
     def test_get_list_candidacy_filter_by_name(self, client, settings):
         baker.make(Candidacy, ano=2024, nome="Paulo Silva", _quantity=2, _fill_optional=True)
-        candidacies_2023_rj_1 = baker.make(
+        candidacies_2024_rj_1 = baker.make(
             Candidacy,
             ano=2024,
             nome_urna="João do 42",
             _fill_optional=True,
         )
-        candidacies_2023_rj_2 = baker.make(
+        candidacies_2024_rj_2 = baker.make(
             Candidacy,
-            ano=2023,
+            ano=2024,
             nome_urna="João Graça",
             _fill_optional=True,
         )
@@ -597,32 +592,31 @@ class TestListCandidacy:
             {
                 "path": (
                     "/eleicoes/"
-                    f"{candidacies_2023_rj_1.ano}/"
-                    f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
-                    f"{candidacies_2023_rj_1.municipio_slug}/"
-                    f"{candidacies_2023_rj_1.cargo_slug}/"
-                    f"{candidacies_2023_rj_1.nome_urna_slug}/"
+                    f"{candidacies_2024_rj_1.ano}/"
+                    f"{candidacies_2024_rj_1.sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2024_rj_1.municipio_slug}/"
+                    f"{candidacies_2024_rj_1.cargo_slug}/"
+                    f"{candidacies_2024_rj_1.nome_urna_slug}/"
                 ),
-                "name": candidacies_2023_rj_1.nome,
-                "year": candidacies_2023_rj_1.ano,
+                "name": candidacies_2024_rj_1.nome,
+                "year": candidacies_2024_rj_1.ano,
             },
             {
                 "path": (
                     "/eleicoes/"
-                    f"{candidacies_2023_rj_2.ano}/"
-                    f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
-                    f"{candidacies_2023_rj_2.municipio_slug}/"
-                    f"{candidacies_2023_rj_2.cargo_slug}/"
-                    f"{candidacies_2023_rj_2.nome_urna_slug}/"
+                    f"{candidacies_2024_rj_2.ano}/"
+                    f"{candidacies_2024_rj_2.sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2024_rj_2.municipio_slug}/"
+                    f"{candidacies_2024_rj_2.cargo_slug}/"
+                    f"{candidacies_2024_rj_2.nome_urna_slug}/"
                 ),
-                "name": candidacies_2023_rj_2.nome,
-                "year": candidacies_2023_rj_2.ano,
+                "name": candidacies_2024_rj_2.nome,
+                "year": candidacies_2024_rj_2.ano,
             },
         ]
 
         expected_title = 'Candidato(s) "joao" em 2024'
         expected_filters = {
-            "ano": "2024",
             "cargo": "Todos",
             "uf": "Todos",
             "partido": "Todos",
@@ -639,22 +633,22 @@ class TestListCandidacy:
         # TODO: checar campo municipio
         baker.make(
             Candidacy,
-            ano=2023,
+            ano=2024,
             sigla_unidade_federativa="pe",
             municipio="Recife",
             _quantity=2,
             _fill_optional=True
         )
-        candidacies_2023_rj_1 = baker.make(
+        candidacies_2024_rj_1 = baker.make(
             Candidacy,
             ano=2024,
             sigla_unidade_federativa="rj",
             municipio="Rio de Janeiro",
             _fill_optional=True,
         )
-        candidacies_2023_rj_2 = baker.make(
+        candidacies_2024_rj_2 = baker.make(
             Candidacy,
-            ano=2023,
+            ano=2024,
             sigla_unidade_federativa="rj",
             municipio="Rio de Janeiro",
             _fill_optional=True,
@@ -666,31 +660,30 @@ class TestListCandidacy:
             {
                 "path": (
                     "/eleicoes/"
-                    f"{candidacies_2023_rj_1.ano}/"
-                    f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
-                    f"{candidacies_2023_rj_1.municipio_slug}/"
-                    f"{candidacies_2023_rj_1.cargo_slug}/"
-                    f"{candidacies_2023_rj_1.nome_urna_slug}/"
+                    f"{candidacies_2024_rj_1.ano}/"
+                    f"{candidacies_2024_rj_1.sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2024_rj_1.municipio_slug}/"
+                    f"{candidacies_2024_rj_1.cargo_slug}/"
+                    f"{candidacies_2024_rj_1.nome_urna_slug}/"
                 ),
-                "name": candidacies_2023_rj_1.nome,
-                "year": candidacies_2023_rj_1.ano,
+                "name": candidacies_2024_rj_1.nome,
+                "year": candidacies_2024_rj_1.ano,
             },
             {
                 "path": (
                     "/eleicoes/"
-                    f"{candidacies_2023_rj_2.ano}/"
-                    f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
-                    f"{candidacies_2023_rj_2.municipio_slug}/"
-                    f"{candidacies_2023_rj_2.cargo_slug}/"
-                    f"{candidacies_2023_rj_2.nome_urna_slug}/"
+                    f"{candidacies_2024_rj_2.ano}/"
+                    f"{candidacies_2024_rj_2.sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2024_rj_2.municipio_slug}/"
+                    f"{candidacies_2024_rj_2.cargo_slug}/"
+                    f"{candidacies_2024_rj_2.nome_urna_slug}/"
                 ),
-                "name": candidacies_2023_rj_2.nome,
-                "year": candidacies_2023_rj_2.ano,
+                "name": candidacies_2024_rj_2.nome,
+                "year": candidacies_2024_rj_2.ano,
             },
         ]
         expected_title = "Candidato(s) em Rio de Janeiro (RJ) em 2024"
         expected_filters = {
-            "ano": "2024",
             "cargo": "Todos",
             "uf": "Todos",
             "partido": "Todos",
@@ -707,22 +700,22 @@ class TestListCandidacy:
         # TODO: checar campo municipio
         baker.make(
             Candidacy,
-            ano=2018,
+            ano=2024,
             sigla_unidade_federativa="PE",
             municipio="Recife",
             _quantity=2,
             _fill_optional=True,
         )
-        candidacies_2023_rj_1 = baker.make(
+        candidacies_2024_rj_1 = baker.make(
             Candidacy,
             ano=2024,
             sigla_unidade_federativa="rj",
             municipio="Rio de Janeiro",
             _fill_optional=True,
         )
-        candidacies_2023_rj_2 = baker.make(
+        candidacies_2024_rj_2 = baker.make(
             Candidacy,
-            ano=2023,
+            ano=2024,
             sigla_unidade_federativa="RJ",
             municipio="Rio de Janeiro",
             _fill_optional=True,
@@ -734,31 +727,30 @@ class TestListCandidacy:
             {
                 "path": (
                     "/eleicoes/"
-                    f"{candidacies_2023_rj_1.ano}/"
-                    f"{candidacies_2023_rj_1.sigla_unidade_federativa.lower()}/"
-                    f"{candidacies_2023_rj_1.municipio_slug}/"
-                    f"{candidacies_2023_rj_1.cargo_slug}/"
-                    f"{candidacies_2023_rj_1.nome_urna_slug}/"
+                    f"{candidacies_2024_rj_1.ano}/"
+                    f"{candidacies_2024_rj_1.sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2024_rj_1.municipio_slug}/"
+                    f"{candidacies_2024_rj_1.cargo_slug}/"
+                    f"{candidacies_2024_rj_1.nome_urna_slug}/"
                 ),
-                "name": candidacies_2023_rj_1.nome,
-                "year": candidacies_2023_rj_1.ano,
+                "name": candidacies_2024_rj_1.nome,
+                "year": candidacies_2024_rj_1.ano,
             },
             {
                 "path": (
                     "/eleicoes/"
-                    f"{candidacies_2023_rj_2.ano}/"
-                    f"{candidacies_2023_rj_2.sigla_unidade_federativa.lower()}/"
-                    f"{candidacies_2023_rj_2.municipio_slug}/"
-                    f"{candidacies_2023_rj_2.cargo_slug}/"
-                    f"{candidacies_2023_rj_2.nome_urna_slug}/"
+                    f"{candidacies_2024_rj_2.ano}/"
+                    f"{candidacies_2024_rj_2.sigla_unidade_federativa.lower()}/"
+                    f"{candidacies_2024_rj_2.municipio_slug}/"
+                    f"{candidacies_2024_rj_2.cargo_slug}/"
+                    f"{candidacies_2024_rj_2.nome_urna_slug}/"
                 ),
-                "name": candidacies_2023_rj_2.nome,
-                "year": candidacies_2023_rj_2.ano,
+                "name": candidacies_2024_rj_2.nome,
+                "year": candidacies_2024_rj_2.ano,
             },
         ]
         expected_title = "Candidato(s) em Rio de Janeiro (RJ) em 2024"
         expected_filters = {
-            "ano": "2024",
             "cargo": "Todos",
             "uf": "Todos",
             "partido": "Todos",
@@ -772,7 +764,7 @@ class TestListCandidacy:
         assert resp.json()["title"] == expected_title
 
     def test_get_list_candidacy_paginate(self, client, settings):
-        baker.make(Candidacy, ano=2023, _quantity=2, _fill_optional=True)
+        baker.make(Candidacy, ano=2024, _quantity=2, _fill_optional=True)
         candidacies_2024 = baker.make(Candidacy, ano=2024, _fill_optional=True)
 
         url = reverse(self.url_name) + "?format=json&page=1&page_size=1"
