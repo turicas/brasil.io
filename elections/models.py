@@ -80,9 +80,13 @@ class Candidacy(models.Model):
             "Grau de instrução": get_field(self, "grau_instrucao"),
             "Profissão/Ocupação": get_field(self, "ocupacao"),
         }
+        type_mapper = {"Situação candidatura": "tag"}
         data = []
         for field, value in fields.items():
+            field_type = type_mapper.get(field)
             data.append({"label": field, "value": value})
+            if field_type is not None:
+                data[-1]["type"] = field_type
 
         return data
 

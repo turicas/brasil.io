@@ -32,7 +32,7 @@ class TestCandidacy:
         )
         expected = [
             {"label": "Coligação", "value": "PRB, PTN, PHS e PPL"},
-            {"label": "Situação candidatura", "value": candidacy.situacao},
+            {"label": "Situação candidatura", "value": candidacy.situacao, "type": "tag"},
             {"label": "Nome completo", "value": candidacy.nome},
             {"label": "Nome urna", "value": candidacy.nome_urna},
             {"label": "Nascimento", "value": "01/01/1999 (25 anos)"},
@@ -63,7 +63,7 @@ class TestCandidacy:
         )
         expected = [
             {"label": "Coligação", "value": "PRB"},
-            {"label": "Situação candidatura", "value": candidacy.situacao},
+            {"label": "Situação candidatura", "value": candidacy.situacao, "type": "tag"},
             {"label": "Nome completo", "value": candidacy.nome},
             {"label": "Nome urna", "value": candidacy.nome_urna},
             {"label": "Nascimento", "value": "Não informado"},
