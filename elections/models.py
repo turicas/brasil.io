@@ -1,3 +1,5 @@
+from urllib.parse import urljoin
+
 from django.db import models
 from django.utils import timezone
 
@@ -90,7 +92,6 @@ class Candidacy(models.Model):
 
         return data
 
-
     def __str__(self):
         return f"{self.nome_urna} - {self.cargo} / {self.ano} "
 
@@ -104,3 +105,38 @@ class CandidacyMetadata(models.Model):
 
     def __str__(self):
         return f"Candidacy Metadata: {self.created_at}"
+
+
+class SocialNetworkMetadata(models.Model):
+    name = models.CharField(max_length=255)
+    icon = models.CharField(max_length=255)
+    url_prefix = models.URLField(max_length=255)
+
+    class Meta:
+        verbose_name = "Social network metadata"
+        verbose_name_plural = "Social networks metadata"
+
+    def __str__(self):
+        return f"Social Network Metadata: {self.name}"
+
+
+class CandidacySocialNetwork(models.Model):
+    candidacy = models.ForeignKey(
+        Candidacy,
+        related_name="social_networks",
+        on_delete=models.CASCADE
+    )
+    social_network_metadata = models.ForeignKey(SocialNetworkMetadata, on_delete=models.DO_NOTHING)
+    username = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        verbose_name = "Candidacy social network"
+        verbose_name_plural = "Candidacy social networks"
+
+    @property
+    def link(self):
+        return urljoin(self.social_network_metadata.url_prefix, self.username)
+
+    def __str__(self):
+        return f"Candidacy Social Network: {self.candidacy} - {self.social_network_metadata}"

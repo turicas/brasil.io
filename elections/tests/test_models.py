@@ -2,7 +2,7 @@ import pytest
 from freezegun import freeze_time
 from model_bakery import baker
 
-from elections.models import Candidacy
+from elections.models import Candidacy, CandidacySocialNetwork, SocialNetworkMetadata
 
 
 @pytest.mark.django_db
@@ -75,3 +75,23 @@ class TestCandidacy:
         ]
 
         assert candidacy.info_list == expected
+
+
+@pytest.mark.django_db
+class TestCandidacySocialNetwork:
+    def test_link(self):
+        facebook = baker.make(
+            SocialNetworkMetadata,
+            name="facebook",
+            url_prefix="https://facebook.com",
+        )
+        candidacy_facebook = baker.make(
+            CandidacySocialNetwork,
+            username="candidato-fb",
+            social_network_metadata=facebook,
+        )
+
+        assert candidacy_facebook.link == "https://facebook.com/candidato-fb"
+
+    def test_list_social_networks(self):
+        pass
