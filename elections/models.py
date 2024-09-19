@@ -92,6 +92,19 @@ class Candidacy(models.Model):
 
         return data
 
+    def social_networks_list(self):
+        data = []
+        for social_network in self.social_networks.all():
+            data.append(
+                {
+                    "label": social_network.username,
+                    "icon": social_network.social_network_metadata.icon,
+                    "link": social_network.link
+                }
+            )
+
+        return data
+
     def __str__(self):
         return f"{self.nome_urna} - {self.cargo} / {self.ano} "
 

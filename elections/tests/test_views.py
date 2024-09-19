@@ -41,11 +41,13 @@ class TestDetailCandidacyView:
         )
         candidacy_facebook = baker.make(
             CandidacySocialNetwork,
+            candidacy=candidacy,
             social_network_metadata=self.facebook,
             username="@deputado-fb",
         )
         candidacy_tiktok = baker.make(
             CandidacySocialNetwork,
+            candidacy=candidacy,
             social_network_metadata=self.tiktok,
             username="@deputado-tiktok",
         )
