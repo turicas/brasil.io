@@ -3,12 +3,16 @@
   --election-primary-bg: #404493;
   --election-primary-color: #404493;
   --election-secondary-color:  #cfd2e7;
+  --election-tertiary-color:  #444;
+  --election-card-bg: rgba(180,180,180, 0.1);
 }
 
 [data-bs-theme="dark"] {
   --bs-primary-rgb: 94, 98, 177;
   --election-primary-color: #9fa2dd;
   --election-secondary-color: #2c2e39;
+  --election-tertiary-color: #ccc;
+  --election-card-bg: rgba(100,100,100, 0.1);
 }
 
 ::-webkit-scrollbar {
@@ -30,6 +34,23 @@
 
 .election-text-primary {
   color: var(--election-primary-color);
+}
+
+.election-text-secondary {
+  color: var(--election-secondary-color);
+}
+
+.election-text-tertiary {
+  color: var(--election-tertiary-color);
+}
+
+.election-card {
+  background-color: transparent;
+  border: 0px !important;
+}
+
+.election-card:hover {
+  background-color: var(--election-card-bg);
 }
 
 .active-custom {
