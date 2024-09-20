@@ -4,7 +4,7 @@
 {% block title %}Eleições - Brasil.IO{% endblock %}
 
 {% block content %}
-{% with candidacy=data.item %}
+{% with candidacy=data.item info_list=data.info_list %}
 <style>
 .image-loading {
   max-width: 290px;
@@ -15,38 +15,34 @@
     min-height: 239px;
   }
 }
-
 </style>
 <section class="container mb-5 pb-5">
-  <h1 class="fw-normal">{{ candidacy.nome|lower|capfirst }}</h1>
+  <h1 class="candidacy-name fw-normal election-text-primary">{{ candidacy.nome|lower|capfirst }}</h1>
   <div class="d-flex align-items-center border-top-custom" style="font-weight: 500">
-    <span>ELEIÇÕES</span>
+    <span class="election-text-primary">ELEIÇÕES</span>
     <ul class="nav">
       <li class="nav-item">
-        <a class="nav-link active-custom text-body" aria-current="page" href="#">2024</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link text-body" href="#">2022</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link text-body" href="#">2020</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link text-body" href="#">2018</a>
+        <span
+          class="nav-link election-text-primary active-custom"
+          aria-current="page"
+          >2024</span>
       </li>
     </ul>
   </div>
   <article class="d-flex gap-2 flex-column mb-4 fs-5">
-    <div>
-      <span class="fw-semibold">Cargo:</span> <span>{{ candidacy.cargo|lower|capfirst }}</span>
+    <div class="election-text-primary">
+      <span class="fw-semibold">
+        Cargo:</span> <span>{{ candidacy.cargo|lower|capfirst }}
+      </span>
     </div>
-    <div>
-      <span class="fw-semibold">Localidade:</span> <span>{{ candidacy.municipio }} ({{ candidacy.sigla_unidade_federativa}})</span>
+    <div class="election-text-primary">
+      <span class="fw-semibold">Localidade:</span>
+      <span>{{ candidacy.municipio }} ({{ candidacy.sigla_unidade_federativa}})</span>
     </div>
   </article>
   <div class="row g-2">
     <div class="col-12 col-lg-3 sticky-xl-top align-self-start pt-2">
-      <div class="card overflow-x-scroll" style="max-height: calc(100vh - 50px)">
+      <div class="card overflow-x-scroll">
         <div class="card-body d-flex flex-column justify-content-center">
           <img
             src="{% static 'elections/img/politics/default-avatar.jpg' %}"
@@ -55,28 +51,34 @@
             style="max-width: 290px; width: 100%; min-height: 239px;"
           >
           <article class="d-flex flex-column align-items-center mt-4">
-            <h2 class="fs-5 mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-box" viewBox="0 0 16 16">
-                <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5 8 5.961 14.154 3.5zM15 4.239l-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
+            <h2 class="fs-5 mb-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                fill="currentColor"
+                class="bi bi-box"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5 8 5.961 14.154 3.5zM15 4.239l-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
               </svg>
-              {{ candidacy.sigla_partido }} <strong>{{ candidacy.numero_sequencial }}</strong></h2>
-            <div class="d-flex flex-column gap-1 mb-4 small">
-              <div>
-                <span class="fw-semibold">Coligação:</span>
-                <span>{{ candidacy.composicao_legenda }}</span>
-              </div>
-              <div>
-                <span class="fw-semibold">Situação da candidatura:</span>
-                <span class="badge rounded-pill text-bg-dark fw-normal">{{ candidacy.situacao|lower|capfirst }}</span>
-              </div>
-              <div>
-                <span class="fw-semibold">Nascimento:</span>
-                <span>{{ candidacy.data_nascimento }} ({{ candidacy.age }} anos)</span>
-              </div>
-              <div>
-                <span class="fw-semibold">Gênero:</span>
-                <span>{{ candidacy.genero|lower|capfirst }}</span>
-              </div>
+              {{ candidacy.sigla_partido }} <strong>{{ candidacy.numero_sequencial }}</strong>
+            </h2>
+            <h3 class="fs-6 fw-bold election-text-primary">{{ candidacy.nome|lower|capfirst }}</h3>
+            <div class="d-flex flex-column gap-1 my-4 small gap-3">
+              {% for item in info_list %}
+                <div>
+                  <div class="fw-light">{{ item.label|upper }}</div>
+                  <div
+                    {% if item.type and item.type == 'tag' %}
+                      class="badge rounded-pill text-bg-primary fw-normal"
+                    {% endif %}
+                  >
+                    {{ item.value }}
+                  </div>
+                </div>
+              {% endfor %}
               <p class="text-secondary mt-2 mb-0">[Disclaimer] texto editorial (não automático) que pode ser usado caso seja necessário adicionar alguma infirmação sobre a candidatura</p>
             </div>
             <button
