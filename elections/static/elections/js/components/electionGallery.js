@@ -15,7 +15,6 @@ export const electionGallery = {
     "n-empty": naive.NEmpty,
     "n-gi": naive.NGi,
     "n-grid": naive.NGrid,
-    "n-h1": naive.NH1,
     "n-pagination": naive.NPagination,
     "n-space": naive.NSpace,
     "n-spin": naive.NSpin,
@@ -205,10 +204,10 @@ export const electionGallery = {
         v-model:type="type"
         v-model:year="year"
       />
-      <div class="border-bottom border-primary mt-4">
-        <n-h1 class="election-text-primary fw-normal">[[ title ]]</n-h1>
+      <div class="border-bottom border-primary my-5">
+        <h2 class="election-text-primary fw-normal">[[ title ]]</h2>
       </div>
-      <div class="mb-5 mt-4">
+      <div class="mb-5">
         <n-spin :show="loading">
           <n-grid v-if="data.length" :x-gap="12" :y-gap="12" cols="1 640:2 1024:4">
             <template v-for="item in data">
