@@ -32,10 +32,24 @@ class ListCandidacySerializer(serializers.ModelSerializer):
     path = serializers.SerializerMethodField()
     name = serializers.CharField(source="nome")
     year = serializers.IntegerField(source="ano")
+    cargo = serializers.CharField()
+    municipio = serializers.CharField()
+    uf = serializers.CharField(source="sigla_unidade_federativa")
+    numero_urna = serializers.CharField()
+    sigla_partido = serializers.CharField()
 
     class Meta:
         model = Candidacy
-        fields = ("path", "name", "year")
+        fields = (
+            "path",
+            "name",
+            "year",
+            "cargo",
+            "municipio",
+            "uf",
+            "numero_urna",
+            "sigla_partido",
+        )
 
     def get_path(self, obj):
         return (

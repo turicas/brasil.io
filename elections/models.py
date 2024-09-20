@@ -29,6 +29,7 @@ class Candidacy(models.Model):
     grau_instrucao = models.TextField(null=True, blank=True)
     ocupacao = models.TextField(null=True, blank=True)
     estado_civil = models.TextField(null=True, blank=True)
+    numero_urna = models.TextField(null=True, blank=True)
 
     @classmethod
     def first_year(cls):

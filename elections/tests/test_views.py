@@ -171,6 +171,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacy_1.nome,
                 "year": candidacy_1.ano,
+                "cargo": candidacy_1.cargo,
+                "municipio": candidacy_1.municipio,
+                "uf": candidacy_1.sigla_unidade_federativa,
+                "numero_urna": candidacy_1.numero_urna,
+                "sigla_partido": candidacy_1.sigla_partido,
             },
             {
                 "path": (
@@ -183,6 +188,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacy_2.nome,
                 "year": candidacy_2.ano,
+                "cargo": candidacy_2.cargo,
+                "municipio": candidacy_2.municipio,
+                "uf": candidacy_2.sigla_unidade_federativa,
+                "numero_urna": candidacy_2.numero_urna,
+                "sigla_partido": candidacy_2.sigla_partido,
             },
         ]
 
@@ -210,6 +220,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacy_1.nome,
                 "year": candidacy_1.ano,
+                "cargo": candidacy_1.cargo,
+                "municipio": candidacy_1.municipio,
+                "uf": candidacy_1.sigla_unidade_federativa,
+                "numero_urna": candidacy_1.numero_urna,
+                "sigla_partido": candidacy_1.sigla_partido,
             },
             {
                 "path": (
@@ -222,6 +237,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacy_2.nome,
                 "year": candidacy_2.ano,
+                "cargo": candidacy_2.cargo,
+                "municipio": candidacy_2.municipio,
+                "uf": candidacy_2.sigla_unidade_federativa,
+                "numero_urna": candidacy_2.numero_urna,
+                "sigla_partido": candidacy_2.sigla_partido,
             },
         ]
 
@@ -250,6 +270,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacy_1.nome,
                 "year": candidacy_1.ano,
+                "cargo": candidacy_1.cargo,
+                "municipio": candidacy_1.municipio,
+                "uf": candidacy_1.sigla_unidade_federativa,
+                "numero_urna": candidacy_1.numero_urna,
+                "sigla_partido": candidacy_1.sigla_partido,
             },
             {
                 "path": (
@@ -262,6 +287,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacy_2.nome,
                 "year": candidacy_2.ano,
+                "cargo": candidacy_2.cargo,
+                "municipio": candidacy_2.municipio,
+                "uf": candidacy_2.sigla_unidade_federativa,
+                "numero_urna": candidacy_2.numero_urna,
+                "sigla_partido": candidacy_2.sigla_partido,
             },
         ]
         expected_title = "Candidato(s) em 2024"
@@ -291,6 +321,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacy_1.nome,
                 "year": candidacy_1.ano,
+                "cargo": candidacy_1.cargo,
+                "municipio": candidacy_1.municipio,
+                "uf": candidacy_1.sigla_unidade_federativa,
+                "numero_urna": candidacy_1.numero_urna,
+                "sigla_partido": candidacy_1.sigla_partido,
             },
             {
                 "path": (
@@ -303,6 +338,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacy_2.nome,
                 "year": candidacy_2.ano,
+                "cargo": candidacy_2.cargo,
+                "municipio": candidacy_2.municipio,
+                "uf": candidacy_2.sigla_unidade_federativa,
+                "numero_urna": candidacy_2.numero_urna,
+                "sigla_partido": candidacy_2.sigla_partido,
             },
         ]
         expected_title = "Candidato(s) em 2024"
@@ -330,6 +370,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacies_2024[0].nome,
                 "year": candidacies_2024[0].ano,
+                "cargo": candidacies_2024[0].cargo,
+                "municipio": candidacies_2024[0].municipio,
+                "uf": candidacies_2024[0].sigla_unidade_federativa,
+                "numero_urna": candidacies_2024[0].numero_urna,
+                "sigla_partido": candidacies_2024[0].sigla_partido,
             },
             {
                 "path": (
@@ -342,6 +387,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacies_2024[1].nome,
                 "year": candidacies_2024[1].ano,
+                "cargo": candidacies_2024[1].cargo,
+                "municipio": candidacies_2024[1].municipio,
+                "uf": candidacies_2024[1].sigla_unidade_federativa,
+                "numero_urna": candidacies_2024[1].numero_urna,
+                "sigla_partido": candidacies_2024[1].sigla_partido,
             },
         ]
         expected_title = "Candidato(s) em 2024"
@@ -375,6 +425,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacies_2024[0].nome,
                 "year": candidacies_2024[0].ano,
+                "cargo": candidacies_2024[0].cargo,
+                "municipio": candidacies_2024[0].municipio,
+                "uf": candidacies_2024[0].sigla_unidade_federativa,
+                "numero_urna": candidacies_2024[0].numero_urna,
+                "sigla_partido": candidacies_2024[0].sigla_partido,
             },
             {
                 "path": (
@@ -387,6 +442,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacies_2024[1].nome,
                 "year": candidacies_2024[1].ano,
+                "cargo": candidacies_2024[1].cargo,
+                "municipio": candidacies_2024[1].municipio,
+                "uf": candidacies_2024[1].sigla_unidade_federativa,
+                "numero_urna": candidacies_2024[1].numero_urna,
+                "sigla_partido": candidacies_2024[1].sigla_partido,
             },
         ]
         expected_title = "Candidato(s) em 2024"
@@ -434,6 +494,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacies_2024_rj_1.nome,
                 "year": candidacies_2024_rj_1.ano,
+                "cargo": candidacies_2024_rj_1.cargo,
+                "municipio": candidacies_2024_rj_1.municipio,
+                "uf": candidacies_2024_rj_1.sigla_unidade_federativa,
+                "numero_urna": candidacies_2024_rj_1.numero_urna,
+                "sigla_partido": candidacies_2024_rj_1.sigla_partido,
             },
             {
                 "path": (
@@ -446,6 +511,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacies_2024_rj_2.nome,
                 "year": candidacies_2024_rj_2.ano,
+                "cargo": candidacies_2024_rj_2.cargo,
+                "municipio": candidacies_2024_rj_2.municipio,
+                "uf": candidacies_2024_rj_2.sigla_unidade_federativa,
+                "numero_urna": candidacies_2024_rj_2.numero_urna,
+                "sigla_partido": candidacies_2024_rj_2.sigla_partido,
             },
         ]
         expected_title = "Candidato(s) no RJ em 2024"
@@ -490,6 +560,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacies_2024_rj_1.nome,
                 "year": candidacies_2024_rj_1.ano,
+                "cargo": candidacies_2024_rj_1.cargo,
+                "municipio": candidacies_2024_rj_1.municipio,
+                "uf": candidacies_2024_rj_1.sigla_unidade_federativa,
+                "numero_urna": candidacies_2024_rj_1.numero_urna,
+                "sigla_partido": candidacies_2024_rj_1.sigla_partido,
             },
             {
                 "path": (
@@ -502,6 +577,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacies_2024_rj_2.nome,
                 "year": candidacies_2024_rj_2.ano,
+                "cargo": candidacies_2024_rj_2.cargo,
+                "municipio": candidacies_2024_rj_2.municipio,
+                "uf": candidacies_2024_rj_2.sigla_unidade_federativa,
+                "numero_urna": candidacies_2024_rj_2.numero_urna,
+                "sigla_partido": candidacies_2024_rj_2.sigla_partido,
             },
         ]
         expected_title = "Candidato(s) ao senado em 2024"
@@ -546,6 +626,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacies_2024_rj_1.nome,
                 "year": candidacies_2024_rj_1.ano,
+                "cargo": candidacies_2024_rj_1.cargo,
+                "municipio": candidacies_2024_rj_1.municipio,
+                "uf": candidacies_2024_rj_1.sigla_unidade_federativa,
+                "numero_urna": candidacies_2024_rj_1.numero_urna,
+                "sigla_partido": candidacies_2024_rj_1.sigla_partido,
             },
             {
                 "path": (
@@ -558,6 +643,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacies_2024_rj_2.nome,
                 "year": candidacies_2024_rj_2.ano,
+                "cargo": candidacies_2024_rj_2.cargo,
+                "municipio": candidacies_2024_rj_2.municipio,
+                "uf": candidacies_2024_rj_2.sigla_unidade_federativa,
+                "numero_urna": candidacies_2024_rj_2.numero_urna,
+                "sigla_partido": candidacies_2024_rj_2.sigla_partido,
             },
         ]
         expected_filters = {
@@ -600,6 +690,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacies_2024_rj_1.nome,
                 "year": candidacies_2024_rj_1.ano,
+                "cargo": candidacies_2024_rj_1.cargo,
+                "municipio": candidacies_2024_rj_1.municipio,
+                "uf": candidacies_2024_rj_1.sigla_unidade_federativa,
+                "numero_urna": candidacies_2024_rj_1.numero_urna,
+                "sigla_partido": candidacies_2024_rj_1.sigla_partido,
             },
             {
                 "path": (
@@ -612,6 +707,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacies_2024_rj_2.nome,
                 "year": candidacies_2024_rj_2.ano,
+                "cargo": candidacies_2024_rj_2.cargo,
+                "municipio": candidacies_2024_rj_2.municipio,
+                "uf": candidacies_2024_rj_2.sigla_unidade_federativa,
+                "numero_urna": candidacies_2024_rj_2.numero_urna,
+                "sigla_partido": candidacies_2024_rj_2.sigla_partido,
             },
         ]
 
@@ -668,6 +768,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacies_2024_rj_1.nome,
                 "year": candidacies_2024_rj_1.ano,
+                "cargo": candidacies_2024_rj_1.cargo,
+                "municipio": candidacies_2024_rj_1.municipio,
+                "uf": candidacies_2024_rj_1.sigla_unidade_federativa,
+                "numero_urna": candidacies_2024_rj_1.numero_urna,
+                "sigla_partido": candidacies_2024_rj_1.sigla_partido,
             },
             {
                 "path": (
@@ -680,6 +785,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacies_2024_rj_2.nome,
                 "year": candidacies_2024_rj_2.ano,
+                "cargo": candidacies_2024_rj_2.cargo,
+                "municipio": candidacies_2024_rj_2.municipio,
+                "uf": candidacies_2024_rj_2.sigla_unidade_federativa,
+                "numero_urna": candidacies_2024_rj_2.numero_urna,
+                "sigla_partido": candidacies_2024_rj_2.sigla_partido,
             },
         ]
         expected_title = "Candidato(s) em Rio de Janeiro (RJ) em 2024"
@@ -735,6 +845,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacies_2024_rj_1.nome,
                 "year": candidacies_2024_rj_1.ano,
+                "cargo": candidacies_2024_rj_1.cargo,
+                "municipio": candidacies_2024_rj_1.municipio,
+                "uf": candidacies_2024_rj_1.sigla_unidade_federativa,
+                "numero_urna": candidacies_2024_rj_1.numero_urna,
+                "sigla_partido": candidacies_2024_rj_1.sigla_partido,
             },
             {
                 "path": (
@@ -747,6 +862,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacies_2024_rj_2.nome,
                 "year": candidacies_2024_rj_2.ano,
+                "cargo": candidacies_2024_rj_2.cargo,
+                "municipio": candidacies_2024_rj_2.municipio,
+                "uf": candidacies_2024_rj_2.sigla_unidade_federativa,
+                "numero_urna": candidacies_2024_rj_2.numero_urna,
+                "sigla_partido": candidacies_2024_rj_2.sigla_partido,
             },
         ]
         expected_title = "Candidato(s) em Rio de Janeiro (RJ) em 2024"
@@ -781,6 +901,11 @@ class TestListCandidacy:
                 ),
                 "name": candidacies_2024.nome,
                 "year": candidacies_2024.ano,
+                "cargo": candidacies_2024.cargo,
+                "municipio": candidacies_2024.municipio,
+                "uf": candidacies_2024.sigla_unidade_federativa,
+                "numero_urna": candidacies_2024.numero_urna,
+                "sigla_partido": candidacies_2024.sigla_partido,
             },
         ]
         expected_title = "Candidato(s) em 2024"
