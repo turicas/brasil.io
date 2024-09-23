@@ -99,3 +99,8 @@
 </section>
 {% endwith %}
 {% endblock %}
+
+{% block bodyscript %}
+  {{ block.super }}
+  <script src="{% static 'elections/js/copyCurrentLink.js' %}"></script>
+{% endblock %}
