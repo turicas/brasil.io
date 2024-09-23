@@ -2,6 +2,7 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
+from elections import page_counter
 from elections.filters import CandidacyFilterSet
 from elections.models import Candidacy, CandidacyMetadata
 from elections.serializers import DetailCandidacySerializer, ListCandidacySerializer
@@ -48,6 +49,11 @@ def candidacy_list(request):
         "page_size": page_size,
         "filters": selected_filter_fields,
         "title": title,
+        "page_counter": page_counter.counter(
+            page=int(page),
+            page_size=page_size,
+            total=Candidacy.get_total()
+        )
     }
 
     if request.GET.get("format") == "json":

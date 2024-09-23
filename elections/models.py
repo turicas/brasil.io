@@ -37,6 +37,10 @@ class Candidacy(models.Model):
         qs = cls.objects.values("ano").order_by("ano").first()
         return qs["ano"]
 
+    @classmethod
+    def get_total(cls):
+        return cls.objects.count()
+
     class Meta:
         ordering = ["-ano"]
         verbose_name = "Candidatura"
