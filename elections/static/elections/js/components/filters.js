@@ -97,13 +97,16 @@ export const filters = {
       )
     }
     const handleSearchCityBlur = async () => {
-      const citiesSelected = cityOptions.value.filter(city => city.label === searchCity.value)
+      const citiesSelected =
+        cityOptions.value.filter(city =>
+          city.label.toLowerCase() === searchCity.value.toLowerCase()
+        )
       if (!citiesSelected.length || citiesSelected.length > 1) {
         searchCity.value = ""
-        await handleSelectCity(searchCity.value)
+        search.value = ""
       } else if (citiesSelected.length === 1) {
         const citySelected = citiesSelected[0]
-        await handleSelectCity(citySelected.label + "-" + citySelected.estado)
+        search.value = citySelected.label + "-" + citySelected.estado
       }
     }
     const handleSearchRadioUpdate = (value) => {

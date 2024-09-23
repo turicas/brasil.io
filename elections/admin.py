@@ -1,6 +1,11 @@
 from django.contrib import admin
 
-from elections.models import Candidacy, CandidacyMetadata
+from elections.models import (
+    Candidacy,
+    CandidacyMetadata,
+    CandidacySocialNetwork,
+    SocialNetworkMetadata,
+)
 
 
 class CandidacyAdmin(admin.ModelAdmin):
@@ -26,5 +31,16 @@ class CandidacyMetadataAdmin(admin.ModelAdmin):
     pass
 
 
+class SocialNetworkMetadataAdmin(admin.ModelAdmin):
+    list_display = ("name", "icon")
+
+
+class CandidacySocialNetworkAdmin(admin.ModelAdmin):
+    list_display = ("candidacy", "social_network_metadata", "username", "created_at")
+    search_fields = ("username", "social_network_metadata__name")
+
+
 admin.site.register(Candidacy, CandidacyAdmin)
 admin.site.register(CandidacyMetadata, CandidacyMetadataAdmin)
+admin.site.register(SocialNetworkMetadata, SocialNetworkMetadataAdmin)
+admin.site.register(CandidacySocialNetwork, CandidacySocialNetworkAdmin)

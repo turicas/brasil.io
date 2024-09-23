@@ -1,0 +1,166 @@
+<div class="col-12 col-lg-9 pt-2">
+  <div class="card border-0">
+    <div class="mx-lg-3">
+      <div class="accordion d-flex flex-column gap-2" id="accordionPanelsStayOpenExample">
+        {% if details_list %}
+          <div class="accordion-item accordion-item-custom">
+            <div class="accordion-header accordion-header-custom position-relative">
+              <style>
+                .float-social-icons {
+                  z-index: 40;
+                  right: 54px;
+                  top: 4px;
+                }
+                .float-social-icons:not(:has(+ .collapsed)) {
+                  display: none !important;
+                }
+              </style>
+              <div
+                class="accordion-button-custom d-flex gap-2 position-absolute float-social-icons"
+              >
+                {% for social_network in details_list|slice:":7" %}
+                  <a
+                      href="{{ social_network.link }}"
+                      target="_blank"
+                      class="link-body-emphasis link-opacity-75 link-opacity-100-hover"
+                      title="{{ social_network.label }}"
+                  >
+                    {% include 'elections/includes/social_network_icons.html' with social_network=social_network  %}
+                  </a>
+                {% endfor %}
+                Todas
+              </div>
+              <button
+                class="accordion-button accordion-button-custom"
+                type="button"
+                data-bs-toggle="collapse"
+                aria-expanded="true"
+                data-bs-target="#panelsStayOpen-zero"
+                aria-controls="panelsStayOpen-zero"
+              >
+                <div class="d-flex justify-content-between w-100">
+                  <div class="accordion-button-custom">MíDIAS SOCIAIS</div>
+                </div>
+              </button>
+            </div>
+            <div id="panelsStayOpen-zero" class="accordion-collapse collapse show">
+              <div class="accordion-body accordion-body-custom">
+                <div class="list-group">
+                  {% for social_network in details_list %}
+                    <a
+                      href="{{ social_network.link }}"
+                      class="list-group-item list-group-item-action link-body-emphasis link-opacity-75 link-opacity-100-hover"
+                      target="_blank"
+                    >
+                      {% include 'elections/includes/social_network_icons.html' with social_network=social_network  %}
+                      <span>&nbsp;{{ social_network.label }}</span>
+                    </a>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        <div class="accordion-item accordion-item-custom">
+          <h2 class="accordion-header accordion-header-custom">
+            <button
+              class="accordion-button accordion-button-custom"
+              type="button" data-bs-toggle="collapse"
+              data-bs-target="#panelsStayOpen-collapseOne"
+              aria-expanded="true"
+              aria-controls="panelsStayOpen-collapseOne"
+            >
+              <div class="d-flex justify-content-between w-100">
+                <div class="accordion-button-custom">BENS DECLARADOS</div>
+                <div class="me-4 accordion-button-custom">Patrimônio de R$ 235.924,00</div>
+              </div>
+            </button>
+          </h2>
+          <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show">
+            <div class="accordion-body accordion-body-custom">
+              <p>
+              <strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+              </p>
+              <div class="table-responsive">
+                <table class="table table-bordered table-custom">
+                  <thead>
+                    <tr>
+                      <th scope="col">Tipo</th>
+                      <th scope="col">Descrição</th>
+                      <th scope="col">Valor</th>
+                    </tr>
+                  </thead>
+                  <tbody class="table-group-divider">
+                    <tr>
+                      <td>Casa</td>
+                      <td>Imóvel Em Condominio Na Cidade de Itanhaém</td>
+                      <td>R$ 500.000,00</td>
+                    </tr>
+                    <tr>
+                      <td>Veículo automotor terrestre: caminhão, automóvel, moto, etc.</td>
+                      <td>Fiat Fiorino</td>
+                      <td>R$ 93.753,00</td>
+                    </tr>
+                    <tr>
+                      <td>Dinheiro em espécie - moeda nacional</td>
+                      <td>Em Espécie</td>
+                      <td>R$ 12.000,00</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item accordion-item-custom">
+          <h2 class="accordion-header accordion-header-custom">
+            <button
+              class="accordion-button accordion-button-custom collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#panelsStayOpen-collapseTwo"
+              aria-expanded="false"
+              aria-controls="panelsStayOpen-collapseTwo"
+              disabled
+            >
+              <div class="d-flex justify-content-between w-100">
+                <div class="accordion-button-custom">EXEMPLO</div>
+                <div class="me-4 accordion-button-custom">Nenhum registro, por enquanto</div>
+              </div>
+            </button>
+          </h2>
+          <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse">
+            <div class="accordion-body accordion-body-custom"></div>
+          </div>
+        </div>
+        <div class="accordion-item accordion-item-custom">
+          <h2 class="accordion-header accordion-header-custom">
+            <button
+              class="accordion-button accordion-button-custom"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#panelsStayOpen-collapseThree"
+              aria-expanded="false"
+              aria-controls="panelsStayOpen-collapseThree"
+            >
+              <div class="d-flex justify-content-between w-100">
+                <div class="accordion-button-custom">EMPRESAS</div>
+                <div class="me-4 accordion-button-custom">6 registros</div>
+              </div>
+            </button>
+          </h2>
+          <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse show">
+            <div class="accordion-body accordion-body-custom">
+              Lorem ipsum odor amet, consectetuer adipiscing elit. Primis venenatis varius a nulla nibh sem elit ipsum. Ligula hac lorem tempor montes duis praesent rutrum. Ac est nostra viverra ut maximus a orci urna. Augue venenatis pretium; conubia facilisis non magnis. Posuere integer lacinia scelerisque nulla odio ligula!<br>
+              Sagittis sodales dui ullamcorper consectetur metus orci suspendisse arcu. Maximus per congue aptent, platea venenatis habitasse sit ornare. Vehicula sagittis eget magna finibus hendrerit class metus nunc. Curae sed consectetur dapibus mi efficitur. Egestas cubilia mus nostra adipiscing placerat ridiculus pretium mi egestas. Natoque vulputate ultrices molestie rhoncus hendrerit bibendum a. Id nullam tristique porta penatibus odio sodales torquent. Nunc felis massa facilisis nibh; penatibus condimentum nulla pulvinar? Ante rutrum vestibulum sapien maecenas suspendisse eleifend accumsan scelerisque.<br><br>
+              Semper pretium aenean porta neque fringilla aptent nunc arcu. Venenatis lorem ullamcorper maximus lacinia dignissim aptent inceptos integer. Malesuada nunc lobortis vulputate pharetra luctus bibendum commodo. Dis suspendisse suscipit eu tellus ridiculus. Vel himenaeos aliquet dictum dui pulvinar. Dictum pretium ultrices, hendrerit molestie quis hendrerit. Dolor integer et finibus, facilisi quisque nisl magna tempus fringilla. Tincidunt phasellus et scelerisque nunc elit malesuada rhoncus.<br><br>
+              Felis torquent eget ut taciti efficitur. Quis purus donec senectus inceptos facilisi varius taciti. Sociosqu duis tincidunt sodales maximus, nec sociosqu mauris habitant. Class fermentum etiam justo maecenas maecenas a torquent mus eros. Sollicitudin massa fames semper aliquam blandit rhoncus torquent conubia. Est inceptos venenatis tellus accumsan justo adipiscing cubilia laoreet purus. Ut interdum sapien leo sapien risus finibus praesent est id. Feugiat hendrerit diam libero ipsum eu. Ad nisi dis sit est pharetra mi ipsum finibus mi. Commodo vivamus in est, facilisi vel litora placerat.<br><br>
+              Facilisi tincidunt porta nullam facilisis nostra sodales efficitur. Risus quis fermentum nibh laoreet sapien sollicitudin rhoncus proin placerat. Commodo fermentum donec habitasse per erat consectetur nisl cursus. Volutpat parturient vehicula fusce imperdiet cursus odio faucibus est. Felis libero litora massa mattis; habitasse leo ridiculus amet. Fusce hendrerit morbi varius aliquet convallis curabitur? Tristique scelerisque lacus scelerisque platea placerat pulvinar proin. Et ex platea tristique diam iaculis.<br><br>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
