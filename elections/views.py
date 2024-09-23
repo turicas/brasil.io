@@ -90,8 +90,80 @@ def politic(request, ano, uf, municipio, cargo, nome):
 
 def about(request, state=None):
     metadata = CandidacyMetadata.objects.first().data
-    context = {"data": {"metadata": metadata, "suggestions": create_search_suggestions()}}
-    return render(request, "elections/about.html", context)
+    context = {
+        "data": {
+            "metadata": metadata,
+            "title": "Sobre o Brasil.IO Eleições",
+            "text_list": [
+                {
+                    "label": "O que é",
+                    "value": "O Brasil.IO Eleições é uma plataforma sem fins lucrativos que disponibiliza informações públicas relevantes sobre os candidatos às eleições municipais de 2024. A plataforma foi criada para facilitar o acesso a essas informações para eleitores, jornalistas e pesquisadores, contribuindo para um processo eleitoral mais informativo e consciente."
+                },
+                {
+                    "label": "Fontes dos dados",
+                    "value": "Os dados divulgados no Brasil.IO Eleições são provenientes de fontes de dados públicas, como o Portal de Dados Abertos do Tribunal Superior Eleitoral (TSE) e o Portal de Dados Abertos da Receita Federal.<br><br> Além dessas fontes, informações adicionais são fornecidas pelos órgãos públicos em resposta a solicitações de acesso à informação, com base na Lei Federal 12.527/2011 (Lei de Acesso à Informação).<br><br> Como a fonte primária de todos os dados divulgados são órgãos públicos, a plataforma considera que os dados divulgados por essas fontes são corretos em relação ao seu conteúdo."
+                },
+                {
+                    "label": "Tratamento dos dados e legislação",
+                    "value": "O uso e disponibilização dos dados pelo Brasil.IO Eleições está em total conformidade com a legislação brasileira. De acordo com o art. 29, caput e § 1º da Lei Federal 14.129/2021, dados públicos obtidos com base na Lei de Acesso à informação podem ser utilizados de forma livre e irrestrita pela sociedade, sendo legítimo e lícito o seu tratamento com base, entre outros, no art. 7o, II e IX da Lei Federal 13.709/2018 (Lei Geral de Proteção de Dados - LGPD).<br><br> A plataforma prioriza a transparência e o acesso à informação, garantindo que os dados sejam utilizados de forma ética e responsável. O Brasil.IO Eleições não realiza nenhum tipo de alteração no conteúdo dos dados originais. Os tratamentos realizados têm como foco garantir que as informações sejam apresentadas de forma clara e organizada, facilitando a compreensão e o acesso por parte do público."
+                },
+                {
+                    "label": "Política de privacide",
+                    "value": "<a href='/eleicoes/politica_de_privacidade' target='_blank'>Clique aqui</a> para conhecer a política de privacidade do Brasil.IO Eleições."
+                },
+                {
+                    "label": "Contato",
+                    "value": "Em caso de dúvidas sobre a plataforma ou necessidade de solicitar retificação de dados, entre em contato por meio <a href='https://brasil.io/contato/'>deste formulário</a>. Para solicitações de retificação, descreva de forma clara e fundamentada o dado que precisa ser corrigido."
+                }
+            ],
+        }
+    }
+    return render(request, "elections/generic_text.html", context)
+
+
+def privacy_policy(request, state=None):
+    metadata = CandidacyMetadata.objects.first().data
+    context = {
+        "data": {
+            "metadata": metadata,
+            "title": "Política de privacidade",
+            "text_list": [
+                {
+                    "label": "Sua privacidade no Brasil.IO Eleições",
+                    "value": "Respeitamos sua privacidade e estamos comprometidos em proteger as informações pessoais que você possa fornecer enquanto navega em nosso site. Esta política de privacidade explica como coletamos e usamos seus dados quando você visita nosso site, especialmente em relação ao Google Analytics."
+                },
+                {
+                    "label": "Coleta de Informações",
+                    "value": "Utilizamos o Google Analytics para coletar informações sobre como os visitantes utilizam nosso site. Isso inclui dados como o seu endereço IP, tipo de navegador, páginas visitadas, tempo gasto em cada página e outros dados estatísticos."
+                },
+                {
+                    "label": "Uso de Informações",
+                    "value": "As informações coletadas pelo Google Analytics são usadas para analisar tendências de uso do site, gerar relatórios estatísticos e melhorar a experiência do usuário em nosso site. Esses dados são tratados de forma agregada e anônima, não sendo associados a nenhuma informação pessoal identificável."
+                },
+                {
+                    "label": "Cookies",
+                    "value": "O Google Analytics utiliza cookies para coletar informações anônimas. Os cookies são pequenos arquivos de texto armazenados no seu dispositivo para ajudar a analisar o uso do site. Você pode optar por desativar o uso de cookies nas configurações do seu navegador, mas isso pode afetar a funcionalidade do site."
+                },
+                {
+                    "label": "Compartilhamento de Informações",
+                    "value": "Não compartilhamos informações pessoalmente identificáveis coletadas pelo Google Analytics com terceiros, exceto quando exigido por lei ou decisão judicial."
+                },
+                {
+                    "label": "Segurança",
+                    "value": "Implementamos medidas de segurança para proteger suas informações contra acesso não autorizado ou uso indevido."
+                },
+                {
+                    "label": "Alterações nesta Política",
+                    "value": "Esta política de privacidade pode ser atualizada periodicamente para refletir mudanças em nossas práticas de informações. Recomendamos que você revise esta política regularmente para estar ciente de como estamos protegendo suas informações."
+                },
+                {
+                    "label": "Contato",
+                    "value": "Se você tiver dúvidas sobre esta política de privacidade ou sobre nossas práticas de informações, entre em contato por meio <a href='https://brasil.io/contato/' target='_blank'>deste formulário</a>."
+                }
+            ],
+        }
+    }
+    return render(request, "elections/generic_text.html", context)
 
 
 def candidacy_redirect_2024(request):

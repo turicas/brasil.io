@@ -162,16 +162,22 @@
               </li>
             </ul>
             <div class="d-flex flex-column-reverse flex-lg-row gap-2 align-items-center">
-              <div class="me-lg-3 footer-date">----</div>
-              <a
-                href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt-br"
-                class="d-flex gap-2 align-items-center"
-                target="_blank"
-              >
-                <img src="{% static 'elections/img/cc.svg' %}" alt="cc logo" width="30px"/>
-                <img src="{% static 'elections/img/by.svg' %}" alt="by logo" width="30px"/>
-                <img src="{% static 'elections/img/sa.svg' %}" alt="sa logo" width="30px"/>
-              </a>
+                <a
+                  class="link-light px-2 {% if request.resolver_match.url_name == 'privacy_policy' %}fw-bold{% endif %}"
+                  href="{% url 'elections:privacy_policy' %}"
+                >Política de privacidade</a>
+              <div class="d-flex align-items-center gap-3">
+                <div class="footer-date">----</div>
+                <a
+                  href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt-br"
+                  class="d-flex gap-2 align-items-center"
+                  target="_blank"
+                >
+                  <img src="{% static 'elections/img/cc.svg' %}" alt="cc logo" width="30px"/>
+                  <img src="{% static 'elections/img/by.svg' %}" alt="by logo" width="30px"/>
+                  <img src="{% static 'elections/img/sa.svg' %}" alt="sa logo" width="30px"/>
+                </a>
+              </div>
             </div>
           </section>
         </footer>

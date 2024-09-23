@@ -13,4 +13,5 @@ urlpatterns = [
         name="candidacy_detail"
     ),
     path("sobre/", views.about, name="about"),
+    path("politica-de-privacidade/", views.privacy_policy, name="privacy_policy"),
 ]
