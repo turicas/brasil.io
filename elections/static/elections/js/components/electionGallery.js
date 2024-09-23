@@ -12,12 +12,12 @@ export const electionGallery = {
     "n-avatar": naive.NAvatar,
     "n-button": naive.NButton,
     "n-card": naive.NCard,
+    "n-empty": naive.NEmpty,
     "n-gi": naive.NGi,
     "n-grid": naive.NGrid,
-    "n-h1": naive.NH1,
     "n-pagination": naive.NPagination,
     "n-space": naive.NSpace,
-    "n-tag": naive.NTag,
+    "n-spin": naive.NSpin,
     filters,
   },
   setup(props) {
@@ -29,7 +29,7 @@ export const electionGallery = {
     const party = Vue.ref(filters.partido)
     const role = Vue.ref(filters.cargo)
     const search = Vue.ref(filters.q ? filters.q : '')
-    const state = Vue.ref(filters.estado)
+    const state = Vue.ref(filters.uf)
     const type = Vue.ref(filters.t)
     const year = Vue.ref(filters.ano)
     const title = Vue.ref(props.context.data.title)
@@ -37,7 +37,7 @@ export const electionGallery = {
       page: Number(props.context.data.number),
       pageCount: Number(props.context.data.num_pages),
       pageSize: Number(props.context.data.page_size),
-      pageSizes: [10, 20, 40, 100],
+      pageSizes: [40, 80, 120],
       showSizePicker: true,
       pageSlot: 5
     })
@@ -46,27 +46,6 @@ export const electionGallery = {
       data.value = props.context.data.items
       loading.value = false
     });
-
-    const columns = [
-      {
-        title: "Nome",
-        key: "name",
-        sorter: true,
-        minWidth: "250px"
-      },
-      {
-        title: "Path",
-        key: "path",
-        sorter: true,
-        minWidth: "60px"
-      },
-      {
-        title: "Ano",
-        key: "year",
-        sorter: true,
-        minWidth: "400px"
-      }
-    ]
 
     const route = VueRouter.useRoute()
     const router = VueRouter.useRouter()
@@ -101,6 +80,8 @@ export const electionGallery = {
     }
 
     const requestApi = async (request = {}) => {
+      loading.value = true
+
       const defaultRequests = {}
       if (party.value) { defaultRequests["partido"] = party.value }
       if (role.value) { defaultRequests["cargo"] = role.value }
@@ -116,7 +97,7 @@ export const electionGallery = {
         delete defaultRequests.page
       }
 
-      if (pageReactive.pageSize && pageReactive.pageSize !== 10) {
+      if (pageReactive.pageSize && pageReactive.pageSize !== 40) {
         defaultRequests["page_size"] = pageReactive.pageSize
       } else if (request.page_size) {
         delete request.page_size
@@ -125,11 +106,9 @@ export const electionGallery = {
       if (sort.value) { defaultRequests["sort"] = sort.value }
       if (order.value) { defaultRequests["order"] = order.value }
 
-      loading.value = true
-
       const requestFormated = { ...defaultRequests, ...request, format: 'json' }
       const requestResult = await api("", requestFormated)
- 
+
       updateUrl({ ...defaultRequests, ...request })
 
       data.value = requestResult.items
@@ -173,7 +152,7 @@ export const electionGallery = {
 
         const query = route.query
         const page = query.page ? Number(query.page) : 1
-        const pageSize = query.page_size ? Number(query.page_size) : 10
+        const pageSize = query.page_size ? Number(query.page_size) : 40
         const q = query.q ? query.q : ''
         let updated = false
 
@@ -197,7 +176,6 @@ export const electionGallery = {
     )
 
     return {
-      columns,
       data,
       handlePageChange,
       handlePageSizeChange,
@@ -215,7 +193,7 @@ export const electionGallery = {
     }
   },
   template: `
-    <div class="container pt-5">
+    <div>
       <filters
         :context
         :handleSearch
@@ -226,38 +204,52 @@ export const electionGallery = {
         v-model:type="type"
         v-model:year="year"
       />
-      <n-h1>[[ title ]]</n-h1>
-      <div class="mb-5 mt-4">
-        <n-grid :x-gap="12" :y-gap="12" cols="1 640:2 1024:4">
-          <template v-for="item in data">
-            <n-gi>
-              <n-card hoverable style="margin: auto;">
-                <div class="text-center" style="transform: rotate(0);">
-                  <n-avatar
-                    round
-                    :size="48"
-                    src="empty.png"
-                    fallback-src="/static/elections/img/politics/default-avatar.jpg"
-                  />
-                  <h2 class="fs-5 mb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-box" viewBox="0 0 16 16">
-                      <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5 8 5.961 14.154 3.5zM15 4.239l-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
-                    </svg>
-                    Partido <strong>00 00 0</strong></h2>
-                  <div class="d-flex flex-column gap-1 small">
-                    <a href="#" class="text-decoration-none" style="height: 40px">[[ item.name ]]</a>
-                  </div>
+      <div class="border-bottom border-primary my-5">
+        <h2 class="election-text-primary fw-normal">[[ title ]]</h2>
+      </div>
+      <div class="mb-5">
+        <n-spin :show="loading">
+          <n-grid v-if="data.length" :x-gap="12" :y-gap="12" cols="1 640:2 1024:4">
+            <template v-for="item in data">
+              <n-gi>
+                <n-card class="election-card" style="margin: auto; transform: rotate(0);">
                   <div>
-                    <n-tag size="small" round>
-                      indeferido
-                    </n-tag>
+                    <div class="d-flex gap-3 align-items-center">
+                      <n-avatar
+                        round
+                        :size="80"
+                        src="empty.png"
+                        fallback-src="/static/elections/img/politics/default-avatar.jpg"
+                        class="border border-secondary-subtle"
+                      />
+                      <div class="d-flex flex-column">
+                        <span class="fw-bold">00</span>
+                        <span>Partido</span>
+                        <span class="election-text-primary text-uppercase">Prefeito em 2024</span>
+                      </div>
+                    </div>
+                    <div class="d-flex flex-column justify-content-center gap-1 small mt-2">
+                      <span class="election-text-primary fw-bold text-truncate">[[ item.name ]]</span>
+                    </div>
+                    <div class="d-flex">
+                      <span class="election-text-tertiary text-truncate">Município - ES</span>
+                    </div>
+                    <a
+                      :href="item.path" class="stretched-link bg-primary"
+                      :title="item.name.length > 35 ? item.name : ''"
+                    ></a>
                   </div>
-                  <a :href="'/elections' + item.path" class="stretched-link"></a>
-                </div>
-              </n-card>
-            </n-gi>
-          </template>
-        </n-grid>
+                </n-card>
+              </n-gi>
+            </template>
+          </n-grid>
+          <n-empty
+            v-else
+            class="d-flex justify-content-center rounded border border-2"
+            description="Nada encontrado"
+            style="height: 450px;"
+          />
+        </n-spin>
         <n-space class="pt-5 mx-auto d-flex justify-content-center">
           <n-pagination
             v-model:page="pagination.page"

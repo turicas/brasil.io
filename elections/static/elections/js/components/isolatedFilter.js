@@ -21,11 +21,11 @@ export const isolatedFilter = {
     filters,
   },
   setup() {
-    const party = Vue.ref(null)
-    const role = Vue.ref(null)
+    const party = Vue.ref("Todos")
+    const role = Vue.ref("Todos")
     const search = Vue.ref(null)
-    const state = Vue.ref(null)
-    const type = Vue.ref(null)
+    const state = Vue.ref("Todos")
+    const type = Vue.ref("cidade")
     const year = Vue.ref(null)
 
     const createDebounce = () => {
@@ -41,10 +41,10 @@ export const isolatedFilter = {
     }
     const debounce = createDebounce()
     const handleSearch = () => debounce(() => {
-      redirecttoelectiongallery()
+      redirectToElectionGallery()
     })
 
-    const redirecttoelectiongallery = async (request = {}) => {
+    const redirectToElectionGallery = async (request = {}) => {
       const defaultRequests = {}
       if (party.value) { defaultRequests["partido"] = party.value }
       if (role.value) { defaultRequests["cargo"] = role.value }
@@ -58,11 +58,11 @@ export const isolatedFilter = {
       // Redirect to a new URL
       const location = window.location
 
-      location.href = 
+      location.href =
         location.protocol +
         "//" +
         location.host +
-        "/elections/index/" +
+        "/eleicoes/2024/" +
         formatedParamsToQueryStrings(requestFormated)
     }
 

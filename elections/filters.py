@@ -7,38 +7,6 @@ from elections.models import Candidacy
 ALL_VALUE_NAME = "todos"
 
 
-ESTADO_SIGLA_MAPPER = {
-    "rio de janeiro": "RJ",
-    "são paulo": "SP",
-    "minas gerais": "MG",
-    "rio de janeiro": "RJ",
-    "bahia": "BA",
-    "paraná": "PR",
-    "rio grande do sul": "RS",
-    "pernambuco": "PE",
-    "ceará": "CE",
-    "pará": "PA",
-    "santa catarina": "SC",
-    "goiás": "GO",
-    "maranhão": "MA",
-    "paraíba": "PB",
-    "amazonas": "AM",
-    "espírito santo": "ES",
-    "mato grosso": "MT",
-    "rio grande do norte": "RN",
-    "piauí": "PI",
-    "alagoas": "AL",
-    "distrito federal": "DF",
-    "mato grosso do sul": "MS",
-    "sergipe": "SE",
-    "rondônia": "RO",
-    "tocantins": "TO",
-    "acre": "AC",
-    "amapá": "AM",
-    "roraima": "RR",
-}
-
-
 class CandidacyFilterSet(django_filters.FilterSet):
     ano = django_filters.NumberFilter(method="filter_ano")
     uf = django_filters.CharFilter(method="filter_uf")
@@ -54,15 +22,15 @@ class CandidacyFilterSet(django_filters.FilterSet):
         if value == ALL_VALUE_NAME:
             return queryset
 
+        value = 2024
+
         return queryset.filter(ano=value)
 
     def filter_uf(self, queryset, name, value):
         if value.lower() == ALL_VALUE_NAME:
             return queryset
 
-        estado_sigla = ESTADO_SIGLA_MAPPER.get(value.lower())
-
-        return queryset.filter(sigla_unidade_federativa=estado_sigla)
+        return queryset.filter(sigla_unidade_federativa__iexact=value)
 
     def filter_cargo(self, queryset, name, value):
         if value.lower() == ALL_VALUE_NAME:
@@ -78,12 +46,20 @@ class CandidacyFilterSet(django_filters.FilterSet):
 
     def full_search(self, queryset, name, value):
         # Check filter field
-        if self.data.get("t") == "name":
+        if self.data.get("t") == "nome":
             query_filter = (
                 models.Q(nome_urna__unaccent__icontains=value)
                 | models.Q(nome__unaccent__icontains=value)  # noqa
             )
         else:
-            query_filter = models.Q(municipio__unaccent__icontains=value)
+            try:
+                city, state = value.rsplit("-", 1)
+                query_filter = (
+                    models.Q(municipio__unaccent__icontains=city)
+                    & models.Q(sigla_unidade_federativa__iexact=state)  # noqa
+                )
+
+            except ValueError:
+                return queryset
 
         return queryset.filter(query_filter)

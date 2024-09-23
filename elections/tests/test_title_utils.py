@@ -6,50 +6,57 @@ def test_candidacy_list_title():
         ano="2024",
         cargo="vereador",
         uf="Todos",
-        q="Rio de Janeiro"
-    ) == "Candidato(s) a vereador em Rio de Janeiro em 2024"
+        partido="todos",
+        q="Rio de Janeiro-RJ"
+    ) == "Candidato(s) a vereador em Rio de Janeiro (RJ) em 2024"
 
     assert candidacy_list_title(
         ano="2024",
         cargo="Todos",
         uf="RJ",
-        q="Rio de Janeiro",
+        partido="todos",
+        q="Rio de Janeiro-RJ",
         t="cidade",
-    ) == "Candidato(s) em Rio de Janeiro em 2024"
+    ) == "Candidato(s) em Rio de Janeiro (RJ) em 2024"
 
     assert candidacy_list_title(
         ano="2024",
         cargo="Vereador",
         uf="Todos",
+        partido="todos",
         q=None,
     ) == "Candidato(s) a vereador em 2024"
 
     assert candidacy_list_title(
         ano="2024",
         cargo="Vereador",
-        uf="Rio de Janeiro",
+        uf="RJ",
+        partido="todos",
         q=None,
-    ) == "Candidato(s) a vereador em Rio de Janeiro em 2024"
+    ) == "Candidato(s) a vereador no RJ em 2024"
 
     assert candidacy_list_title(
         ano="2024",
         cargo="Senado",
-        uf="Rio de Janeiro",
+        uf="RJ",
+        partido="todos",
         q=None,
-    ) == "Candidato(s) ao senado em Rio de Janeiro em 2024"
+    ) == "Candidato(s) ao senado no RJ em 2024"
 
     assert candidacy_list_title(
         ano="2024",
         cargo="Vereador",
-        uf="São Paulo",
+        uf="SP",
+        partido="todos",
         q="João",
-        t="name",
-    ) == 'Candidato(s) "João" a vereador em São Paulo em 2024'
+        t="nome",
+    ) == 'Candidato(s) "João" a vereador em SP em 2024'
 
     assert candidacy_list_title(
         ano="2024",
         cargo="Todos",
         uf="Todos",
+        partido="todos",
         q=None,
     ) == 'Candidato(s) em 2024'
 
@@ -57,6 +64,7 @@ def test_candidacy_list_title():
         ano="todos",
         cargo="Todos",
         uf="Todos",
+        partido="todos",
         q=None,
     ) == 'Candidato(s) em todos os anos'
 
@@ -64,12 +72,48 @@ def test_candidacy_list_title():
         ano=None,
         cargo="Todos",
         uf="Todos",
+        partido="todos",
         q=None,
     ) == 'Candidato(s) em todos os anos'
 
     assert candidacy_list_title(
         ano=None,
         cargo="Todos",
-        uf="Minas Gerais",
+        uf="MG",
+        partido="todos",
         q=None,
-    ) == 'Candidato(s) em Minas Gerais em todos os anos'
+    ) == 'Candidato(s) em MG em todos os anos'
+
+    # Estado que não existe
+    assert candidacy_list_title(
+        ano=None,
+        cargo="Todos",
+        uf="xxx",
+        partido="todos",
+        q=None,
+    ) == 'Candidato(s) em todos os anos'
+
+    assert candidacy_list_title(
+        ano=None,
+        cargo="Todos",
+        uf="ES",
+        partido="todos",
+        q=None,
+    ) == 'Candidato(s) no ES em todos os anos'
+
+    assert candidacy_list_title(
+        ano=None,
+        cargo="Todos",
+        uf="ES",
+        partido="PPP",
+        q=None,
+    ) == 'Candidato(s) do "PPP" no ES em todos os anos'
+
+    assert candidacy_list_title(
+        ano=None,
+        cargo="Todos",
+        uf="ES",
+        partido="PPP",
+        q=None,
+        ano_inicio="2014",
+    ) == 'Candidato(s) do "PPP" no ES desde 2014'
