@@ -14,15 +14,15 @@ def test_suggestions(m_shuffle):
     expected = [
         {
             "label": "Vereador no Rio de Janeiro (RJ)",
-            "path": "/eleicoes/2024/?cargo=Vereador&q=Rio de Janeiro",
+            "path": "/eleicoes/2024/?cargo=Vereador&q=Rio de Janeiro-RJ",
         },
         {
             "label": "Vereador em Manaus (AM)",
-            "path": "/eleicoes/2024/?cargo=Vereador&q=Manaus",
+            "path": "/eleicoes/2024/?cargo=Vereador&q=Manaus-AM",
         },
         {
             "label": "Vereador no Recife (PE)",
-            "path": "/eleicoes/2024/?cargo=Vereador&q=Recife",
+            "path": "/eleicoes/2024/?cargo=Vereador&q=Recife-PE",
         },
         {
             "label": "Vereador no Brasil",
@@ -30,15 +30,15 @@ def test_suggestions(m_shuffle):
         },
         {
             "label": "Prefeito no Rio de Janeiro (RJ)",
-            "path": "/eleicoes/2024/?cargo=Prefeito&q=Rio de Janeiro",
+            "path": "/eleicoes/2024/?cargo=Prefeito&q=Rio de Janeiro-RJ",
         },
         {
             "label": "Prefeito em Manaus (AM)",
-            "path": "/eleicoes/2024/?cargo=Prefeito&q=Manaus",
+            "path": "/eleicoes/2024/?cargo=Prefeito&q=Manaus-AM",
         },
         {
             "label": "Prefeito no Recife (PE)",
-            "path": "/eleicoes/2024/?cargo=Prefeito&q=Recife",
+            "path": "/eleicoes/2024/?cargo=Prefeito&q=Recife-PE",
         },
         {
             "label": "Prefeito no Brasil",

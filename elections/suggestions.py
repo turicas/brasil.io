@@ -58,7 +58,7 @@ def create_search_suggestions(cargos=None, cities=None):
 
             if state_capital is not None:
                 title += f" ({state_capital})"
-                path += f"&q={formatted_city}"
+                path += f"&q={formatted_city}-{state_capital}"
 
             suggestions.append({"label": title, "path": path})
 
