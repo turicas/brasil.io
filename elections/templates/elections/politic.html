@@ -10,7 +10,7 @@
   max-width: 290px;
   width: 100%;
 }
-@media (min-width: 1200px) {
+@media (min-width: 1400px) {
   .image-loading {
     min-height: 239px;
   }
@@ -48,7 +48,7 @@
             src="{% static 'elections/img/politics/default-avatar.jpg' %}"
             class="rounded-circle mx-auto d-block image-loading"
             alt="foto candidato"
-            style="max-width: 290px; width: 100%; min-height: 239px;"
+            style="max-width: 290px; width: 100%;"
           >
           <article class="d-flex flex-column align-items-center mt-4">
             <h2 class="fs-5 mb-1">
@@ -98,4 +98,9 @@
   </div>
 </section>
 {% endwith %}
+{% endblock %}
+
+{% block bodyscript %}
+  {{ block.super }}
+  <script src="{% static 'elections/js/copyCurrentLink.js' %}"></script>
 {% endblock %}
