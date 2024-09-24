@@ -105,7 +105,7 @@ def home(request):
     return render(request, "elections/home.html", context)
 
 
-def about(request, state=None):
+def about(request):
     metadata = CandidacyMetadata.objects.first().data
     context = {
         "data": {
@@ -138,7 +138,7 @@ def about(request, state=None):
     return render(request, "elections/generic_text.html", context)
 
 
-def privacy_policy(request, state=None):
+def privacy_policy(request):
     metadata = CandidacyMetadata.objects.first().data
     context = {
         "data": {
