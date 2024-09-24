@@ -144,3 +144,7 @@
   content: '';
   width: 616px;
 }
+
+a {
+  color: var(--election-primary-color);
+}
