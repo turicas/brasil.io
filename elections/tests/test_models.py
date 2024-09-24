@@ -1,3 +1,5 @@
+from datetime import date
+
 import pytest
 from freezegun import freeze_time
 from model_bakery import baker
@@ -24,7 +26,7 @@ class TestCandidacy:
             nome_urna="Nome Urna",
             etnia="ETNIA",
             genero="GENERO",
-            data_nascimento="1999-01-01",
+            data_nascimento=date(1999, 1, 1),
             grau_instrucao="GRAU INSTRUÇÃO",
             ocupacao="OCUPACAO",
             estado_civil="ESTADO CIVIL",

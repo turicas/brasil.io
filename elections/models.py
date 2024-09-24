@@ -17,7 +17,7 @@ class Candidacy(models.Model):
     nome_urna = models.TextField(max_length=31, null=True, blank=True)
     nome_urna_slug = models.SlugField(null=True, blank=True)
     genero = models.TextField(null=True, blank=True)
-    data_nascimento = models.TextField(null=True, blank=True)
+    data_nascimento = models.DateField(null=True, blank=True)
     numero_sequencial = models.TextField(max_length=15, null=True, blank=True)
     sigla_partido = models.TextField(max_length=15, null=True, blank=True)
     sigla_unidade_federativa = models.TextField(max_length=2, null=True, blank=True)

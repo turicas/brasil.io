@@ -20,8 +20,7 @@ class DetailCandidacySerializer(serializers.ModelSerializer):
 
     def get_data_nascimento(self, obj):
         try:
-            dt = datetime.strptime(obj.data_nascimento, "%Y-%m-%d")
-            dt = dt.strftime("%d/%m/%Y")
+            dt = obj.data_nascimento.strftime("%d/%m/%Y")
         except ValueError:
             dt = None
 

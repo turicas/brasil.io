@@ -1,3 +1,5 @@
+from datetime import date
+
 import pytest
 from django.urls import reverse
 from model_bakery import baker
@@ -31,7 +33,7 @@ class TestDetailCandidacyView:
     def test_get_detail_candidacy(self, client, settings):
         candidacy = baker.make(
             Candidacy,
-            data_nascimento="1981-01-12",
+            data_nascimento=date(1981, 1, 12),
             ano="2024",
             cargo_slug="deputado",
             nome_urna_slug="joao-graca",
@@ -82,68 +84,10 @@ class TestDetailCandidacyView:
         assert resp.json()["info_list"] == expected_data["info_list"]
         assert resp.json()["social_networks"] == expected_social_networks
 
-    def test_get_detail_candidacy_wrong_data_nascimento_format_json(self, client, settings):
-        candidacy = baker.make(
-            Candidacy,
-            data_nascimento="1981-01",
-            ano="2024",
-            cargo_slug="deputado",
-            nome_urna_slug="joao-graca",
-            sigla_unidade_federativa="rj",
-            municipio_slug="rio-de-janeiro",
-            _fill_optional=True
-        )
-
-        url = reverse(
-            self.url_name,
-            kwargs={
-                "ano": candidacy.ano,
-                "uf": candidacy.sigla_unidade_federativa,
-                "municipio": candidacy.municipio_slug,
-                "cargo": candidacy.cargo_slug,
-                "nome": candidacy.nome_urna_slug,
-            }
-        ) + "?format=json"
-        resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
-        expected_data = {"data_nascimento": None}
-
-        assert resp.status_code == 200
-        assert resp.json()["item"]["data_nascimento"] == expected_data["data_nascimento"]
-
-    def test_get_detail_candidacy_wrong_data_nascimento_format_html(self, client, settings):
-        candidacy = baker.make(
-            Candidacy,
-            data_nascimento="1981-01",
-            ano="2024",
-            cargo_slug="deputado",
-            nome_urna_slug="joao-graca",
-            sigla_unidade_federativa="rj",
-            municipio_slug="rio-de-janeiro",
-            _fill_optional=True
-        )
-
-        url = reverse(
-            self.url_name,
-            kwargs={
-                "ano": candidacy.ano,
-                "uf": candidacy.sigla_unidade_federativa,
-                "municipio": candidacy.municipio_slug,
-                "cargo": candidacy.cargo_slug,
-                "nome": candidacy.nome_urna_slug,
-            }
-        )
-        resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
-        expected_data = {"data_nascimento": None}
-
-        assert resp.status_code == 200
-        assert resp.context["data"]["item"]["data_nascimento"] == expected_data["data_nascimento"]
-        assert resp.context["data"]["metadata"] == self.metadata
-        assert resp.context["data"]["info_list"] == candidacy.info_list
-
     def test_get_detail_candidacy_not_found(self, client, settings):
         candidacy = baker.make(
             Candidacy,
-            data_nascimento="1981-01",
+            data_nascimento=date(1981, 1, 1),
             ano="2024",
             cargo_slug="deputado",
             nome_urna_slug="joao-graca",
