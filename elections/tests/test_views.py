@@ -64,23 +64,27 @@ class TestDetailCandidacyView:
         ) + "?format=json"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
         expected_data = {"data_nascimento": "12/01/1981", "info_list": candidacy.info_list}
-        expected_social_networks = [
-            {
-                "label": candidacy_facebook.username,
-                "icon": candidacy_facebook.social_network_metadata.icon,
-                "link": candidacy_facebook.link,
-            },
-            {
-                "label": candidacy_tiktok.username,
-                "icon": candidacy_tiktok.social_network_metadata.icon,
-                "link": candidacy_tiktok.link,
-            },
-        ]
-
+        expected_social_networks = {
+            "label": "Mídias Sociais",
+            "type": "social_networks",
+            "collapsed": True,
+            "value": [
+                {
+                    "label": candidacy_facebook.username,
+                    "icon": candidacy_facebook.social_network_metadata.icon,
+                    "link": candidacy_facebook.link,
+                },
+                {
+                    "label": candidacy_tiktok.username,
+                    "icon": candidacy_tiktok.social_network_metadata.icon,
+                    "link": candidacy_tiktok.link,
+                },
+            ],
+        }
         assert resp.status_code == 200
         assert resp.json()["item"]["data_nascimento"] == expected_data["data_nascimento"]
         assert resp.json()["info_list"] == expected_data["info_list"]
-        assert resp.json()["social_networks"] == expected_social_networks
+        assert resp.json()["details_list"][0] == expected_social_networks
 
     def test_get_detail_candidacy_wrong_data_nascimento_format_json(self, client, settings):
         candidacy = baker.make(

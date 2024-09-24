@@ -78,7 +78,14 @@ def politic(request, ano, uf, municipio, cargo, nome):
     data = {
         "item": serializer.data,
         "info_list": candidacy.info_list,
-        "social_networks": candidacy.social_networks_list(),
+        "details_list": [
+            {
+                "label": "Mídias Sociais",
+                "type": "social_networks",
+                "collapsed": True,
+                "value": candidacy.social_networks_list(),
+            },
+        ]
     }
     if request.GET.get("format") == "json":
         return JsonResponse(data=data)
