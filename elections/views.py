@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, render
 
 from elections import page_counter
 from elections.filters import CandidacyFilterSet
@@ -181,7 +181,3 @@ def privacy_policy(request):
         }
     }
     return render(request, "elections/generic_text.html", context)
-
-
-def candidacy_redirect_2024(request):
-    return redirect("elections:candidacy_list")
