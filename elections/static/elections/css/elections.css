@@ -59,6 +59,15 @@
   background-color: var(--election-card-bg);
 }
 
+.suggestion-card {
+  width: 165px;
+  height: 90px;
+}
+
+.suggestion-card:hover {
+  background-color: var(--election-card-bg);
+}
+
 .active-custom {
   font-weight: 600;
   -webkit-box-shadow:inset 0 2px 0 0 var(--bs-body-color);

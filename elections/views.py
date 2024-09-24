@@ -94,6 +94,16 @@ def politic(request, ano, uf, municipio, cargo, nome):
 
     return render(request, "elections/politic.html", context={"data": data})
 
+def home(request):
+    metadata = CandidacyMetadata.objects.first().data
+    context = {
+        "data": {
+            "metadata": metadata,
+            "suggestions": create_search_suggestions(),
+        }
+    }
+    return render(request, "elections/home.html", context)
+
 
 def about(request, state=None):
     metadata = CandidacyMetadata.objects.first().data
