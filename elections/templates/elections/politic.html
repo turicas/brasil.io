@@ -65,7 +65,11 @@
               </svg>
               {{ candidacy.sigla_partido }} <strong>{{ candidacy.numero_sequencial }}</strong>
             </h2>
-            <h3 class="fs-6 fw-bold election-text-primary">{{ candidacy.nome|lower|title }}</h3>
+            <div class="d-flex w-100 justify-content-center" style="height: 19.7px;">
+              <h3
+                class="candidacy-name-secondary fs-6 my-0 fw-bold election-text-primary text-truncate visually-hidden"
+              >{{ candidacy.nome|lower|title }}</h3>
+            </div>
             <div class="d-flex flex-column gap-1 my-4 small gap-3">
               {% for item in info_list %}
                 <div>
@@ -103,4 +107,5 @@
 {% block bodyscript %}
   {{ block.super }}
   <script src="{% static 'elections/js/copyCurrentLink.js' %}"></script>
+  <script src="{% static 'elections/js/hide-title.js' %}"></script>
 {% endblock %}
