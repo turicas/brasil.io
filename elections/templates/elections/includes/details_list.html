@@ -2,65 +2,70 @@
   <div class="card border-0">
     <div class="mx-lg-3">
       <div class="accordion d-flex flex-column gap-2" id="accordionPanelsStayOpenExample">
-        {% if details_list %}
-          <div class="accordion-item accordion-item-custom">
-            <div class="accordion-header accordion-header-custom position-relative">
-              <style>
-                .float-social-icons {
-                  z-index: 40;
-                  right: 54px;
-                  top: 4px;
-                }
-                .float-social-icons:not(:has(+ .collapsed)) {
-                  display: none !important;
-                }
-              </style>
-              <div
-                class="accordion-button-custom d-flex gap-2 position-absolute float-social-icons"
-              >
-                {% for social_network in details_list|slice:":7" %}
-                  <a
-                      href="{{ social_network.link }}"
-                      target="_blank"
-                      class="link-body-emphasis link-opacity-75 link-opacity-100-hover"
-                      title="{{ social_network.label }}"
-                  >
-                    {% include 'elections/includes/social_network_icons.html' with social_network=social_network  %}
-                  </a>
-                {% endfor %}
-                Todas
-              </div>
-              <button
-                class="accordion-button accordion-button-custom"
-                type="button"
-                data-bs-toggle="collapse"
-                aria-expanded="true"
-                data-bs-target="#panelsStayOpen-zero"
-                aria-controls="panelsStayOpen-zero"
-              >
-                <div class="d-flex justify-content-between w-100">
-                  <div class="accordion-button-custom">MíDIAS SOCIAIS</div>
-                </div>
-              </button>
-            </div>
-            <div id="panelsStayOpen-zero" class="accordion-collapse collapse show">
-              <div class="accordion-body accordion-body-custom">
-                <div class="list-group">
-                  {% for social_network in details_list %}
+        {% for dl_item in details_list %}
+          {% if dl_item.type == 'social_networks' %}
+            <div class="accordion-item accordion-item-custom">
+              <div class="accordion-header accordion-header-custom position-relative">
+                <style>
+                  .float-social-icons {
+                    z-index: 40;
+                    right: 54px;
+                    top: 4px;
+                  }
+                  .float-social-icons:not(:has(+ .collapsed)) {
+                    display: none !important;
+                  }
+                </style>
+                <div
+                  class="accordion-button-custom d-flex gap-2 position-absolute float-social-icons"
+                >
+                  {% for social_network in dl_item.value|slice:":7" %}
                     <a
-                      href="{{ social_network.link }}"
-                      class="list-group-item list-group-item-action link-body-emphasis link-opacity-75 link-opacity-100-hover"
-                      target="_blank"
+                        href="{{ social_network.link }}"
+                        target="_blank"
+                        class="link-body-emphasis link-opacity-75 link-opacity-100-hover"
+                        title="{{ social_network.label }}"
                     >
                       {% include 'elections/includes/social_network_icons.html' with social_network=social_network  %}
-                      <span>&nbsp;{{ social_network.label }}</span>
                     </a>
                   {% endfor %}
+                  Todas
+                </div>
+                <button
+                  class="accordion-button accordion-button-custom {% if dl_item.collapsed %}collapsed{% endif %}"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  aria-expanded="{% if not dl_item.collapsed %}true{% else %}false{% endif %}"
+                  data-bs-target="#panelsStayOpen-{{ forloop.counter }}"
+                  aria-controls="panelsStayOpen-{{ forloop.counter }}"
+                >
+                  <div class="d-flex justify-content-between w-100">
+                    <div class="accordion-button-custom">{{ dl_item.label|upper }}</div>
+                  </div>
+                </button>
+              </div>
+              <div
+                id="panelsStayOpen-{{ forloop.counter }}"
+                class="accordion-collapse collapse {% if not dl_item.collapsed %}show{% endif %}"
+              >
+                <div class="accordion-body accordion-body-custom">
+                  <div class="list-group">
+                    {% for social_network in dl_item.value %}
+                      <a
+                        href="{{ social_network.link }}"
+                        class="list-group-item list-group-item-action link-body-emphasis link-opacity-75 link-opacity-100-hover"
+                        target="_blank"
+                      >
+                        {% include 'elections/includes/social_network_icons.html' with social_network=social_network  %}
+                        <span>&nbsp;{{ social_network.label }}</span>
+                      </a>
+                    {% endfor %}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        {% endif %}
+          {% endif %}
+        {% endfor %}
         <div class="accordion-item accordion-item-custom">
           <h2 class="accordion-header accordion-header-custom">
             <button
@@ -163,4 +168,3 @@
     </div>
   </div>
 </div>
-
