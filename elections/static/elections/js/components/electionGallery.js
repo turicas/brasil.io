@@ -221,22 +221,33 @@ export const electionGallery = {
                         src="empty.png"
                         fallback-src="/static/elections/img/politics/default-avatar.jpg"
                         class="border border-secondary-subtle"
+                        style="min-width: 80px;"
                       />
-                      <div class="d-flex flex-column">
-                        <span class="fw-bold">00</span>
-                        <span>Partido</span>
-                        <span class="election-text-primary text-uppercase">Prefeito em 2024</span>
+                      <div class="d-flex flex-column" style="min-width: 100%">
+                        <span
+                          class="fw-bold d-inline-block text-truncate" style="max-width: calc(100% - 80px);"
+                        >[[ item.numero_urna ? item.numero_urna : '-- -- --' ]]</span>
+                        <span
+                          class="d-inline-block text-truncate"
+                          style="max-width: calc(100% - 80px);"
+                        >[[ item.sigla_partido ]]</span>
+                        <span
+                          class="election-text-primary text-uppercase d-inline-block text-truncate"
+                          style="max-width: calc(100% - 80px);"
+                        >
+                          [[ item.cargo ]] EM [[ item.year ]]
+                        </span>
                       </div>
                     </div>
                     <div class="d-flex flex-column justify-content-center gap-1 small mt-2">
                       <span class="election-text-primary fw-bold text-truncate">[[ item.name ]]</span>
                     </div>
                     <div class="d-flex">
-                      <span class="election-text-tertiary text-truncate">Município - ES</span>
+                      <span class="election-text-tertiary text-truncate">[[ item.municipio ]] - [[ item.uf ]]</span>
                     </div>
                     <a
                       :href="item.path" class="stretched-link bg-primary"
-                      :title="item.name.length > 35 ? item.name : ''"
+                      :title="item.name.length > 35 || (item?.cargo + ' em ' + item?.year).length > 22 ? ('Nome: ' + item.name + '\\nCargo: ' + (item?.cargo + ' EM ' + item?.year)) : ''"
                     ></a>
                   </div>
                 </n-card>
