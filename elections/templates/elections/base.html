@@ -50,6 +50,11 @@
             <div class="navbar-nav d-flex justify-content-between w-100">
               <div class="d-flex flex-column flex-lg-row g-2 g-lg-0">
                 <a
+                  class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+                  href="{% url 'elections:home' %}"
+                >Home
+                </a>
+                <a
                   class="nav-link {% if request.resolver_match.url_name == 'candidacy_list' %}active{% endif %}"
                   href="{% url 'elections:candidacy_list' %}"
                 >Busca
@@ -131,41 +136,49 @@
             O Brasil.IO Eleições não se responsabiliza por eventuais erros ou omissões nos dados, que refletem as informações originais fornecidas pelos órgãos públicos.
           </div>
           <section class="d-flex flex-column flex-lg-row py-4 mt-auto justify-content-between align-items-center">
-            <div class="d-flex flex-column flex-lg-row gap-2 align-items-center">
-              <div>
-                <div class="navbar-brand py-0 d-flex justify-content-center align-items-center">
-                  <img
-                    src="{% static 'img/logo/logo_br-io_fundo-escuro-no-text.svg' %}"
-                    alt="Brasil.io logo"
-                    width="30px"
-                  />
-                  <span class="fs-6 ms-2">Brasil.io</span>
+            <div class="d-flex flex-column-reverse flex-lg-row align-items-center gap-lg-3 mb-2 mg-lg-0">
+              <div class="d-flex flex-column flex-lg-row gap-2 align-items-center">
+                <div>
+                  <div class="navbar-brand py-0 d-flex justify-content-center align-items-center">
+                    <img
+                      src="{% static 'img/logo/logo_br-io_fundo-escuro-no-text.svg' %}"
+                      alt="Brasil.io logo"
+                      width="30px"
+                    />
+                    <span class="fs-6 ms-2">Brasil.io</span>
+                  </div>
+                  <div class="fw-light text-center">Eleições</div>
                 </div>
-                <div class="fw-light text-center">Eleições</div>
+                <div class="ms-lg-3 d-flex gap-3">
+                  {% include 'elections/includes/social_links.html' %}
+                </div>
               </div>
-              <div class="ms-lg-3 d-flex gap-3">
-                {% include 'elections/includes/social_links.html' %}
-              </div>
+              <ul class="nav justify-content-center">
+                <li class="nav-item">
+                  <a
+                    class="nav-link link-light px-2 {% if request.resolver_match.url_name == 'home' %}fw-bold{% endif %}"
+                    href="{% url 'elections:home' %}"
+                  >Home</a>
+                </li>
+                <li class="nav-item">
+                  <a
+                    class="nav-link link-light px-2 {% if request.resolver_match.url_name == 'candidacy_list' %}fw-bold{% endif %}"
+                    href="{% url 'elections:candidacy_list' %}"
+                  >Busca</a>
+                </li>
+                <li class="nav-item">
+                  <a
+                    class="nav-link link-light px-2 {% if request.resolver_match.url_name == 'about' %}fw-bold{% endif %}"
+                    href="{% url 'elections:about' %}"
+                  >Sobre</a>
+                </li>
+              </ul>
             </div>
-            <ul class="nav justify-content-center">
-              <li class="nav-item">
-                <a
-                  class="nav-link link-light px-2 {% if request.resolver_match.url_name == 'candidacy_list' %}fw-bold{% endif %}"
-                  href="{% url 'elections:candidacy_list' %}"
-                >Busca</a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link link-light px-2 {% if request.resolver_match.url_name == 'about' %}fw-bold{% endif %}"
-                  href="{% url 'elections:about' %}"
-                >Sobre</a>
-              </li>
-            </ul>
             <div class="d-flex flex-column-reverse flex-lg-row gap-2 align-items-center">
-                <a
-                  class="link-light px-2 {% if request.resolver_match.url_name == 'privacy_policy' %}fw-bold{% endif %}"
-                  href="{% url 'elections:privacy_policy' %}"
-                >Política de privacidade</a>
+              <a
+                class="link-light px-2 {% if request.resolver_match.url_name == 'privacy_policy' %}fw-bold{% endif %}"
+                href="{% url 'elections:privacy_policy' %}"
+              >Política de privacidade</a>
               <div class="d-flex align-items-center gap-3">
                 <div class="footer-date">----</div>
                 <a

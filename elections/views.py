@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, render
 
 from elections import page_counter
 from elections.filters import CandidacyFilterSet
@@ -78,7 +78,14 @@ def politic(request, ano, uf, municipio, cargo, nome):
     data = {
         "item": serializer.data,
         "info_list": candidacy.info_list,
-        "social_networks": candidacy.social_networks_list(),
+        "details_list": [
+            {
+                "label": "Mídias Sociais",
+                "type": "social_networks",
+                "collapsed": True,
+                "value": candidacy.social_networks_list(),
+            },
+        ]
     }
     if request.GET.get("format") == "json":
         return JsonResponse(data=data)
@@ -87,8 +94,18 @@ def politic(request, ano, uf, municipio, cargo, nome):
 
     return render(request, "elections/politic.html", context={"data": data})
 
+def home(request):
+    metadata = CandidacyMetadata.objects.first().data
+    context = {
+        "data": {
+            "metadata": metadata,
+            "suggestions": create_search_suggestions(),
+        }
+    }
+    return render(request, "elections/home.html", context)
 
-def about(request, state=None):
+
+def about(request):
     metadata = CandidacyMetadata.objects.first().data
     context = {
         "data": {
@@ -121,7 +138,7 @@ def about(request, state=None):
     return render(request, "elections/generic_text.html", context)
 
 
-def privacy_policy(request, state=None):
+def privacy_policy(request):
     metadata = CandidacyMetadata.objects.first().data
     context = {
         "data": {
@@ -164,7 +181,3 @@ def privacy_policy(request, state=None):
         }
     }
     return render(request, "elections/generic_text.html", context)
-
-
-def candidacy_redirect_2024(request):
-    return redirect("elections:candidacy_list")

@@ -1,0 +1,28 @@
+{% extends 'elections/base.html' %}
+{% load l10n %}
+{% load static %}
+
+{% block content %}
+<section class="container mb-5 pb-5">
+  <div class="mb-5">
+    <h2 class="election-text-primary fw-normal text-center fs-4">Quer saber mais sobre os candidatos a prefeito e vereador em 2024?<br> Para começar, faça uma busca, ou escolha uma sugestão.</h2>
+  </div>
+  <div class="container">
+    <div class="row row-gap-3 row-gap-xl-4">
+      {% for item in data.suggestions %}
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+          <div
+            class="card suggestion-card mx-auto"
+            style="transform: rotate(0);"
+          >
+            <div class="card-body justify-content-center align-content-center text-center">
+              <h5 class="election-text-primary small mb-0">{{ item.label }}</h5>
+              <a href="{{ item.path }}" class="stretched-link"></a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
