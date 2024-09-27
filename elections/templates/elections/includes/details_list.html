@@ -3,7 +3,7 @@
     <div class="mx-lg-3">
       <div class="accordion d-flex flex-column gap-2" id="accordionPanelsStayOpenExample">
         {% for dl_item in details_list %}
-          {% if dl_item.type == 'social_networks' %}
+          {% if dl_item.type == 'social_networks' and dl_item.value|length > 0 %}
             <div class="accordion-item accordion-item-custom">
               <div class="accordion-header accordion-header-custom position-relative">
                 <style>
