@@ -36,7 +36,7 @@ class SocialNetworkMetadataAdmin(admin.ModelAdmin):
 
 
 class CandidacySocialNetworkAdmin(admin.ModelAdmin):
-    list_display = ("candidacy", "social_network_metadata", "username", "created_at")
+    list_display = ("candidacy", "social_network_metadata", "position", "username", "created_at")
     search_fields = ("username", "social_network_metadata__name")
 
 

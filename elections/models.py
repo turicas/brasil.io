@@ -146,9 +146,11 @@ class CandidacySocialNetwork(models.Model):
     )
     social_network_metadata = models.ForeignKey(SocialNetworkMetadata, on_delete=models.DO_NOTHING)
     username = models.TextField()
+    position = models.PositiveIntegerField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
+        ordering = ("position",)
         verbose_name = "Candidacy social network"
         verbose_name_plural = "Candidacy social networks"
 
