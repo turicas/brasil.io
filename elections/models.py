@@ -111,6 +111,20 @@ class Candidacy(models.Model):
 
         return data
 
+    def bens_declarados(self):
+        data = []
+        objs = BemDeclarado.objects.filter(person_uuid=self.person_uuid)
+        for obj in objs:
+            data.append(
+                {
+                    "label": obj.get_tipo_display(),
+                    "description": obj.descricao,
+                    "value": obj.valor,
+                }
+            )
+        total = sum((d["value"] for d in data), 0)
+        return data, total
+
     def __str__(self):
         return f"{self.nome_urna} - {self.cargo} / {self.ano} "
 
@@ -164,6 +178,7 @@ class CandidacySocialNetwork(models.Model):
 
 
 class BemDeclarado(models.Model):
+    person_uuid = models.UUIDField(blank=False, null=False, db_index=True)
     tipo = models.SmallIntegerField(
         choices=choices.BEM_DECLARADO_TIPO, verbose_name="Tipo", help_text="Tipo do bem declarado"
     )
