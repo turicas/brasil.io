@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from elections.models import (
+    BemDeclarado,
     Candidacy,
     CandidacyMetadata,
     CandidacySocialNetwork,
@@ -27,6 +28,10 @@ class CandidacyAdmin(admin.ModelAdmin):
     )
 
 
+class BemDeclaradoAdmin(admin.ModelAdmin):
+    pass
+
+
 class CandidacyMetadataAdmin(admin.ModelAdmin):
     pass
 
@@ -40,6 +45,7 @@ class CandidacySocialNetworkAdmin(admin.ModelAdmin):
     search_fields = ("username", "social_network_metadata__name")
 
 
+admin.site.register(BemDeclarado, BemDeclaradoAdmin)
 admin.site.register(Candidacy, CandidacyAdmin)
 admin.site.register(CandidacyMetadata, CandidacyMetadataAdmin)
 admin.site.register(SocialNetworkMetadata, SocialNetworkMetadataAdmin)

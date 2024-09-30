@@ -3,6 +3,7 @@ from urllib.parse import urljoin
 from django.db import models
 from django.utils import timezone
 
+from elections import choices
 from elections.date_utils import get_age
 
 
@@ -160,3 +161,33 @@ class CandidacySocialNetwork(models.Model):
 
     def __str__(self):
         return f"Candidacy Social Network: {self.candidacy} - {self.social_network_metadata}"
+
+
+class BemDeclarado(models.Model):
+    tipo = models.SmallIntegerField(
+        choices=choices.BEM_DECLARADO_TIPO, verbose_name="Tipo", help_text="Tipo do bem declarado"
+    )
+    valor = models.DecimalField(
+        max_digits=20,
+        decimal_places=2,
+        verbose_name="Valor",
+        help_text="Valor do bem, em Reais correntes",
+    )
+    descricao = models.TextField(
+        max_length=512,
+        null=True,
+        blank=True,
+        verbose_name="Descrição",
+        help_text="Descrição do bem",
+    )
+
+    class Meta:
+        ordering = ["-valor"]
+        verbose_name = "Bem declarado"
+        verbose_name_plural = "Bens declarados"
+        indexes = [
+            models.Index(fields=["valor"]),
+        ]
+
+    def __str__(self):
+        return f"{self.get_tipo_display()} - {self.valor}"
