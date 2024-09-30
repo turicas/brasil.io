@@ -35,6 +35,7 @@ class TestDetailCandidacyView:
             Candidacy,
             data_nascimento=date(1981, 1, 12),
             ano="2024",
+            municipio="RIO DE JANEIRO",
             cargo_slug="deputado",
             nome_urna_slug="joao-graca",
             sigla_unidade_federativa="rj",
@@ -65,7 +66,13 @@ class TestDetailCandidacyView:
             }
         ) + "?format=json"
         resp = client.get(url, HTTP_USER_AGENT="test-user-agent")
-        expected_data = {"data_nascimento": "12/01/1981", "info_list": candidacy.info_list}
+        expected_region_filter_path = (
+            reverse("elections:candidacy_list") + "?q=Rio de Janeiro-RJ"
+        )
+        expected_data = {
+            "data_nascimento": "12/01/1981",
+            "info_list": candidacy.info_list,
+        }
         expected_social_networks = {
             "label": "Mídias Sociais",
             "type": "social_networks",
@@ -85,6 +92,7 @@ class TestDetailCandidacyView:
         }
         assert resp.status_code == 200
         assert resp.json()["item"]["data_nascimento"] == expected_data["data_nascimento"]
+        assert resp.json()["item"]["region_filter_path"] == expected_region_filter_path
         assert resp.json()["info_list"] == expected_data["info_list"]
         assert resp.json()["details_list"][0] == expected_social_networks
 
