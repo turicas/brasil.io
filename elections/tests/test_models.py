@@ -9,6 +9,7 @@ from elections.models import (
     BemDeclarado,
     Candidacy,
     CandidacySocialNetwork,
+    Empresa,
     SocialNetworkMetadata,
 )
 
@@ -242,3 +243,98 @@ class TestBemDeclarado:
 
         assert bens_declarados == expected_values
         assert total == expected_total
+
+
+@pytest.mark.django_db
+class TestEmpresa:
+    def test_dados_empresa(self):
+        person_uuid = str(uuid4())
+        candidacy = baker.make(Candidacy, person_uuid=person_uuid)
+        empresa_1 = baker.make(
+            Empresa,
+            person_uuid=person_uuid,
+            data_situacao_cadastral=date(2024, 10, 1),
+        )
+        empresa_2 = baker.make(
+            Empresa,
+            person_uuid=person_uuid,
+            data_situacao_cadastral=date(2024, 10, 22),
+        )
+
+        dados_empresas = candidacy.dados_empresas()
+        expected = {
+            "label": "data",
+            "type": "table",
+            "value": {
+                "fields": [
+                    {
+                        "name": "razao_social",
+                        "title": "Razão Social",
+                        "type": "text",
+                        "description": "",
+                    },
+                    {
+                        "name": "qualificacao_responsavel",
+                        "title": "Qualificação",
+                        "type": "text",
+                        "description": "",
+                    },
+                    {
+                        "name": "data_inicio_atividade",
+                        "title": "Data início",
+                        "type": "date",
+                        "description": "",
+                    },
+                    {
+                        "name": "natureza_juridica",
+                        "title": "Natureza Jurídica",
+                        "type": "text",
+                        "description": "",
+                    },
+                    {
+                        "name": "situacao_cadastral",
+                        "title": "Situação Cadastral",
+                        "type": "text",
+                        "description": "",
+                    },
+                    {
+                        "name": "capital_social",
+                        "title": "Capital Social",
+                        "type": "text",
+                        "description": "",
+                    },
+                ],
+                "rows": [
+                    {
+                        "id": empresa_2.id,
+                        "razao_social": empresa_2.razao_social,
+                        "qualificacao_responsavel": empresa_2.get_codigo_qualificacao_responsavel_display(),
+                        "data_inicio_atividade": empresa_2.f_data_inicio_atividade,
+                        "natureza_juridica": empresa_2.get_codigo_natureza_juridica_display(),
+                        "situacao_cadastral": empresa_2.get_codigo_situacao_cadastral_display(),
+                        "capital_social": empresa_2.f_capital_social,
+                        "modal_data": {
+                            "type": empresa_2.modal_data_type,
+                            "label": empresa_2.modal_data_label,
+                            "value": empresa_2.modal_data_value,
+                        },
+                    },
+                    {
+                        "id": empresa_1.id,
+                        "razao_social": empresa_1.razao_social,
+                        "qualificacao_responsavel": empresa_1.get_codigo_qualificacao_responsavel_display(),
+                        "data_inicio_atividade": empresa_1.f_data_inicio_atividade,
+                        "natureza_juridica": empresa_1.get_codigo_natureza_juridica_display(),
+                        "situacao_cadastral": empresa_1.get_codigo_situacao_cadastral_display(),
+                        "capital_social": empresa_1.f_capital_social,
+                        "modal_data": {
+                            "type": empresa_1.modal_data_type,
+                            "label": empresa_1.modal_data_label,
+                            "value": empresa_1.modal_data_value,
+                        },
+                    },
+                ],
+            }
+        }
+
+        assert dados_empresas == expected

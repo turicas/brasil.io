@@ -1,8 +1,10 @@
 from urllib.parse import urljoin
 
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 
+from core import formatting
 from elections import choices
 from elections.date_utils import get_age
 
@@ -125,6 +127,54 @@ class Candidacy(models.Model):
         total = sum((d["value"] for d in data), 0)
         return data, total
 
+    def dados_empresas(self):
+        fields = [
+            {
+                "name": "razao_social",
+                "title": "Razão Social",
+                "type": "text",
+                "description": "",
+            },
+            {
+                "name": "qualificacao_responsavel",
+                "title": "Qualificação",
+                "type": "text",
+                "description": "",
+            },
+            {
+                "name": "data_inicio_atividade",
+                "title": "Data início",
+                "type": "date",
+                "description": "",
+            },
+            {
+                "name": "natureza_juridica",
+                "title": "Natureza Jurídica",
+                "type": "text",
+                "description": "",
+            },
+            {
+                "name": "situacao_cadastral",
+                "title": "Situação Cadastral",
+                "type": "text",
+                "description": "",
+            },
+            {
+                "name": "capital_social",
+                "title": "Capital Social",
+                "type": "text",
+                "description": "",
+            },
+        ]
+        empresas = Empresa.objects.filter(person_uuid=self.person_uuid)
+        data = {"label": "data", "type": "table", "value": {"fields": fields}}
+        rows = []
+        for empresa in empresas:
+            rows.append(empresa.serialize())
+
+        data["value"]["rows"] = rows
+        return data
+
     def __str__(self):
         return f"{self.nome_urna} - {self.cargo} / {self.ano} "
 
@@ -206,3 +256,103 @@ class BemDeclarado(models.Model):
 
     def __str__(self):
         return f"{self.get_tipo_display()} - {self.valor}"
+
+
+class Empresa(models.Model):
+    person_uuid = models.UUIDField(blank=False, null=False, db_index=True)
+    cnpj = models.TextField(max_length=14, null=True, blank=True, db_index=True)
+    razao_social = models.TextField(max_length=255, null=True, blank=True)
+    nome_fantasia = models.TextField(max_length=255, null=True, blank=True)
+    cnae = ArrayField(
+        models.TextField(
+            max_length=7,
+            null=True,
+            blank=True,
+            choices=choices.EMPRESA_CNAE,
+        ),
+        null=True,
+        blank=True,
+    )
+    data_inicio_atividade = models.DateField(null=True, blank=True)
+    data_situacao_cadastral = models.DateField(null=True, blank=True)
+    codigo_situacao_cadastral = models.SmallIntegerField(
+        null=True, blank=True, choices=choices.EMPRESA_SITUACAO_CADASTRAL
+    )
+    codigo_motivo_situacao_cadastral = models.SmallIntegerField(
+        null=True, blank=True, choices=choices.EMPRESA_MOTIVO_SITUACAO_CADASTRAL
+    )
+    situacao_especial = models.TextField(max_length=31, null=True, blank=True)
+    data_situacao_especial = models.DateField(null=True, blank=True)
+    codigo_natureza_juridica = models.SmallIntegerField(
+        null=True, blank=True, choices=choices.EMPRESA_NATUREZA_JURIDICA
+    )
+    codigo_porte = models.SmallIntegerField(null=True, blank=True, choices=choices.EMPRESA_PORTE)
+    capital_social = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
+    opcao_simples = models.BooleanField(null=True, blank=True)
+    opcao_mei = models.BooleanField(null=True, blank=True)
+    codigo_qualificacao_responsavel = models.SmallIntegerField(
+        null=True, blank=True, choices=choices.EMPRESA_QUALIFICACAO_SOCIO
+    )
+
+    endereco = models.TextField(max_length=255, null=True, blank=True)
+    codigo_municipio = models.SmallIntegerField(null=True, blank=True, choices=choices.MUNICIPIO)
+    uf = models.TextField(max_length=2, null=True, blank=True)
+    cep = models.TextField(max_length=8, null=True, blank=True)
+    cidade_exterior = models.TextField(max_length=255, null=True, blank=True)
+    codigo_pais = models.SmallIntegerField(null=True, blank=True, choices=choices.PAIS)
+
+    telefone_1 = models.TextField(max_length=255, null=True, blank=True)
+    telefone_2 = models.TextField(max_length=255, null=True, blank=True)
+    telefone_fax = models.TextField(max_length=255, null=True, blank=True)
+    email = models.TextField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Empresa"
+        verbose_name_plural = "Empresas"
+        ordering = [models.F("data_situacao_cadastral").desc(nulls_last=True), "cnpj"]
+        indexes = [
+            models.Index(
+                models.F("data_situacao_cadastral").desc(nulls_last=True),
+                name="dataset_com_data_sitdesc_idx"
+            ),
+        ]
+
+    def __str__(self):
+        cnpj = formatting.format_cnpj(self.cnpj)
+        return f"{cnpj} {self.razao_social}"
+
+    @property
+    def f_data_inicio_atividade(self):
+        return formatting.format_date(self.data_inicio_atividade)
+
+    @property
+    def f_capital_social(self):
+        return formatting.format_currency_brl(self.capital_social),
+
+    @property
+    def modal_data_type(self):
+        return "text"
+
+    @property
+    def modal_data_label(self):
+        return "Label"
+
+    @property
+    def modal_data_value(self):
+        return "Value"
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "razao_social": self.razao_social,
+            "qualificacao_responsavel": self.get_codigo_qualificacao_responsavel_display(),
+            "data_inicio_atividade": self.f_data_inicio_atividade,
+            "natureza_juridica": self.get_codigo_natureza_juridica_display(),
+            "situacao_cadastral": self.get_codigo_situacao_cadastral_display(),
+            "capital_social": self.f_capital_social,
+            "modal_data": {
+                "type": self.modal_data_type,
+                "label": self.modal_data_label,
+                "value": self.modal_data_value,
+            },
+        }
