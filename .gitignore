@@ -1,5 +1,4 @@
 # Custom ignores
-*.csv
 *.csv.gz
 *.ipynb
 *~

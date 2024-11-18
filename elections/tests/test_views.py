@@ -5,6 +5,7 @@ from django.urls import reverse
 from model_bakery import baker
 
 from elections.models import (
+    BemDeclarado,
     Candidacy,
     CandidacyMetadata,
     CandidacySocialNetwork,
@@ -42,6 +43,8 @@ class TestDetailCandidacyView:
             municipio_slug="rio-de-janeiro",
             _fill_optional=True
         )
+        bem_declarado_1 = baker.make(BemDeclarado, person_uuid=candidacy.person_uuid, valor=10)
+        bem_declarado_2 = baker.make(BemDeclarado, person_uuid=candidacy.person_uuid, valor=4)
         candidacy_facebook = baker.make(
             CandidacySocialNetwork,
             candidacy=candidacy,
@@ -90,11 +93,30 @@ class TestDetailCandidacyView:
                 },
             ],
         }
+        expected_bens_declarados = {
+            "label": "Bens Declarados",
+            "type": "bens_declarados",
+            "collapsed": True,
+            "value": [
+                {
+                    "label": bem_declarado_1.get_tipo_display(),
+                    "description": bem_declarado_1.descricao,
+                    "value": "10.00",
+                },
+                {
+                    "label": bem_declarado_2.get_tipo_display(),
+                    "description": bem_declarado_2.descricao,
+                    "value": "4.00",
+                },
+            ],
+            "total": "14.00",
+        }
         assert resp.status_code == 200
         assert resp.json()["item"]["data_nascimento"] == expected_data["data_nascimento"]
         assert resp.json()["item"]["region_filter_path"] == expected_region_filter_path
         assert resp.json()["info_list"] == expected_data["info_list"]
         assert resp.json()["details_list"][0] == expected_social_networks
+        assert resp.json()["details_list"][1] == expected_bens_declarados
 
     def test_get_detail_candidacy_not_found(self, client, settings):
         candidacy = baker.make(

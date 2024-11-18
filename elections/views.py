@@ -75,6 +75,7 @@ def politic(request, ano, uf, municipio, cargo, nome):
     )
     metadata = CandidacyMetadata.objects.first().data
     serializer = DetailCandidacySerializer(candidacy)
+    bens_declarados, bens_declarados_total = candidacy.bens_declarados()
     data = {
         "item": serializer.data,
         "info_list": candidacy.info_list,
@@ -85,6 +86,13 @@ def politic(request, ano, uf, municipio, cargo, nome):
                 "collapsed": True,
                 "value": candidacy.social_networks_list(),
             },
+            {
+                "label": "Bens Declarados",
+                "type": "bens_declarados",
+                "collapsed": True,
+                "value": bens_declarados,
+                "total": bens_declarados_total,
+            },
         ]
     }
     if request.GET.get("format") == "json":
@@ -93,6 +101,7 @@ def politic(request, ano, uf, municipio, cargo, nome):
     data["metadata"] = metadata
 
     return render(request, "elections/politic.html", context={"data": data})
+
 
 def home(request):
     metadata = CandidacyMetadata.objects.first().data

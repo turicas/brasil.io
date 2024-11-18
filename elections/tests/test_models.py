@@ -1,10 +1,16 @@
 from datetime import date
+from uuid import uuid4
 
 import pytest
 from freezegun import freeze_time
 from model_bakery import baker
 
-from elections.models import Candidacy, CandidacySocialNetwork, SocialNetworkMetadata
+from elections.models import (
+    BemDeclarado,
+    Candidacy,
+    CandidacySocialNetwork,
+    SocialNetworkMetadata,
+)
 
 
 @pytest.mark.django_db
@@ -202,3 +208,37 @@ class TestCandidacySocialNetwork:
         ]
 
         assert social_networks == expected
+
+
+@pytest.mark.django_db
+class TestBemDeclarado:
+    def test_bens_declarados_list(self):
+        person_uuid = str(uuid4())
+        candidacy = baker.make(Candidacy, person_uuid=person_uuid)
+
+        bem_declarado_1 = baker.make(BemDeclarado, person_uuid=person_uuid, valor=100_000)
+        bem_declarado_2 = baker.make(BemDeclarado, person_uuid=person_uuid, valor=200_000)
+        bem_declarado_3 = baker.make(BemDeclarado, person_uuid=person_uuid, valor=300_000)
+
+        bens_declarados, total = candidacy.bens_declarados()
+        expected_values = [
+            {
+                "label": bem_declarado_3.get_tipo_display(),
+                "description": bem_declarado_3.descricao,
+                "value": bem_declarado_3.valor,
+            },
+            {
+                "label": bem_declarado_2.get_tipo_display(),
+                "description": bem_declarado_2.descricao,
+                "value": bem_declarado_2.valor,
+            },
+            {
+                "label": bem_declarado_1.get_tipo_display(),
+                "description": bem_declarado_1.descricao,
+                "value": bem_declarado_1.valor,
+            },
+        ]
+        expected_total = 600_000
+
+        assert bens_declarados == expected_values
+        assert total == expected_total
