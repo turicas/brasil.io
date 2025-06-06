@@ -18,7 +18,7 @@ django-ratelimit==4.1.0
 django-recaptcha==4.0.0
 django-redis >= 5.4.0, < 6.0.0
 django-registration==3.4
-django-rq==2.10.2
+django-rq==3.0.1
 django-storages[s3] >= 1.14.3, < 2.0.0
 djangorestframework==3.15.2
 feedparser==6.0.11
@@ -34,7 +34,7 @@ pytz==2024.1
 requests-cache==1.2.0
 requests==2.32.0
 retry==0.9.2
-rq-scheduler==0.13.1
+rq-scheduler==0.14.0
 sorl-thumbnail==12.10.0
 tqdm==4.66.3
 urllib3==2.2.2
