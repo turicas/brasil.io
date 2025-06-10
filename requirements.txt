@@ -32,7 +32,7 @@ psycopg2-binary >= 2.9.9, < 3.0.0
 python-decouple >= 3.8, < 4.0
 pytz==2024.1
 requests-cache==1.2.0
-requests==2.32.0
+requests==2.32.4
 retry==0.9.2
 rq-scheduler==0.14.0
 sorl-thumbnail==12.10.0
