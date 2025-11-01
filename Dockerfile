@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bullseye
+FROM python:3.13-slim-trixie
 
 ENV PYTHONUNBUFFERED 1
 ARG DEV_BUILD
@@ -6,8 +6,8 @@ WORKDIR /app
 VOLUME /data
 
 RUN apt update \
-  && apt install -y build-essential gettext gnupg make python3-dev wget \
-  && echo "deb http://apt.postgresql.org/pub/repos/apt bullseye-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+  && apt install -y build-essential gettext gnupg libxml2-dev libxslt1-dev make python3-dev wget \
+  && echo "deb http://apt.postgresql.org/pub/repos/apt trixie-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
   && wget --quiet -O /etc/apt/trusted.gpg.d/postgres.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc \
   && apt update \
   && apt install -y postgresql-client-17 libpq-dev \
