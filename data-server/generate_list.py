@@ -19,39 +19,40 @@ def sha512sum(filename, buffer_size=1 * 1024 * 1024):
     return obj.hexdigest()
 
 
-def human_readable_size(size, divider=1024):
+def human_readable_size(size, separator=" ", divider=1024):
     """
     >>> human_readable_size(100)
-    '100B'
+    '100 B'
     >>> human_readable_size(1023)
-    '1023B'
+    '1023 B'
     >>> human_readable_size(1024)
-    '1kB'
+    '1 kB'
     >>> human_readable_size(1.5 * 1024)
+    '1.50 kB'
+    >>> human_readable_size(1.5 * 1024, separator='')
     '1.50kB'
     >>> human_readable_size(1024 * 1024)
-    '1MB'
+    '1 MB'
     >>> human_readable_size(1024 * 1024 * 1024)
-    '1GB'
+    '1 GB'
     >>> human_readable_size(1024 * 1024 * 1024 * 1024)
-    '1TB'
+    '1 TB'
     >>> human_readable_size(1024 * 1024 * 1024 * 1024 * 1024)
-    '1PB'
+    '1 PB'
     >>> human_readable_size(1024 * 1024 * 1024 * 1024 * 1024 * 1024)
-    '1EB'
+    '1 EB'
     >>> human_readable_size(1024 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024)
-    '1024EB'
+    '1024 EB'
     """
-
     multipliers = list("kMGTPE")
     multiplier = ""
     while size >= divider and multipliers:
         size /= divider
         multiplier = multipliers.pop(0)
     if size - int(size) > 0:
-        return f"{size:4.2f}{multiplier}B".strip()
+        return f"{size:4.2f}{separator}{multiplier}B".strip()
     else:
-        return f"{int(size):4}{multiplier}B".strip()
+        return f"{int(size):4}{separator}{multiplier}B".strip()
 
 
 def make_file_row(relative_path, full_path):
