@@ -133,7 +133,7 @@ class DatasetTableModelQuerySet(models.QuerySet):
                         "SELECT reltuples FROM pg_class WHERE relname = %s",
                         [query.model._meta.db_table],
                     )
-                    self._count = int(cursor.fetchone()[0])
+                    self._count = max(int(cursor.fetchone()[0]), 0)  # postgres returns -1 if stats are not up to date
             except Exception:
                 self._count = super().count()
         else:
