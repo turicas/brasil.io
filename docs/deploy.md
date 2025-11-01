@@ -149,7 +149,7 @@ chown -R 1000:1000 "$STORAGE_PATH"  # `django` user inside container have UID=GI
 dokku storage:mount $APP_NAME "$STORAGE_PATH:$DATA_DIR"
 
 # Provisionando serviços de banco de dados
-dokku postgres:create $DB_NAME -i postgres -I 16.3-bookworm --shm-size 8g
+dokku postgres:create $DB_NAME -i postgres -I 17.6-trixie --shm-size 8g
 dokku postgres:stop $DB_NAME
 # Cópia de arquivo local para o servidor remoto:
 scp docker/conf/db/postgresql.prd.conf root@<servidor>:/var/lib/dokku/services/postgres/$DB_NAME/data/postgresql.conf
@@ -243,7 +243,7 @@ dokku config:set --no-restart $APP_NAME THROTTLING_RATE="30/m"
 Caso queira alterar a versão do postgres, atualize o arquivo de configuração da versão correspondente executando:
 
 ```shell
-docker run --rm -v "$(pwd)/docker/conf/db/:/data" postgres:16.3-bookworm cp ./usr/share/postgresql/postgresql.conf.sample /data/postgresql.prd.conf
+docker run --rm -v "$(pwd)/docker/conf/db/:/data" postgres:17.6-trixie cp ./usr/share/postgresql/postgresql.conf.sample /data/postgresql.prd.conf
 ```
 
 Com o app criado e configurado, agora precisamos fazer o primeiro deployment, para então finalizar a configuração com a
