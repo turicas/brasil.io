@@ -77,7 +77,7 @@ def api_exception_handler(exc, context):
         custom_response_data = {"message": api_throtthling_msg, "available_in": f"{exc.wait} seconds"}
         response.data = custom_response_data
 
-    if 400 <= status_code < 500:
+    if status_code is not None and 400 <= status_code < 500:
         log_blocked_request(context["request"], status_code)
         if 401 == status_code:
             url = "https://brasil.io/auth/tokens-api/"
