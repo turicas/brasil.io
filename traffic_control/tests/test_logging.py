@@ -69,5 +69,7 @@ def test_logging_enqueue_message_to_be_processed(request_factory):
     log_blocked_request(request, 429)
 
     assert 1 == len(blocked_requests)
-    assert format_request(request, 429) == blocked_requests.lpop()
+    blocked = blocked_requests.lpop()
+    blocked["headers"] = [(key, value) for key, value in blocked["headers"]]  # Change lists into tuples
+    assert format_request(request, 429) == blocked
     assert 0 == len(blocked_requests)
