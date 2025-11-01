@@ -52,8 +52,8 @@ class AvailableStatesForUserTests(TestCase):
 
 class StateSpreadsheetFormTests(Covid19DatasetTestCase):
     def setUp(self):
-        valid_csv = SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR.csv"
-        assert valid_csv.exists()
+        self.csv_filename = SAMPLE_SPREADSHEETS_DATA_DIR / "sample-PR.csv"
+        assert self.csv_filename.exists()
 
         self.data = {
             "date": date.today(),
@@ -61,7 +61,7 @@ class StateSpreadsheetFormTests(Covid19DatasetTestCase):
             "boletim_urls": "http://google.com\r\n\r http://brasil.io",
             "boletim_notes": "notes",
         }
-        self.file_data = {"file": self.gen_file("sample.csv", valid_csv.read_bytes())}
+        self.file_data = {"file": self.gen_file("sample.csv", self.csv_filename.read_bytes())}
         self.user = baker.make(settings.AUTH_USER_MODEL)
         self.user.groups.add(Group.objects.get(name__endswith="Rio de Janeiro"))
         self.user.groups.add(Group.objects.get(name__endswith="Paraná"))
@@ -165,7 +165,7 @@ class StateSpreadsheetFormTests(Covid19DatasetTestCase):
         kwargs = method_call[1]
         assert date.today() == import_date
         assert state == "PR"
-        for entry, expected_entry in zip(data, rows.import_from_csv(self.file_data["file"])):
+        for entry, expected_entry in zip(data, rows.import_from_csv(self.csv_filename)):
             assert entry._asdict() == expected_entry._asdict()
         assert not kwargs["skip_sum_cases"]
         assert not kwargs["skip_sum_deaths"]
@@ -197,7 +197,7 @@ class StateSpreadsheetFormTests(Covid19DatasetTestCase):
         kwargs = method_call[1]
         assert date.today() == import_date
         assert state == "PR"
-        for entry, expected_entry in zip(data, rows.import_from_csv(self.file_data["file"])):
+        for entry, expected_entry in zip(data, rows.import_from_csv(self.csv_filename)):
             assert entry._asdict() == expected_entry._asdict()
         assert kwargs["skip_sum_cases"] is True
         assert kwargs["skip_sum_deaths"] is True
