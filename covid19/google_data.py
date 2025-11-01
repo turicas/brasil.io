@@ -22,8 +22,8 @@ CASOS_SPREADSHEET = "Casos (FINAL)"
 
 @cache_memoize(24 * 3600)
 @retry(tries=3, delay=5)
-def get_base_data():
-    result = http_get("https://data.brasil.io/meta/covid19-base-data.json.gz", timeout=5)
+def get_base_data(timeout=5):
+    result = http_get(url="https://data.brasil.io/meta/covid19-base-data.json.gz", timeout=timeout)
     json_data = gzip.decompress(result)
     data = json.loads(json_data)
     return data
@@ -42,13 +42,13 @@ def spreadsheet_download_url(url_or_id, file_format):
 @cache_memoize(24 * 3600)
 @retry(tries=3, delay=5)
 def get_general_spreadsheet(timeout=5):
-    data = http_get(spreadsheet_download_url(STATE_LINKS_SPREADSHEET_ID, "csv"), timeout)
+    data = http_get(url=spreadsheet_download_url(STATE_LINKS_SPREADSHEET_ID, "csv"), timeout=timeout)
     table = rows.import_from_csv(io.BytesIO(data), encoding="utf-8")
     return {row.uf: row._asdict() for row in table}
 
 
-def import_info_by_state(state):
-    states_data = get_general_spreadsheet()
+def import_info_by_state(state, timeout=5):
+    states_data = get_general_spreadsheet(timeout=timeout)
     data = states_data[state.upper()]
     StateData = namedtuple("StateData", data.keys())
     return StateData(**data)
@@ -56,9 +56,9 @@ def import_info_by_state(state):
 
 @retry(tries=3, delay=5)
 def get_state_data_from_google_spreadsheets(state, timeout=5):
-    state_spreadsheet_url = import_info_by_state(state).planilha_brasilio
+    state_spreadsheet_url = import_info_by_state(state, timeout=timeout).planilha_brasilio
     state_spreadsheet_download_url = spreadsheet_download_url(state_spreadsheet_url, "xlsx")
-    data = http_get(state_spreadsheet_download_url, timeout)
+    data = http_get(url=state_spreadsheet_download_url, timeout=timeout)
     reports = rows.import_from_xlsx(io.BytesIO(data), sheet_name=BOLETIM_SPREADSHEET, force_types=FIELDS_BOLETIM)
     cases = rows.import_from_xlsx(io.BytesIO(data), sheet_name=CASOS_SPREADSHEET)
     return {
