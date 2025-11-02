@@ -4,7 +4,7 @@ from django.db.utils import ProgrammingError
 from django.test import TestCase
 from model_bakery import baker
 
-from core.models import Dataset, DataTable, Version
+from core.models import Dataset, DataTable, Field, Table, Version
 
 
 class BaseTestCaseWithSampleDataset(TestCase):
@@ -40,8 +40,9 @@ class BaseTestCaseWithSampleDataset(TestCase):
         cls.dataset = baker.make(Dataset, slug=cls.DATASET_SLUG, show=True)
         cls.version = baker.make(Version, dataset=cls.dataset)
         cls.table = baker.make(
-            "core.Table",
+            Table,
             dataset=cls.dataset,
+            hidden=False,
             name=cls.TABLE_NAME,
             version=cls.version,
         )
@@ -51,7 +52,7 @@ class BaseTestCaseWithSampleDataset(TestCase):
         for f_kwargs in [deepcopy(k) for k in cls.FIELDS_KWARGS]:
             f_kwargs["frontend_filter"] = bool(f_kwargs.pop("filtering", None))
             f_kwargs["has_choices"] = "choices" in f_kwargs
-            baker.make("core.Field", dataset=cls.dataset, table=cls.table, **f_kwargs)
+            baker.make(Field, dataset=cls.dataset, table=cls.table, **f_kwargs)
 
         cls.TableModel = cls.table.get_model(cache=False)
         try:

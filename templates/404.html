@@ -1,7 +1,7 @@
 {% extends "4xx.html" %}
 
 {% block content %}
-  {% with  title_4xx=title_4xx|default:"Oops! Ocorreu um erro" message=message|default:"A página que você está tentando acessar não existe" %}
+  {% with title_4xx=title_4xx|default:"Oops! Ocorreu um erro" message=message|default:"A página que você está tentando acessar não existe" %}
     {{ block.super }}
   {% endwith %}
 {% endblock %}

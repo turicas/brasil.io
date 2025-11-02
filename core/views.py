@@ -2,7 +2,6 @@ import csv
 import uuid
 
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -243,17 +242,10 @@ def contributors(request):
 
 def dataset_files_detail(request, slug):
     dataset = get_object_or_404(Dataset, slug=slug)
-    try:
-        all_files = dataset.all_files
-    except ObjectDoesNotExist:
-        return redirect(dataset.get_last_version().download_url)
+    all_files = dataset.all_files
 
     if not all_files:
-        context = {
-            "message": f"<p>Ainda não cadastramos nenhum arquivo para download no dataset {slug}.</p><p>Estamos trabalhando para os dados estarem disponíveis em breve.</p><p>Acompanhe o nosso <a href='https://t.me/brasil_io'>grupo no Telegram</a> para manter-se atualizada.</p>",
-            "title_4xx": "",
-        }
-        return render(request, "404.html", context)
+        return redirect(dataset.get_last_version().download_url)
 
     context = {
         "dataset": dataset,

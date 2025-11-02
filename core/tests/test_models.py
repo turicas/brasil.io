@@ -2,7 +2,6 @@ import hashlib
 from collections import OrderedDict
 from unittest.mock import Mock, patch
 
-import pytest
 from django.conf import settings
 from django.test import TestCase
 from model_bakery import baker, seq
@@ -232,11 +231,6 @@ class DatasetModelTests(TestCase):
         assert 2 == len(table_files)
         assert new_table_2_file == table_files[0]
         assert new_table_1_file == table_files[1]
-
-    def test_raise_exception_if_no_table_file_for_a_table(self):
-        baker.make(TableFile, filename="sample_02.csv", table=self.tables[0])  # only one table with file
-        with pytest.raises(TableFile.DoesNotExist):
-            self.dataset.tables_files
 
     def test_property_to_organize_sha512sums_from_the_dataset_table_files(self):
         table_file_1 = baker.make(TableFile, filename="sample_02.csv", table=self.tables[0])

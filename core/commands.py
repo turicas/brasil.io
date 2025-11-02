@@ -327,8 +327,7 @@ class UpdateTableFileListCommand:
         self.log(f"Starting to update {dataset_slug} dataset list files...")
         file_info = self.update_sha512_sums_file()
         url = self.update_list_html(self.dataset.tables_files + [file_info])
-
-        self.log(f"\nNew list html in {url}")
+        self.log(f"\nNew HTML file list saved to {url}")
 
     def log(self, *args, **kwargs):
         print(*args, **kwargs)

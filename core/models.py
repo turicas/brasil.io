@@ -189,7 +189,14 @@ class Dataset(models.Model):
 
     @property
     def tables_files(self):
-        return sorted([TableFile.objects.get_most_recent_for_table(t) for t in self.tables], key=lambda f: f.filename)
+        result = []
+        for table in self.tables.filter(hidden=False):
+            try:
+                obj = TableFile.objects.get_most_recent_for_table(table)
+            except TableFile.DoesNotExist:
+                continue
+            result.append(obj)
+        return sorted(result, key=lambda table_file: table_file.filename)
 
     @property
     def sha512sums(self):
@@ -201,7 +208,7 @@ class Dataset(models.Model):
         content = ""
 
         for table_file in self.tables_files:
-            sha_sum.update(content.encode())
+            sha_sum.update(content.encode("utf-8"))
             content += f"{table_file.sha512sum}  {table_file.filename}\n"
 
         fname = settings.AWS_S3_DATASET_SHA512SUMS_FILENAME
@@ -661,7 +668,7 @@ post_delete.connect(clean_associated_data_base_table, sender=DataTable)
 
 class TableFileQuerySet(models.QuerySet):
     def get_most_recent_for_table(self, table):
-        table_file = self.filter(table=table).first()
+        table_file = self.filter(table=table).order_by("-created_at").first()
         if not table_file:
             raise TableFile.DoesNotExist(f"For table {table}")
         return table_file

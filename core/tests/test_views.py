@@ -7,7 +7,7 @@ from django.test import override_settings
 from django.urls import reverse
 from model_bakery import baker
 
-from core.models import TableFile
+from core.models import Table, TableFile
 from core.tests.utils import BaseTestCaseWithSampleDataset
 from traffic_control.tests.util import TrafficControlClient
 from utils.tests import DjangoAssertionsMixin
@@ -119,7 +119,7 @@ class TestDatasetFilesDetailView(DjangoAssertionsMixin, BaseTestCaseWithSampleDa
 
     def setUp(self):
         self.url = reverse("core:dataset-files-detail", args=[self.dataset.slug])
-        baker.make(TableFile, table=self.table)
+        baker.make(TableFile, table=self.table, filename=f"{self.dataset.slug}-{self.table.name}-data.csv.gz")
 
     def test_render_template_with_expected_context(self):
         response = self.client.get(self.url)
@@ -144,12 +144,14 @@ class TestDatasetFilesDetailView(DjangoAssertionsMixin, BaseTestCaseWithSampleDa
         assert 404 == response.status_code
 
     def test_return_empty_list_if_no_visible_table(self):
-        #  If the table is hidden, it can't be seen by the view under test
-        self.table.hidden = True
-        self.table.save()
+        # If the table is hidden, it can't be seen by the view under test
+        table2 = baker.make(Table, dataset=self.dataset, hidden=True)
+        baker.make(TableFile, table=table2, filename="some-file.csv.gz")
+        filename2 = table2.table_file.first().filename
+        filename = self.table.table_file.first().filename
 
         response = self.client.get(self.url)
-
         assert 200 == response.status_code
-        self.assertTemplateUsed(response, "404.html")
-        assert response.context["message"]
+        html = response.content.decode()
+        assert filename in html
+        assert filename2 not in html
