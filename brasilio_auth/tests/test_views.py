@@ -1,3 +1,4 @@
+from unittest import skipIf
 from unittest.mock import Mock, patch
 
 from django.conf import settings
@@ -158,7 +159,8 @@ class CreateAPiTokensViewsTests(DjangoAssertionsMixin, TestCase):
         assert isinstance(context["form"], TokenApiManagementForm)
         assert context["num_tokens_available"] == settings.MAX_NUM_API_TOKEN_PER_USER
 
-    def test_do_not_create_api_token_if_invalid_post(self):
+    @skipIf(settings.DISABLE_RECAPTCHA, reason="Form does not require validation if recaptcha is disabled")
+    def test_do_not_create_api_token_if_captcha_not_posted(self):
         response = self.client.post(self.url, data={})
         context = response.context
         self.assertTemplateUsed(response, "brasilio_auth/new_api_token_form.html")

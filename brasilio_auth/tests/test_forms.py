@@ -1,3 +1,4 @@
+from unittest import skipIf
 from unittest.mock import Mock, patch
 
 from django.conf import settings
@@ -16,7 +17,9 @@ class UserCreationFormTests(TestCase):
     username_exists_error = "Nome de usuário já existente (escolha um diferente)."
 
     def test_required_fields(self):
-        required_fields = ["username", "email", "password1", "password2", "captcha"]
+        required_fields = ["username", "email", "password1", "password2"]
+        if not settings.DISABLE_RECAPTCHA:
+            required_fields.append("captcha")
 
         form = UserCreationForm({})
         assert form.is_valid() is False
@@ -119,6 +122,7 @@ class UserCreationFormTests(TestCase):
         assert "email" in form.errors
         assert "username" not in form.errors
 
+    @skipIf(settings.DISABLE_RECAPTCHA, reason="Recaptcha is disabled")
     def test_do_not_validate_if_bad_captcha(self):
         passwd = "verygoodpassword"
         data = {
@@ -201,6 +205,7 @@ class UserCreationFormTests(TestCase):
 
 
 class TestTokenApiManagementForm(TestCase):
+    @skipIf(settings.DISABLE_RECAPTCHA, reason="Recaptcha is disabled")
     def test_required_fields(self):
         required_fields = ["captcha"]
 
