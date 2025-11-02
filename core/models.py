@@ -674,7 +674,7 @@ class TableFile(models.Model):
     file_url = models.URLField()
     sha512sum = models.CharField(max_length=128)
     filename = models.TextField()
-    size = models.BigIntegerField()
+    size = models.PositiveBigIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
