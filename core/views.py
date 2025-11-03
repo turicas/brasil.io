@@ -157,6 +157,8 @@ def dataset_detail(request, slug, tablename=""):
 
     TableModel = table.get_model()
     query, search_query, order_by = parse_querystring(querystring)
+    if not order_by:
+        order_by = TableModel._meta.ordering or ["-id"]
 
     DynamicForm = get_table_dynamic_form(table)
     filter_form = DynamicForm(data=query)
