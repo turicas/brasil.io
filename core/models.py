@@ -401,8 +401,16 @@ class Table(models.Model):
         return self.fields.get(name=name)
 
     def get_model(self, cache=True, data_table=None):
-        # TODO: the current dynamic model registry is handled by Brasil.IO's
-        # code but it needs to be delegated to dynamic_models.
+        # TODO: the current dynamic model registry is handled by Brasil.IO's code but it needs to be delegated to
+        # dynamic_models.
+
+        app_name = "core"
+        # from django.apps.registry import apps
+        # model_name_lower = self.model_name.lower()
+        # if model_name_lower in apps.all_models[app_name]:
+        #     # TODO: this won't work if the user register more than one model with the same name
+        #     # Already registered in Django apps registry, avoid re-registering
+        #     return apps.all_models[app_name][model_name_lower]
 
         data_table = data_table or self.data_table
         db_table = data_table.db_table_name
@@ -449,7 +457,7 @@ class Table(models.Model):
 
         Model = dynamic_models.create_model_class(
             name=self.model_name,
-            module="core.models",
+            module=f"{app_name}.models",
             fields=fields,
             mixins=mixins,
             meta=meta,
