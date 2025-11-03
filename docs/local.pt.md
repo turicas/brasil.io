@@ -2,18 +2,34 @@
 
 Esse documento contém algumas dicas para auxiliar no desenvolvimento local.
 
+## Alterando a quantidade de workers
+
+Por padrão, o docker compose irá executar 2 processos de worker. Para alterar esse número temporariamente, você pode
+executar o comando abaixo - para alterar para 8, por exemplo:
+
+```shell
+docker compose up -d --scale worker=8
+```
+
+> Nota: para alterar o valor padrão, altere o valor `deploy.replicas` dentro do serviço `worker` no arquivo
+> `compose.yml`.
+
 ## Migrando de banco de dados
 
 Se alguém fez uma atualização do postgres nesse repositório e você já tinha dados rodando na versão anterior, ainda não
 atualize o código, pois o novo `compose.yml` irá definir o serviço `db` com a nova versão e seus dados estarão na
-antiga, o que gerará um conflito. Antes de atualizar o código, pare todos os containers e crie pastas para o banco
-antigo:
+antiga, o que gerará um conflito.
+
+Não atualize o código para o commit que faz a mudança no compose.yml com a nova versão do banco de dados, mas mude o
+código para o commit mais novo possível antes desse, para garantir que os serviços funcionem normalmente. Pare todos os
+containers e crie pastas para o banco antigo:
 
 ```shell
 docker compose down
 cp -r docker/conf/db docker/conf/olddb
 cp -r docker/env/db docker/env/olddb
 mv docker/data/db docker/data/olddb
+touch docker/env/db.local docker/env/olddb.local
 mkdir docker/data/db
 ```
 
@@ -24,8 +40,10 @@ antiga era `postgres:15-bullseye`, adicione o seguinte:
   olddb:
     image: "postgres:15-bullseye"
     env_file:
-      - "docker/env/olddb"
-      - "docker/env/olddb.local"
+      - path: "docker/env/olddb"
+        required: true
+      - path: "docker/env/olddb.local"
+        required: false
     user: "${UID:-1000}:${GID:-1000}"
     shm_size: "4g"
     command: -c "config_file=/etc/postgresql/postgresql.conf"
@@ -56,6 +74,8 @@ Execute apenas os containers dos bancos de dados e verifique se eles estão roda
 docker compose up -d olddb db
 docker compose logs -ft
 ```
+
+Verifique nos logs se ambos os serviços mostraram a mensagem "database system is ready to accept connections".
 
 > ATENÇÃO: não use `make start`, senão a aplicação Web irá iniciar e executar as migrações (precisamos que o novo banco
 > esteja vazio).

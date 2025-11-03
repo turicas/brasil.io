@@ -1,124 +1,142 @@
-# Setup para Desenvolvimento
+# Configuração para desenvolvimento
 
-O projeto e todos os serviços necessários (como bancos de dados) rodam completamente dentro de *containers* Docker.
-Para rodá-lo localmente, você precisa ter instalado em seu computador:
+O projeto e todos os serviços necessários (como bancos de dados) rodam completamente dentro de _containers_ Docker.
+Para rodá-lo localmente, você precisará de docker, docker compose e make.
 
-- [git](https://git-scm.com/)
-- [Docker](https://docker.io/)
+Apesar de existirem outras formas de rodar o projeto localmente (como executando o Django em um virtualenv),
+recomendamos utilizar a forma descrita nesse documento, para simplificar o processo e evitar conflitos de versões.
 
-Existem outras formas de rodar o projeto localmente, como executando o Django na própria máquina (fora de um
-*container*), porém recomendamos utilizar *containers* para simplificar o processo e evitar conflitos de versões.
-
-
-## Criação do Ambiente Local
-
-Para começar, faça um clone local do repositório original:
+Rodando todos os serviços:
 
 ```shell
-git clone https://github.com/turicas/brasil.io
-```
-
-Entre no repositório, construa e inicie os *containers*:
-
-```shell
-cd brasil.io
 make build start logs
 ```
 
-O processo acima deve demorar alguns  minutos para executar, pois irá construir a imagem Docker que executará o Django
-e baixará as demais imagens/dependências. Quando finalizar e tudo estiver rodando, execute `make bash` para acessar o
-shell do container com o Django e então execute dentro do container:
+> Nota: a primeira vez que o comando acima for executado irá demorar alguns minutos, pois irá construir a imagem Docker
+> que executará o Django e baixará as demais imagens/dependências. As próximas vezes serão bem mais rápidas (e basta
+> executar `make start logs`, sem a etapa `build`).
+
+Para acessar o Django, entre em [localhost:5000](http://localhost:5000). O serviço `web` do docker compose irá executar
+as migrações antes de iniciar o servidor HTTP, então o sistema já estará pronto para usar (mas ainda sem dados).
+
+Para criar um super usuário no Django (que dá acesso ao Django Admin), execute:
 
 ```shell
-# Importa metadados dos datasets atuais:
-python manage.py update_data
-# Cria super usuário:
-python manage.py createsuperuser --username=admin --email=admin@brasil.io
+docker compose exec -it web python manage.py createsuperuser
+# ou `make bash` e então, dentro do shell container, `python manage.py createsuperuser`
 ```
 
-Pronto! A plataforma poderá ser acessada pelo seu navegador Web em [localhost:5000](http://localhost:5000/).
-
-> Nota: para diferenciar o domínio da API, utilizamos o domínio `api.localhost` nas configurações, então ela deve ser
-> acessada por [api.localhost:5000](http://api.localhost:5000/) e você deve criar uma entrada de `api.localhost` em seu
-> `/etc/hosts` que deve resolver `127.0.0.1`.
-
-Caso termine de trabalhar no projeto e queira parar os serviços, execute:
+Para executar os testes automatizados, execute (fora do container):
 
 ```shell
-make stop
+make test
 ```
 
-Nas próximas vezes que for trabalhar no projeto, basta executar um comando:
+Caso queira rodar apenas algum teste específico, passe opções para o `pytest` por meio da variável `TEST_ARGS`:
+```shell
+TEST_ARGS="-k test_run_only_this_one" make test
+```
+
+Para forçar o guia de estilos em todo o código Python, execute (fora do container):
 
 ```shell
-make start logs
+make lint
 ```
 
-> Nota: o banco de dados principal (PostgreSQL) foi configurado para ser executado
-   em um computador com 8 cores, 16GB de RAM e SSD. Caso esse não seja seu computador, considere alterar o arquivo
-   `docker/conf/db/postgresql.dev.conf` (você precisará reiniciar o serviço `db` do docker compose). Para saber as
-   melhores configurações para sua máquina, consulte o [PgTune](https://pgtune.leopard.in.ua/).
+Para ver mais atalhos que ajudam no processo de desenvolvimento, execute `make help`.
+
+
+## Personalizando variáveis de ambiente
+
+Cada serviço definido no Docker compose possui um arquivo de variável de ambiente chamado `docker/env/<serviço>`. Se
+você precisa trocar qualquer um dos valores padrão, crie um arquivo chamado `docker/env/<serviço>.local` e coloque-as
+lá. Esse arquivo será ignorado pelo Git e o Docker compose irá carregá-lo após o primeiro, sobrescrevendo os valores.
+Dessa forma, evitamos colocar credenciais e outros dados sensíveis no repositório.
+
+**Atenção**: não se esqueça de executar `make restart` para que a mudança nas variáveis de ambiente faça efeito (não
+adianta reiniciar apenas o container do serviço que teve variáveis alteradas, é preciso reiniciar o docker compose
+completamente).
+
+> Nota: caso você precise adicionar alguma variável de ambiente que será usada por todos da equipe obrigatoriamente,
+> defina pelo menos um valor fictício no arquivo principal, para que todos consigam executar corretamente.
 
 
 ## Serviços
 
-Os serviços definidos no Docker compose são os seguintes:
+Os serviços configurados no Docker compose são:
 
-- `web`: executa o Django, acessível em [localhost:5000](http://localhost:5000/)
-- `db`: executa o PostgreSQL, sem encaminhamento de porta da máquina host (você pode conectar ao shell do
-  banco executando `make dbshell` ou `docker compose exec web python manage.py dbshell`)
+- `web`: container principal da aplicação Web, rodando o Django e acessível por
+  [localhost:5000](http://localhost:5000/);
+- `worker`: utiliza a mesma imagem do container `web`, mas executa o worker do rq (em vez do servidor HTTP), para
+  processar as tarefas em segundo plano;
+- `db`: executa o banco de dados, sem encaminhamento de porta da máquina host (você pode conectar ao shell do banco
+  executando `make dbshell` ou `docker compose exec web python manage.py dbshell`);
+- `mail`: executa o Mailhog (para verificar os emails enviados), acessível em [localhost:8025](http://localhost:8025/);
 - `messaging`: executa o Redis (para cache e fila de tarefas), sem encaminhamento de porta da máquina host (você pode
-  conectar-se a ele executando `docker compose exec messaging redis-cli`)
-- `worker`: executa o mesmo container do Django, porém rodando o worker do RQ (em vez do `gunicorn`)
+  conectar-se a ele executando `docker compose exec messaging redis-cli`);
 - `storage`: executa o MinIO (equivalente ao AWS S3), acessível em [localhost:9000](http://localhost:9000/) (API) e
   [localhost:9001](http://localhost:9001/) (console).
-- `mail`: executa o Mailhog (para verificar os emails enviados), acessível em [localhost:8025](http://localhost:8025/)
+
+
+## Acesso à API local
+
+Para diferenciar o domínio da API, utilizamos o domínio `api.localhost` nas configurações, então ela deve ser acessada
+por [api.localhost:5000](http://api.localhost:5000/) e você deve criar uma entrada de `api.localhost` em seu
+`/etc/hosts` que deve resolver `127.0.0.1`.
+
 
 ## Importando Dados
 
-Antes de importar dados em um dataset, você precisa executar o script de importação de dados ou baixar os dados já
+
+Antes de importar os dados dos datasets, execute o comando que importa metadados dos datasets atuais:
+
+```shell
+python manage.py update_data
+```
+
+O comando acima irá baixar os metadados, que estão disponíveis na Web, e salvará em seu banco de dados local.
+
+Para importar os dados em um dataset, você precisa executar o script de importação de dados ou baixar os dados já
 convertidos. Nesse exemplo, vamos baixar algumas tabelas de diversos datasets e executar o comando de importação para
 cada uma delas. Antes, abra o shell do container `web` executando `make bash`. Depois, execute dentro do container os
 comandos abaixo:
 
 ```shell
 # Os comandos devem ser executados DENTRO do container `web`:
-mkdir -p /data/covid19 /data/genero-nomes
-
-cd /data/covid19
-wget https://data.brasil.io/dataset/covid19/caso_full.csv.gz
-wget https://data.brasil.io/dataset/covid19/caso.csv.gz
-wget https://data.brasil.io/dataset/covid19/boletim.csv.gz
-wget https://data.brasil.io/dataset/covid19/obito_cartorio.csv.gz
 cd /app
-python manage.py import_data --no-input --unlogged covid19 caso_full /data/covid19/caso_full.csv.gz
-python manage.py import_data --no-input --unlogged covid19 caso /data/covid19/caso.csv.gz
-python manage.py import_data --no-input --unlogged covid19 boletim /data/covid19/boletim.csv.gz
-python manage.py import_data --no-input --unlogged covid19 obito_cartorio /data/covid19/obito_cartorio.csv.gz
 
-cd /data/genero-nomes
-wget https://data.brasil.io/dataset/genero-nomes/nomes.csv.gz
-wget https://data.brasil.io/dataset/genero-nomes/grupos.csv.gz
-cd /app
-python manage.py import_data --no-input --unlogged genero-nomes nomes /data/genero-nomes/nomes.csv.gz
-python manage.py import_data --no-input --unlogged genero-nomes grupos /data/genero-nomes/grupos.csv.gz
+mkdir -p /data/covid19
+for table in caso_full caso boletim obito_cartorio; do
+  url="https://data.brasil.io/dataset/covid19/${table}.csv.gz"
+  filename="/data/covid19/${table}.csv.gz"
+  wget -O "$filename" "$url"
+  python manage.py import_data --no-input --unlogged covid19 $table "$filename"
+done
+
+mkdir -p /data/genero-nomes
+for table in nomes grupos; do
+  url="https://data.brasil.io/dataset/genero-nomes/${table}.csv.gz"
+  filename="/data/genero-nomes/${table}.csv.gz"
+  wget -O "$filename" "$url"
+  python manage.py import_data --no-input --unlogged genero-nomes $table "$filename"
+done
 ```
 
 Para cada arquivo CSV (que pode estar comprimido), o comando `import_data` executará os seguintes passos:
 
 - Criar uma nova tabela, usando os metadados sobre ela que estão em `Table` e `Field` e seguindo o padrão
-  `data_<dataset>_<tabela>_<aleatorio>`;
+  `data_<dataset>_<tabela>_<string-aleatoria>`;
 - Criar um gatilho no PostgreSQL para preenchimento automático do índice de busca de texto completo para os campos que
   precisam dessa busca (estão descritos nos metadados);
 - Importar os dados do CSV usando
-  [`rows.utils.pgimport`](https://github.com/turicas/rows/blob/develop/rows/utils.py#L580) (que usa o comando COPY da
-  interface de linha de comando `psql`);
+  [`rows.plugins.postgresql.pgimport`](https://github.com/turicas/rows/blob/develop/rows/plugins/plugin_postgresql.py#L600)
+  (que usa o comando COPY da interface de linha de comando `psql`);
 - Rodar o comando SQL `VACUUM ANALYSE` para que o PostgreSQL preencha estatísticas sobre a tabela (isso ajudará a
   melhorar o desempenho de diversas consultas);
 - Criar os índices em campos que estão marcados como possíveis de serem usados como filtros na interface, para otimizar
-  a busca;
+  as consultas;
 - Preencher um cache em `Field` contendo todas as possíveis opções para os campos que estão marcados como "choiceable"
-  (são os campos filtráveis e que possuem poucas opções de valor, como unidade federativa, ano etc.).
+  (são os campos filtráveis e que possuem variáveis categóricas, como unidade federativa, ano etc.).
 
 > **Nota 1**: você pode pular algumas das etapas acima passando as opções `--no-xxx` para o comando.
 >
@@ -127,46 +145,29 @@ Para cada arquivo CSV (que pode estar comprimido), o comando `import_data` execu
 > réplicas configuradas). Em geral, para ambientes de desenvolvimento, essas questões não são problemas.
 
 
-## Contribuindo
+## Criando um _Pull Request_
 
-1. Crie um *fork* do projeto em sua conta no GitHub, clicando no botão "*fork*"
+1. Crie um _fork_ do projeto em sua conta no GitHub, clicando no botão "_fork_"
    em <https://github.com/turicas/brasil.io>
-2. Caso já tenha clonado o repositório original localmente, adicione seu *fork*
+2. Caso já tenha clonado o repositório original localmente, adicione seu _fork_
    como um repositório remoto com o comando:
    `git remote add <seu-username> https://github.com/<seu-username>/brasil.io`.
 3. Caso ainda não tenha clonado o repositório em sua máquina, clone-o com o
    comando: `git clone https://github.com/<seu-username>/brasil.io`.
-4. Crie um *branch* em seu repositório local para trabalhar nas alterações que
-   deseja, onde você executará os *commits*.
-5. Suba seu *branch* para seu *fork* com o comando
-   `git push <seu-username> <nome-do-branch>` e crie um *pull request* no
+4. Crie um _branch_ em seu repositório local para trabalhar nas alterações que
+   deseja, onde você executará os _commits_.
+5. Suba seu _branch_ para seu _fork_ com o comando
+   `git push <seu-username> <nome-do-branch>` e crie um _pull request_ no
    repositório principal.
 
 
-## Comandos para desenvolvimento
+## Boas práticas
 
 O Brasil.IO tem por prática o hábito de manter testes unitários para garantir o funcionamento esperado do sistema.
-Portanto, uma boa forma de saber se suas alterações não quebrarm a aplicação, execute os testes com:
+Portanto, ao colaborar com novas funcionalidades, implemente testes automatizados e execute `make test` para garantir
+que suas alterações não quebraram o restante do que estava implementado.
 
-```
-make test  # use test-v para a versão detalhada do pytest (verbose)
-```
-
-Além disso, o nosso [processo de integração
+Além disso, o [processo de integração
 contínua](https://github.com/turicas/brasil.io/blob/develop/.github/workflows/django.yml) também espera que o código
 respeite algumas regras como, por exemplo, não deixarmos importações de código não utilizados. Para garantir que seu
-código está no formato ideal, execute:
-
-```
-make lint
-```
-
-Veja mais comandos úteis executando `make help`.
-
-
-## Personalizando variáveis de ambiente
-
-Para cada serviço, temos um arquivo de variáveis de ambiente padrão chamado `docker/env/<serviço>`. Essa arquivo é
-versionado no Git e deve ter apenas opções que se aplicam a todas as pessoas que desenvolvem o projeto. Caso precise alterar
-alguma das variáveis, utilize um arquivo `docker/env/<serviço>.local`, que não é versionado e possui precedência na
-definição das variáveis sobre as do arquivo versionado.
+código está no formato esperado, sempre execute `make lint` antes de fazer seus commits.

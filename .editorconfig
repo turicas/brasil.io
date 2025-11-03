@@ -1,0 +1,52 @@
+# EditorConfig: https://editorconfig.org/
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+max_line_length = 119
+tab_width = 4
+trim_trailing_whitespace = true
+
+[*.{c,cpp,.go}]
+indent_size = 4
+
+[*.{css,html,js,jsx,less,scss,ts,tsx}]
+indent_style = space
+indent_size = 2
+
+[*.{diff,patch}]
+trim_trailing_whitespace = false
+
+[*.{json,toml,yaml,yml}]
+indent_style = space
+indent_size = 2
+
+[Makefile]
+indent_style = tab
+
+[*.{md,markdown}]
+indent_size = 2
+indent_style = space
+
+[*.php]
+indent_size = 4
+
+[*.py]
+indent_style = space
+indent_size = 4
+
+[*.{sh,bash}]
+indent_style = space
+indent_size = 2
+
+[*.sql]
+indent_style = space
+indent_size = 2
+
+[*.{xml,svg}]
+indent_style = space
+indent_size = 2

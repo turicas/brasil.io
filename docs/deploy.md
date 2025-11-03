@@ -69,6 +69,7 @@ dokku plugin:install-dependencies --core
 dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git
 dokku plugin:install https://github.com/dokku/dokku-maintenance.git
 dokku plugin:install https://github.com/dokku/dokku-postgres.git
+
 dokku plugin:install https://github.com/dokku/dokku-redis.git
 
 # Dokku configs
@@ -101,6 +102,10 @@ Antes de criar a aplicação no Dokku será necessário configurar algumas vari�
 adicionadas às variáveis de ambiente do app (assim, o Dokku irá sempre carregá-las toda vez que o app for iniciado e
 não precisaremos armazenar senhas em arquivos no repositório).
 
+> Nota: recomenda-se o uso do `byobu`, que permite abrir vários terminais dentro do servidor e persiste os shells
+> abertos mesmo que sua conexão SSH com o servidor caia.
+
+
 ```shell
 # Provavelmente você precisará trocar apenas essas primeiras:
 export APP_NAME="brasil-io-prd"
@@ -108,19 +113,10 @@ export APP_DOMAINS="brasil.io,www.brasil.io,api.brasil.io"
 export AWS_S3_DATASETS_BUCKET_NAME="dataset"
 export AWS_STORAGE_BUCKET_NAME="main"
 export BRASILIO_API_HOST="api.brasil.io"
+export SESSION_COOKIE_DOMAIN=".brasil.io"
 export SENTRY_DSN="..."  # URL de acesso ao Sentry, para reporte de erros
 export ADMINS="App Admin|admin@myapp.example.com"
-export LETSENCRYPT_EMAIL="$(echo $ADMINS | sed 's/^[^|]*|\([^,]*\).*$/\1/')"
-export ALLOWED_HOSTS="$APP_DOMAINS"
-export CSRF_TRUSTED_ORIGINS="$(echo https://$APP_DOMAINS | sed 's/,/,https:\/\//g')"
-export DATA_DIR="/data"
-export DEBUG="false"
-export DEV_BUILD="false"
-export DB_NAME="pg_${APP_NAME}"
-export ENV_TYPE="production"
-export REDIS_NAME="redis_${APP_NAME}"
-export STORAGE_PATH="/var/lib/dokku/data/storage/$APP_NAME"
-export SESSION_COOKIE_DOMAIN=".brasil.io"
+export DEFAULT_FROM_EMAIL="noreply@myapp.example.com"
 export EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
 export DEFAULT_FROM_EMAIL="noreply@myapp.example.com"
 export EMAIL_HOST="..."
@@ -129,9 +125,17 @@ export EMAIL_HOST_USER="..."
 export EMAIL_PORT="..."
 export EMAIL_USE_SSL="..."
 export EMAIL_USE_TLS="..."
-export DATA_URL="https://docs.google.com/spreadsheets/d/1-hw07Q7PBGlz2QjOifkwM3T8406OqsGOAWA-fikgW8c/export?format=xlsx"
+export EMAIL_TIMEOUT="15"
+export ENV_TYPE="production" # Or 'staging'
+export LETSENCRYPT_EMAIL="$(echo $ADMINS | sed 's/^[^|]*|\([^,]*\).*$/\1/')"
+export ALLOWED_HOSTS="$APP_DOMAINS"
+export CSRF_TRUSTED_ORIGINS="$(echo https://$APP_DOMAINS | sed 's/,/,https:\/\//g')"
+export DATA_DIR="/data"
+export DEBUG="false"
+export DB_NAME="pg_${APP_NAME}"
+export REDIS_NAME="redis_${APP_NAME}"
 export SECRET_KEY=$(openssl rand -base64 64 | tr -d ' \n')
-export FERNET_KEY="$(python3 -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())')"
+export STORAGE_PATH="/var/lib/dokku/data/storage/$APP_NAME"
 ```
 
 Depois que as variáveis foram definidas, podemos criar o app, os serviços de banco de dados e fazer as configurações
@@ -161,14 +165,10 @@ dokku redis:link $REDIS_NAME $APP_NAME
 
 dokku config:set --no-restart $APP_NAME ADMINS="$ADMINS"
 dokku config:set --no-restart $APP_NAME ALLOWED_HOSTS="$ALLOWED_HOSTS"
-dokku config:set --no-restart $APP_NAME BRASILIO_API_HOST="$BRASILIO_API_HOST"
 dokku config:set --no-restart $APP_NAME CSRF_TRUSTED_ORIGINS="$CSRF_TRUSTED_ORIGINS"
 dokku config:set --no-restart $APP_NAME DATA_DIR="$DATA_DIR"
-dokku config:set --no-restart $APP_NAME DATA_URL="$DATA_URL"
 dokku config:set --no-restart $APP_NAME DEBUG="$DEBUG"
-dokku config:set --no-restart $APP_NAME ENV_TYPE="$ENV_TYPE"
 dokku config:set --no-restart $APP_NAME DEFAULT_FROM_EMAIL="$DEFAULT_FROM_EMAIL"
-dokku config:set --no-restart $APP_NAME DEV_BUILD="$DEV_BUILD"
 dokku config:set --no-restart $APP_NAME EMAIL_BACKEND="$EMAIL_BACKEND"
 dokku config:set --no-restart $APP_NAME EMAIL_HOST="$EMAIL_HOST"
 dokku config:set --no-restart $APP_NAME EMAIL_HOST_PASSWORD="$EMAIL_HOST_PASSWORD"
@@ -176,10 +176,11 @@ dokku config:set --no-restart $APP_NAME EMAIL_HOST_USER="$EMAIL_HOST_USER"
 dokku config:set --no-restart $APP_NAME EMAIL_PORT="$EMAIL_PORT"
 dokku config:set --no-restart $APP_NAME EMAIL_USE_SSL="$EMAIL_USE_SSL"
 dokku config:set --no-restart $APP_NAME EMAIL_USE_TLS="$EMAIL_USE_TLS"
-dokku config:set --no-restart $APP_NAME FERNET_KEY="$FERNET_KEY"
+dokku config:set --no-restart $APP_NAME EMAIL_TIMEOUT="$EMAIL_TIMEOUT"
+dokku config:set --no-restart $APP_NAME ENV_TYPE="$ENV_TYPE"
 dokku config:set --no-restart $APP_NAME SECRET_KEY="$SECRET_KEY"
 dokku config:set --no-restart $APP_NAME SENTRY_DSN="$SENTRY_DSN"
-dokku config:set --no-restart $APP_NAME SESSION_COOKIE_DOMAIN="$SESSION_COOKIE_DOMAIN"
+dokku checks:disable $APP_NAME
 ```
 
 Algumas outras variáveis de ambiente podem ser necessárias para o funcionamento correto da aplicação:
@@ -203,6 +204,7 @@ dokku config:set --no-restart $APP_NAME AWS_S3_SECRET_ACCESS_KEY="..."
 dokku config:set --no-restart $APP_NAME AWS_S3_URL_PROTOCOL="https:"
 dokku config:set --no-restart $APP_NAME AWS_STORAGE_BUCKET_NAME="$AWS_STORAGE_BUCKET_NAME"
 dokku config:set --no-restart $APP_NAME BLOCKED_AGENTS="Wget,curl,python-requests,Python-urllib"
+dokku config:set --no-restart $APP_NAME BRASILIO_API_HOST="$BRASILIO_API_HOST"
 dokku config:set --no-restart $APP_NAME CACHE_BACKEND="django_redis.cache.RedisCache"
 dokku config:set --no-restart $APP_NAME CACHE_CLIENT_CLASS="django_redis.client.DefaultClient"
 dokku config:set --no-restart $APP_NAME CACHE_ENABLED="True"
@@ -214,10 +216,12 @@ dokku config:set --no-restart $APP_NAME CLOUDFLARE_BLOCKED_IPS_RULE="blocked_ips
 dokku config:set --no-restart $APP_NAME CSV_EXPORT_MAX_ROWS="10000"
 dokku config:set --no-restart $APP_NAME DATABASE_CONN_MAX_AGE="3600"
 dokku config:set --no-restart $APP_NAME DATABASE_STATEMENT_TIMEOUT="25000"
+dokku config:set --no-restart $APP_NAME DATA_URL="$DATA_URL"
 dokku config:set --no-restart $APP_NAME DEFAULT_FILE_STORAGE="storages.backends.s3boto3.S3Boto3Storage"
 dokku config:set --no-restart $APP_NAME DISABLE_RECAPTCHA="False"
 dokku config:set --no-restart $APP_NAME DJANGO_SETTINGS_MODULE="project.settings"
 dokku config:set --no-restart $APP_NAME ENABLE_API_AUTH="True"
+dokku config:set --no-restart $APP_NAME FERNET_KEY="$FERNET_KEY"
 dokku config:set --no-restart $APP_NAME GUNICORN_WORKERS="20"
 dokku config:set --no-restart $APP_NAME GZIP_CONTENT_TYPES="application/javascript,application/x-javascript,image/svg+xml,text/css,text/csv,text/javascript"
 dokku config:set --no-restart $APP_NAME RATELIMIT_ENABLE="True"
@@ -229,6 +233,7 @@ dokku config:set --no-restart $APP_NAME ROCKETCHAT_BASE_URL="..."
 dokku config:set --no-restart $APP_NAME ROCKETCHAT_PASSWORD="..."
 dokku config:set --no-restart $APP_NAME ROCKETCHAT_USERNAME="..."
 dokku config:set --no-restart $APP_NAME RQ_BLOCKED_REQUESTS_LIST="blocked_reqs"
+dokku config:set --no-restart $APP_NAME SESSION_COOKIE_DOMAIN="$SESSION_COOKIE_DOMAIN"
 dokku config:set --no-restart $APP_NAME STATICFILES_STORAGE="whitenoise.storage.CompressedManifestStaticFilesStorage"
 dokku config:set --no-restart $APP_NAME THROTTLING_RATE="30/m"
 ```
@@ -243,7 +248,7 @@ dokku config:set --no-restart $APP_NAME THROTTLING_RATE="30/m"
 Caso queira alterar a versão do postgres, atualize o arquivo de configuração da versão correspondente executando:
 
 ```shell
-docker run --rm -v "$(pwd)/docker/conf/db/:/data" postgres:17.6-trixie cp ./usr/share/postgresql/postgresql.conf.sample /data/postgresql.prd.conf
+docker run --rm -v "$(pwd)/docker/conf/db/:/data" postgres:17.4-bookworm cp ./usr/share/postgresql/postgresql.conf.sample /data/postgresql.prd.conf
 ```
 
 Com o app criado e configurado, agora precisamos fazer o primeiro deployment, para então finalizar a configuração com a
@@ -269,11 +274,12 @@ dokku ps:scale $APP_NAME web=1
 
 ```
 
-Aplicação instalada e rodando! Para criar um superusuário no Django, execute:
+Aplicação instalada e rodando! Para criar um superusuário no Django:
 
 ```shell
 dokku run $APP_NAME python manage.py createsuperuser
 ```
+
 
 ## MinIO
 

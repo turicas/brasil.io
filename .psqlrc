@@ -1,0 +1,41 @@
+-- Docs from <https://www.postgresql.org/docs/current/app-psql.html>
+
+-- HISTSIZE:
+-- The maximum number of commands to store in the command history (default
+-- 500). If set to a negative value, no limit is applied.
+-- Note: This feature was shamelessly plagiarized from Bash.
+\set HISTSIZE -1
+
+-- PROMPT1, PROMPT1, PROMPT3:
+-- These specify what the prompts psql issues should look like.
+-- Prompt 1 is the normal prompt that is issued when psql requests a new
+-- command. Default: '%/%R%x%# '
+-- Prompt 2 is issued when more input is expected during command entry, for
+-- example because the command was not terminated with a semicolon or a quote
+-- was not closed. Default: '%/%R%x%# '
+-- Prompt 3 is issued when you are running an SQL COPY FROM STDIN command and
+-- you need to type in a row value on the terminal. Default: '>> '
+\set PROMPT1 '%n@%M:%>/%/%R%#%x '
+\set PROMPT2 '%n@%M:%>/%/ (%l) %R%#%x '
+\set PROMPT3 '>> '
+
+-- \timing [ on | off ]
+-- With a parameter, turns displaying of how long each SQL statement takes on
+-- or off. Without a parameter, toggles the display between on and off. The
+-- display is in milliseconds; intervals longer than 1 second are also shown in
+-- minutes:seconds format, with hours and days fields added if needed.
+\timing on
+
+-- COMP_KEYWORD_CASE:
+-- Determines which letter case to use when completing an SQL key word. If set
+-- to lower or upper, the completed word will be in lower or upper case,
+-- respectively. If set to preserve-lower or preserve-upper (the default), the
+-- completed word will be in the case of the word already entered, but words
+-- being completed without anything entered will be in lower or upper case,
+-- respectively.
+\set COMP_KEYWORD_CASE preserve-upper
+
+-- \x [ on | off | auto ]
+-- Sets or toggles expanded table formatting mode. As such it is equivalent to
+-- \pset expanded.
+\x auto

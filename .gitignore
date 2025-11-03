@@ -1,10 +1,15 @@
 # Custom ignores
 *.csv
 *.csv.gz
+*.db
 *.ipynb
+*.json
+*.sqlite
+*.sqlite3
 *~
 .*.sw?
 .DS_Store
+.activate
 .bash_history
 .directory
 .ipython/
@@ -12,12 +17,16 @@
 .psql_history
 .python_history
 .sass-cache
+.tags
 .vscode/
+.wget-hsts
 collected-static/
 data-populacao-estimada-2019.csv
 data-populacao-por-municipio-2020.csv
 data/*
-docker/data
+docker/data/**
+!docker/data/**/
+!docker/data/*/.keepdir
 docker/env/*.local
 population.csv
 public/
@@ -124,6 +133,12 @@ ipython_config.py
 #   install all needed dependencies.
 #Pipfile.lock
 
+# UV
+#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#uv.lock
+
 # poetry
 #   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
 #   This is especially recommended for binary packages to ensure reproducibility, and is more
@@ -136,8 +151,10 @@ ipython_config.py
 #pdm.lock
 #   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
 #   in version control.
-#   https://pdm.fming.dev/#use-with-ide
+#   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
 .pdm.toml
+.pdm-python
+.pdm-build/
 
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
 __pypackages__/
@@ -152,6 +169,11 @@ celerybeat.pid
 # Environments
 .env
 .venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
 # Spyder project settings
 .spyderproject
@@ -182,4 +204,10 @@ cython_debug/
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-.idea/
+#.idea/
+
+# Ruff stuff:
+.ruff_cache/
+
+# PyPI configuration file
+.pypirc
