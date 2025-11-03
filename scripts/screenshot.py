@@ -3,11 +3,11 @@ import os
 import time
 from urllib.parse import urljoin
 
-from splinter import Browser
-
 
 class Covid19Screenshot:
     def __init__(self, base_url="https://brasil.io/", browser="chrome"):
+        from splinter import Browser
+
         self.browser = Browser(browser)
         self.base_url = base_url
         self.browser.driver.set_window_size(1400, 10000)
@@ -73,7 +73,8 @@ class Covid19Screenshot:
         self.browser.quit()
 
 
-if __name__ == "__main__":
+def run():
+    """python manage.py runscript screenshot"""
     from tqdm import tqdm
 
     s = Covid19Screenshot()
@@ -82,3 +83,7 @@ if __name__ == "__main__":
         s.load_dashboard(state)
         s.screenshot(f"/tmp/covid19-{state or 'BR'}.png")
     s.close()
+
+
+if __name__ == "__main__":
+    run()
