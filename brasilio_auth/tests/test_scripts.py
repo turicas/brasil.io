@@ -1,9 +1,10 @@
-from datetime import datetime
+import datetime
 from tempfile import NamedTemporaryFile
 
 import pytest
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.utils import timezone
 from model_bakery import baker
 
 from api.models import Token
@@ -13,6 +14,7 @@ from brasilio_auth.scripts.migrate_wrong_usernames import migrate_usernames, pos
 from covid19.models import StateSpreadsheet
 
 User = get_user_model()
+TIMEZONE = timezone.get_current_timezone()
 
 
 class TestPossibleUsernames(TestCase):
@@ -130,10 +132,16 @@ class TestMigrateDuplicateCaseInsentiveEmails(TestCase):
     def setUp(self):
         self.user_email = "Email@example.com "
         self.user = baker.make(
-            User, username="username_1", email=self.user_email, date_joined=datetime(2020, 1, 1, 0, 0)
+            User,
+            username="username_1",
+            email=self.user_email,
+            date_joined=datetime.datetime(2020, 1, 1, 0, 0, 0, tzinfo=TIMEZONE),
         )
         self.same_user = baker.make(
-            User, username="username_2", email=self.user_email.lower().strip(), date_joined=datetime(2020, 1, 2, 0, 0)
+            User,
+            username="username_2",
+            email=self.user_email.lower().strip(),
+            date_joined=datetime.datetime(2020, 1, 2, 0, 0, tzinfo=TIMEZONE),
         )
         self.regular_user = baker.make(User, email="regular@example.com")
 
@@ -175,7 +183,10 @@ class TestMigrateDuplicateCaseInsentiveEmails(TestCase):
     def test_export_csv_with_migrated_data(self):
         new_username = "username_3"
         another_duplicate_user = baker.make(
-            User, username=new_username, email=self.user_email.upper(), date_joined=datetime(2020, 1, 3, 0, 0)
+            User,
+            username=new_username,
+            email=self.user_email.upper(),
+            date_joined=datetime.datetime(2020, 1, 3, 0, 0, 0, tzinfo=TIMEZONE),
         )
 
         migrate_duplicate_emails(filepath=self.temp_file.name)
