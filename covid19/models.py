@@ -15,7 +15,7 @@ User = get_user_model()
 
 
 def format_spreadsheet_name(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/{uf}/casos-{uf}-{date}-{username}-{file_no}.{extension}"
+    # file will be uploaded to covid19/{uf}/casos-{uf}-{date}-{username}-{file_no}.{extension}"
     # where {file_no} is the number of uploaded files from that user for the same pair of state
     # and date. this is necessary to avoid other users from overwriting other spreadsheets
     uf = instance.state.upper()

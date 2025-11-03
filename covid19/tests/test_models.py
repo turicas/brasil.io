@@ -66,9 +66,9 @@ class StateSpreadsheetTests(TestCase):
             date=today,
             _create_files=True,  # will create a dummy .txt file
         )
-        expected = f"{settings.MEDIA_ROOT}/covid19/RJ/casos-RJ-{today.isoformat()}-foo-1.txt"
+        expected = f"covid19/RJ/casos-RJ-{today.isoformat()}-foo-1.txt"
 
-        assert expected == spreadsheet.file.path
+        assert expected == spreadsheet.file.name
 
     def test_format_filename_counting_previous_uploads_from_user(self):
         today = date.today()
@@ -96,9 +96,9 @@ class StateSpreadsheetTests(TestCase):
         )
 
         spreadsheet = baker.make(StateSpreadsheet, user=user, state=state, date=today, _create_files=True)
-        expected = f"{settings.MEDIA_ROOT}/covid19/RJ/casos-RJ-{today.isoformat()}-foo-5.txt"
+        expected = f"covid19/RJ/casos-RJ-{today.isoformat()}-foo-5.txt"
 
-        assert expected == spreadsheet.file.path
+        assert expected == spreadsheet.file.name
 
     def test_filter_older_versions_exclude_the_object_if_id(self):
         kwargs = {
