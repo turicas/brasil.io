@@ -10,6 +10,7 @@ from clipping.models import Clipping
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("csv", type=Path, help="CSV file to update the clippings JSON field")
+        parser.add_argument("username", type=str, help="Enter your username")
 
     def clean_args(self, **kwargs):
         csv_file = kwargs["csv"]
@@ -19,7 +20,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         csv_file = self.clean_args(**kwargs)
-        username = "turicas"
+        username = kwargs["username"]
         user = get_user_model().objects.get(username=username)
         with open(csv_file, encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
