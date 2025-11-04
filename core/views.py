@@ -12,6 +12,7 @@ from django.urls import reverse
 
 from clipping.forms import ClippingForm
 from clipping.models import ClippingRelation
+from clipping.tasks import send_clipping_mail
 from core.filters import parse_querystring
 from core.forms import ContactForm, DatasetSearchForm, get_table_dynamic_form
 from core.middlewares import disable_non_logged_user_cache
@@ -226,9 +227,9 @@ def dataset_detail(request, slug, tablename=""):
             clipping.added_by = request.user
             clipping.save()
             clipping_form.added_by = request.user
-
             clipping_form = ClippingForm()
             message = "Sugestão enviada com sucesso"
+            send_clipping_mail.delay(clipping.pk)
         else:
             message = "Erro: Verifique o formulário novamente"
     else:

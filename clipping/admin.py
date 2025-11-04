@@ -5,10 +5,7 @@ from django.forms.models import ModelChoiceField
 
 from .models import Clipping, ClippingRelation
 
-
-TARGET_MODELS = {
-    "core": ["dataset", "table"]
-}
+TARGET_MODELS = {"core": ["dataset", "table"]}
 
 
 class ClippingRelationAdminForm(forms.ModelForm):
@@ -43,9 +40,9 @@ class ClippingRelationAdmin(admin.ModelAdmin):
         content_type = obj.content_type
         content_object = obj.content_object
 
-        if content_type.model == 'dataset':
+        if content_type.model == "dataset":
             return f"{content_object.slug} ({content_object.name})"
-        elif content_type.model == 'table':
+        elif content_type.model == "table":
             return f"{content_object.dataset.slug}.{content_object.name}"
         else:
             return str(content_object)
