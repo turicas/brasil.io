@@ -22,15 +22,17 @@ class Command(BaseCommand):
         csv_file = self.clean_args(**kwargs)
         username = kwargs["username"]
         user = get_user_model().objects.get(username=username)
+        mapping = {value: key for key, value in Clipping.CategoryChoices.choices}
         with open(csv_file, encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
+
             for row in reader:
                 p = Clipping(
                     date=row["data"],
                     vehicle=row["veiculo"],
                     author=row["autor"],
                     title=row["titulo"],
-                    category=row["categoria"],
+                    category=mapping[row["categoria"]],
                     url=row["link"],
                     published=True,
                     added_by=user,
