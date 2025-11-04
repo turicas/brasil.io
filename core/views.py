@@ -22,6 +22,9 @@ from core.util import cached_http_get_json
 from data_activities_log.activites import recent_activities
 from traffic_control.logging import log_blocked_request
 
+clipping_type_dataset = ContentType.objects.get(app_label="core", model="dataset")
+clipping_type_table = ContentType.objects.get(app_label="core", model="table")
+
 
 class Echo:
     def write(self, value):
@@ -209,15 +212,12 @@ def dataset_detail(request, slug, tablename=""):
         if not value:
             del querystring[key]
 
-    clipping = []
-    clipping_type_dataset = ContentType.objects.get(app_label="core", model="dataset")
-    clipping_dataset = list(
-        ClippingRelation.objects.filter(content_type=clipping_type_dataset.id, object_id=dataset.pk)
+    clipping = list(
+        ClippingRelation.objects.published().filter(
+            Q(content_type=clipping_type_dataset.id, object_id=dataset.pk)
+            | Q(content_type=clipping_type_table.id, object_id=table.pk)
+        )
     )
-    clipping.extend(clipping_dataset)
-    clipping_type_table = ContentType.objects.get(app_label="core", model="table")
-    clipping_table = list(ClippingRelation.objects.filter(content_type=clipping_type_table.id, object_id=table.pk))
-    clipping.extend(clipping_table)
 
     message = None
     if request.method == "POST":

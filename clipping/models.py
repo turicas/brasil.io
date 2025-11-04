@@ -7,6 +7,7 @@ from django.db import models
 
 
 class Clipping(models.Model):
+
     class CategoryChoices(models.IntegerChoices):
         NOTICIAS_ENTREVISTAS = (1, "Notícias e Entrevistas")
         ANALISES = (2, "Análises")
@@ -26,7 +27,15 @@ class Clipping(models.Model):
         return self.title
 
 
+class ClippingRelationQuerySet(models.QuerySet):
+
+    def published(self):
+        return self.filter(clipping__published=True).select_related("clipping")
+
+
 class ClippingRelation(models.Model):
+    objects = ClippingRelationQuerySet.as_manager()
+
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(db_index=True)
     content_object = GenericForeignKey()
