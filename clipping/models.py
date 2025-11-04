@@ -13,15 +13,15 @@ class Clipping(models.Model):
         PODCASTS_RADIO = (3, "Podcasts e Rádio")
         OUTRO = (4, "Outro")
 
+    added_by = models.ForeignKey(get_user_model(), null=True, blank=True, on_delete=models.SET_NULL)
     date = models.DateField(null=False, blank=False, default=datetime.date.today)
-    vehicle = models.CharField(max_length=100, null=True, blank=True)
+    category = models.SmallIntegerField(choices=CategoryChoices.choices, null=False, blank=False)
+    published = models.BooleanField(default=False, blank=True)
+    url = models.URLField(null=False, blank=False, unique=True)
     author = models.CharField(max_length=100, null=True, blank=True)
     title = models.CharField(max_length=200, null=True, blank=True)
-    category = models.SmallIntegerField(choices=CategoryChoices.choices, null=False, blank=False)
-    url = models.URLField(null=False, blank=False, unique=True)
-    published = models.BooleanField(default=False, blank=True)
+    vehicle = models.CharField(max_length=100, null=True, blank=True)
 
-    added_by = models.ForeignKey(get_user_model(), null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.title
