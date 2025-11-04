@@ -152,15 +152,12 @@
                   <tbody>
                     {% if clipping|length > 0 %}
                     {% for link in clipping %}
-                    {% if link.clipping.published %}
-                    <tr onclick="window.open('{{ link.clipping.url }}', '_blank' )" style="cursor: pointer;"
-                      title="Clique para acessar o link">
+                    <tr onclick="window.open('{{ link.clipping.url }}', '_blank' )" style="cursor: pointer;" title="Clique para acessar o link">
                       <td> {{ link.clipping.title }}</td>
                       <td> {% if link.clipping.author %}{{ link.clipping.author }}{% else %} --- {% endif %} </td>
-                      <td> {{ link.clipping.category }} </td>
-                      <td class="blue-text text-darken-2"> {{ link.clipping.url|truncatechars:30}}</td>
+                      <td> {{ link.clipping.get_category_display }} </td>
+                      <td class="blue-text text-darken-2"> {{ link.clipping.url|truncatechars:30 }}</td>
                     </tr>
-                    {% endif %}
                     {% endfor %}
                     {% else %}
                     <tr style="cursor: pointer;">
