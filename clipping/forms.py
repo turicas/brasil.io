@@ -9,6 +9,8 @@ class ClippingForm(ModelForm):
     date = forms.CharField(widget=forms.TextInput(attrs={"class": "datepicker"}), label="Data")
     author = forms.CharField(label="Autor")
     title = forms.CharField(label="Título")
+    vehicle = forms.CharField(label="Veículo")
+    url = forms.CharField(label="URL")
 
     class Meta:
         model = Clipping
