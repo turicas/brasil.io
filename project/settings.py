@@ -79,6 +79,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+if DEBUG and config("DEBUG_SQL", cast=bool, default=False):
+    MIDDLEWARE.append("utils.sqlprint.SqlPrintingMiddleware")  # TODO: may use https://pypi.org/project/sqlformatter/
 
 env_type_abbrev = {"development": "dev", "staging": "stg", "production": None}[ENV_TYPE]
 EMAIL_SUBJECT_PREFIX = f"[{env_type_abbrev}] " if ENV_TYPE != "production" else ""
