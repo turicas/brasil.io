@@ -198,7 +198,7 @@
       </div>
 
     </div>
-    
+
     <div id="midia" class="col s12">
 
       <div class="row">
@@ -210,7 +210,7 @@
                   Referências desta base de dados na mídia
                 </span>
                 <div>
-                  
+
                 </div>
                 <table class="highlight">
                   <thead>
@@ -221,7 +221,7 @@
                       <th>Link</th>
                     </tr>
                   </thead>
-  
+
                   <tbody>
                     {% if clipping|length > 0 %}
                       {% for link in clipping %}
@@ -229,8 +229,8 @@
                           <tr onclick="window.open('{{ link.clipping.url }}', '_blank' )" style="cursor: pointer;" title="Clique para acessar o link">
                             <td> {{ link.clipping.title }}</td>
                             <td> {{ link.clipping.author }} </td>
-                            <td> {{ link.clipping.category }} </td>
-                            <td class="blue-text text-darken-2"> {{ link.clipping.url|truncatechars:30}}</td>
+                            <td> {{ link.clipping.get_category_display }} </td>
+                            <td class="blue-text text-darken-2"> {{ link.clipping.url|truncatechars:30 }}</td>
                           </tr>
                         {% endif %}
                       {% endfor %}
@@ -243,7 +243,7 @@
                     </tr>
                     {% endif %}
                   </tbody>
-  
+
                 </table>
                 {% if user.is_authenticated %}
                   <div style="padding-top: 50px;">
