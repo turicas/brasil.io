@@ -87,8 +87,8 @@ por [api.localhost:5000](http://api.localhost:5000/) e você deve criar uma entr
 
 ## Importando Dados
 
-
-Antes de importar os dados dos datasets, execute o comando que importa metadados dos datasets atuais:
+Antes de importar os dados dos datasets, execute o comando que importa metadados dos datasets atuais dentro do shell do
+container web (execute `make bash`):
 
 ```shell
 python manage.py update_data
