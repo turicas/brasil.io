@@ -53,7 +53,6 @@ INSTALLED_APPS = [
     "markdownx",
     "rangefilter",
     "rest_framework",
-    "sorl.thumbnail",
     "storages",
     # Project apps
     "api",

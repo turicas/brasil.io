@@ -2,7 +2,6 @@
 {% load l10n %}
 {% load static %}
 {% block title %}Covid19 Boletins Diários - {{ block.super }}{% endblock %}
-{% load thumbnail %}
 
 {% block head %}
 {{ block.super }}
@@ -40,10 +39,8 @@
       {% for bulletin in month.list %}
       <div style="display: inline-block; width: 200px; height: auto; margin: 1em">
         <a href="{{ bulletin.image_url }}" target="_blank">
-          {% thumbnail bulletin.image_url "170x170" as im %}
-          <img class="lazy hoverable z-depth-2" id="{{ bulletin.pk }}" data-src="{{ im.url }}" width="200px"
+          <img class="lazy hoverable z-depth-2" id="{{ bulletin.pk }}" data-src="{{ bulletin.image_url }}" width="200px"
             height="auto" name="Boletim - {{ bulletin.date }}" />
-          {% endthumbnail %}
         </a>
         <div class="dateBulletins">
           <span class="bDate">{{ bulletin.date }}</span>
