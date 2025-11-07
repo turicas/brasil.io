@@ -87,7 +87,7 @@ services:
         required: true
       - path: "docker/env/messaging.local"
         required: false
-    image: "redis:6.2-alpine"
+    image: "valkey/valkey:9-trixie"
     volumes:
       - ${PWD}/docker/data/messaging/:/data/
 
