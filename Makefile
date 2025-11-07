@@ -53,6 +53,9 @@ migrate:				# Execute Django migrations inside `web` container
 migrations:				# Execute `makemigrations` inside `web` container
 	$(COMPOSE_EXEC) web python manage.py makemigrations
 
+msgshell: 				# Connect to "messaging" database (ValKey) shell
+	$(COMPOSE_EXEC) messaging valkey-cli
+
 shell:					# Execute Django shell inside `web` container
 	$(COMPOSE_EXEC) web python manage.py shell
 
@@ -70,4 +73,4 @@ tags:					# Generate tags file for the entire project (requires universal-ctags)
 test:					# Execute `pytest` and coverage report inside `web` container
 	$(COMPOSE_EXEC) web bash -c 'coverage run -m pytest $(TEST_ARGS) && coverage report'
 
-.PHONY: bash bash-root build build-no-cache clean clear-cache dbshell help kill lint lint-check logs migrate migrations restart shell start stop tags test
+.PHONY: bash bash-root build build-no-cache clean clear-cache dbshell help kill lint lint-check logs migrate migrations msgshell restart shell start stop tags test
