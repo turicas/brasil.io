@@ -1,1 +1,3 @@
 # Environment variables for `mail` service
+MH_STORAGE=maildir
+MH_MAILDIR_PATH=/data/maildir
