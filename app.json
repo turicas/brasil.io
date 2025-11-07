@@ -1,5 +1,7 @@
 {
   "cron": [
+    {"schedule": "2-59/5  *        * * *", "command": "python manage.py retry_deferred"},
+    {"schedule": "23      0        * * *", "command": "python manage.py purge_mail_log 180"}
   ],
   "healthchecks": {
     "web": [

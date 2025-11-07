@@ -18,6 +18,29 @@ import dj_database_url
 from decouple import Choices, Csv, config
 from django.utils.log import DEFAULT_LOGGING
 
+
+def int_or_None(value):
+    """
+    >>> print(int_or_None(""))
+    None
+    >>> print(int_or_None("   "))
+    None
+    >>> print(int_or_None(0))
+    0
+    >>> type(int_or_None(0)) == type(0)
+    True
+    >>> type(int_or_None("0")) == type(0)
+    True
+    >>> print((int_or_None("123"), type(int_or_None("123")) == type(123)))
+    (123, True)
+    """
+    if value is None or isinstance(value, int):
+        return value
+    value = str(value or "").strip()
+    if value == "":
+        return None
+    return int(value)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -45,6 +68,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Third-party apps
     "django_extensions",
+    "mailer",
     "storages",
     # Project apps
 ]
@@ -167,14 +191,22 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 LOGGING = DEFAULT_LOGGING.copy()
 LOGGING["handlers"]["null"] = {"class": "logging.NullHandler"}
 LOGGING["loggers"]["django.security.DisallowedHost"] = {"handlers": ["null"], "propagate": False}
-EMAIL_BACKEND = config("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
-EMAIL_HOST = config("EMAIL_HOST")
-EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
-EMAIL_PORT = config("EMAIL_PORT", cast=int, default=25)
-EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool, default=False)
-EMAIL_USE_SSL = config("EMAIL_USE_SSL", cast=bool, default=False)
-EMAIL_TIMEOUT = config("EMAIL_TIMEOUT", cast=int, default=15)
-DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL")
 SENTRY_DSN = config("SENTRY_DSN", default=None)
 SHELL_PLUS_PRINT_SQL_TRUNCATE = config("SHELL_PLUS_PRINT_SQL_TRUNCATE", cast=int, default=999_999)
+
+
+# Email
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL")
+EMAIL_BACKEND = "mailer.backend.DbBackend"
+EMAIL_HOST = config("EMAIL_HOST")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+EMAIL_PORT = config("EMAIL_PORT", cast=int, default=25)
+EMAIL_TIMEOUT = config("EMAIL_TIMEOUT", cast=int, default=15)
+EMAIL_USE_SSL = config("EMAIL_USE_SSL", cast=bool, default=False)
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool, default=False)
+MAILER_EMAIL_MAX_BATCH = config("MAILER_EMAIL_MAX_BATCH", cast=int_or_None, default=None)
+MAILER_EMAIL_MAX_DEFERRED = config("MAILER_EMAIL_MAX_DEFERRED", cast=int_or_None, default=None)
+MAILER_EMAIL_MAX_RETRIES = config("MAILER_EMAIL_MAX_RETRIES", cast=int_or_None, default=None)
+MAILER_EMAIL_THROTTLE = config("MAILER_EMAIL_THROTTLE", cast=int_or_None, default=0)  # Seconds to sleep after sending an email
+MAILER_USE_FILE_LOCK = False

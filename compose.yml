@@ -1,56 +1,43 @@
+x-web-common: &web-common
+  env_file:
+    - path: "docker/env/web"
+      required: true
+    - path: "docker/env/web.local"
+      required: false
+  user: "${UID:-1000}:${GID:-1000}"
+  build:
+    context: .
+    dockerfile: "Dockerfile"
+    args:
+      ENV_TYPE: "development"
+  pull_policy: build
+  image: brasil-io-web:latest
+  volumes:
+    - ${PWD}/docker/data/web/:/data/
+    - ${PWD}/:/app/
+  depends_on:
+    db:
+      condition: service_healthy
+    messaging:
+      condition: service_started
+
 services:
   web:
-    env_file:
-      - path: "docker/env/web"
-        required: true
-      - path: "docker/env/web.local"
-        required: false
-    user: "${UID:-1000}:${GID:-1000}"
-    build:
-      context: .
-      dockerfile: "Dockerfile"
-      args:
-        ENV_TYPE: "development"
-    pull_policy: build
-    image: brasil-io-web:latest
+    <<: *web-common
     command: bash -c "/app/bin/release.sh && /app/bin/web.sh"
-    volumes:
-      - ${PWD}/docker/data/web/:/data/
-      - ${PWD}/:/app/
     ports:
       - 5000:5000
-    depends_on:
-      db:
-        condition: service_healthy
-      messaging:
-        condition: service_started
 
   worker:
-    env_file:
-      - path: "docker/env/web"
-        required: true
-      - path: "docker/env/web.local"
-        required: false
-    user: "${UID:-1000}:${GID:-1000}"
-    build:
-      context: .
-      dockerfile: "Dockerfile"
-      args:
-        ENV_TYPE: "development"
+    <<: *web-common
     deploy:
       mode: replicated
       replicas: 2
-    pull_policy: build
-    image: brasil-io-web:latest
     command: /app/bin/worker.sh
-    volumes:
-      - ${PWD}/docker/data/web:/data
-      - ${PWD}:/app
-    depends_on:
-      db:
-        condition: service_healthy
-      messaging:
-        condition: service_started
+
+  mail-worker:
+    <<: *web-common
+    command: /app/bin/mail-worker.sh
 
   db:
     env_file:

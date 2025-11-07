@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "django_recaptcha",
     "django_registration",
     "django_rq",
+    "mailer",
     "markdownx",
     "rangefilter",
     "rest_framework",

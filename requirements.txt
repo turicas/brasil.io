@@ -3,6 +3,7 @@
 Django >= 4.2, < 4.3
 dj-database-url >= 2.1.0, < 3.0.0
 django-extensions >= 3.2.3, < 4.0.0
+django-mailer >= 2.3.2, < 3.0.0
 django-redis >= 5.4.0, < 6.0.0
 django-storages[s3] >= 1.14.3, < 2.0.0
 gunicorn >= 22.0.0, < 23.0.0
