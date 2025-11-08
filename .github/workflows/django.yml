@@ -23,7 +23,7 @@ jobs:
       run: make test-ci
 
     - name: Linter check
-      run: make lint-check
+      run: make lint-check-ci
 
     - name: Cleanup
       if: always()

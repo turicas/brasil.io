@@ -17,7 +17,7 @@ build:					# Build containers and pull images
 	$(COMPOSE) pull
 	$(COMPOSE) build
 
-build-ci:					# Build only containers and pull images (only the needed ones)
+build-ci:
 	# Remove definition of user as stated in <https://docs.github.com/en/actions/reference/workflows-and-actions/dockerfile-support#user>
 	sed -i '/^\s\?USER/d' Dockerfile
 	sed -i '/# Create a non-root user to run the app/,/&& chown -R django:django \/app/d' Dockerfile
@@ -52,6 +52,9 @@ lint:					# Run linter script
 lint-check:				# Run the linter without changing files
 	$(COMPOSE_EXEC) web /app/lint.sh --check
 
+lint-check-ci:
+	$(COMPOSE) run --rm web bash -c '/app/lint.sh --check'
+
 logs:					# Show all containers' logs (tail)
 	$(COMPOSE) logs -tf
 
@@ -78,8 +81,8 @@ tags:					# Generate tags file for the entire project (requires universal-ctags)
 test:					# Execute `pytest` and coverage report inside `web` container
 	$(COMPOSE_EXEC) web bash -c 'coverage run -m pytest $(TEST_ARGS) && coverage report'
 
-test-ci:				# Execute tests in CI environment (uses less memory)
+test-ci:
 	$(COMPOSE) up -d db messaging storage
 	$(COMPOSE) run --rm web bash -c 'python manage.py create_buckets && coverage run -m pytest $(TEST_ARGS) && coverage report'
 
-.PHONY: bash bash-root build build-ci build-no-cache clean clear-cache dbshell help kill lint lint-check logs migrate migrations restart shell start stop tags test test-ci
+.PHONY: bash bash-root build build-ci build-no-cache clean clear-cache dbshell help kill lint lint-check lint-check-ci logs migrate migrations restart shell start stop tags test test-ci
