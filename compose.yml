@@ -45,7 +45,7 @@ services:
         required: true
       - path: "docker/env/db.local"
         required: false
-    shm_size: "8g"
+    shm_size: ${DB_SHM_SIZE:-8g}
     image: "postgres:17.6-trixie"
     command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
     volumes:
