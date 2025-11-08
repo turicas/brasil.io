@@ -18,6 +18,10 @@ build:					# Build containers and pull images
 	$(COMPOSE) build
 
 build-ci:					# Build only containers and pull images (only the needed ones)
+	# Remove definition of user as stated in <https://docs.github.com/en/actions/reference/workflows-and-actions/dockerfile-support#user>
+	sed -i '/^\s\?USER/d' Dockerfile
+	sed -i '/# Create a non-root user to run the app/,/&& chown -R django:django \/app/d' Dockerfile
+	sed -i '/^\s\+user:/d' compose.yml
 	$(COMPOSE) pull db messaging storage
 	$(COMPOSE) build web
 

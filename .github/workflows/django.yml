@@ -9,13 +9,13 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      DB_SHM_SIZE: 1g
 
     steps:
     - uses: actions/checkout@v4
 
     - name: Build
-      env:
-        DB_SHM_SIZE: 1g
       run: |
         make build-ci
 
