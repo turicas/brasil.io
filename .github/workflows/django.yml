@@ -13,15 +13,14 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Build and start
+    - name: Build
       env:
         DB_SHM_SIZE: 1g
       run: |
         make build
-        make start
 
     - name: Run tests
-      run: make test
+      run: make test-ci
 
     - name: Run linter
       run: make lint-check

@@ -70,4 +70,8 @@ tags:					# Generate tags file for the entire project (requires universal-ctags)
 test:					# Execute `pytest` and coverage report inside `web` container
 	$(COMPOSE_EXEC) web bash -c 'coverage run -m pytest $(TEST_ARGS) && coverage report'
 
-.PHONY: bash bash-root build build-no-cache clean clear-cache dbshell help kill lint lint-check logs migrate migrations restart shell start stop tags test
+test-ci:				# Execute tests in CI environment (uses less memory)
+	$(COMPOSE) up -d db messaging storage
+	$(COMPOSE) run --rm web bash -c 'coverage run -m pytest $(TEST_ARGS) && coverage report'
+
+.PHONY: bash bash-root build build-no-cache clean clear-cache dbshell help kill lint lint-check logs migrate migrations restart shell start stop tags test test-ci
