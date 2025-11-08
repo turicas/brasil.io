@@ -80,6 +80,6 @@ test:					# Execute `pytest` and coverage report inside `web` container
 
 test-ci:				# Execute tests in CI environment (uses less memory)
 	$(COMPOSE) up -d db messaging storage
-	$(COMPOSE) run --rm web bash -c 'coverage run -m pytest $(TEST_ARGS) && coverage report'
+	$(COMPOSE) run --rm web bash -c 'python manage.py create_buckets && coverage run -m pytest $(TEST_ARGS) && coverage report'
 
 .PHONY: bash bash-root build build-ci build-no-cache clean clear-cache dbshell help kill lint lint-check logs migrate migrations restart shell start stop tags test test-ci
