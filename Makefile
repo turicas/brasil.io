@@ -17,6 +17,10 @@ build:					# Build containers and pull images
 	$(COMPOSE) pull
 	$(COMPOSE) build
 
+build-ci:					# Build only containers and pull images (only the needed ones)
+	$(COMPOSE) pull db messaging storage
+	$(COMPOSE) build web
+
 build-no-cache:			# Build containers without using cache
 	$(COMPOSE) pull
 	$(COMPOSE) build --no-cache
@@ -74,4 +78,4 @@ test-ci:				# Execute tests in CI environment (uses less memory)
 	$(COMPOSE) up -d db messaging storage
 	$(COMPOSE) run --rm web bash -c 'coverage run -m pytest $(TEST_ARGS) && coverage report'
 
-.PHONY: bash bash-root build build-no-cache clean clear-cache dbshell help kill lint lint-check logs migrate migrations restart shell start stop tags test test-ci
+.PHONY: bash bash-root build build-ci build-no-cache clean clear-cache dbshell help kill lint lint-check logs migrate migrations restart shell start stop tags test test-ci

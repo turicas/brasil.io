@@ -17,12 +17,12 @@ jobs:
       env:
         DB_SHM_SIZE: 1g
       run: |
-        make build
+        make build-ci
 
-    - name: Run tests
+    - name: Start containers and run tests
       run: make test-ci
 
-    - name: Run linter
+    - name: Linter check
       run: make lint-check
 
     - name: Cleanup
