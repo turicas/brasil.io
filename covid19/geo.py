@@ -7,14 +7,14 @@ from core.util import http_get_json
 
 @cache_memoize(timeout=None)
 def download_state_geojson(tolerance):
-    url = f"https://data.brasil.io/dataset/shapefiles-brasil/{tolerance}/BR-UF.geojson"
+    url = f"https://data.brasil.io/dataset/shapefiles/{tolerance}/BR-UF.geojson"
     data = http_get_json(url, 5)
     return data
 
 
 @cache_memoize(timeout=None)
 def download_city_geojson(tolerance):
-    url = f"https://data.brasil.io/dataset/shapefiles-brasil/{tolerance}/BR-municipios.geojson"
+    url = f"https://data.brasil.io/dataset/shapefiles/{tolerance}/BR-municipios.geojson"
     data = http_get_json(url, 5)
     return data
 
