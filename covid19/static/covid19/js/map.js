@@ -22,16 +22,16 @@ function getPlaceData(place) {
   return place == totalId ? totalData : cityData[place];
 }
 function cityStyle(feature) {
-  var value = cityData[feature.id][selectedVar] || 0;
+  var value = cityData[feature.properties.codigo][selectedVar] || 0;
   var maxValue = maxValues[selectedVar];
   var opacity = dataConfig[selectedVar].opacityFromValue(value, maxValue);
   return {
-    color: "#000",
+    color: "#FFF",
     fillColor: dataConfig[selectedVar].color,
+    opacity: opacity,
     fillOpacity: opacity,
     lineJoin: "round",
-    opacity: 0,
-    weight: 1,
+    weight: 0,
   }
 }
 function stateStyle(feature) {
@@ -107,7 +107,8 @@ function createMap() {
     zoomDelta: 0.25,
     minZoom: minZoom,
     maxZoom: maxZoom,
-    attributionControl: false
+    attributionControl: false,
+    renderer: L.svg()
   });
   map.setView([-15, -54], minZoom);
 }
@@ -134,7 +135,7 @@ function updateMap() {
     else if (placeType() == "state") {
       var filteredStateGeoJSON = stateGeoJSON;
       filteredStateGeoJSON.features = filteredStateGeoJSON.features.filter(function (item) {
-        return item.properties.CD_GEOCUF == selectedStateId;
+        return item.properties.codigo == selectedStateId;
       });
       stateLayer = L.geoJSON(filteredStateGeoJSON, {style: stateStyle}).addTo(map);
     }
@@ -143,17 +144,18 @@ function updateMap() {
 
   if (hasToAddCityLayer()) {
     cityGeoJSON.features = cityGeoJSON.features.filter(function (item) {
-      var city = cityData[item.id];
+      var city = cityData[item.properties.codigo];
       return city !== undefined;
     });
     cityLayer = L.geoJSON(
       cityGeoJSON,
       {
         style: cityStyle,
+        smoothFactor: 0,
         onEachFeature: function (feature, layer) {
           layer.on("mouseover", function () {
             this.setStyle({opacity: 1});
-            updatePlaceDataControl(getPlaceData(this.feature.id));
+            updatePlaceDataControl(getPlaceData(this.feature.properties.codigo));
           });
           layer.on("mouseout", function () {
             this.setStyle({opacity: 0});

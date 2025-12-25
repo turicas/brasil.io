@@ -133,7 +133,7 @@ def states_geojson(request):
     if state:
         state_id = STATE_BY_ACRONYM[state].ibge_code
         data["features"] = [
-            feature for feature in data["features"] if int(feature["properties"]["CD_GEOCUF"]) == state_id
+            feature for feature in data["features"] if int(feature["properties"]["codigo"]) == state_id
         ]
     return JsonResponse(data, content_type="application/geo+json")
 
@@ -152,7 +152,7 @@ def cities_geojson(request):
 
     city_ids = set(row["city_ibge_code"] for row in city_data)
     data = city_geojson(high_fidelity=high_fidelity)
-    data["features"] = [feature for feature in data["features"] if feature["id"] in city_ids]
+    data["features"] = [feature for feature in data["features"] if int(feature["properties"]["codigo"]) in city_ids]
     return JsonResponse(data, content_type="application/geo+json")
 
 
