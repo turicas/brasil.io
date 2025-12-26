@@ -1,5 +1,3 @@
-from itertools import groupby
-
 from cache_memoize import cache_memoize
 
 from core.util import http_get_json

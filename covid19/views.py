@@ -132,9 +132,7 @@ def states_geojson(request):
     data = state_geojson(high_fidelity=bool(state))
     if state:
         state_id = STATE_BY_ACRONYM[state].ibge_code
-        data["features"] = [
-            feature for feature in data["features"] if int(feature["properties"]["codigo"]) == state_id
-        ]
+        data["features"] = [feature for feature in data["features"] if int(feature["properties"]["codigo"]) == state_id]
     return JsonResponse(data, content_type="application/geo+json")
 
 
