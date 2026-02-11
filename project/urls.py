@@ -1,7 +1,10 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import include, path
+from markdownx.views import ImageUploadView
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -9,6 +12,11 @@ urlpatterns = [
     path("auth/", include("brasilio_auth.urls", namespace="brasilio_auth")),
     path("covid19/", include("covid19.urls", namespace="covid19")),
     path("django-rq/", include("django_rq.urls")),
+    path(
+        "markdownx/upload/",
+        staff_member_required(ImageUploadView.as_view()),
+        name="markdownx_upload",
+    ),
     path("markdownx/", include("markdownx.urls")),
     path("", include("core.urls", namespace="core")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
