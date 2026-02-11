@@ -5,7 +5,6 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import include, path
 from markdownx.views import ImageUploadView
 
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("project.api_urls")),
