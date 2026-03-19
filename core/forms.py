@@ -10,6 +10,25 @@ from utils.forms import FlagedReCaptchaField as ReCaptchaField
 
 RE_HTML_TAG = re.compile(r"<[^>]+>")
 RE_CARACTERES_INVALIDOS_NOME = re.compile(r'[<>"\'\\/\x00-\x1f]')
+RE_NON_LATIN = re.compile(
+    r"[\u0400-\u04FF"  # cirílico
+    r"\u0600-\u06FF"  # árabe
+    r"\u4e00-\u9fff"  # CJK
+    r"\u3040-\u309f"  # hiragana
+    r"\u30a0-\u30ff"  # katakana
+    r"\uAC00-\uD7AF"  # hangul
+    r"]"
+)
+RE_SHORTENED_URL = re.compile(
+    r"(?:https?://)?(?:"
+    r"tinyurl\.com|bit\.ly|cutt\.ly|hop\.cx|is\.gd|v\.gd|"
+    r"ow\.ly|rb\.gy|psee\.io|t\.co/|shorturl\.at|u\.to/"
+    r")",
+    re.IGNORECASE,
+)
+RE_BBCODE = re.compile(r"\[(url|img|b|i|color)[\]=]", re.IGNORECASE)
+RE_URL = re.compile(r"https?://\S+", re.IGNORECASE)
+MAX_URLS_MENSAGEM = 2
 NOME_MAX_LENGTH = 200
 
 
@@ -56,6 +75,21 @@ def validar_texto_sem_html(valor: str, nome_campo: str) -> str:
     return valor
 
 
+def validar_mensagem_contato(valor: str) -> str:
+    valor = valor.strip()
+    if not valor:
+        raise forms.ValidationError("A mensagem é obrigatória.")
+    valor = validar_texto_sem_html(valor, "mensagem")
+    if (
+        RE_NON_LATIN.search(valor)
+        or RE_SHORTENED_URL.search(valor)
+        or RE_BBCODE.search(valor)
+        or len(RE_URL.findall(valor)) > MAX_URLS_MENSAGEM
+    ):
+        raise forms.ValidationError("Sua mensagem foi bloqueada pelo filtro anti-SPAM.")
+    return valor
+
+
 def sanitizar_nome_para_email(nome: str) -> str:
     """Remove caracteres que quebram o parsing de endereço RFC 5322"""
     nome = re.sub(r"<[^>]*>", "", nome)
@@ -81,14 +115,12 @@ class ContactForm(forms.Form):
         valor = validar_texto_sem_html(valor, "nome")
         if RE_CARACTERES_INVALIDOS_NOME.search(valor):
             raise forms.ValidationError("O nome contém caracteres inválidos.")
+        if RE_NON_LATIN.search(valor):
+            raise forms.ValidationError("O nome contém caracteres não suportados.")
         return valor
 
     def clean_message(self):
-        valor = self.cleaned_data["message"].strip()
-        if not valor:
-            raise forms.ValidationError("A mensagem é obrigatória.")
-        valor = validar_texto_sem_html(valor, "mensagem")
-        return valor
+        return validar_mensagem_contato(self.cleaned_data["message"])
 
 
 class DatasetSearchForm(forms.Form):
