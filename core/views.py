@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 
 from core.filters import parse_querystring
 from core.forms import ContactForm, DatasetSearchForm, get_table_dynamic_form, sanitizar_nome_para_email
@@ -44,9 +45,11 @@ def contact(request):
             if not nome_seguro:
                 form.add_error("name", "O nome informado é inválido.")
             else:
+                enviado_em = timezone.localtime().strftime("%d/%m/%Y %H:%M:%S")
+                corpo = f"{data['message']}\n\n--\nEnviado em: {enviado_em}"
                 email = EmailMessage(
                     subject=f"{settings.EMAIL_SUBJECT_PREFIX}Contato no Brasil.IO: {nome_seguro}",
-                    body=data["message"],
+                    body=corpo,
                     from_email=f"{nome_seguro} (via Brasil.IO) <{settings.DEFAULT_FROM_EMAIL}>",
                     to=[settings.DEFAULT_FROM_EMAIL],
                     reply_to=[f"{nome_seguro} <{data['email']}>"],
