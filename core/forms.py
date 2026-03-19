@@ -8,6 +8,10 @@ from core.data_models import EmpresaTableConfig
 from core.models import get_table_model
 from utils.forms import FlagedReCaptchaField as ReCaptchaField
 
+RE_HTML_TAG = re.compile(r"<[^>]+>")
+RE_CARACTERES_INVALIDOS_NOME = re.compile(r'[<>"\'\\/\x00-\x1f]')
+NOME_MAX_LENGTH = 200
+
 
 def numbers_only(value):
     return re.compile("[^0-9]").sub("", value)
@@ -45,8 +49,23 @@ def _get_name(obj, person_type):
         return obj.name
 
 
+def validar_texto_sem_html(valor: str, nome_campo: str) -> str:
+    valor = valor.strip()
+    if RE_HTML_TAG.search(valor):
+        raise forms.ValidationError(f"O campo {nome_campo} não pode conter HTML.")
+    return valor
+
+
+def sanitizar_nome_para_email(nome: str) -> str:
+    """Remove caracteres que quebram o parsing de endereço RFC 5322"""
+    nome = re.sub(r"<[^>]*>", "", nome)
+    nome = re.sub(r'[<>"\\\x00-\x1f]', "", nome)
+    nome = re.sub(r"\s+", " ", nome).strip()
+    return nome
+
+
 class ContactForm(forms.Form):
-    name = forms.CharField(required=True, label="Nome")
+    name = forms.CharField(required=True, label="Nome", max_length=NOME_MAX_LENGTH)
     email = forms.EmailField(required=True, label="E-mail")
     message = forms.CharField(
         required=True,
@@ -54,6 +73,22 @@ class ContactForm(forms.Form):
         widget=forms.Textarea(attrs={"class": "materialize-textarea"}),
     )
     captcha = ReCaptchaField()
+
+    def clean_name(self):
+        valor = self.cleaned_data["name"].strip()
+        if not valor:
+            raise forms.ValidationError("O nome é obrigatório.")
+        valor = validar_texto_sem_html(valor, "nome")
+        if RE_CARACTERES_INVALIDOS_NOME.search(valor):
+            raise forms.ValidationError("O nome contém caracteres inválidos.")
+        return valor
+
+    def clean_message(self):
+        valor = self.cleaned_data["message"].strip()
+        if not valor:
+            raise forms.ValidationError("A mensagem é obrigatória.")
+        valor = validar_texto_sem_html(valor, "mensagem")
+        return valor
 
 
 class DatasetSearchForm(forms.Form):

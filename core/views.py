@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from core.filters import parse_querystring
-from core.forms import ContactForm, DatasetSearchForm, get_table_dynamic_form
+from core.forms import ContactForm, DatasetSearchForm, get_table_dynamic_form, sanitizar_nome_para_email
 from core.middlewares import disable_non_logged_user_cache
 from core.models import Dataset, Table
 from core.templatetags.utils import obfuscate
@@ -40,15 +40,19 @@ def contact(request):
 
         if form.is_valid():
             data = form.cleaned_data
-            email = EmailMessage(
-                subject=f"{settings.EMAIL_SUBJECT_PREFIX}Contato no Brasil.IO: {data['name']}",
-                body=data["message"],
-                from_email=f'{data["name"]} (via Brasil.IO) <{settings.DEFAULT_FROM_EMAIL}>',
-                to=[settings.DEFAULT_FROM_EMAIL],
-                reply_to=[f'{data["name"]} <{data["email"]}>'],
-            )
-            email.send()
-            return redirect(reverse("core:contact") + "?sent=true")
+            nome_seguro = sanitizar_nome_para_email(data["name"])
+            if not nome_seguro:
+                form.add_error("name", "O nome informado é inválido.")
+            else:
+                email = EmailMessage(
+                    subject=f"{settings.EMAIL_SUBJECT_PREFIX}Contato no Brasil.IO: {nome_seguro}",
+                    body=data["message"],
+                    from_email=f"{nome_seguro} (via Brasil.IO) <{settings.DEFAULT_FROM_EMAIL}>",
+                    to=[settings.DEFAULT_FROM_EMAIL],
+                    reply_to=[f"{nome_seguro} <{data['email']}>"],
+                )
+                email.send()
+                return redirect(reverse("core:contact") + "?sent=true")
 
     else:
         context = {"message": "Invalid HTTP method.", "title_4xx": "Oops! Ocorreu um erro:"}
