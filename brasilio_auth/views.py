@@ -3,8 +3,9 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect, render, resolve_url
 from django.urls import reverse_lazy
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic.edit import FormView
 
 from api.models import NumMaxTokensExceeded, Token
@@ -20,6 +21,21 @@ class RegistrationView(registration_views.RegistrationView):
     email_body_template = "brasilio_auth/emails/activation_email_body.txt"
     email_subject_template = "brasilio_auth/emails/activation_email_subject.txt"
     disallowed_url = reverse_lazy("brasilio_auth:sign_up_disallowed")
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect(self._get_redirect_url(request))
+        return super().dispatch(request, *args, **kwargs)
+
+    def _get_redirect_url(self, request):
+        next_url = request.GET.get("next") or request.POST.get("next")
+        if next_url and url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure(),
+        ):
+            return next_url
+        return resolve_url(settings.LOGIN_REDIRECT_URL)
 
     def create_inactive_user(self, form):
         user = super().create_inactive_user(form)

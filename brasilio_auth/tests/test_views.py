@@ -247,3 +247,40 @@ class DeleteApiTokenViewsTests(TestCase):
         msg = user_messages[0]
         assert messages.SUCCESS == msg.level
         assert "Chave de API deletada com sucesso." == msg.message
+
+
+@patch.object(ReCaptchaField, "validate", Mock(return_value=True))
+class AuthenticatedUserRedirectTests(TestCase):
+    """Usuário já logado em /auth/entrar/ ou /auth/login/ é redirecionado, respeitando `?next=`."""
+
+    client_class = TrafficControlClient
+
+    def setUp(self):
+        self.sign_up_url = reverse("brasilio_auth:sign_up")
+        self.login_url = reverse("brasilio_auth:login")
+        self.user = baker.make(User, is_active=True)
+        self.client.force_login(self.user)
+
+    def test_sign_up_redireciona_pra_login_redirect_url_se_logado_e_sem_next(self):
+        response = self.client.get(self.sign_up_url)
+        assert 302 == response.status_code
+        assert settings.LOGIN_REDIRECT_URL == response.url
+
+    def test_sign_up_redireciona_pra_next_se_logado(self):
+        response = self.client.get(f"{self.sign_up_url}?next=/datasets/")
+        assert 302 == response.status_code
+        assert "/datasets/" == response.url
+
+    def test_sign_up_ignora_next_de_outro_host(self):
+        response = self.client.get(f"{self.sign_up_url}?next=https://evil.com/")
+        assert 302 == response.status_code
+        assert settings.LOGIN_REDIRECT_URL == response.url
+
+    def test_login_redireciona_se_ja_logado(self):
+        response = self.client.get(self.login_url)
+        assert 302 == response.status_code
+
+    def test_login_redireciona_pra_next_se_ja_logado(self):
+        response = self.client.get(f"{self.login_url}?next=/datasets/")
+        assert 302 == response.status_code
+        assert "/datasets/" == response.url

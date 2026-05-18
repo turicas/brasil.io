@@ -5,7 +5,10 @@ from django.views.generic.base import TemplateView
 from brasilio_auth import views
 from core.middlewares import disable_non_logged_user_cache
 
-login = auth_views.LoginView.as_view(template_name="brasilio_auth/login.html")
+login = auth_views.LoginView.as_view(
+    template_name="brasilio_auth/login.html",
+    redirect_authenticated_user=True,
+)
 logout = auth_views.LogoutView.as_view()
 
 password_reset = auth_views.PasswordResetView.as_view(
