@@ -317,3 +317,18 @@ O *management command* `collect_contributors` acessará a API pública do GitHub
 enviá-lo para nosso servidor de arquivos estáticos.
 
 > **ATENÇÃO**: não atualize o arquivo (`s3cmd put`) caso o primeiro comando imprima erros.
+
+## Logs com tempo
+
+Os comandos abaixo criam um formato de log no nginx chamado "timed", que guarda o tempo de resposta de cada requisição,
+e configuram a aplicação para usá-lo e compartilham a pasta de logs do nginx (read-only) com a própria aplicação. Dessa
+forma, a aplicação consegue ler seus próprios logs e poderá importar os dados em uma tabela do banco de dados.
+
+```shell
+sudo tee /etc/nginx/conf.d/00-log-formats.conf > /dev/null << 'EOF'
+log_format timed '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $request_time $upstream_response_time';
+EOF
+dokku nginx:set $APP_NAME access-log-format timed
+dokku proxy:build-config $APP_NAME
+dokku storage:mount $APP_NAME /var/log/nginx:/var/log/nginx:ro
+```
