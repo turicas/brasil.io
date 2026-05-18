@@ -10,21 +10,30 @@
         "name": "web home check",
         "description": "Check /home",
         "path": "/home",
-        "content": "O Brasil em dados libertos"
+        "content": "O Brasil em dados libertos",
+        "initialDelay": 10,
+        "timeout": 15,
+        "attempts": 3
       },
       {
         "type": "startup",
         "name": "web colabore check",
         "description": "Check /colabore",
         "path": "/colabore",
-        "content": "Colabore - "
+        "content": "Colabore - ",
+        "initialDelay": 10,
+        "timeout": 15,
+        "attempts": 3
       },
       {
         "type": "startup",
         "name": "web datasets check",
         "description": "Check /datasets",
         "path": "/datasets",
-        "content": "Lista de datasets - "
+        "content": "Lista de datasets - ",
+        "initialDelay": 10,
+        "timeout": 15,
+        "attempts": 3
       }
     ]
   }
