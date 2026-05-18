@@ -161,6 +161,10 @@ dokku postgres:start $DB_NAME
 dokku postgres:link $DB_NAME $APP_NAME
 
 dokku redis:create $REDIS_NAME -i redis -I 6.2-alpine
+# Reduz a frequência de BGSAVE (a config padrão do Redis dispara a cada 100 chaves alteradas em 5min, o que
+# sobrecarrega o disco com tráfego ativo). Janela máxima de perda passa a ser 1h.
+echo "save 3600 1" >> "/var/lib/dokku/services/redis/${REDIS_NAME}/config/redis.conf"
+dokku redis:restart $REDIS_NAME
 dokku redis:link $REDIS_NAME $APP_NAME
 
 dokku config:set --no-restart $APP_NAME ADMINS="$ADMINS"
