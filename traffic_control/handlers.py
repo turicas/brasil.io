@@ -6,6 +6,7 @@ from django_ratelimit.exceptions import Ratelimited
 from rest_framework.exceptions import Throttled
 from rest_framework.views import exception_handler
 
+from api.exceptions import DeepPaginationNotAllowed
 from api.versioning import redirect_from_older_version
 from traffic_control.logging import log_blocked_request
 from traffic_control.middlewares import BLOCKED_REQUEST_ATTR
@@ -77,8 +78,21 @@ def api_exception_handler(exc, context):
         custom_response_data = {"message": api_throtthling_msg, "available_in": f"{exc.wait} seconds"}
         response.data = custom_response_data
 
+    extra = None
+    if isinstance(exc, DeepPaginationNotAllowed):
+        response.data = {
+            "message": str(exc.detail),
+            "limit": exc.limit,
+            "requested": exc.page * exc.page_size,
+        }
+        if exc.dataset_slug:
+            response.data["dataset_url"] = f"https://brasil.io/dataset/{exc.dataset_slug}/"
+        if exc.code_url:
+            response.data["code_url"] = exc.code_url
+        extra = {"block_reason": exc.default_code}
+
     if status_code is not None and 400 <= status_code < 500:
-        log_blocked_request(context["request"], status_code)
+        log_blocked_request(context["request"], status_code, extra=extra)
         if 401 == status_code:
             url = "https://brasil.io/auth/tokens-api/"
             blog_url = settings.API_KEYS_BLOGPOST_URL

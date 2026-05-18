@@ -46,6 +46,7 @@ CACHE_CLIENT_CLASS=django_redis.client.DefaultClient
 CACHE_KEY_PREFIX=datacache
 STATICFILES_STORAGE="django.contrib.staticfiles.storage.StaticFilesStorage"
 THROTTLING_RATE=""
+API_MAX_PAGINATION_RECORDS="1000000"
 RATELIMIT_ENABLE=False
 RATELIMIT_RATE="50/m"
 ENABLE_API_AUTH=True
