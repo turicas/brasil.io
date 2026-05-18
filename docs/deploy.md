@@ -270,7 +270,7 @@ Para finalizar as configurações iniciais, conecte novamente no servidor e exec
 ```shell
 dokku letsencrypt:set $APP_NAME email "$LETSENCRYPT_EMAIL"
 dokku letsencrypt:enable $APP_NAME
-dokku ps:scale $APP_NAME web=1 mail-worker=1
+dokku ps:scale $APP_NAME web=1 scheduler=1 mail-worker=1 worker=2
 ```
 
 Aplicação instalada e rodando! Para criar um superusuário no Django:
