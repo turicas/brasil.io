@@ -1,0 +1,23 @@
+Olá {{ username }},
+
+Identificamos que sua conta no Brasil.IO realizou uma grande quantidade de requisições à API que ultrapassaram o limite
+de paginação, mesmo após receber a mensagem explicando o problema. Foram {{ block_count }} bloqueios nas últimas
+{{ hours }} horas.
+
+Por esse motivo, seus tokens de API foram removidos e sua conta foi desativada.
+
+O Brasil.IO é um projeto gratuito, desenvolvido por voluntários e mantido por financiamento coletivo. Percorrer todas
+as páginas da API é a forma mais lenta possível de obter um dataset e sobrecarrega o serviço, prejudicando outros
+usuários.
+
+Para obter o dataset completo, baixe o arquivo disponível na página do dataset em https://brasil.io/datasets/ - o link
+para o arquivo completo está lá. Os scripts de coleta são software livre e estão linkados nos metadados do dataset.
+
+Se sua empresa tem necessidades de acesso a dados em volume ou precisa de soluções personalizadas envolvendo coleta,
+análise, cruzamento e visualização de dados públicos, a Pythonic Café - empresa que mantém o Brasil.IO
+- oferece serviços de consultoria nesse tipo de trabalho. Conheça em https://pythonic.cafe ou escreva para
+alvaro@pythonic.cafe.
+
+Se você acredita que houve um engano, responda este e-mail explicando seu caso de uso.
+
+Equipe Brasil.IO

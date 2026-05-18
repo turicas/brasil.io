@@ -16,6 +16,13 @@ def format_request(request, response_status_code):
     return request_data
 
 
-def log_blocked_request(request, response_status_code):
+def log_blocked_request(request, response_status_code, extra: dict | None = None):
+    """
+    Enfileira um request bloqueado para persistência posterior em `BlockedRequest`.
+
+    O conteúdo de `extra` é adicionado a `request_data`.
+    """
     request_data = format_request(request, response_status_code)
+    if extra:
+        request_data.update(extra)
     blocked_requests.lpush(request_data)

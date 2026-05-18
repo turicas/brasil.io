@@ -1,9 +1,13 @@
 from copy import deepcopy
 
+from django.contrib.auth import get_user_model
 from django.test import RequestFactory, TestCase
+from model_bakery import baker
 
 from traffic_control.logging import format_request
 from traffic_control.models import BlockedRequest
+
+User = get_user_model()
 
 
 class BlockedRequestModelTests(TestCase):
@@ -44,3 +48,32 @@ class BlockedRequestModelTests(TestCase):
         self.request_data["headers"].append(("X-Forwarded-For", "10.10.10.10"))
         blocked_request = BlockedRequest.from_request_data(deepcopy(self.request_data))
         assert "10.10.10.10" == blocked_request.source_ip
+
+
+class PromoteUserAndBlockReasonTests(TestCase):
+    def test_popula_colunas_a_partir_do_json(self):
+        user = baker.make(User)
+        request_data = {
+            "query_string": [],
+            "path": "/api/x/",
+            "headers": [],
+            "response_status_code": 400,
+            "user_id": user.id,
+            "block_reason": "deep_pagination_not_allowed",
+            "http": {},
+        }
+        obj = BlockedRequest.from_request_data(request_data)
+        assert obj.user_id == user.id
+        assert obj.block_reason == "deep_pagination_not_allowed"
+
+    def test_aceita_chaves_ausentes(self):
+        request_data = {
+            "query_string": [],
+            "path": "/api/x/",
+            "headers": [],
+            "response_status_code": 404,
+            "http": {},
+        }
+        obj = BlockedRequest.from_request_data(request_data)
+        assert obj.user_id is None
+        assert obj.block_reason is None

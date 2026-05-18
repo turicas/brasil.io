@@ -187,7 +187,10 @@ Algumas outras variáveis de ambiente podem ser necessárias para o funcionament
 
 ```shell
 dokku config:set --no-restart $APP_NAME ACCOUNT_ACTIVATION_DAYS="7"
+dokku config:set --no-restart $APP_NAME API_ABUSIVE_USER_THRESHOLD="50"
+dokku config:set --no-restart $APP_NAME API_ABUSIVE_USER_WINDOW_HOURS="24"
 dokku config:set --no-restart $APP_NAME API_KEYS_BLOGPOST_URL="https://blog.brasil.io/2020/10/31/nossa-api-sera-obrigatoriamente-autenticada/"
+dokku config:set --no-restart $APP_NAME API_MAX_PAGINATION_RECORDS="1000000"
 dokku config:set --no-restart $APP_NAME APP_HOST="brasil.io"
 dokku config:set --no-restart $APP_NAME AWS_AUTO_CREATE_BUCKET="False"
 dokku config:set --no-restart $APP_NAME AWS_BUCKET_ACL="private"

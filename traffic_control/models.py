@@ -2,6 +2,7 @@ import datetime
 from copy import deepcopy
 from itertools import chain
 
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
@@ -47,6 +48,16 @@ class BlockedRequest(models.Model):
     path = models.TextField(default="", null=True, blank=True, db_index=True)
     source_ip = models.GenericIPAddressField(null=True, blank=True, db_index=True)
     status_code = models.PositiveSmallIntegerField(null=True, blank=True, db_index=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        db_index=True,
+        db_constraint=False,
+        related_name="blocked_requests",
+    )
+    block_reason = models.CharField(max_length=64, null=True, blank=True, db_index=True)
 
     @classmethod
     def from_request_data(cls, request_data):
@@ -65,6 +76,8 @@ class BlockedRequest(models.Model):
             or None  # noqa
         )
         obj.status_code = request_data.get("response_status_code", 1)
+        obj.user_id = request_data.get("user_id")
+        obj.block_reason = request_data.get("block_reason")
 
         return obj
 
