@@ -73,3 +73,20 @@ def test_logging_enqueue_message_to_be_processed(request_factory):
     blocked["headers"] = [(key, value) for key, value in blocked["headers"]]  # Change lists into tuples
     assert format_request(request, 429) == blocked
     assert 0 == len(blocked_requests)
+
+
+def test_extra_propaga_para_request_data(request_factory):
+    blocked_requests.clear()
+    request = request_factory.get("/api/v1/dataset/foo/bar/data/?page=99999")
+    log_blocked_request(request, 400, extra={"block_reason": "deep_pagination_not_allowed"})
+    item = blocked_requests.lpop()
+    assert 400 == item["response_status_code"]
+    assert "deep_pagination_not_allowed" == item["block_reason"]
+
+
+def test_sem_extra_chave_block_reason_nao_aparece(request_factory):
+    blocked_requests.clear()
+    request = request_factory.get("/foo")
+    log_blocked_request(request, 404)
+    item = blocked_requests.lpop()
+    assert "block_reason" not in item
