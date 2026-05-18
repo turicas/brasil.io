@@ -1,12 +1,12 @@
-import textwrap
 from datetime import timedelta
 
 from cached_property import cached_property
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
 from django.db.models import Count
+from django.template.loader import render_to_string
 from django.utils import timezone
 from tqdm import tqdm
 
@@ -94,36 +94,7 @@ class DeactivateAbusiveUsersCommand:
 
     DEFAULT_BLOCK_REASONS = ("deep_pagination_not_allowed",)
     DEFAULT_MAX_DEACTIVATIONS = 20
-    EMAIL_SUBJECT = "Sua conta no Brasil.IO foi desativada"
-
-    EMAIL_BODY_TEMPLATE = textwrap.dedent(
-        """
-        Olá {username},
-
-        Identificamos que sua conta no Brasil.IO realizou uma grande quantidade de requisições à API que ultrapassaram
-        o limite de paginação, mesmo após receber a mensagem explicando o problema. Foram {block_count} bloqueios nas
-        últimas {hours} horas.
-
-        Por esse motivo, seus tokens de API foram removidos e sua conta foi desativada.
-
-        O Brasil.IO é um projeto gratuito, desenvolvido por voluntários e mantido por financiamento coletivo. Percorrer
-        todas as páginas da API é a forma mais lenta possível de obter um dataset e sobrecarrega o serviço,
-        prejudicando outros usuários.
-
-        Para obter o dataset completo, baixe o arquivo disponível na página do dataset em https://brasil.io/datasets/ -
-        o link para o arquivo completo está lá. Os scripts de coleta são software livre e estão linkados nos metadados
-        do dataset.
-
-        Se sua empresa tem necessidades de acesso a dados em volume ou precisa de soluções personalizadas envolvendo
-        coleta, análise, cruzamento e visualização de dados públicos, a Pythonic Café - empresa que mantém o Brasil.IO
-        - oferece serviços de consultoria nesse tipo de trabalho. Conheça em https://pythonic.cafe ou escreva para
-        alvaro@pythonic.cafe.
-
-        Se você acredita que houve um engano, responda este e-mail explicando seu caso de uso.
-
-        Equipe Brasil.IO
-    """
-    ).strip()
+    EMAIL_TEMPLATE_BASE = "traffic_control/emails/deactivation_email"
 
     @classmethod
     def execute(
@@ -194,14 +165,20 @@ class DeactivateAbusiveUsersCommand:
         if not user.email:
             return
 
-        body = cls.EMAIL_BODY_TEMPLATE.format(
-            username=user.username,
-            block_count=block_count,
-            hours=hours_ago,
-        )
-        EmailMessage(
-            subject=f"{settings.EMAIL_SUBJECT_PREFIX}{cls.EMAIL_SUBJECT}",
-            body=body,
+        context = {
+            "username": user.username,
+            "block_count": block_count,
+            "hours": hours_ago,
+            "EMAIL_SUBJECT_PREFIX": settings.EMAIL_SUBJECT_PREFIX,
+        }
+        subject = render_to_string(f"{cls.EMAIL_TEMPLATE_BASE}_subject.txt", context).strip()
+        text_body = render_to_string(f"{cls.EMAIL_TEMPLATE_BASE}_body.txt", context)
+        html_body = render_to_string(f"{cls.EMAIL_TEMPLATE_BASE}.html", context)
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=text_body,
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[user.email],
-        ).send()
+        )
+        email.attach_alternative(html_body, "text/html")
+        email.send()

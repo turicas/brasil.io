@@ -63,6 +63,11 @@ class DeactivateAbusiveUsersCommandTests(TestCase):
         assert "10" in email.body
         assert "24" in email.body
         assert "https://brasil.io/datasets/" in email.body
+        assert 1 == len(email.alternatives)
+        html_body, mimetype = email.alternatives[0]
+        assert "text/html" == mimetype
+        assert "<html" in html_body
+        assert self.abuser.username in html_body
 
     def test_nao_desativa_abaixo_do_threshold(self):
         _criar_blocos(4, user=self.normal)
