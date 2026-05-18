@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from functools import lru_cache
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -42,7 +43,6 @@ class InvalidFiltersException(Exception):
 
 
 class DatasetDataListView(ListAPIView):
-
     pagination_class = paginators.LargeTablePageNumberPagination
 
     def get_table(self):
@@ -105,20 +105,59 @@ class DatasetDataListView(ListAPIView):
         return super().get(*args, **kwargs)
 
 
-api_description = """
-Esta é a API do Brasil.io. Aqui você poderá acessar os dados disponíveis no
-Brasil.IO de maneira automatizada. Porém, a API não é a maneira mais eficiente
-de acessar nossos dados! Leia mais em:
-https://blog.brasil.io/2020/10/10/como-acessar-os-dados-do-brasil-io/
+@lru_cache
+def build_api_limits() -> dict:
+    return {
+        "deep_pagination_records": getattr(settings, "API_MAX_PAGINATION_RECORDS", 0) or None,
+        "throttling_rate": getattr(settings, "THROTTLING_RATE", "") or None,
+        "max_tokens_per_user": getattr(settings, "MAX_NUM_API_TOKEN_PER_USER", None),
+    }
 
-Gostaríamos enfatizar que utilizar a API desnecessariamente e de maneira não
-otimizada onera muito nossos servidores e atrapalha a experiência de outros
-usuários, então sempre que possível opte por baixar os dados completos.
 
-O Brasil.IO é um projeto colaborativo, desenvolvido por voluntários e mantido
-por financiamento coletivo. Se o projeto é útil para você, considere fazer uma
-doação em: https://apoia.se/brasilio
-""".strip()
+@lru_cache
+def build_api_description() -> str:
+    parts = [
+        "Esta é a API do Brasil.IO. Aqui você poderá acessar os dados disponíveis no",
+        "Brasil.IO de maneira automatizada. Porém, a API NÃO é a maneira mais eficiente",
+        "de acessar nossos dados! Leia mais em:",
+        "https://blog.brasil.io/2020/10/10/como-acessar-os-dados-do-brasil-io/",
+        "",
+        "IMPORTANTE: a API NÃO foi projetada para você percorrer todas as páginas de um",
+        "dataset. Para datasets grandes, baixar o arquivo completo (link na página de",
+        "cada dataset em https://brasil.io/datasets/) é dezenas a centenas de vezes",
+        "mais rápido que paginar via API, além de não onerar nosso serviço. Os scripts",
+        "de coleta são software livre e estão linkados nos metadados de cada dataset.",
+    ]
+
+    limits = build_api_limits()
+    limit_lines = []
+    if limits["deep_pagination_records"]:
+        limit_str = f"{limits['deep_pagination_records']:,}".replace(",", ".")
+        limit_lines.append(
+            f"- Paginação profunda: requisições com (page * page_size) > {limit_str} são rejeitadas com erro 400."
+        )
+    if limits["throttling_rate"]:
+        limit_lines.append(f"- Taxa de requisições por usuário: {limits['throttling_rate']}.")
+    if limits["max_tokens_per_user"]:
+        limit_lines.append(f"- Máximo de tokens por usuário: {limits['max_tokens_per_user']}.")
+    if limit_lines:
+        parts.append("")
+        parts.append("Limites em vigor:")
+        parts.extend(limit_lines)
+
+    parts.extend(
+        [
+            "",
+            "Utilizar a API desnecessariamente e de maneira não otimizada onera muito",
+            "nossos servidores e atrapalha a experiência de outros usuários, então",
+            "sempre que possível opte por baixar os dados completos.",
+            "",
+            "O Brasil.IO é um projeto colaborativo, desenvolvido por voluntários e",
+            "mantido por financiamento coletivo. Se o projeto é útil para você,",
+            "considere fazer uma doação em: https://brasil.io/doe",
+        ]
+    )
+    return "\n".join(parts).strip()
 
 
 class ApiRootView(APIView):
@@ -127,8 +166,9 @@ class ApiRootView(APIView):
         data = {
             "title": f"{settings.EMAIL_SUBJECT_PREFIX}Brasil.IO API",
             "version": self.request.version,
-            "description": api_description,
+            "description": build_api_description(),
             "datasets_url": reverse("v1:dataset-list"),
+            "limits": build_api_limits(),
         }
         return Response(data=data)
 

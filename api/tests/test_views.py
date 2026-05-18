@@ -4,6 +4,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse, reverse_lazy
 from model_bakery import baker
 
+from api.views import build_api_description, build_api_limits
 from core.tests.utils import BaseTestCaseWithSampleDataset
 from traffic_control.tests.util import TrafficControlClient
 
@@ -190,6 +191,8 @@ class ApiRootViewTests(TestCase):
     url = reverse_lazy("v1:api-root")
 
     def setUp(self):
+        build_api_description.cache_clear()
+        build_api_limits.cache_clear()
         self.token = baker.make("api.Token", user__is_active=True)
         auth = f"Token {self.token.key}"
         self.auth_header = {"HTTP_AUTHORIZATION": auth}
@@ -203,3 +206,35 @@ class ApiRootViewTests(TestCase):
         assert "v1" == data["version"]
         assert reverse("v1:dataset-list") == data["datasets_url"]
         assert data["description"]
+
+    def test_payload_inclui_secao_limits(self):
+        response = self.client.get(self.url, **self.auth_header)
+        data = response.json()
+        assert {"deep_pagination_records", "throttling_rate", "max_tokens_per_user"} == set(data["limits"].keys())
+
+    @override_settings(API_MAX_PAGINATION_RECORDS=500_000)
+    def test_limits_refletem_api_max_pagination_records(self):
+        response = self.client.get(self.url, **self.auth_header)
+        data = response.json()
+        assert 500_000 == data["limits"]["deep_pagination_records"]
+        assert "500.000" in data["description"]
+
+    @override_settings(API_MAX_PAGINATION_RECORDS=0)
+    def test_limit_zerado_some_de_limits_e_da_descricao(self):
+        response = self.client.get(self.url, **self.auth_header)
+        data = response.json()
+        assert data["limits"]["deep_pagination_records"] is None
+        assert "Paginação profunda" not in data["description"]
+
+    @override_settings(THROTTLING_RATE="30/m")
+    def test_limits_refletem_throttling_rate(self):
+        response = self.client.get(self.url, **self.auth_header)
+        data = response.json()
+        assert "30/m" == data["limits"]["throttling_rate"]
+        assert "30/m" in data["description"]
+
+    def test_descricao_alerta_sobre_paginacao_como_anti_padrao(self):
+        response = self.client.get(self.url, **self.auth_header)
+        description = response.json()["description"]
+        assert "percorrer todas as páginas" in description.lower()
+        assert "https://brasil.io/datasets/" in description
