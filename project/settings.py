@@ -134,6 +134,8 @@ if THROTTLING_RATE:
 API_DEMO_URL = config("API_DEMO_URL", default="https://gist.github.com/turicas/3e3621d61415e3453cd03a1997f7473f")
 API_KEYS_BLOGPOST_URL = config("API_KEYS_BLOGPOST_URL", default="https://blog.brasil.io/")
 API_MAX_PAGINATION_RECORDS = config("API_MAX_PAGINATION_RECORDS", cast=int, default=1_000_000)
+API_ABUSIVE_USER_THRESHOLD = config("API_ABUSIVE_USER_THRESHOLD", cast=int, default=50)
+API_ABUSIVE_USER_WINDOW_HOURS = config("API_ABUSIVE_USER_WINDOW_HOURS", cast=int, default=24)
 RATELIMIT_ENABLE = config("RATELIMIT_ENABLE", cast=bool, default=False)
 RATELIMIT_RATE = config(
     "RATELIMIT_RATE", default="10/m"

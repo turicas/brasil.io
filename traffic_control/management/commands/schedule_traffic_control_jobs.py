@@ -28,3 +28,4 @@ class Command(BaseCommand):
 
         self.schedule(tasks.persist_blocked_requests_task, 300)
         self.schedule(tasks.update_blocked_ips_task, 3600)
+        self.schedule(tasks.deactivate_abusive_users_task, 3600)
