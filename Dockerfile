@@ -13,7 +13,7 @@ RUN groupadd --gid ${GID:-1000} django \
 # Upgrade and install required system packages
 RUN apt update \
   && apt upgrade -y \
-  && apt install --no-install-recommends -y build-essential gettext gnupg libxml2-dev libxslt1-dev make python3-dev wget \
+  && apt install --no-install-recommends -y build-essential gettext gnupg libxml2-dev libxslt1-dev python3-dev wget \
   && echo "deb http://apt.postgresql.org/pub/repos/apt trixie-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
   && wget --quiet -O /etc/apt/trusted.gpg.d/postgres.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc \
   && apt update \
@@ -32,8 +32,9 @@ ADD srv/nginx.conf.sigil /app/
 COPY --chown=django:django requirements.txt requirements-development.txt /app/
 RUN --mount=type=cache,target=/var/cache/pip pip install --cache-dir /var/cache/pip -Ur /app/requirements.txt
 ARG ENV_TYPE=production
-RUN --mount=type=cache,target=/var/cache/pip if [ "$(echo $ENV_TYPE | tr A-Z a-z)" = "development" ]; then \
+RUN --mount=type=cache,target=/var/cache/pip if [ "$(echo $ENV_TYPE | tr A-Z a-z)" != "production" ]; then \
     pip install --cache-dir /var/cache/pip -Ur /app/requirements-development.txt; \
+    apt update && apt install --no-install-recommends -y git make ripgrep tree && apt clean && rm -rf /var/lib/apt/lists/*; \
   else \
     rm /app/requirements-development.txt; \
   fi
