@@ -98,8 +98,12 @@ DATABASE_CONN_MAX_AGE = config("DATABASE_CONN_MAX_AGE", default=3600, cast=int) 
 DATABASES = {
     "default": dj_database_url.config(conn_max_age=DATABASE_CONN_MAX_AGE),
 }
-# Redis
-REDIS_URL = config("REDIS_URL")
+# Redis: instâncias separadas, com políticas opostas (ver docs/deploy.md).
+# Cache: descartável, `maxmemory` + `allkeys-lru`, sem persistência.
+# Tarefas (RQ): `noeviction` + AOF; nunca pode perder dado.
+# `REDIS_URL` deixou de existir de propósito, para nenhuma das duas ser usada por engano.
+REDIS_CACHE_URL = config("REDIS_CACHE_URL")
+REDIS_TASKS_URL = config("REDIS_TASKS_URL")
 
 
 # Password validation

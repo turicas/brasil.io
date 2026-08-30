@@ -72,8 +72,9 @@ Os serviços configurados no Docker compose são:
 - `db`: executa o banco de dados, sem encaminhamento de porta da máquina host (você pode conectar ao shell do banco
   executando `make dbshell` ou `docker compose exec web python manage.py dbshell`);
 - `mail`: executa o Mailhog (para verificar os emails enviados), acessível em [localhost:8025](http://localhost:8025/);
-- `messaging`: executa o Redis (para cache e fila de tarefas), sem encaminhamento de porta da máquina host (você pode
-  conectar-se a ele executando `docker compose exec messaging redis-cli`);
+- `messaging`: executa o Redis (cache no banco 0, fila de tarefas no banco 1; em produção são duas instâncias, ver
+  `docs/deploy.md`), sem encaminhamento de porta da máquina host (você pode conectar-se a ele executando
+  `docker compose exec messaging redis-cli`);
 - `storage`: executa o MinIO (equivalente ao AWS S3), acessível em [localhost:9000](http://localhost:9000/) (API) e
   [localhost:9001](http://localhost:9001/) (console).
 

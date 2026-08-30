@@ -170,14 +170,14 @@ CACHE_MIDDLEWARE_SECONDS = CACHE_INTERVAL
 CACHES = {
     "default": {
         "BACKEND": config("CACHE_BACKEND"),
-        "LOCATION": REDIS_URL,
+        "LOCATION": REDIS_CACHE_URL,
         "OPTIONS": {"CLIENT_CLASS": config("CACHE_CLIENT_CLASS")},
         "KEY_PREFIX": config("CACHE_KEY_PREFIX"),
     }
 }
 
 # django-rq config
-RQ_QUEUES = {"default": {"URL": REDIS_URL, "DEFAULT_TIMEOUT": 500}}
+RQ_QUEUES = {"default": {"URL": REDIS_TASKS_URL, "DEFAULT_TIMEOUT": 500}}
 RQ = {"DEFAULT_RESULT_TTL": 60 * 60 * 24}
 RQ_BLOCKED_REQUESTS_LIST = config("RQ_BLOCKED_REQUESTS_LIST")
 if not DEBUG:

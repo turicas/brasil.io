@@ -26,7 +26,8 @@ EMAIL_USE_TLS="False"
 EMAIL_TIMEOUT="15"
 ENV_TYPE="development"
 GUNICORN_WORKERS=1
-REDIS_URL="redis://messaging:6379/0"
+REDIS_CACHE_URL="redis://messaging:6379/0"
+REDIS_TASKS_URL="redis://messaging:6379/1"
 SECRET_KEY="12345qwert67890yuiop12345qwert67890yuiop12345qwert67890yuiop12345qwert67890yuiop"
 SENTRY_DSN=""
 
