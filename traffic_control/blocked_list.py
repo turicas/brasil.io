@@ -3,7 +3,7 @@ from collections import deque
 
 from cached_property import cached_property
 from django.conf import settings
-from django_redis import get_redis_connection
+from django_rq import get_connection
 
 
 class BlockedRequestList:
@@ -21,7 +21,7 @@ class BlockedRequestList:
     @cached_property
     def redis_conn(self):
         if settings.RQ_BLOCKED_REQUESTS_LIST:
-            return get_redis_connection("default")
+            return get_connection("default")
 
     def lpush(self, request_data):
         if self.redis_conn:

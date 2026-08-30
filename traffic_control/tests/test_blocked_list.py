@@ -21,7 +21,7 @@ class BlockedRequestListTests(TestCase):
         assert 0 == len(blocked_requests)
 
     @override_settings(RQ_BLOCKED_REQUESTS_LIST="blocked_list")
-    @patch("traffic_control.blocked_list.get_redis_connection")
+    @patch("traffic_control.blocked_list.get_connection")
     def test_redis_enqueing(self, mocked_get_conn):
         blocked_requests.__dict__.pop("redis_conn", None)
         conn = Mock(Redis, autospec=True)
