@@ -133,7 +133,8 @@ export CSRF_TRUSTED_ORIGINS="$(echo https://$APP_DOMAINS | sed 's/,/,https:\/\//
 export DATA_DIR="/data"
 export DEBUG="false"
 export DB_NAME="pg_${APP_NAME}"
-export REDIS_NAME="redis_${APP_NAME}"
+export REDIS_CACHE_NAME="redis_cache_${APP_NAME}"
+export REDIS_TASKS_NAME="redis_tasks_${APP_NAME}"
 export SECRET_KEY=$(openssl rand -base64 64 | tr -d ' \n')
 export STORAGE_PATH="/var/lib/dokku/data/storage/$APP_NAME"
 ```
@@ -160,12 +161,30 @@ scp docker/conf/db/postgresql.prd.conf root@<servidor>:/var/lib/dokku/services/p
 dokku postgres:start $DB_NAME
 dokku postgres:link $DB_NAME $APP_NAME
 
-dokku redis:create $REDIS_NAME -i redis -I 6.2-alpine
-# Reduz a frequência de BGSAVE (a config padrão do Redis dispara a cada 100 chaves alteradas em 5min, o que
-# sobrecarrega o disco com tráfego ativo). Janela máxima de perda passa a ser 1h.
-echo "save 3600 1" >> "/var/lib/dokku/services/redis/${REDIS_NAME}/config/redis.conf"
-dokku redis:restart $REDIS_NAME
-dokku redis:link $REDIS_NAME $APP_NAME
+# Redis em duas instâncias com políticas opostas (a aplicação lê `REDIS_CACHE_URL` e `REDIS_TASKS_URL`;
+# `REDIS_URL` não é usada):
+# - cache (cachalot, cache de página anônima, ratelimit): descartável. Teto de memória com despejo LRU e sem
+#   persistência em disco. Ajuste `maxmemory` à RAM do servidor (atualmente em 8GB).
+# - tarefas (fila RQ, agenda do scheduler, lista de requisições bloqueadas): nunca pode perder dado. Sem
+#   despejo e com AOF (perda máxima de 1s). O volume de escrita é baixo, então o custo de disco é irrisório.
+dokku redis:create $REDIS_CACHE_NAME -i redis -I 6.2-alpine
+cat >> "/var/lib/dokku/services/redis/${REDIS_CACHE_NAME}/config/redis.conf" << 'EOF'
+maxmemory 8gb
+maxmemory-policy allkeys-lru
+save ""
+appendonly no
+EOF
+dokku redis:restart $REDIS_CACHE_NAME
+dokku redis:link $REDIS_CACHE_NAME $APP_NAME --alias REDIS_CACHE
+
+dokku redis:create $REDIS_TASKS_NAME -i redis -I 6.2-alpine
+cat >> "/var/lib/dokku/services/redis/${REDIS_TASKS_NAME}/config/redis.conf" << 'EOF'
+maxmemory 0
+maxmemory-policy noeviction
+appendonly yes
+EOF
+dokku redis:restart $REDIS_TASKS_NAME
+dokku redis:link $REDIS_TASKS_NAME $APP_NAME --alias REDIS_TASKS
 
 dokku config:set --no-restart $APP_NAME ADMINS="$ADMINS"
 dokku config:set --no-restart $APP_NAME ALLOWED_HOSTS="$ALLOWED_HOSTS"
