@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import django_rq
 from cached_property import cached_property
 from django.core.management.base import BaseCommand
@@ -13,9 +15,9 @@ class Command(BaseCommand):
     def scheduler(self):
         return django_rq.get_scheduler("default")
 
-    def schedule(self, func, interval):
+    def schedule(self, func, interval, scheduled_time):
         job = self.scheduler.schedule(
-            scheduled_time=timezone.now(),
+            scheduled_time=scheduled_time,
             func=func,
             interval=interval,
             repeat=None,
@@ -26,6 +28,9 @@ class Command(BaseCommand):
         for job in self.scheduler.get_jobs():
             self.scheduler.cancel(job)
 
-        self.schedule(tasks.persist_blocked_requests_task, 300)
-        self.schedule(tasks.update_blocked_ips_task, 3600)
-        self.schedule(tasks.deactivate_abusive_users_task, 3600)
+        # Adia 5min para dar margem ao restart de worker/scheduler. Sem isso, workers ainda com `tasks` da versão
+        # anterior podem pegar um job recém-criado e quebrar.
+        primeira_execucao = timezone.now() + timedelta(minutes=5)
+        self.schedule(tasks.persist_blocked_requests_task, 300, primeira_execucao)
+        self.schedule(tasks.update_blocked_ips_task, 3600, primeira_execucao)
+        self.schedule(tasks.deactivate_abusive_users_task, 3600, primeira_execucao)
