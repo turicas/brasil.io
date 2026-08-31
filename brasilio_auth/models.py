@@ -30,3 +30,25 @@ class ActivationResend(models.Model):
 
     def __str__(self):
         return f"{self.user.username} ({self.sent_at:%Y-%m-%d %H:%M})"
+
+
+class NormalizedEmail(models.Model):
+    user = models.OneToOneField(
+        get_user_model(),
+        on_delete=models.CASCADE,
+        related_name="normalized_email",
+        verbose_name="Usuário",
+    )
+    value = models.EmailField(
+        unique=True,
+        verbose_name="E-mail normalizado",
+        help_text="Forma canônica do e-mail (sem plus-addressing, sem pontos no Gmail, googlemail unificado).",
+    )
+
+    class Meta:
+        verbose_name = "E-mail normalizado"
+        verbose_name_plural = "E-mails normalizados"
+        ordering = ("value",)
+
+    def __str__(self):
+        return self.value
