@@ -22,7 +22,8 @@ class UsernameOrEmailBackend(ModelBackend):
                 if user.pk not in pks_exatos
             ]
         else:
-            candidatas = User.objects.filter(username__iexact=username)
+            # `username` é único no banco, mas com distinção de maiúsculas: `larraw` e `Larraw` coexistem.
+            candidatas = User.objects.filter(username__iexact=username).order_by("id")
 
         for user in candidatas:
             if user.check_password(password):

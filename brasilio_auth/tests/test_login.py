@@ -68,3 +68,11 @@ class UserLoginViewTests(TestCase):
         assert self.login("dup@example.com", "senha-antiga")
         assert self.login("dup@example.com", "senha-nova")
         assert not self.login("dup@example.com", "senha-errada")
+
+    def test_users_whose_usernames_differ_only_in_case_log_in_by_their_own_password(self):
+        self.create_user(username="larraw", email="a@example.com", password="senha-minuscula")
+        self.create_user(username="Larraw", email="b@example.com", password="senha-maiuscula")
+        assert self.login("larraw", "senha-minuscula")
+        assert self.login("larraw", "senha-maiuscula")
+        assert self.login("LARRAW", "senha-maiuscula")
+        assert not self.login("larraw", "senha-errada")
