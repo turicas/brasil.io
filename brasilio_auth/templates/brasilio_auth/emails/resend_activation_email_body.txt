@@ -1,0 +1,14 @@
+Olá, {{ user.username }}!
+
+Você se cadastrou no Brasil.IO em {{ user.date_joined|date:"d/m/Y" }}, mas por uma falha
+nossa o e-mail de ativação não chegou a tempo e o link expirou. Pedimos desculpas.
+
+Aqui está um novo link para ativar sua conta:
+
+{{ scheme }}://{{ site }}{% url "brasilio_auth:activate_user" activation_key %}
+
+Esse link estará válido pelos próximos {{ expiration_days }} dias. Se você não se
+cadastrou ou não quer mais a conta, basta ignorar esta mensagem.
+
+Atenciosamente,
+  Equipe Brasil.IO

@@ -1,0 +1,1 @@
+{{ EMAIL_SUBJECT_PREFIX }}[Brasil.IO] Novo link para ativar sua conta

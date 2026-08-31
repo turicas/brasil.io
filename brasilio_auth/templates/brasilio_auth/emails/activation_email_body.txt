@@ -8,4 +8,5 @@ Para finalizar a criação da sua conta, clique no link abaixo para ativá-la:
 
 Esse link estará válido pelos próximos {{ expiration_days }} dias.
 
-Abraços,
+Atenciosamente,
+  Equipe Brasil.IO
