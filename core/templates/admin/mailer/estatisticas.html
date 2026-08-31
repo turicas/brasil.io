@@ -1,0 +1,94 @@
+{% extends "admin/base_site.html" %}
+{% load utils %}
+
+{% block title %}Estatísticas de envio de e-mail | {{ site_title }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Início</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label='mailer' %}">Mailer</a>
+  &rsaquo; <a href="{% url 'admin:mailer_messagelog_changelist' %}">Message logs</a>
+  &rsaquo; Estatísticas de envio
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Estatísticas de envio de e-mail</h1>
+
+<form method="get" style="margin-bottom: 1em;">
+  Período:
+  {% for opcao in opcoes_dias %}
+    <a href="?dias={{ opcao }}" {% if opcao == dias %}style="font-weight: bold;"{% endif %}>{{ opcao }} dias</a>{% if not forloop.last %} | {% endif %}
+  {% endfor %}
+  <span style="color: #666;">({{ inicio|date:"d/m/Y H:i" }} a {{ fim|date:"d/m/Y H:i" }}, fuso {{ fuso }})</span>
+</form>
+
+<div class="module">
+  <h2>Agora</h2>
+  <table>
+    <tr><th>Mensagens na fila (prontas para envio)</th><td>{{ situacao.na_fila }}</td></tr>
+    <tr><th>Mensagens deferred (falharam, aguardam retry)</th><td>{{ situacao.deferred }}</td></tr>
+    <tr><th>Idade da mais antiga na fila</th><td>{% if situacao.idade_mais_antiga is None %}-{% else %}{{ situacao.idade_mais_antiga|duracao }}{% endif %}</td></tr>
+  </table>
+</div>
+
+<div class="module">
+  <h2>Latência dos envios com sucesso (fila -> enviado)</h2>
+  <p>p50 = metade dos envios saiu em até esse tempo; p90 e p99 = 90% e 99% dos envios. Link de ativação expira em {{ dias_expiracao }} dias.</p>
+  <table>
+    <thead><tr><th>Dia</th><th>Envios</th><th>p50</th><th>p90</th><th>p99</th><th>Máximo</th><th>Após expiração</th></tr></thead>
+    <tbody>
+      {% for linha in latencia_dias %}
+      <tr>
+        <td>{{ linha.dia|date:"d/m/Y" }}</td><td>{{ linha.envios }}</td>
+        <td>{{ linha.p50|duracao }}</td><td>{{ linha.p90|duracao }}</td><td>{{ linha.p99|duracao }}</td>
+        <td>{{ linha.maximo|duracao }}</td><td>{{ linha.expirados }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7">Nenhum envio no período.</td></tr>
+      {% endfor %}
+    </tbody>
+    {% if latencia.envios %}
+    <tfoot>
+      <tr style="font-weight: bold;">
+        <td>Período</td><td>{{ latencia.envios }}</td>
+        <td>{{ latencia.p50|duracao }}</td><td>{{ latencia.p90|duracao }}</td><td>{{ latencia.p99|duracao }}</td>
+        <td>{{ latencia.maximo|duracao }}</td><td>{{ latencia.expirados }}</td>
+      </tr>
+    </tfoot>
+    {% endif %}
+  </table>
+</div>
+
+<div class="module">
+  <h2>Tentativas por dia</h2>
+  <table>
+    <thead><tr><th>Dia</th><th>Sucessos</th><th>Falhas</th><th>Taxa de falha</th></tr></thead>
+    <tbody>
+      {% for linha in tentativas_dias %}
+      <tr>
+        <td>{{ linha.dia|date:"d/m/Y" }}</td><td>{{ linha.sucessos }}</td><td>{{ linha.falhas }}</td>
+        <td>{% widthratio linha.taxa_falha 1 100 %}%</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4">Nenhuma tentativa no período.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="module">
+  <h2>Erros no período</h2>
+  <table>
+    <thead><tr><th>Erro</th><th>Ocorrências</th></tr></thead>
+    <tbody>
+      {% for erro in erros %}
+      <tr><td>{{ erro.mensagem }}</td><td>{{ erro.ocorrencias }}</td></tr>
+      {% empty %}
+      <tr><td colspan="2">Nenhuma falha no período.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

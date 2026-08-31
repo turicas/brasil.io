@@ -1,12 +1,18 @@
+import datetime
+
+from django.conf import settings
 from django.contrib import admin, messages
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.templatetags.static import static
 from django.urls import path, reverse
+from django.utils import timezone
 from django.utils.html import format_html
+from mailer.admin import MessageLogAdmin as MailerMessageLogAdmin
+from mailer.models import MessageLog
 from markdownx.admin import MarkdownxModelAdmin
 
-from core import models
+from core import estatisticas_emails, models
 
 
 class DatasetAdmin(admin.ModelAdmin):
@@ -191,3 +197,45 @@ class TableFileAdmin(admin.ModelAdmin):
 
 
 admin.site.register(models.TableFile, TableFileAdmin)
+
+
+class MessageLogAdmin(MailerMessageLogAdmin):
+    change_list_template = "admin/mailer/messagelog/change_list.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path("estatisticas/", self.admin_site.admin_view(self.estatisticas_view), name="mailer-estatisticas"),
+        ]
+        return my_urls + urls
+
+    def estatisticas_view(self, request):
+        opcoes_dias = (7, 30, 90)
+        try:
+            dias = int(request.GET.get("dias", 30))
+        except ValueError:
+            dias = 30
+        if dias not in opcoes_dias:
+            dias = 30
+        fim = timezone.now()
+        inicio = fim - datetime.timedelta(days=dias)
+        context = {
+            **self.admin_site.each_context(request),
+            "title": "Estatísticas de envio de e-mail",
+            "opcoes_dias": opcoes_dias,
+            "dias": dias,
+            "inicio": inicio,
+            "fim": fim,
+            "fuso": settings.TIME_ZONE,
+            "dias_expiracao": settings.ACCOUNT_ACTIVATION_DAYS,
+            "situacao": estatisticas_emails.situacao_atual(agora=fim),
+            "latencia_dias": estatisticas_emails.latencia_por_dia(inicio, fim),
+            "latencia": estatisticas_emails.latencia_total(inicio, fim),
+            "tentativas_dias": estatisticas_emails.tentativas_por_dia(inicio, fim),
+            "erros": estatisticas_emails.erros_no_periodo(inicio, fim),
+        }
+        return render(request, "admin/mailer/estatisticas.html", context)
+
+
+admin.site.unregister(MessageLog)
+admin.site.register(MessageLog, MessageLogAdmin)

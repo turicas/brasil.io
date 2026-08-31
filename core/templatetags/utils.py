@@ -46,3 +46,18 @@ def encrypt_if_needed(document):
         # If needs obfuscation (frontend), then needs encryption (URL)
         document = cipher_suite.encrypt(document.encode("ascii")).decode("ascii")
     return document
+
+
+@register.filter(name="duracao")
+def duracao(valor):
+    """Formata `timedelta` (ou segundos) de forma legível: 12s, 3.5min, 2.1h, 4.0d."""
+    if valor is None:
+        return "-"
+    segundos = valor.total_seconds() if hasattr(valor, "total_seconds") else float(valor)
+    if segundos < 60:
+        return f"{segundos:.0f}s"
+    elif segundos < 3600:
+        return f"{segundos / 60:.1f}min"
+    elif segundos < 86400:
+        return f"{segundos / 3600:.1f}h"
+    return f"{segundos / 86400:.1f}d"
