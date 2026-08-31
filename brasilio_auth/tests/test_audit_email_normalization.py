@@ -5,6 +5,8 @@ from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from model_bakery import baker
 
+from brasilio_auth.tests.utils import criar_conta_legada
+
 User = get_user_model()
 
 
@@ -32,14 +34,14 @@ class TestAuditEmailNormalization:
 
     def test_marca_duplicatas_quando_dois_usuarios_normalizam_pro_mesmo_valor(self):
         baker.make(User, username="alice1", email="foo@gmail.com", is_active=True)
-        baker.make(User, username="alice2", email="f.o.o@gmail.com", is_active=True)
+        criar_conta_legada(username="alice2", email="f.o.o@gmail.com", is_active=True)
         saida = _executar()
         assert saida.count("DUPLICATE") == 2
 
     def test_only_duplicates_filtra_casos_unicos(self):
         baker.make(User, username="solitario", email="alice@example.com", is_active=True)
         baker.make(User, username="bob1", email="bob@gmail.com", is_active=True)
-        baker.make(User, username="bob2", email="b.o.b@gmail.com", is_active=True)
+        criar_conta_legada(username="bob2", email="b.o.b@gmail.com", is_active=True)
         saida = _executar("--only-duplicates")
         assert "solitario" not in saida
         assert "bob1" in saida
@@ -62,7 +64,7 @@ class TestAuditEmailNormalization:
     def test_contadores_finais_estao_corretos(self):
         baker.make(User, username="muda", email="muda+tag@gmail.com", is_active=True)
         baker.make(User, username="dup1", email="dup@gmail.com", is_active=True)
-        baker.make(User, username="dup2", email="d.u.p@gmail.com", is_active=True)
+        criar_conta_legada(username="dup2", email="d.u.p@gmail.com", is_active=True)
         baker.make(User, username="igual", email="igual@example.com", is_active=True)
         saida = _executar()
         assert "Total de e-mails que mudariam sob normalização: 2" in saida

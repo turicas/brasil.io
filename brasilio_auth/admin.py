@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.http import StreamingHttpResponse
 from django.urls import path
 
+from brasilio_auth.forms import AdminUserChangeForm, AdminUserCreationForm
 from brasilio_auth.models import NewsletterSubscriber, NormalizedEmail
 from brasilio_auth.services import subscribers_as_csv_rows
 from project.utils.admin import ExportCsvMixin
@@ -59,6 +60,8 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
+    form = AdminUserChangeForm
+    add_form = AdminUserCreationForm
     list_filter = ("groups", "is_staff", "is_superuser", "is_active")
 
 

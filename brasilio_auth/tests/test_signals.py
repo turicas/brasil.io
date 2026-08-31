@@ -5,6 +5,7 @@ from django.test.utils import CaptureQueriesContext
 from model_bakery import baker
 
 from brasilio_auth.models import NormalizedEmail
+from brasilio_auth.tests.utils import criar_conta_legada
 
 User = get_user_model()
 
@@ -20,7 +21,9 @@ class SyncNormalizedEmailSignalTests(TestCase):
 
     def test_sinal_pula_quando_outro_usuario_jah_tem_o_valor_normalizado(self):
         primeiro = baker.make(User, email="foo@gmail.com")
-        segundo = baker.make(User, email="f.o.o@gmail.com")
+        segundo = criar_conta_legada(email="f.o.o@gmail.com")
+        segundo.first_name = "x"
+        segundo.save()  # save completo de conta legada em colisão precisa continuar funcionando
         assert NormalizedEmail.objects.filter(user=primeiro).exists()
         assert not NormalizedEmail.objects.filter(user=segundo).exists()
         assert 1 == NormalizedEmail.objects.filter(value="foo@gmail.com").count()

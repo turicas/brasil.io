@@ -42,9 +42,6 @@ def migrate_duplicate_emails(filepath=None):
             first_joined_user = duplicate_users[0]
             last_joined_users = duplicate_users[1:]
 
-            first_joined_user.email = email_lower_trim
-            first_joined_user.save()
-
             writer.writerows(
                 [
                     {
@@ -52,7 +49,7 @@ def migrate_duplicate_emails(filepath=None):
                         "first_joined_userid": first_joined_user.id,
                         "later_joined_username": lj.username,
                         "later_joined_userid": lj.id,
-                        "email": first_joined_user.email,
+                        "email": email_lower_trim,
                     }
                     for lj in last_joined_users
                 ]
@@ -65,6 +62,10 @@ def migrate_duplicate_emails(filepath=None):
 
             # duplicate users are deleted
             User.objects.filter(id__in=last_joined_users.values_list("id", flat=True)).delete()
+
+            # só depois de apagar as duplicatas, senão a checagem de unicidade de e-mail barra o save
+            first_joined_user.email = email_lower_trim
+            first_joined_user.save()
 
 
 def run():
