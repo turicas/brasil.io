@@ -50,6 +50,38 @@ class UserCreationFormTests(TestCase):
         assert not NewsletterSubscriber.objects.filter(user=user).exists()
 
     @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
+    def test_clean_email_rejects_alias_of_existing_email(self):
+        baker.make(settings.AUTH_USER_MODEL, username="existing", email="user@gmail.com")
+        data = {
+            "username": "newbie",
+            "email": "u.s.e.r+tag@gmail.com",
+            "password1": "verygoodpassword",
+            "password2": "verygoodpassword",
+            "captcha": "captcha-validation",
+        }
+
+        form = UserCreationForm(data)
+        assert form.is_valid() is False
+        assert "email" in form.errors
+
+    @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
+    def test_clean_email_keeps_dots_and_plus_tag_in_user_email(self):
+        data = {
+            "username": "preserva",
+            "email": "Foo.Bar+work@gmail.com",
+            "password1": "verygoodpassword",
+            "password2": "verygoodpassword",
+            "captcha": "captcha-validation",
+        }
+
+        form = UserCreationForm(data)
+        assert form.is_valid() is True
+        user = form.save()
+
+        assert "foo.bar+work@gmail.com" == user.email
+        assert "foobar@gmail.com" == user.normalized_email.value
+
+    @patch.object(ReCaptchaField, "validate", Mock(return_value=True))
     def test_respect_abstract_user_max_length_for_username(self):
         passwd = "verygoodpassword"
         data = {

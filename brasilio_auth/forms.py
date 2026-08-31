@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from django_registration.forms import RegistrationFormUniqueEmail
 
+from brasilio_auth.models import NormalizedEmail
 from brasilio_auth.validators import (
     normalize_email_address,
     validate_email_not_disposable,
@@ -54,7 +55,7 @@ class UserCreationForm(RegistrationFormUniqueEmail):
         normalizado = normalize_email_address(email)
         validate_email_not_disposable(normalizado)
         validate_email_not_phone_gmail_farm(normalizado)
-        if email and User.objects.filter(email__iexact=email).exists():
+        if normalizado and NormalizedEmail.objects.filter(value=normalizado).exists():
             raise forms.ValidationError(f"Usuário com o email {email} já cadastrado.")
         return email
 
