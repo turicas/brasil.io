@@ -1,3 +1,5 @@
+import re
+
 from disposable_email_domains import blocklist
 from django import forms
 
@@ -38,4 +40,17 @@ def is_disposable_email_domain(email: str) -> bool:
 
 def validate_email_not_disposable(email: str) -> None:
     if is_disposable_email_domain(email):
+        raise forms.ValidationError("Endereço de e-mail inválido.")
+
+
+# "a" + celular taiwanês (09 + 8 dígitos). Assinatura de fazendas de contas Gmail "aged" revendidas, criadas em massa
+# via SMS virtual taiwanês: 5 cadastros nesse formato em 2026-05-14, com ativação por e-mail (a fazenda tem acesso à
+# inbox).
+PHONE_GMAIL_FARM_PATTERNS = [
+    re.compile(r"^a09\d{8}@gmail\.com$", re.IGNORECASE),
+]
+
+
+def validate_email_not_phone_gmail_farm(email: str) -> None:
+    if any(padrao.match(email) for padrao in PHONE_GMAIL_FARM_PATTERNS):
         raise forms.ValidationError("Endereço de e-mail inválido.")
