@@ -21,7 +21,7 @@ class PersistBlockedRequestsCommand:
         self = cls()
         requests, counter = [], 0
 
-        progress = tqdm("Reading requests...")
+        progress = tqdm(desc="Reading requests...")
         while len(blocked_requests):
             requests.append(blocked_requests.lpop())
             if len(requests) == batch_size:
