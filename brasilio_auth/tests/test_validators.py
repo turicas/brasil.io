@@ -1,4 +1,7 @@
-from brasilio_auth.validators import normalize_email_address
+import pytest
+from django import forms
+
+from brasilio_auth.validators import is_disposable_email_domain, normalize_email_address, validate_email_not_disposable
 
 
 class TestNormalizeEmailAddress:
@@ -25,3 +28,18 @@ class TestNormalizeEmailAddress:
 
     def test_endereco_vazio_retorna_string_vazia(self):
         assert "" == normalize_email_address("")
+
+
+class TestDisposableEmailDomain:
+    def test_is_disposable_pega_dominio_de_topo(self):
+        assert is_disposable_email_domain("foo@mailinator.com") is True
+        with pytest.raises(forms.ValidationError) as exc_info:
+            validate_email_not_disposable("foo@mailinator.com")
+        assert ["Endereço de e-mail inválido."] == exc_info.value.messages
+
+    def test_is_disposable_pega_subdominio(self):
+        assert is_disposable_email_domain("foo@sub.mailinator.com") is True
+
+    def test_is_disposable_nao_pega_dominio_legitimo(self):
+        assert is_disposable_email_domain("foo@gmail.com") is False
+        assert validate_email_not_disposable("foo@gmail.com") is None

@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from django_registration.forms import RegistrationFormUniqueEmail
 
+from brasilio_auth.validators import normalize_email_address, validate_email_not_disposable
 from utils.forms import FlagedReCaptchaField as ReCaptchaField
 
 USERNAME_REGEXP = re.compile(r"[^A-Za-z0-9_]")
@@ -46,6 +47,7 @@ class UserCreationForm(RegistrationFormUniqueEmail):
 
     def clean_email(self):
         email = self.cleaned_data.get("email", "").strip().lower()
+        validate_email_not_disposable(normalize_email_address(email))
         if email and User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError(f"Usuário com o email {email} já cadastrado.")
         return email
