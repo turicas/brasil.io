@@ -8,7 +8,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "-h",
+            "-H",
             "--hours-ago",
             type=int,
             default=None,
