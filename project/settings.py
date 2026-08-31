@@ -65,6 +65,7 @@ INSTALLED_APPS = [
 ]
 MIDDLEWARE = [
     "project.middlewares.host_based_url_conf",
+    "traffic_control.middlewares.CatchStatementTimeoutMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "traffic_control.middlewares.block_suspicious_requests",
     "whitenoise.middleware.WhiteNoiseMiddleware",

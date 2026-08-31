@@ -1,11 +1,16 @@
-from unittest.mock import Mock
+import json
+from unittest.mock import Mock, patch
 
 import pytest
 from django.conf import settings
-from django.test import RequestFactory, TestCase, override_settings
+from django.contrib.auth import get_user_model
+from django.db.utils import OperationalError
+from django.test import Client, RequestFactory, TestCase, override_settings
 from django_ratelimit.exceptions import Ratelimited
+from model_bakery import baker
+from psycopg2.errors import QueryCanceled
 
-from traffic_control.middlewares import BLOCKED_REQUEST_ATTR, block_suspicious_requests
+from traffic_control.middlewares import BLOCKED_REQUEST_ATTR, CatchStatementTimeoutMiddleware, block_suspicious_requests
 
 
 class BlockSuspiciousRequestsMiddlewareTests(TestCase):
@@ -57,3 +62,86 @@ class BlockSuspiciousRequestsMiddlewareTests(TestCase):
 
         assert not get_response.called
         assert getattr(request, BLOCKED_REQUEST_ATTR, False)
+
+
+@pytest.fixture
+def request_factory():
+    return RequestFactory()
+
+
+TIMEOUT_MESSAGE = "canceling statement due to statement timeout\n"
+
+
+def _process_exception(request, exc):
+    return CatchStatementTimeoutMiddleware(get_response=None).process_exception(request, exc)
+
+
+def test_query_canceled_em_view_de_api_retorna_503(request_factory):
+    request = request_factory.get("/api/v1/dataset/foo/bar/data/")
+    with patch("traffic_control.middlewares.report_error"):
+        response = _process_exception(request, QueryCanceled(TIMEOUT_MESSAGE))
+    assert 503 == response.status_code
+    assert "sobrecarregado" in json.loads(response.content)["message"].lower()
+
+
+def test_operational_error_com_statement_timeout_retorna_503(request_factory):
+    request = request_factory.get("/api/v1/dataset/foo/bar/data/")
+    with patch("traffic_control.middlewares.report_error"):
+        response = _process_exception(request, OperationalError(TIMEOUT_MESSAGE))
+    assert 503 == response.status_code
+
+
+def test_operational_error_sem_mensagem_de_timeout_nao_trata(request_factory):
+    request = request_factory.get("/api/v1/dataset/foo/bar/data/")
+    with patch("traffic_control.middlewares.report_error") as captura:
+        response = _process_exception(request, OperationalError("connection closed"))
+    assert response is None
+    assert not captura.called
+
+
+def test_excecao_de_outro_tipo_nao_trata(request_factory):
+    request = request_factory.get("/api/v1/dataset/foo/bar/data/")
+    with patch("traffic_control.middlewares.report_error") as captura:
+        response = _process_exception(request, ValueError(TIMEOUT_MESSAGE))
+    assert response is None
+    assert not captura.called
+
+
+def test_query_canceled_fora_da_api_reporta_e_deixa_virar_500(request_factory):
+    request = request_factory.get("/datasets/")
+    with patch("traffic_control.middlewares.report_error") as captura:
+        response = _process_exception(request, QueryCanceled(TIMEOUT_MESSAGE))
+    assert response is None
+    assert captura.called
+
+
+def test_query_canceled_reporta_com_exception_e_tag_kind(request_factory):
+    request = request_factory.get("/api/v1/dataset/foo/bar/data/")
+    exc = QueryCanceled(TIMEOUT_MESSAGE)
+    with patch("traffic_control.middlewares.report_error") as captura:
+        _process_exception(request, exc)
+    captura.assert_called_once()
+    kwargs = captura.call_args.kwargs
+    assert exc is kwargs["exception"]
+    assert {"kind": "statement_timeout"} == kwargs["tags"]
+    assert "error" == kwargs["level"]
+
+
+@pytest.mark.django_db
+def test_statement_timeout_em_view_real_da_api_retorna_503(settings):
+    """Passa pelo pipeline completo de middlewares: garante que a exceção da view chega ao middleware."""
+    settings.DEBUG = False
+    token = baker.make("api.Token", user=baker.make(get_user_model(), is_active=True))
+    client = Client(raise_request_exception=False)
+    with patch("api.views.ApiRootView.get", side_effect=OperationalError(TIMEOUT_MESSAGE)), patch(
+        "traffic_control.middlewares.report_error"
+    ) as captura, patch("django.utils.log.AdminEmailHandler.emit"):
+        response = client.get(
+            "/v1/",
+            HTTP_USER_AGENT="cliente-legitimo",
+            HTTP_HOST=settings.BRASILIO_API_HOST,
+            HTTP_AUTHORIZATION=f"Token {token.key}",
+        )
+    assert 503 == response.status_code
+    assert "sobrecarregado" in json.loads(response.content)["message"].lower()
+    captura.assert_called_once()
