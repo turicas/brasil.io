@@ -1,10 +1,17 @@
 import re
 
 from django import forms
+from django.contrib.auth import forms as auth_forms
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from django_registration.forms import RegistrationFormUniqueEmail
 
+from brasilio_auth.unicidade import email_em_colisao, username_em_colisao
+from brasilio_auth.validators import (
+    normalize_email_address,
+    validate_email_not_disposable,
+    validate_email_not_phone_gmail_farm,
+)
 from utils.forms import FlagedReCaptchaField as ReCaptchaField
 
 USERNAME_REGEXP = re.compile(r"[^A-Za-z0-9_]")
@@ -40,15 +47,42 @@ class UserCreationForm(RegistrationFormUniqueEmail):
             raise forms.ValidationError(
                 "Nome de usuário pode conter apenas letras, números e '_' e não deve ser um documento"
             )
-        elif username and User.objects.filter(username__iexact=username).exists():
+        elif username_em_colisao(username):
             raise forms.ValidationError("Nome de usuário já existente (escolha um diferente).")
         return username
 
     def clean_email(self):
         email = self.cleaned_data.get("email", "").strip().lower()
-        if email and User.objects.filter(email__iexact=email).exists():
+        normalizado = normalize_email_address(email)
+        validate_email_not_disposable(normalizado)
+        validate_email_not_phone_gmail_farm(normalizado)
+        if email_em_colisao(email):
             raise forms.ValidationError(f"Usuário com o email {email} já cadastrado.")
         return email
+
+
+class UnicidadeAdminMixin:
+    """Repete no Django Admin as checagens de username/e-mail do cadastro (o admin padrão só confere igualdade exata)."""
+
+    def clean_username(self):
+        username = self.cleaned_data["username"]
+        if username_em_colisao(username, excluir_id=self.instance.pk):
+            raise forms.ValidationError("Nome de usuário já existente (escolha um diferente).")
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email", "")
+        if email_em_colisao(email, excluir_id=self.instance.pk):
+            raise forms.ValidationError(f"Usuário com o email {email} já cadastrado.")
+        return email
+
+
+class AdminUserCreationForm(UnicidadeAdminMixin, auth_forms.UserCreationForm):
+    pass
+
+
+class AdminUserChangeForm(UnicidadeAdminMixin, auth_forms.UserChangeForm):
+    pass
 
 
 class TokenApiManagementForm(forms.Form):

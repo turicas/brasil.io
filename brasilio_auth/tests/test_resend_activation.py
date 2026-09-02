@@ -15,7 +15,7 @@ HOST = "brasil.io"
 
 
 def _usuario(dias_apos_inicio=10, **kwargs):
-    campos = {"is_active": False, "email": "pessoa@example.com"}
+    campos = {"is_active": False, "email": f"{kwargs.get('username', 'pessoa')}@example.com"}
     campos.update(kwargs)
     user = baker.make(get_user_model(), **campos)
     get_user_model().objects.filter(pk=user.pk).update(date_joined=INICIO + datetime.timedelta(days=dias_apos_inicio))

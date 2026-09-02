@@ -11,6 +11,7 @@ from api.models import Token
 from brasilio_auth.models import NewsletterSubscriber
 from brasilio_auth.scripts.migrate_duplicate_emails import migrate_duplicate_emails
 from brasilio_auth.scripts.migrate_wrong_usernames import migrate_usernames, possible_usernames
+from brasilio_auth.tests.utils import criar_conta_legada
 from covid19.models import StateSpreadsheet
 
 User = get_user_model()
@@ -137,8 +138,7 @@ class TestMigrateDuplicateCaseInsentiveEmails(TestCase):
             email=self.user_email,
             date_joined=datetime.datetime(2020, 1, 1, 0, 0, 0, tzinfo=TIMEZONE),
         )
-        self.same_user = baker.make(
-            User,
+        self.same_user = criar_conta_legada(
             username="username_2",
             email=self.user_email.lower().strip(),
             date_joined=datetime.datetime(2020, 1, 2, 0, 0, tzinfo=TIMEZONE),
@@ -182,8 +182,7 @@ class TestMigrateDuplicateCaseInsentiveEmails(TestCase):
 
     def test_export_csv_with_migrated_data(self):
         new_username = "username_3"
-        another_duplicate_user = baker.make(
-            User,
+        another_duplicate_user = criar_conta_legada(
             username=new_username,
             email=self.user_email.upper(),
             date_joined=datetime.datetime(2020, 1, 3, 0, 0, 0, tzinfo=TIMEZONE),

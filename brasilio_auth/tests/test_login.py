@@ -1,6 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
+from brasilio_auth.models import NormalizedEmail
+from brasilio_auth.tests.utils import criar_conta_legada
+
 User = get_user_model()
 
 
@@ -15,10 +18,13 @@ class UserLoginViewTests(TestCase):
             email=self.email,
         )
 
-    def create_user(self, username, password, email):
-        user = User.objects.create(username=username, email=email, is_active=True)
+    def create_user(self, username, password, email, legada=False):
+        if legada:
+            user = criar_conta_legada(username=username, email=email, is_active=True)
+        else:
+            user = User.objects.create(username=username, email=email, is_active=True)
         user.set_password(password)
-        user.save()
+        user.save(update_fields=["password"])
         return user
 
     def login(self, username, password):
@@ -38,3 +44,41 @@ class UserLoginViewTests(TestCase):
         self.create_user(username=username, email=email, password=password)
         assert not self.login(username, password)
         assert self.login(email, password)
+
+    def test_can_log_in_with_gmail_alias(self):
+        self.create_user(username="gmailuser", email="user@gmail.com", password=self.password)
+        assert self.login("u.s.e.r+tag@gmail.com", self.password)
+
+    def test_can_log_in_with_googlemail_domain(self):
+        self.create_user(username="gmuser", email="someone@gmail.com", password=self.password)
+        assert self.login("someone@googlemail.com", self.password)
+
+    def test_falls_back_to_raw_email_without_normalized_email(self):
+        user = self.create_user(username="skipped", email="skip@example.com", password=self.password)
+        NormalizedEmail.objects.filter(user=user).delete()
+        assert self.login("skip@example.com", self.password)
+
+    def test_user_in_normalized_email_collision_logs_in_with_own_email(self):
+        self.create_user(username="primeiro", email="user@gmail.com", password="senha-do-primeiro")
+        segundo = self.create_user(
+            username="segundo", email="u.ser@gmail.com", password="senha-do-segundo", legada=True
+        )
+        assert not NormalizedEmail.objects.filter(user=segundo).exists()
+        assert self.login("u.ser@gmail.com", "senha-do-segundo")
+        assert self.login("u.ser@gmail.com", "senha-do-primeiro")  # alias do primeiro continua valendo
+        assert not self.login("u.ser@gmail.com", "senha-errada")
+
+    def test_users_with_identical_email_log_in_by_their_own_password(self):
+        self.create_user(username="antiga", email="dup@example.com", password="senha-antiga")
+        self.create_user(username="nova", email="dup@example.com", password="senha-nova", legada=True)
+        assert self.login("dup@example.com", "senha-antiga")
+        assert self.login("dup@example.com", "senha-nova")
+        assert not self.login("dup@example.com", "senha-errada")
+
+    def test_users_whose_usernames_differ_only_in_case_log_in_by_their_own_password(self):
+        self.create_user(username="larraw", email="a@example.com", password="senha-minuscula")
+        self.create_user(username="Larraw", email="b@example.com", password="senha-maiuscula", legada=True)
+        assert self.login("larraw", "senha-minuscula")
+        assert self.login("larraw", "senha-maiuscula")
+        assert self.login("LARRAW", "senha-maiuscula")
+        assert not self.login("larraw", "senha-errada")
