@@ -71,4 +71,36 @@ A configuração local fica em `docker/env/<servico>.local`, é ignorada pelo Gi
 - Commits são atômicos, em PT-BR e no presente do indicativo: `Adiciona`, `Corrige`, `Remove`. Revise os arquivos incluídos antes de cada commit.
 - Atualize `README.md`, `AGENTS.md` ou a documentação em `docs/` quando mudar comandos, ambiente de desenvolvimento, comportamento público ou importação de dados. Consulte `docs/dev-setup.md` antes de alterar o fluxo de desenvolvimento.
 
+## _Code Review_ e Rebase de _Branches_
+
+### _Review_ (sem alterar código)
+
+- Rode `git diff <base>...HEAD --stat` e leia o _diff_ inteiro antes de opinar, incluindo migrations e testes; nunca
+  avalie por `git log` ou nomes de _commits_. Ignore arquivos não trackeados do _working tree_.
+- Antes de apontar _bugs_ de comportamento, rode a suíte da _app_ tocada (`python -m pytest <app> -q`). Só rode a
+  suíte completa quando o _review_ estiver quase fechando - ela é o passo final, não o primeiro.
+- Em migrações de dados, adicione a justificativa das decisões negociais tomadas junto ao código, de forma que fique
+  fácil reconhecer historicamente o que motivou a migração.
+- Ao apontar um problema, antes classifique: _bug_, comportamento intencional não documentado ou decisão pendente.
+  Verifique os caminhos de escrita reais (forms, admin, shell, `queryset.update()`) antes de dizer que algo é
+  alcançável - `queryset.update()`/`bulk_update`/SQL cru não disparam _signals_.
+- Se um problema exige decisão de produto, apresente recomendação com _trade-offs_ e aguarde aprovação; não
+  implemente por conta própria.
+- _Review_-only significa _review_-only: nada de `checkout`, _commit_ ou edição de arquivo sem pedido explícito.
+  Rodar testes é permitido (é leitura).
+
+### _Fixup_ e rebase
+
+- Correções em _commits_ de um _branch_ em revisão entram como `git commit --fixup=<sha>`; o usuário manda fazer o
+  rebase. Nunca rebase sem pedido.
+- Antes de rebase com _working tree_ sujo: `git stash push -m <mensagem>` dos arquivos alterados e `git stash pop` ao
+  final. Nunca descarte nem inclua essas mudanças em _commits_.
+- Para saber o que já está na base de destino, use `git cherry <base> <branch>` (_patch-id_). Atenção: _patch-id_
+  mente quando o _commit_ contém lixo binário junto do código - confira com `git diff` se o resultado parecer
+  estranho.
+- Se um _cherry-pick_ ficar vazio, o conteúdo já está na base de destino: verifique com
+  `git diff <base> <commit> -- <arquivos>` e descarte o _commit_ inteiro se for o caso.
+- Antes de reescrever um _branch_, crie _branch_ de _backup_ apontando para a dica atual
+  (`git branch <nome>-backup <branch>`). Nunca delete _branches_ do usuário.
+
 Se encontrar uma suposição incorreta neste arquivo, proponha sua correção antes de concluir a tarefa.
