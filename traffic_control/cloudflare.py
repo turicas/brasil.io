@@ -1,4 +1,7 @@
+import datetime
 import json
+import os
+from dataclasses import dataclass
 from urllib.parse import urljoin
 
 import requests
@@ -36,8 +39,12 @@ class Cloudflare:
             raise ValueError(f"Error on respose: {data}")
         return data
 
-    def paginate(self, path, query_string=None, data=None, headers=None, method="get", result_class=dict):
+    def paginate(self, path, query_string=None, data=None, headers=None, method="get", row_class=dict, defaults=None):
         query_string = query_string or {}
+        defaults = defaults or {}
+        if issubclass(row_class, CloudflareResource):
+            defaults["_api"] = self
+
         finished, page, cursor = False, 1, None
         while not finished:
             if page is not None:
@@ -49,7 +56,8 @@ class Cloudflare:
 
             response = self.request(path, query_string=query_string, data=data, headers=headers, method=method)
             for result in response["result"]:
-                yield result_class(result)
+                result.update(defaults)
+                yield row_class(**result)
 
             pagination_info = response.get("result_info", None)
             if pagination_info is None:  # No pagination
@@ -68,30 +76,78 @@ class Cloudflare:
                 raise RuntimeError("Received unrecognized pagination information")
 
     def accounts(self):
-        yield from self.paginate("accounts")
-
-    def rules_list(self, account_id):
-        yield from self.paginate(f"accounts/{account_id}/rules/lists")
-
-    def rules_list_items(self, account_id, list_id):
-        yield from self.paginate(f"accounts/{account_id}/rules/lists/{list_id}/items")
-
-    def add_rule_list_items(self, account_id, list_id, ips, comment=None):
-        # docs: https://api.cloudflare.com/#rules-lists-create-list-items
-        path = f"accounts/{account_id}/rules/lists/{list_id}/items"
-        comment = (comment or "").strip()
-        data = [{"ip": ip, "comment": comment} for ip in ips]
-        response = self.request(path, data=data, method="POST")
-        return response["result"]
+        yield from self.paginate("accounts", row_class=Account)
 
     def get_operation_status(self, account_id, operation_id):
+        # TODO: move to Operation
         # docs: https://api.cloudflare.com/#rules-lists-get-bulk-operation
         path = f"accounts/{account_id}/rules/lists/bulk_operations/{operation_id}"
         return self.request(path)
 
-    def delete_rule_list_items(self, account_id, list_id, list_items_ids):
+
+def parse_datetime(value):
+    if isinstance(value, datetime.datetime):
+        return value
+    elif isinstance(value, str):
+        assert value[-1] == "Z"
+        created_on = datetime.datetime.fromisoformat(value[:-1])
+        return created_on.replace(tzinfo=datetime.timezone.utc)
+    else:
+        raise ValueError(f"Value {repr(value)} cannot be parted into datetime")
+
+
+class CloudflareResource:
+    pass
+
+
+@dataclass
+class Account(CloudflareResource):
+    id: str
+    name: str
+    type: str
+    settings: dict
+    legacy_flags: dict
+    created_on: datetime.datetime
+    _api: Cloudflare = None
+
+    def __post_init__(self):
+        self.created_on = parse_datetime(self.created_on)
+
+    def rules_lists(self):
+        yield from self._api.paginate(f"accounts/{self.id}/rules/lists", row_class=RulesList, defaults={"account": self})
+
+
+@dataclass
+class RulesList(CloudflareResource):
+    id: str
+    name: str
+    kind: str
+    account: Account
+    num_items: int
+    num_referencing_filters: int
+    created_on: datetime.datetime
+    modified_on: datetime.datetime
+    _api: Cloudflare = None
+
+    def __post_init__(self):
+        self.created_on = parse_datetime(self.created_on)
+        self.modified_on = parse_datetime(self.modified_on)
+
+    def items(self):
+        yield from self._api.paginate(f"accounts/{self.account.id}/rules/lists/{self.id}/items")
+
+    def add_items(self, ips, comment=None):
+        # docs: https://api.cloudflare.com/#rules-lists-create-list-items
+        path = f"accounts/{self.account.id}/rules/lists/{self.id}/items"
+        comment = (comment or "").strip()
+        data = [{"ip": ip, "comment": comment} for ip in ips]
+        response = self._api.request(path, data=data, method="POST")
+        # TODO: return Operation
+        return response["result"]
+
+    def delete_items(self, list_items_ids):
         # docs: https://api.cloudflare.com/#rules-lists-delete-list-items
-        path = f"accounts/{account_id}/rules/lists/{list_id}/items"
+        path = f"accounts/{self.account.id}/rules/lists/{self.id}/items"
         data = {"items": [{"id": id_} for id_ in list_items_ids]}
-        response = self.request(path, data=data, method="DELETE")
+        response = self._api.request(path, data=data, method="DELETE")
         return response["result"]
