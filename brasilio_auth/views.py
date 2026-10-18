@@ -82,7 +82,7 @@ class CreateNewApiToken(FormView):
         # It should return an HttpResponse.
         try:
             token = Token.new_token_for_user(self.request.user)
-            messages.add_message(self.request, messages.SUCCESS, f"Nova chave de API: <tt>{token}</tt>")
+            messages.add_message(self.request, messages.SUCCESS, f"Nova chave de API: <code>{token}</code>")
         except NumMaxTokensExceeded:
             msg = f"Você já possui número máximo de {settings.MAX_NUM_API_TOKEN_PER_USER} chaves de API."
             messages.add_message(self.request, messages.ERROR, msg)

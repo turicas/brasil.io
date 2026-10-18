@@ -1,6 +1,146 @@
 
 /* Padding and Margin */
 
+.skip-links {
+  position: relative;
+  z-index: 1000;
+}
+
+.skip-link {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  padding: 0.75rem 1rem;
+  transform: translateY(-100%);
+  color: #fff;
+  background-color: #1a237e;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 3px solid #1a237e;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+nav button.sidenav-trigger {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
+
+@media only screen and (min-width: 993px) {
+  nav button.sidenav-trigger {
+    display: none;
+  }
+}
+
+nav ul button.dropdown-trigger {
+  display: block;
+  height: 64px;
+  padding: 0 15px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 64px;
+  cursor: pointer;
+}
+
+.sidenav li > button.dropdown-trigger {
+  display: block;
+  width: 100%;
+  height: 48px;
+  padding: 0 32px;
+  border: 0;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.87);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 48px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidenav li > button.dropdown-trigger:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.newsletter-fields {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.newsletter-fields legend {
+  margin: 0.82rem 0;
+  font-size: 1.64rem;
+  line-height: 1.1;
+}
+
+.home-section-title {
+  color: #00695c !important;
+}
+
+.home-covid-description {
+  text-align: left;
+}
+
+@media only screen and (max-width: 600px) {
+  .home-title {
+    font-size: clamp(2rem, 8vw, 2.75rem);
+    line-height: 1.12;
+  }
+
+  .header.home-section-title {
+    font-size: clamp(1.35rem, 6vw, 1.65rem);
+    line-height: 1.2;
+  }
+
+  main > .top-container .section {
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+  }
+
+  main > .container > section {
+    margin: 2rem 0;
+  }
+}
+
+.page-footer .input-field > label {
+  color: #fff;
+}
+
+.page-footer .footer-copyright a {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.page-footer .footer-links-heading {
+  margin: 0.82rem 0;
+  font-size: 1.64rem;
+  line-height: 1.1;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex="-1"]:focus-visible {
+  outline: 3px solid #1a237e;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #fff;
+}
 
 .m-5 {
   margin: 5px !important;
@@ -146,7 +286,7 @@
 
 /* Closest AA compatible for color contrast (a11y) */
 a {
-  color: #007db6;
+  color: #006a9b;
 }
 .btn, .btn-large, .btn-small, .btn-floating {
   background-color: #008376;

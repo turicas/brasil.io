@@ -8,8 +8,9 @@
       <div class="col s12">
         <div class="card">
           <div class="card-content">
-            <span class="card-title">Gerenciamento de Chaves da API</span>
-            Veja mais informações sobre o uso das Chaves da API <a href="{{ api_keys_blogpost_url }}">neste post do blog do Brasil.IO</a>.
+            <h1 class="card-title">Gerenciamento de Chaves da API</h1>
+            <p>Veja mais informações sobre o uso das Chaves da API
+              <a href="{{ api_keys_blogpost_url }}">neste post do blog do Brasil.IO</a>.</p>
           </div>
         </div>
       </div>
@@ -20,7 +21,10 @@
 
     <ul class="messages">
         {% for message in messages %}
-        <li class={% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}"dark-red"{% else %}"dark-green"{% endif %}>{{ message|safe }}</li>
+        <li class="{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}dark-red{% else %}dark-green{% endif %}"
+          {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}role="alert"{% else %}role="status"{% endif %}>
+          {{ message|safe }}
+        </li>
         {% endfor %}
     </ul>
   </div>
@@ -28,19 +32,30 @@
 
   <div class="row table-container" style="padding-left: 0px; overflow: hidden;">
     <table id="api-tokens-table" class="mdl-data-table table-custom">
-      <tr>
-        <th>Chave</th>
-        <th>Criada em</th>
-        <th>Ações</th>
-      </tr>
-
-      {% for token in tokens %}
+      <caption>Chaves de API da sua conta</caption>
+      <thead>
         <tr>
-          <td><tt>{{ token.key }}</tt></td>
-          <td>{{ token.created }}</td>
-          <td><a href="{% url 'brasilio_auth:delete_api_token' token.key %}">Deletar chave</a></td>
+          <th scope="col">Chave</th>
+          <th scope="col">Criada em</th>
+          <th scope="col">Ações</th>
         </tr>
-      {% endfor %}
+      </thead>
+      <tbody>
+        {% for token in tokens %}
+          <tr>
+            <th scope="row"><code>{{ token.key }}</code></th>
+            <td>{{ token.created }}</td>
+            <td>
+              <a href="{% url 'brasilio_auth:delete_api_token' token.key %}"
+                aria-label="Deletar chave de API {{ token.key }}">Deletar chave</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">Você ainda não tem chaves de API.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
     </table>
   </div>
   {% if num_tokens_available %}
