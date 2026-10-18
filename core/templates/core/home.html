@@ -5,7 +5,7 @@
 <div class="top-container indigo darken-1">
   <div class="container">
     <div class="section indigo-text text-lighten-5">
-      <h3>O Brasil em dados libertos</h3>
+      <h1 class="home-title">O Brasil em dados libertos</h1>
       <p class="flow-text">Repositório de dados públicos disponibilizados em formato acessível</p>
     </div>
   </div>
@@ -17,7 +17,7 @@
 <section>
   <div class="row">
     <div class="col m12 l6">
-        <h1 class="header center green-text">Últimas atualizações</h1>
+        <h2 class="header center green-text home-section-title">Últimas atualizações</h2>
         <div class="m-t-50">
           {% for activity in recent_activities %}
             <ul class="collection">
@@ -27,13 +27,13 @@
         </div>
     </div>
     <div class="col m12 l6">
-      <h1 class="header center green-text">ESPECIAL COVID-19: DADOS POR MUNICÍPIO</h1>
-      <div style="text-align: justify;" class="row center">
-        <p class="col s12 light">{% include 'covid19/text.html' %}</p>
+      <h2 class="header center green-text home-section-title">ESPECIAL COVID-19: DADOS POR MUNICÍPIO</h2>
+      <div class="row center">
+        <p class="col s12 light home-covid-description">{% include 'covid19/text.html' %}</p>
       </div>
       <div class="row center">
         <a href="{% url 'covid19:dashboard' %}" id="download-button"
-          class="btn-large waves-effect waves-light blue">Ver Mais</a>
+          class="btn-large waves-effect waves-light blue darken-3">Ver Mais</a>
       </div>
     </div>
   </div>
@@ -43,7 +43,7 @@
   <div class="row center">
     <div class="col s12 m6 xl3">
       <a href="{% url 'core:manifesto' %}">
-        <div class="card small green hoverable waves-block  waves-effect waves-light">
+        <div class="card small green darken-3 hoverable waves-block  waves-effect waves-light">
           <div class="card-content center card-home">
             <span class="card-title bold white-text">Manifesto</span>
           </div>
@@ -68,7 +68,7 @@
     </div>
     <div class="col s12 m6 xl3">
       <a href="{% url 'core:dataset-suggestion' %}">
-        <div class="card small blue darken-1 hoverable waves-block  waves-effect waves-light">
+        <div class="card small blue darken-3 hoverable waves-block  waves-effect waves-light">
           <div class="card-content center card-home">
             <span class="card-title bold white-text">Sugira um Dataset</span>
           </div>
@@ -95,7 +95,7 @@
 </section>
 
 <section id="datasets">
-  <h4 class="header center green-text m-t-50 m-b-50">Datasets</h4>
+  <h2 class="header center green-text home-section-title m-t-50 m-b-50">Datasets</h2>
   <div class="row" class="m-t-50">
     {% for dataset in datasets %}
     {% include 'core/dataset-card.html' %}

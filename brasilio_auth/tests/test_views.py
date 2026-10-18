@@ -183,7 +183,7 @@ class CreateAPiTokensViewsTests(DjangoAssertionsMixin, TestCase):
         assert len(user_messages) == 1
         msg = user_messages[0]
         assert messages.SUCCESS == msg.level
-        assert f"Nova chave de API: <tt>{new_token}</tt>" == msg.message
+        assert f"Nova chave de API: <code>{new_token}</code>" == msg.message
 
     @patch.object(TokenApiManagementForm, "is_valid", Mock(return_value=True))
     def test_display_error_message_if_user_has_max_num_of_tokens(self):
