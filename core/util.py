@@ -1,6 +1,7 @@
 import gzip
 import json
 import socket
+import zlib
 from textwrap import dedent
 from urllib.request import Request, URLError, urlopen
 
@@ -38,10 +39,17 @@ def http_get(url, timeout):
     else:
         encoding = response.info().get("Content-Encoding")
         response_data = response.read()
-        if encoding in ("deflate", None):
+        if encoding is None:
             data = response_data
         elif encoding == "gzip":
             data = gzip.decompress(response_data)
+        elif encoding == "deflate":
+            try:
+                data = zlib.decompress(response_data)
+            except zlib.error:
+                # Alguns servidores enviam deflate "cru" (RFC 1951), sem o header
+                # do zlib (RFC 1950), então tentamos decodificar também neste formato.
+                data = zlib.decompress(response_data, -zlib.MAX_WBITS)
         else:
             raise RuntimeError(f"Unknown encoding: {repr(encoding)}")
         return data
